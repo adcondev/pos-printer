@@ -1,0 +1,36 @@
+version: 2
+updates:
+  # Go - chequeo semanal para no ser invasivo
+  - package-ecosystem: "gomod"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 3  # Límite bajo para no saturar
+    labels:
+      - "dependencies"
+      - "automerge"  # Para auto-merge de patches
+    commit-message:
+      prefix: "deps"
+      include: "scope"
+    # Agrupar updates menores de golang.org/x
+    groups:
+      golang-x:
+        patterns:
+          - "golang.org/x/*"
+        update-types:
+          - "minor"
+          - "patch"
+
+  # GitHub Actions - mensual es suficiente
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    open-pull-requests-limit: 2
+    labels:
+      - "ci"
+      - "automerge"
+    commit-message:
+      prefix: "ci"

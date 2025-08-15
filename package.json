@@ -1,0 +1,20 @@
+{
+  "name": "@adcondev/pos-printer",
+  "version": "0.1.0",
+  "private": true,
+  "devDependencies": {
+    "@commitlint/cli": "^19.0.0",
+    "@commitlint/config-conventional": "^19.0.0",
+    "standard-version": "^9.5.0"
+  },
+  "description": "POS Printer Commands Core Logic",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AdConDev/pos-printer.git"
+  },
+  "author": "AdConDev",
+  "license": "MIT",
+  "scripts": {
+    "release": "standard-version"
+  }
+}
