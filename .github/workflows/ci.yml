@@ -83,7 +83,7 @@ jobs:
       # Upload coverage only if it was generated
       - name: Upload coverage
         if: matrix.os == 'ubuntu-latest' && matrix.go-version == '1.24'
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           file: ./coverage.txt
           fail_ci_if_error: false
