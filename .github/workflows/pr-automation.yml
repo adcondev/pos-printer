@@ -1,0 +1,92 @@
+name: PR Automation
+
+on:
+  pull_request:
+    types: [ opened, edited, synchronize, ready_for_review ]
+  pull_request_review:
+    types: [ submitted ]
+  issue_comment:
+    types: [ created ]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  auto-label:
+    name: Auto Label
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Label based on files
+        uses: actions/labeler@v5
+        with:
+          repo-token: "${{ secrets.GITHUB_TOKEN }}"
+          configuration-path: .github/labeler.yml
+
+      - name: Label based on PR size
+        uses: codelytv/pr-size-labeler@v1
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          xs_label: 'size/XS'
+          xs_max_size: 10
+          s_label: 'size/S'
+          s_max_size: 100
+          m_label: 'size/M'
+          m_max_size: 500
+          l_label: 'size/L'
+          l_max_size: 1000
+          xl_label: 'size/XL'
+
+      - name: Check for conflicts
+        uses: eps1lon/actions-label-merge-conflict@v3
+        with:
+          dirtyLabel: "has-conflicts"
+          repoToken: "${{ secrets.GITHUB_TOKEN }}"
+
+  auto-assign:
+    name: Auto Assign
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && github.event.action == 'opened'
+
+    steps:
+      - name: Auto assign PR author
+        uses: toshimaru/auto-author-assign@v2.1.1
+        with:
+          repo-token: "${{ secrets.GITHUB_TOKEN }}"
+
+  pr-comment:
+    name: PR Comment
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && github.event.action == 'opened'
+
+    steps:
+      - name: Comment on PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prNumber = context.issue.number;
+            const prAuthor = context.payload.pull_request.user.login;
+            
+            const comment = `👋 Thanks for opening this PR, @${prAuthor}!
+            
+            Here's what will happen next:
+            - 🤖 Automated checks will run
+            - 🏷️ Labels will be added automatically
+            - 👀 A maintainer will review your changes
+            
+            Please make sure:
+            - ✅ All tests pass
+            - 📝 The PR title follows conventional commits
+            - 📋 The PR template is filled out completely`;
+            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              body: comment
+            });

@@ -1,0 +1,27 @@
+# Configuración simple pero efectiva para proyecto personal/pequeño
+version: "2"
+run:
+  timeout: 3m  # 3 minutos es suficiente
+  tests: true
+  build-tags:
+    - integration
+
+linters:
+  # Solo habilitar los esenciales
+  enable:
+    # Críticos - Siempre activos
+    - errcheck      # Manejo de errores
+    - govet        # Bugs potenciales
+    - staticcheck  # El mejor linter general
+    - ineffassign  # Variables no usadas
+    - gosec        # Seguridad básica
+    - unused      # Código no usado
+
+issues:
+  # Límites razonables
+  max-issues-per-linter: 50
+  max-same-issues: 10
+  
+  # Para PRs, solo mostrar issues nuevos
+  new: true
+  new-from-rev: HEAD~1
