@@ -82,8 +82,12 @@ jobs:
             exit 0
           fi
 
-          # Analyze commit messages between the latest tag and HEAD
-          COMMITS=$(git log ${LATEST_TAG}..HEAD --pretty=format:"%s")
+          # Analyze commit messages - handle differently if no tags exist
+          if [ "$LATEST_TAG" = "v0.0.0" ]; then
+            COMMITS=$(git log --pretty=format:"%s")
+          else
+            COMMITS=$(git log ${LATEST_TAG}..HEAD --pretty=format:"%s")
+          fi
 
           # Check for breaking changes
           if echo "$COMMITS" | grep -qE "(BREAKING CHANGE|^[a-z]+(\(.+\))?!:)"; then
