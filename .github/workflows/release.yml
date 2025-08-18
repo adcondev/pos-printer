@@ -64,47 +64,59 @@ jobs:
       - name: Analyze commits
         id: analyze
         run: |
-          # Get the latest tag
+          # Get the latest tag; if no tag exists, fallback to "v0.0.0"
           LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
           echo "latest_tag=$LATEST_TAG" >> $GITHUB_OUTPUT
-          
-          # Get commit count since last tag
-          COMMIT_COUNT=$(git rev-list $LATEST_TAG..HEAD --count)
+
+          # Determine commit count based on whether a valid tag exists.
+          if [ "$LATEST_TAG" = "v0.0.0" ]; then
+            COMMIT_COUNT=$(git rev-list HEAD --count)
+          else
+            COMMIT_COUNT=$(git rev-list ${LATEST_TAG}..HEAD --count)
+          fi
           echo "commit_count=$COMMIT_COUNT" >> $GITHUB_OUTPUT
-          
+
           if [ "$COMMIT_COUNT" -eq 0 ]; then
             echo "No new commits since $LATEST_TAG"
             echo "should_release=false" >> $GITHUB_OUTPUT
             exit 0
           fi
-          
-          # Analyze commit types
-          COMMITS=$(git log $LATEST_TAG..HEAD --pretty=format:"%s")
-          
+
+          # Analyze commit messages - handle differently if no tags exist
+          if [ "$LATEST_TAG" = "v0.0.0" ]; then
+            COMMITS=$(git log --pretty=format:"%s")
+          else
+            COMMITS=$(git log ${LATEST_TAG}..HEAD --pretty=format:"%s")
+          fi
+
           # Check for breaking changes
           if echo "$COMMITS" | grep -qE "(BREAKING CHANGE|^[a-z]+(\(.+\))?!:)"; then
-            echo "release_type=major" >> $GITHUB_OUTPUT
-            echo "should_release=true" >> $GITHUB_OUTPUT
+            RELEASE_TYPE="major"
           # Check for features
           elif echo "$COMMITS" | grep -q "^feat"; then
-            echo "release_type=minor" >> $GITHUB_OUTPUT
-            echo "should_release=true" >> $GITHUB_OUTPUT
+            RELEASE_TYPE="minor"
           # Check for fixes or dependency updates
           elif echo "$COMMITS" | grep -qE "^(fix|perf|deps)"; then
-            echo "release_type=patch" >> $GITHUB_OUTPUT
+            RELEASE_TYPE="patch"
+          else
+            RELEASE_TYPE=""
+          fi
+
+          if [ -n "$RELEASE_TYPE" ]; then
+            echo "release_type=$RELEASE_TYPE" >> $GITHUB_OUTPUT
             echo "should_release=true" >> $GITHUB_OUTPUT
           else
             echo "No releasable changes found"
             echo "should_release=false" >> $GITHUB_OUTPUT
           fi
-          
+
           # Generate summary
           echo "## 📊 Commit Analysis" >> $GITHUB_STEP_SUMMARY
           echo "- Latest tag: $LATEST_TAG" >> $GITHUB_STEP_SUMMARY
           echo "- Commits since last release: $COMMIT_COUNT" >> $GITHUB_STEP_SUMMARY
-          echo "- Release needed: ${{ steps.analyze.outputs.should_release }}" >> $GITHUB_STEP_SUMMARY
-          if [ "${{ steps.analyze.outputs.should_release }}" = "true" ]; then
-            echo "- Release type: ${{ steps.analyze.outputs.release_type }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Release needed: $([[ $(grep 'should_release=' $GITHUB_OUTPUT | head -n1) =~ true ]] && echo "true" || echo "false")" >> $GITHUB_STEP_SUMMARY
+          if [ "$RELEASE_TYPE" != "" ]; then
+            echo "- Release type: $RELEASE_TYPE" >> $GITHUB_STEP_SUMMARY
           fi
 
       - name: Create Release
@@ -114,11 +126,11 @@ jobs:
           # Run standard-version
           standard-version --release-as ${{ steps.analyze.outputs.release_type }}
           
-          # Get the new version
+          # Get the new version from package.json
           NEW_VERSION=$(node -p "require('./package.json').version")
           echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
           
-          # Commit and push
+          # Commit and push the changes
           git push --follow-tags origin ${{ github.ref_name }}
 
       - name: Create GitHub Release
@@ -130,9 +142,3 @@ jobs:
           body_path: CHANGELOG.md
           generate_release_notes: false
           make_latest: true
-
-      - name: Update Go Module Proxy
-        if: steps.analyze.outputs.should_release == 'true'
-        run: |
-          curl -X POST "https://proxy.golang.org/pos-daemon.adcon.dev/@v/v${{ steps.release.outputs.new_version }}.info"
-        continue-on-error: true
