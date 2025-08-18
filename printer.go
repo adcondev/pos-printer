@@ -7,12 +7,12 @@ import (
 
 	"github.com/AdConDev/pos-printer/encoding"
 	"github.com/AdConDev/pos-printer/imaging"
+	"github.com/AdConDev/pos-printer/protocol/escpos/types"
 	"github.com/skip2/go-qrcode"
 
 	"github.com/AdConDev/pos-printer/connector"
 	"github.com/AdConDev/pos-printer/profile"
 	"github.com/AdConDev/pos-printer/protocol"
-	"github.com/AdConDev/pos-printer/types"
 	"github.com/AdConDev/pos-printer/utils"
 )
 

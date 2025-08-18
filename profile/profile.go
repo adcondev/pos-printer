@@ -1,6 +1,8 @@
 package profile
 
-import "github.com/AdConDev/pos-printer/types"
+import (
+	"github.com/AdConDev/pos-printer/protocol/escpos/types"
+)
 
 // Profile define todas las características físicas y capacidades de una impresora
 type Profile struct {

@@ -1,7 +1,7 @@
 package encoding
 
 import (
-	"github.com/AdConDev/pos-printer/types"
+	"github.com/AdConDev/pos-printer/protocol/escpos/types"
 	"golang.org/x/text/encoding"
 	"golang.org/x/text/encoding/charmap"
 	"golang.org/x/text/encoding/japanese"

@@ -1,6 +1,8 @@
 package escpos
 
-import "github.com/AdConDev/pos-printer/types"
+import (
+	"github.com/AdConDev/pos-printer/protocol/escpos/types"
+)
 
 // TODO: Comandos para impresión de códigos de barras
 // - HRI (Human Readable Interpretation)
