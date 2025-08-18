@@ -142,9 +142,3 @@ jobs:
           body_path: CHANGELOG.md
           generate_release_notes: false
           make_latest: true
-
-      - name: Update Go Module Proxy
-        if: steps.analyze.outputs.should_release == 'true'
-        run: |
-          curl -X POST "https://proxy.golang.org/pos-daemon.adcon.dev/@v/v${{ steps.release.outputs.new_version }}.info"
-        continue-on-error: true
