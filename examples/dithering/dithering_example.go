@@ -8,7 +8,7 @@ import (
 	"github.com/AdConDev/pos-printer/imaging"
 	"github.com/AdConDev/pos-printer/profile"
 	"github.com/AdConDev/pos-printer/protocol/escpos"
-	"github.com/AdConDev/pos-printer/protocol/escpos/types"
+	"github.com/AdConDev/pos-printer/types"
 )
 
 func main() {

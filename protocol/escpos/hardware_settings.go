@@ -3,7 +3,7 @@ package escpos
 import (
 	"fmt"
 
-	"github.com/AdConDev/pos-printer/protocol/escpos/types"
+	"github.com/AdConDev/pos-printer/types"
 )
 
 // TODO: Comandos para configuración de hardware específico

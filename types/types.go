@@ -16,6 +16,11 @@ type Font byte
 const (
 	FontA Font = iota
 	FontB
+	FontC
+	FontD
+	FontE
+	SpecialA
+	SpecialB
 )
 
 // UnderlineMode define los modos de subrayado estándar
@@ -31,25 +36,23 @@ const (
 type BarcodeType int
 
 const (
-	BarcodeUPCA BarcodeType = iota
-	BarcodeUPCE
-	BarcodeEAN13
-	BarcodeEAN8
-	BarcodeCode39
-	BarcodeITF
-	BarcodeCodebar
-	BarcodeCode93
-	BarcodeCode128
+	UPCA BarcodeType = iota
+	UPCE
+	EAN13
+	EAN8
+	Code39
+	ITF
+	Codebar
 )
 
-// BarcodeTextPosition define posiciones estándar para texto en códigos de barras
-type BarcodeTextPosition int
+// TextPositionBarcode define posiciones estándar para texto en códigos de barras
+type TextPositionBarcode byte
 
 const (
-	BarcodeTextNone BarcodeTextPosition = iota
-	BarcodeTextAbove
-	BarcodeTextBelow
-	BarcodeTextBoth
+	NonePosBarcode TextPositionBarcode = iota
+	AbovePosBarcode
+	BelowPosBarcode
+	BothPosBarcode
 )
 
 // CutMode define modos de corte estándar
@@ -185,8 +188,17 @@ const (
 	Mode24DotDoubleDen                     // Modo de 24 puntos, doble densidad
 )
 
-// TODO: Tener en cuenta que es un modo y que son cantidades, cantidades se validad en ESCPOS en el rango definido.
-// Los modos tendrían su respectivo map en ESCPOS. Definir Min y Max vuelve rígido el uso de los tipos. Solo crear Types.
+type BarcodeHeight byte
+
+type BarcodeWidth byte
+
+const (
+	ExtraSmallWidth BarcodeWidth = iota
+	SmallWidth
+	MediumWidth
+	LargeWidth
+	ExtraLargeWidth
+)
 
 // TODO: Agregar más tipos genéricos según necesites
 // Por ejemplo:

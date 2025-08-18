@@ -1,7 +1,7 @@
 package escpos
 
 import (
-	"github.com/AdConDev/pos-printer/protocol/escpos/types"
+	"github.com/AdConDev/pos-printer/types"
 )
 
 // TODO: Comandos para control y manejo del papel

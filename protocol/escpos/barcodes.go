@@ -1,31 +1,64 @@
 package escpos
 
 import (
-	"github.com/AdConDev/pos-printer/protocol/escpos/types"
+	"fmt"
+
+	"github.com/AdConDev/pos-printer/types"
 )
 
 // TODO: Comandos para impresión de códigos de barras
 // - HRI (Human Readable Interpretation)
 
-func (p *Commands) SetBarcodeHeight(height int) []byte {
-	// TODO: Implementar GS h n
-	return []byte{}
+var textPosBarcodeMap = map[types.TextPositionBarcode]byte{
+	types.NonePosBarcode:  0,
+	types.AbovePosBarcode: 1,
+	types.BelowPosBarcode: 2,
+	types.BothPosBarcode:  3,
 }
 
-func (p *Commands) SetBarcodeWidth(width int) []byte {
-	// TODO: Implementar GS w n
-	return []byte{}
+var barcodeWidthMap = map[types.BarcodeWidth]byte{
+	types.ExtraSmallWidth: 2,
+	types.SmallWidth:      3,
+	types.MediumWidth:     4,
+	types.LargeWidth:      5,
+	types.ExtraLargeWidth: 6,
 }
 
-func (p *Commands) SetBarcodeTextPosition(position types.BarcodeTextPosition) []byte {
-	// TODO: Mapear position a valores ESC/POS y usar GS H n
-	return []byte{}
+func (p *Commands) SetBarcodeHeight(height types.BarcodeHeight) ([]byte, error) {
+	if height == 0 {
+		return nil, fmt.Errorf("barcode height cannot be zero")
+	}
+
+	return []byte{GS, 'h', byte(height)}, nil
+}
+
+func (p *Commands) SetBarcodeWidth(width types.BarcodeWidth) ([]byte, error) {
+	bcWidth, ok := barcodeWidthMap[width]
+	if !ok {
+		return nil, fmt.Errorf("no barcode width found for width %v", width)
+	}
+
+	return []byte{GS, 'w', bcWidth}, nil
+}
+
+func (p *Commands) SelectBarcodeTextPosition(position types.TextPositionBarcode) ([]byte, error) {
+	pos, ok := textPosBarcodeMap[position]
+	if !ok {
+		return nil, fmt.Errorf("unknown position: %d", position)
+	}
+	return []byte{GS, 'H', pos}, nil
 }
 
 func (p *Commands) Barcode(content string, barType types.BarcodeType) ([]byte, error) {
-	// TODO: Esta es la más compleja, necesitas:
-	// 1. Mapear barType genérico a tipo ESC/POS
-	// 2. Validar content según el tipo
-	// 3. Generar comando según p.capabilities["barcode_b"]
+
 	return []byte{}, nil
+}
+
+func (p *Commands) SelectFontBarcode(font types.Font) ([]byte, error) {
+	bcFont, ok := fontMap[font]
+	if !ok {
+		return nil, fmt.Errorf("no barcode font found for font %v", font)
+	}
+
+	return []byte{GS, 'f', bcFont}, nil
 }

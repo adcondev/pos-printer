@@ -3,7 +3,7 @@ package escpos
 import (
 	"fmt"
 
-	"github.com/AdConDev/pos-printer/protocol/escpos/types"
+	"github.com/AdConDev/pos-printer/types"
 )
 
 // TODO: Comandos para dar formato al texto
@@ -25,8 +25,13 @@ var ulModeMap = map[types.UnderlineMode]byte{
 }
 
 var fontMap = map[types.Font]byte{
-	types.FontA: 0,
-	types.FontB: 1,
+	types.FontA:    0,
+	types.FontB:    1,
+	types.FontC:    2,
+	types.FontD:    3,
+	types.FontE:    4,
+	types.SpecialA: 'a', // 97
+	types.SpecialB: 'b', // 98
 }
 
 func (p *Commands) SelectCharacterFont(n types.Font) ([]byte, error) {

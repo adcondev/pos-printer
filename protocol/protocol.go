@@ -2,7 +2,7 @@ package protocol
 
 import (
 	"github.com/AdConDev/pos-printer/imaging"
-	"github.com/AdConDev/pos-printer/protocol/escpos/types"
+	"github.com/AdConDev/pos-printer/types"
 )
 
 // Protocol define una interfaz para cualquier protocolo de impresión.
@@ -38,10 +38,11 @@ type Protocol interface {
 
 	// === Códigos de barras ===
 
-	SetBarcodeHeight(height int) []byte
-	SetBarcodeWidth(width int) []byte
-	SetBarcodeTextPosition(position types.BarcodeTextPosition) []byte
+	SetBarcodeHeight(height types.BarcodeHeight) ([]byte, error)
+	SetBarcodeWidth(width types.BarcodeWidth) ([]byte, error)
+	SelectBarcodeTextPosition(position types.TextPositionBarcode) ([]byte, error)
 	Barcode(content string, barType types.BarcodeType) ([]byte, error)
+	SelectFontBarcode(font types.Font) ([]byte, error)
 
 	// === Impresión de códigos QR ===
 

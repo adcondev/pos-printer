@@ -5,7 +5,7 @@ import (
 	"log"
 
 	"github.com/AdConDev/pos-printer/encoding"
-	"github.com/AdConDev/pos-printer/protocol/escpos/types"
+	"github.com/AdConDev/pos-printer/types"
 )
 
 // TODO: Comandos para manejo de codificación de caracteres
