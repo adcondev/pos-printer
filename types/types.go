@@ -142,7 +142,7 @@ const (
 	Pin5                      // Pin 2
 )
 
-// CashDrawerTime define los tiempos de pulso del cajón de dinero
+// CashDrawerTimePulse define los tiempos de pulso del cajón de dinero
 type CashDrawerTimePulse byte
 
 const (
@@ -200,9 +200,17 @@ const (
 	ExtraLargeWidth
 )
 
-// TODO: Agregar más tipos genéricos según necesites
-// Por ejemplo:
-// - QRCodeSize
-// - PrintSpeed
-// - CharacterSet
-// etc.
+type Protocol byte
+
+const (
+	EscposProto Protocol = iota
+	ZplProto
+	PdfProto
+)
+
+type PrinterInitiated bool
+
+const (
+	OnInit  PrinterInitiated = true  // Inicializar la impresora
+	OffInit PrinterInitiated = false // No inicializar la impresora
+)

@@ -7,63 +7,49 @@ import (
 
 	"github.com/AdConDev/pos-printer/encoding"
 	"github.com/AdConDev/pos-printer/imaging"
+	"github.com/AdConDev/pos-printer/protocol/escpos"
 	"github.com/AdConDev/pos-printer/types"
 	"github.com/skip2/go-qrcode"
 
 	"github.com/AdConDev/pos-printer/connector"
 	"github.com/AdConDev/pos-printer/profile"
-	"github.com/AdConDev/pos-printer/protocol"
 	"github.com/AdConDev/pos-printer/utils"
 )
 
-// Printer define la interfaz de alto nivel para cualquier impresora
-type Printer interface {
-	// === Comandos básicos ===
-	Initialize() error
-	Close() error
-
-	// === Formato de texto ===
-	SetJustification(alignment types.Alignment) error
-	SetFont(font types.Font) error
-	SetEmphasis(on bool) error
-	SetDoubleStrike(on bool) error
-	SetUnderline(underline types.UnderlineMode) error
-
-	// === Impresión de texto ===
-	Text(str string) error
-	TextLn(str string) error
-
-	// Code Page y Character Sets
-	CancelKanjiMode() error
-	SetCharacterSet(charsetCode int) error
-
-	// === Control de papel ===
-	Cut(mode types.CutMode, lines int) error
-	Feed(lines int) error
-
-	// === Impresión de imágenes ===
-	PrintImage(img image.Image) error
-	PrintImageFromFile(filename string) error
-
-	// TODO: Agregar más métodos según necesites
-}
-
 // GenericPrinter implementa Printer usando Protocol y Connector
 type GenericPrinter struct {
-	Protocol  protocol.Protocol
+	// Componentes obligatorios
 	Connector connector.Connector
 	Profile   *profile.Profile
 
-	// TODO: Agregar más campos si necesitas:
-	// - Estado actual (font, alignment, etc.)
-	// - Buffer de comandos
-	// - Configuración
+	// Protocolos - solo uno debe estar activo (no-nil)
+	ESCPOS *escpos.Commands
+	// ZPL *zpl.Commands
+	// PDF *pdf.Commands
+
+	// Protocolo activo
+	protocolType types.Protocol
+
+	// Opcional: Estado interno
+	initialized     types.PrinterInitiated
+	activeFont      types.Font
+	activeAlignment types.Alignment
+	activeUnderline types.UnderlineMode
+	activeCharset   types.CharacterSet
+	activeEmphasis  types.EmphasizedMode
+}
+
+var protoMap = map[types.Protocol]string{
+	types.EscposProto: "ESCPOS",
+	types.ZplProto:    "ZPL",
+	types.PdfProto:    "PDF",
 }
 
 // NewGenericPrinter crea una nueva impresora genérica
-func NewGenericPrinter(proto protocol.Protocol, conn connector.Connector, prof *profile.Profile) (*GenericPrinter, error) {
-	if proto == nil {
-		return nil, fmt.Errorf("el protocolo no puede ser nil")
+func NewGenericPrinter(proto types.Protocol, conn connector.Connector, prof *profile.Profile) (*GenericPrinter, error) {
+	protoType, ok := protoMap[proto]
+	if !ok {
+		return nil, fmt.Errorf("not defined protocol: %d", proto)
 	}
 	if conn == nil {
 		return nil, fmt.Errorf("el conector no puede ser nil")
@@ -73,14 +59,27 @@ func NewGenericPrinter(proto protocol.Protocol, conn connector.Connector, prof *
 	}
 
 	printer := &GenericPrinter{
-		Protocol:  proto,
-		Connector: conn,
-		Profile:   prof,
+		Connector:       conn,
+		Profile:         prof,
+		initialized:     false,
+		activeFont:      types.FontA,
+		activeAlignment: types.AlignLeft,
+		activeUnderline: types.UnderNone,
+		activeCharset:   prof.DefaultCharSet,
+		activeEmphasis:  types.EmphOff,
+		protocolType:    proto,
 	}
 
-	// Inicializar la impresora
-	if err := printer.Initialize(); err != nil {
-		return nil, fmt.Errorf("failed to initialize printer: %w", err)
+	switch protoMap[proto] {
+	case "ESCPOS":
+		printer.ESCPOS = escpos.NewESCPOSProtocol()
+	case "ZPL":
+		// printer.zpl = zpl.NewZPLProtocol()
+		return nil, fmt.Errorf("protocol %s not released yet", protoType)
+	case "PDF":
+		// printer.pdf = pdf.NewPDFProtocol()
+	default:
+		return nil, fmt.Errorf("protocol %s not released yet", protoType)
 	}
 
 	return printer, nil
@@ -96,64 +95,161 @@ func (p *GenericPrinter) SetProfile(newProfile *profile.Profile) {
 	p.Profile = newProfile
 }
 
+// === Aux ===
+
+// hasProtocol verifica si algún protocolo está configurado
+func (p *GenericPrinter) hasProtocol() bool {
+	_, ok := protoMap[p.protocolType]
+	return ok
+}
+
+// GetProtocolName devuelve el nombre del protocolo activo
+func (p *GenericPrinter) GetProtocolName() string {
+	if !p.hasProtocol() {
+		return "Unknown Protocol"
+	}
+	return protoMap[p.protocolType]
+}
+
 // === Implementación de la interfaz Printer ===
 
 // Initialize inicializa la impresora
 func (p *GenericPrinter) Initialize() error {
-	cmd := p.Protocol.InitializePrinter()
+	var cmd []byte
+	switch protoMap[p.protocolType] {
+	case "ESCPOS":
+		cmd = p.ESCPOS.InitializePrinter()
+	case "ZPL":
+		// cmd := p.ZPL.InitializePrinter()
+	case "PDF":
+		// cmd := p.PDF.InitializePrinter()
+	default:
+		return fmt.Errorf("protocol %s not implemented", protoMap[p.protocolType])
+	}
+
 	_, err := p.Connector.Write(cmd)
+	if err == nil {
+		p.initialized = true
+	}
 	return err
 }
 
 // Close cierra la conexión con la impresora
 func (p *GenericPrinter) Close() error {
 	// Primero enviar comandos de cierre del protocolo
-	if closeCmd := p.Protocol.Close(); len(closeCmd) > 0 {
-		_, _ = p.Connector.Write(closeCmd) // Ignorar error, vamos a cerrar de todos modos
+	var cmd []byte
+	switch protoMap[p.protocolType] {
+	case "ESCPOS":
+		cmd = p.ESCPOS.Close()
+	case "ZPL":
+		// ZPL
+	case "PDF":
+		// PDF
+	default:
+		return fmt.Errorf("protocol %s not implemented", protoMap[p.protocolType])
 	}
-
 	// Luego cerrar el conector
+	_, err := p.Connector.Write(cmd)
+	if err == nil {
+		p.initialized = false
+	}
 	return p.Connector.Close()
 }
 
 // SetJustification establece la alineación del texto
 func (p *GenericPrinter) SetJustification(alignment types.Alignment) error {
-	cmd := p.Protocol.SetJustification(alignment)
-	_, err := p.Connector.Write(cmd)
-	// TODO: Si no hay error, guardar el estado actual
+	var cmd []byte
+	var err error
+	switch protoMap[p.protocolType] {
+	case "ESCPOS":
+		cmd, err = p.ESCPOS.SetJustification(alignment)
+		if err != nil {
+			return fmt.Errorf("error al establecer alineación: %w", err)
+		}
+	case "ZPL":
+		// ZPL
+	case "PDF":
+		// PDF
+	default:
+		return fmt.Errorf("protocol %s not implemented", protoMap[p.protocolType])
+	}
+
+	_, err = p.Connector.Write(cmd)
+	if err != nil {
+		return fmt.Errorf("error al establecer alineación: %w", err)
+	} else {
+		p.activeAlignment = alignment
+	}
+
 	return err
 }
 
 // SetFont establece la fuente
 func (p *GenericPrinter) SetFont(font types.Font) error {
-	cmd, err := p.Protocol.SelectCharacterFont(font)
-	if err != nil {
-		return fmt.Errorf("character selection error: %w", err)
+	var cmd []byte
+	var err error
+	switch protoMap[p.protocolType] {
+	case "ESCPOS":
+		cmd, err = p.ESCPOS.SelectCharacterFont(font)
+		if err != nil {
+			return err
+		}
+	case "ZPL":
+		// ZPL
+	case "PDF":
+		// PDF
+	default:
+		return fmt.Errorf("protocol %s not implemented", protoMap[p.protocolType])
 	}
+
 	_, err = p.Connector.Write(cmd)
+	if err != nil {
+		return fmt.Errorf("error al establecer fuente: %w", err)
+	} else {
+		p.activeFont = font
+	}
+
 	return err
 }
 
 // SetEmphasis activa/desactiva negrita
 func (p *GenericPrinter) SetEmphasis(on types.EmphasizedMode) error {
-	cmd, err := p.Protocol.TurnEmphasizedMode(on)
-	if err != nil {
-		return err
+	var cmd []byte
+	var err error
+	switch protoMap[p.protocolType] {
+	case "ESCPOS":
+		cmd, err = p.ESCPOS.TurnEmphasizedMode(on)
+		if err != nil {
+			return fmt.Errorf("escpos: error al establecer negrita: %w", err)
+		}
+	case "ZPL":
+		// ZPL
+	case "PDF":
+		// PDF
+	default:
+		return fmt.Errorf("protocol %s not implemented", protoMap[p.protocolType])
 	}
+
 	_, err = p.Connector.Write(cmd)
+	if err != nil {
+		return fmt.Errorf("error al establecer negrita: %w", err)
+	} else {
+		p.activeEmphasis = on
+	}
 	return err
 }
 
 // SetDoubleStrike activa/desactiva doble golpe
 func (p *GenericPrinter) SetDoubleStrike(on bool) error {
-	cmd := p.Protocol.SetDoubleStrike(on)
+	
+	cmd := p.ESCPOS.SetDoubleStrike(on)
 	_, err := p.Connector.Write(cmd)
 	return err
 }
 
 // SetUnderline configura el subrayado
 func (p *GenericPrinter) SetUnderline(underline types.UnderlineMode) error {
-	cmd, err := p.Protocol.TurnUnderlineMode(underline)
+	cmd, err := p.ESCPOS.TurnUnderlineMode(underline)
 	if err != nil {
 		return fmt.Errorf("underline mode error: %w", err)
 	}
@@ -177,7 +273,7 @@ func (p *GenericPrinter) SetCharacterSet(charsetCode types.CharacterSet) error {
 	}
 
 	// Enviar comando al protocolo
-	cmd := p.Protocol.SelectCharacterTable(charsetCode)
+	cmd := p.ESCPOS.SelectCharacterTable(charsetCode)
 	if _, err := p.Connector.Write(cmd); err != nil {
 		return err
 	}
@@ -191,19 +287,19 @@ func (p *GenericPrinter) SetCharacterSet(charsetCode types.CharacterSet) error {
 // Text imprime texto con codificación apropiada
 func (p *GenericPrinter) Text(str string) error {
 	// Codificar usando el charset activo del perfil
-	encoded, err := encoding.EncodeString(str, p.Profile.ActiveCharSet)
+	encoded, err := encoding.EncodeString(str, p.activeCharset)
 	if err != nil {
 		// Fallback: intentar con el charset por defecto
 		log.Printf("Error codificando con charset %d, volviendo a default: %v",
-			p.Profile.ActiveCharSet, err)
+			p.activeCharset, err)
 		encoded, err = encoding.EncodeString(str, p.Profile.DefaultCharSet)
 		if err != nil {
-			return fmt.Errorf("fallo al codificar texto: %w", err)
+			return fmt.Errorf("fallo al codificar texto %s: %w", str, err)
 		}
 	}
 
 	// Enviar al protocolo como bytes raw
-	cmd := p.Protocol.Text(string(encoded))
+	cmd := p.ESCPOS.Text(string(encoded))
 	_, err = p.Connector.Write(cmd)
 	return err
 }
@@ -216,14 +312,14 @@ func (p *GenericPrinter) TextLn(str string) error {
 		encoded, err = encoding.EncodeString(str, p.Profile.DefaultCharSet)
 		if err != nil {
 			log.Printf("failed to encode text: %v", err)
-			cmd := p.Protocol.TextLn(" err ")
+			cmd := p.ESCPOS.TextLn(" err ")
 			_, err = p.Connector.Write(cmd)
 			return err
 		}
 	}
 
 	// El protocolo agrega el LF
-	cmd := p.Protocol.TextLn(string(encoded))
+	cmd := p.ESCPOS.TextLn(string(encoded))
 	_, err = p.Connector.Write(cmd)
 	return err
 }
@@ -231,14 +327,14 @@ func (p *GenericPrinter) TextLn(str string) error {
 // Cut corta el papel
 func (p *GenericPrinter) Cut(mode types.CutMode, lines int) error {
 	// TODO: Verificar si la impresora tiene cutter con HasCapability
-	cmd := p.Protocol.Cut(mode, lines) // 0 lines feed antes del corte
+	cmd := p.ESCPOS.Cut(mode, lines) // 0 lines feed antes del corte
 	_, err := p.Connector.Write(cmd)
 	return err
 }
 
 // Feed alimenta papel
 func (p *GenericPrinter) Feed(lines int) error {
-	cmd := p.Protocol.Feed(lines)
+	cmd := p.ESCPOS.Feed(lines)
 	_, err := p.Connector.Write(cmd)
 	return err
 }
@@ -271,7 +367,7 @@ func (p *GenericPrinter) PrintImage(img image.Image) error {
 func (p *GenericPrinter) PrintImageWithOptions(img image.Image, opts PrintImageOptions) error {
 	// Verificar soporte de imágenes
 	if !p.Profile.HasImageSupport() {
-		return fmt.Errorf("protocol %s does not support images", p.Protocol.Name())
+		return fmt.Errorf("printer %s does not support images", p.Profile.ModelInfo())
 	}
 
 	// Crear PrintRasterBitImage
@@ -287,7 +383,7 @@ func (p *GenericPrinter) PrintImageWithOptions(img image.Image, opts PrintImageO
 	}
 
 	// Generar comandos
-	cmd, err := p.Protocol.PrintRasterBitImage(printImg, opts.Density)
+	cmd, err := p.ESCPOS.PrintRasterBitImage(printImg, opts.Density)
 	if err != nil {
 		return fmt.Errorf("failed to generate imaging commands: %w", err)
 	}
@@ -296,8 +392,6 @@ func (p *GenericPrinter) PrintImageWithOptions(img image.Image, opts PrintImageO
 	_, err = p.Connector.Write(cmd)
 	return err
 }
-
-// TODO: Implementar PrintImageFromFile en GenericPrinter
 
 func (p *GenericPrinter) PrintImageFromFile(filename string) error {
 	file, err := utils.SafeOpen(filename)
@@ -324,13 +418,10 @@ func (p *GenericPrinter) GetSupportedCharsets() []types.CharacterSet {
 
 func (p *GenericPrinter) CancelKanjiMode() error {
 	// Enviar comando para cancelar modo Kanji
-	cmd := p.Protocol.CancelKanjiMode()
+	cmd := p.ESCPOS.CancelKanjiMode()
 	_, err := p.Connector.Write(cmd)
 	return err
 }
-
-// FIXME: Revisar los hardcodeos de ecLevel, tamaño y componentType. Usar constantes definidas de interfaz y traducción a protocolo.
-// TODO: Que tanto revisar que tanto varia el comando entre protocolos. Asegurar compatibilidad.
 
 // PrintQR imprime un código QR con datos, versión y nivel de corrección de errores
 func (p *GenericPrinter) PrintQR(
@@ -356,7 +447,7 @@ func (p *GenericPrinter) PrintQR(
 	}
 
 	// Usar el comando nativo
-	cmdLines, err := p.Protocol.PrintQR(data, model, moduleSize, ecLevel)
+	cmdLines, err := p.ESCPOS.PrintQR(data, model, moduleSize, ecLevel)
 	if err != nil {
 		return fmt.Errorf("error al generar QR: %w", err)
 	}

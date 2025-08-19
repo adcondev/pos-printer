@@ -23,23 +23,20 @@ func (p *Commands) SetPrintWidth(width int) []byte {
 	return []byte{}
 }
 
-// SetJustification convierte el tipo genérico al específico de ESC/POS
-func (p *Commands) SetJustification(justification types.Alignment) []byte {
-	// Mapear el tipo genérico al valor ESC/POS
-	var escposValue byte
-	switch justification {
-	case types.AlignLeft:
-		escposValue = 0 // ESC/POS: 0 = left
-	case types.AlignCenter:
-		escposValue = 1 // ESC/POS: 1 = center
-	case types.AlignRight:
-		escposValue = 2 // ESC/POS: 2 = right
-	default:
-		escposValue = 0 // Default to left
-	}
+var alignMap = map[types.Alignment]byte{
+	types.AlignLeft:   0, // ESC/POS: 0 = left
+	types.AlignCenter: 1, // ESC/POS: 1 = center
+	types.AlignRight:  2, // ESC/POS: 2 = right
+}
 
+// SetJustification convierte el tipo genérico al específico de ESC/POS
+func (p *Commands) SetJustification(justification types.Alignment) ([]byte, error) {
+	alignment, ok := alignMap[justification]
+	if !ok {
+		return nil, fmt.Errorf("justificación no soportada: %v", justification)
+	}
 	// ESC a n
-	return []byte{ESC, 'a', escposValue}
+	return []byte{ESC, 'a', alignment}, nil
 }
 
 func SetHorizontalTabPositions(n types.TabColumnNumber, k types.TabTotalPosition) ([]byte, error) {

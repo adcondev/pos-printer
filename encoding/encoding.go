@@ -1,6 +1,8 @@
 package encoding
 
 import (
+	"fmt"
+
 	"github.com/AdConDev/pos-printer/types"
 	"golang.org/x/text/encoding"
 	"golang.org/x/text/encoding/charmap"
@@ -91,16 +93,20 @@ var Registry = map[types.CharacterSet]*CharacterSetData{
 }
 
 // GetEncoder devuelve un encoder para el charset especificado
-func GetEncoder(charsetCode types.CharacterSet) *encoding.Encoder {
-	if cs, ok := Registry[charsetCode]; ok {
-		return cs.Encoding.NewEncoder()
+func GetEncoder(charsetCode types.CharacterSet) (*encoding.Encoder, error) {
+	cs, ok := Registry[charsetCode]
+	if !ok {
+		return nil, fmt.Errorf("charset not supported in registry: %d", charsetCode)
 	}
-	// Default a CP437 si no se encuentra
-	return charmap.CodePage437.NewEncoder()
+
+	return cs.Encoding.NewEncoder(), nil
 }
 
 // EncodeString codifica un string usando el charset especificado
 func EncodeString(str string, charsetCode types.CharacterSet) ([]byte, error) {
-	encoder := GetEncoder(charsetCode)
+	encoder, err := GetEncoder(charsetCode)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get encoder for charset %d: %w", charsetCode, err)
+	}
 	return encoder.Bytes([]byte(str))
 }

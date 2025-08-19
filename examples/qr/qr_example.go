@@ -3,10 +3,9 @@ package main
 import (
 	"log"
 
-	"github.com/AdConDev/pos-printer"
 	"github.com/AdConDev/pos-printer/connector"
+	"github.com/AdConDev/pos-printer/posprinter"
 	"github.com/AdConDev/pos-printer/profile"
-	"github.com/AdConDev/pos-printer/protocol/escpos"
 	"github.com/AdConDev/pos-printer/types"
 )
 
@@ -32,13 +31,9 @@ func main() {
 		}
 	}(conn)
 
-	// === Crear protocolo ===
-	// Aquí es donde seleccionas qué protocolo usar (ESC/POS, ZPL, etc.)
-	proto := escpos.NewESCPOSProtocol()
-
 	// === Crear impresora genérica ===
 	// === Inicializar impresora ===
-	printer, err := posprinter.NewGenericPrinter(proto, conn, prof)
+	printer, err := posprinter.NewGenericPrinter(types.EscposProto, conn, prof)
 	if err != nil {
 		log.Fatalf("Error al crear impresora: %v", err)
 	}

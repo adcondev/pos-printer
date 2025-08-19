@@ -4,11 +4,10 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/AdConDev/pos-printer"
 	"github.com/AdConDev/pos-printer/connector"
 	"github.com/AdConDev/pos-printer/encoding"
+	"github.com/AdConDev/pos-printer/posprinter"
 	"github.com/AdConDev/pos-printer/profile"
-	"github.com/AdConDev/pos-printer/protocol/escpos"
 	"github.com/AdConDev/pos-printer/types"
 )
 
@@ -82,9 +81,7 @@ func main() {
 		prof.CharacterSets = printer.CharSets
 		prof.Model = printer.Name
 
-		// Crear protocolo e impresora
-		proto := escpos.NewESCPOSProtocol()
-		p, err := posprinter.NewGenericPrinter(proto, conn, prof)
+		p, err := posprinter.NewGenericPrinter(types.EscposProto, conn, prof)
 		if err != nil {
 			log.Printf("Error creando impresora: %v", err)
 			continue

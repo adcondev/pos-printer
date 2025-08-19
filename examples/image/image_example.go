@@ -3,11 +3,10 @@ package main
 import (
 	"log"
 
-	"github.com/AdConDev/pos-printer"
 	"github.com/AdConDev/pos-printer/connector"
 	"github.com/AdConDev/pos-printer/imaging"
+	"github.com/AdConDev/pos-printer/posprinter"
 	"github.com/AdConDev/pos-printer/profile"
-	"github.com/AdConDev/pos-printer/protocol/escpos"
 	"github.com/AdConDev/pos-printer/types"
 	// En el futuro: "github.com/AdConDev/pos-printer/protocol/zpl"
 )
@@ -34,15 +33,12 @@ func main() {
 }
 
 func useESCPOS(conn connector.Connector) {
-	// Crear protocolo ESC/POS
-	proto := escpos.NewESCPOSProtocol()
-
 	// === Crear Perfil de impresora ===
 	// Puedes definir un perfil si necesitas configuraciones específicas
 	prof := profile.CreateProfile80mm()
 
 	// Crear impresora
-	printer, err := posprinter.NewGenericPrinter(proto, conn, prof)
+	printer, err := posprinter.NewGenericPrinter(types.EscposProto, conn, prof)
 	if err != nil {
 		log.Fatal(err)
 	}
