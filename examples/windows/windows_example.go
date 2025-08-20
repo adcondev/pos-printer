@@ -4,9 +4,9 @@ import (
 	"log"
 
 	"github.com/AdConDev/pos-printer/connector"
-	"github.com/AdConDev/pos-printer/posprinter"
+	"github.com/AdConDev/pos-printer/escpos"
+	"github.com/AdConDev/pos-printer/pos"
 	"github.com/AdConDev/pos-printer/profile"
-	"github.com/AdConDev/pos-printer/types"
 )
 
 func main() {
@@ -32,11 +32,11 @@ func main() {
 	prof := profile.CreateProfile80mm()
 
 	// === Crear impresora genérica ===
-	printer, err := posprinter.NewGenericPrinter(types.EscposProto, conn, prof)
+	printer, err := pos.NewEscposPrinter(pos.EscposProto, conn, prof)
 	if err != nil {
 		log.Fatalf("Error al crear la impresora: %v", err)
 	}
-	defer func(printer *posprinter.GenericPrinter) {
+	defer func(printer *pos.EscposPrinter) {
 		err := printer.Close()
 		if err != nil {
 			log.Printf("Error al cerrar la impresora: %v", err)
@@ -52,12 +52,12 @@ func main() {
 	}
 
 	// Texto centrado (usando tipos del paquete types)
-	if err = printer.SetJustification(types.AlignCenter); err != nil {
+	if err = printer.SetJustification(escpos.AlignCenter); err != nil {
 		log.Printf("Error al centrar: %v", err)
 	}
 
 	// Texto en negrita
-	if err = printer.SetEmphasis(types.EmphOn); err != nil {
+	if err = printer.SetEmphasis(escpos.EmphOn); err != nil {
 		log.Printf("Error al activar negrita: %v", err)
 	}
 
@@ -67,7 +67,7 @@ func main() {
 	}
 
 	// Desactivar negrita
-	if err = printer.SetEmphasis(types.EmphOff); err != nil {
+	if err = printer.SetEmphasis(escpos.EmphOff); err != nil {
 		log.Printf("Error al desactivar negrita: %v", err)
 	}
 
@@ -77,7 +77,7 @@ func main() {
 	}
 
 	// Alinear a la izquierda
-	if err = printer.SetJustification(types.AlignLeft); err != nil {
+	if err = printer.SetJustification(escpos.AlignLeft); err != nil {
 		log.Printf("Error al alinear izquierda: %v", err)
 	}
 
@@ -90,13 +90,13 @@ func main() {
 	if err := printer.TextLn(""); err != nil {
 		log.Printf("Error: %v", err)
 	}
-	if err := printer.SetEmphasis(types.EmphOn); err != nil {
+	if err := printer.SetEmphasis(escpos.EmphOn); err != nil {
 		log.Printf("Error: %v", err)
 	}
 	if err := printer.TextLn("Ventajas de la nueva arquitectura:"); err != nil {
 		log.Printf("Error: %v", err)
 	}
-	if err := printer.SetEmphasis(types.EmphOff); err != nil {
+	if err := printer.SetEmphasis(escpos.EmphOff); err != nil {
 		log.Printf("Error: %v", err)
 	}
 
@@ -122,7 +122,7 @@ func main() {
 	}
 
 	// Usar CutFull del paquete types (no del paquete escpos)
-	if err := printer.Cut(types.CutFeed, 3); err != nil {
+	if err := printer.Cut(escpos.PartialCut); err != nil {
 		log.Printf("Error al cortar: %v", err)
 	}
 

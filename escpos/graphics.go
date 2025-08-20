@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/AdConDev/pos-printer/imaging"
-	"github.com/AdConDev/pos-printer/types"
 	"github.com/AdConDev/pos-printer/utils"
 )
 
@@ -12,18 +11,18 @@ import (
 // - Modos de imagen
 // - Compresión de imagen
 
-var densityMap = map[types.Density]byte{
-	types.DensitySingle:    0, // Modo normal (200 DPI vertical y horizontal)
-	types.DensityDouble:    1, // Modo de doble ancho (200 DPI vertical y 100 DPI horizontal)
-	types.DensityTriple:    2, // Modo de doble altura (100 DPI vertical y 200 DPI horizontal)
-	types.DensityQuadruple: 3, // Modo cuádruple (100 DPI vertical y horizontal)
+var densityMap = map[Density]byte{
+	DensitySingle:    0, // Modo normal (200 DPI vertical y horizontal)
+	DensityDouble:    1, // Modo de doble ancho (200 DPI vertical y 100 DPI horizontal)
+	DensityTriple:    2, // Modo de doble altura (100 DPI vertical y 200 DPI horizontal)
+	DensityQuadruple: 3, // Modo cuádruple (100 DPI vertical y horizontal)
 }
 
-var bitImageMap = map[types.BitImageMode]byte{
-	types.Mode8DotSingleDen:  0,
-	types.Mode8DotDoubleDen:  1,
-	types.Mode24DotSingleDen: 32,
-	types.Mode24DotDoubleDen: 33,
+var bitImageMap = map[BitImageMode]byte{
+	Mode8DotSingleDen:  0,
+	Mode8DotDoubleDen:  1,
+	Mode24DotSingleDen: 32,
+	Mode24DotDoubleDen: 33,
 }
 
 // ESCImage ahora es más simple, solo guarda referencia a PrintRasterBitImage
@@ -78,7 +77,7 @@ func (e *ESCImage) toRasterFormat() ([]byte, error) {
 	return e.rasterData, nil
 }
 
-func (p *Commands) PrintRasterBitImage(img *imaging.PrintImage, density types.Density) ([]byte, error) {
+func (p *Commands) PrintRasterBitImage(img *imaging.PrintImage, density Density) ([]byte, error) {
 	// Crear ESCImage
 	escImg, err := newESCImageFromPrintImage(img)
 	if err != nil {
@@ -132,7 +131,7 @@ func (p *Commands) GetMaxImageWidth(paperWidth, dpi int) int {
 	}
 }
 
-func SelectBitImageMode(m types.BitImageMode, nL, nH byte, data []byte) ([]byte, error) {
+func SelectBitImageMode(m BitImageMode, nL, nH byte, data []byte) ([]byte, error) {
 	mode, ok := bitImageMap[m]
 	if !ok {
 		return nil, fmt.Errorf("invalid bit image mode: %v", m)

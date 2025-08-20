@@ -1,5 +1,4 @@
 //go:build windows
-// +build windows
 
 // Package connector proporciona interfaces para comunicarse con impresoras.
 // NOTA: Este archivo usa unsafe.Pointer de manera deliberada y controlada para
@@ -141,10 +140,8 @@ func (c *WindowsPrintConnector) Close() error {
 func openPrinter(name *uint16) (handle syscall.Handle, err error) {
 	var h syscall.Handle
 	r1, _, err := procOpenPrinter.Call(
-		//nolint:gosec
-		uintptr(unsafe.Pointer(name)),
-		//nolint:gosec
-		uintptr(unsafe.Pointer(&h)),
+		uintptr(unsafe.Pointer(name)), //nolint:gosec
+		uintptr(unsafe.Pointer(&h)),   //nolint:gosec
 		0,
 	)
 	if r1 == 0 {
@@ -162,12 +159,8 @@ func closePrinter(handle syscall.Handle) error {
 }
 
 func startDocPrinter(handle syscall.Handle, docInfo *docInfo1) (uint32, error) {
-	//nolint:gosec // Necesario para interactuar con la API de Windows
-	r1, _, err := procStartDocPrinter.Call(
-		uintptr(handle),
-		1,
-		uintptr(unsafe.Pointer(docInfo)),
-	)
+	// Necesario para interactuar con la API de Windows
+	r1, _, err := procStartDocPrinter.Call(uintptr(handle), 1, uintptr(unsafe.Pointer(docInfo))) //nolint:gosec
 	if r1 == 0 {
 		return 0, err
 	}
@@ -195,11 +188,9 @@ func writePrinter(handle syscall.Handle, data []byte) (uint32, error) {
 	var bytesWritten uint32
 	r1, _, err := procWritePrinter.Call(
 		uintptr(handle),
-		//nolint:gosec
-		uintptr(unsafe.Pointer(&data[0])),
+		uintptr(unsafe.Pointer(&data[0])), //nolint:gosec
 		uintptr(len(data)),
-		//nolint:gosec
-		uintptr(unsafe.Pointer(&bytesWritten)),
+		uintptr(unsafe.Pointer(&bytesWritten)), //nolint:gosec
 	)
 	if r1 == 0 {
 		return 0, err

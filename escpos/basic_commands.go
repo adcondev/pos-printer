@@ -14,15 +14,15 @@ func (p *Commands) Text(str string) []byte {
 	return []byte(cmd)
 }
 
-// TextLn agrega un salto de línea al final
-func (p *Commands) TextLn(str string) []byte {
+// Ln agrega un salto de línea al final
+func (p *Commands) Ln(str string) []byte {
 	text := p.Text(str)
 	// Agregar LF al final
 	return append(text, LF)
 }
 
-// TextRaw envía bytes sin procesar
-func (p *Commands) TextRaw(str string) []byte {
+// Raw envía bytes sin procesar
+func (p *Commands) Raw(str string) []byte {
 	return []byte(str)
 }
 

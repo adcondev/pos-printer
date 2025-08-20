@@ -25,7 +25,7 @@ connector:
 
 printer:
   - changed-files:
-      - any-glob-to-any-file: '**/posprinter/**'
+      - any-glob-to-any-file: '**/pos/**'
 
 image:
   - changed-files:

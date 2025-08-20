@@ -2,10 +2,8 @@ package escpos
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/AdConDev/pos-printer/encoding"
-	"github.com/AdConDev/pos-printer/types"
 )
 
 // TODO: Comandos para manejo de codificación de caracteres
@@ -16,7 +14,6 @@ import (
 type CodePage byte
 
 const (
-	// Tabla de códigos comunes en ESC/POS
 	CP437      CodePage = iota // CP437 U.S.A. / Standard Europe
 	Katakana                   // Katakana (JIS X 0201)
 	CP850                      // CP850 Multilingual
@@ -28,35 +25,49 @@ const (
 	Hebrew                     // Hebrew (ISO-8859-8)
 	CP755                      // CP755 East Europe (not directly supported)
 	Iran                       // Iran (CP720 Arabic)
+	WCP1252                    // WCP1252 Windows-1252
+	CP866                      // CP866 Cyrillic #2
+	CP852                      // CP852 Latin2
+	CP858                      // CP858 Multilingual + Euro
+	IranII                     // IranII (CP864)
+	Latvian                    // Latvian (Windows-1257)
 )
 
-const (
-	WCP1252 CodePage = iota + 16 // WCP1252 Windows-1252
-	CP866                        // CP866 Cyrillic #2
-	CP852                        // CP852 Latin2
-	CP858                        // CP858 Multilingual + Euro
-	IranII                       // IranII (CP864)
-	Latvian                      // Latvian (Windows-1257)
-)
-
-// TODO: Revisar si es mejor implementar el map que un rango de valores.
-
-func (cp CodePage) IsValid() bool {
-	return cp <= Latvian || (cp >= WCP1252 && cp <= Latvian)
+var codePageMap = map[CodePage]byte{
+	CP437:      0,
+	Katakana:   1,
+	CP850:      2,
+	CP860:      3,
+	CP863:      4,
+	CP865:      5,
+	WestEurope: 6,
+	Greek:      7,
+	Hebrew:     8,
+	CP755:      9, // Not directly supported
+	Iran:       10,
+	WCP1252:    16,
+	CP866:      17,
+	CP852:      18,
+	CP858:      19,
+	IranII:     20,
+	Latvian:    21,
 }
 
-func (p *Commands) SelectCharacterTable(table types.CharacterSet) []byte {
-	charTable := CodePage(encoding.Registry[table].EscPos)
-	// Validar que table esté en un rango válido
-	if !charTable.IsValid() {
-		// Log de advertencia si está fuera de rango
-		log.Printf("advertencia: tabla de caracteres %d fuera de rango, usando 0 por defecto", table)
-		charTable = 0 // Default a 0 si está fuera de rango
+func (p *Commands) SelectCharacterTable(table encoding.CharacterSet) ([]byte, error) {
+	encoder, ok := encoding.Registry[table]
+	if !ok {
+		return nil, fmt.Errorf("error: conjunto de caracteres %s no soportado por implementacion", encoder.Name)
+	}
+	charTable := CodePage(encoder.EscPos)
+	charSet, ok := codePageMap[charTable]
+	if !ok {
+		// Log de error si no se encuentra el código de página
+		return nil, fmt.Errorf("error: código de página %s no soportado por protocolo", encoder.Name)
 	}
 	// ESC t n - Select character code table
-	cmd := []byte{ESC, 't', byte(charTable)}
+	cmd := []byte{ESC, 't', charSet}
 
-	return cmd
+	return cmd, nil
 }
 
 func (p *Commands) CancelKanjiMode() []byte {
@@ -67,14 +78,14 @@ func (p *Commands) SelectKanjiMode() []byte {
 	return []byte{FS, '&'}
 }
 
-// TODO: Hacer trabajo similar al de las codepages.
+// FIXME: Hacer trabajo similar al de las codepages.
 
 func SelectInternationalCharacterSet(n byte) []byte {
 	cmd := []byte{ESC, 'R', n}
 	return cmd
 }
 
-func CancelUserDefinedCharacters(n types.UserDefinedChar) ([]byte, error) {
+func CancelUserDefinedCharacters(n UserDefinedChar) ([]byte, error) {
 	if n < 32 || n > 126 {
 		return nil, fmt.Errorf("n debe estar en el rango de 32 a 126, recibido: %d", n)
 	}

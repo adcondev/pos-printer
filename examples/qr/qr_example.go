@@ -4,9 +4,9 @@ import (
 	"log"
 
 	"github.com/AdConDev/pos-printer/connector"
-	"github.com/AdConDev/pos-printer/posprinter"
+	"github.com/AdConDev/pos-printer/escpos"
+	"github.com/AdConDev/pos-printer/pos"
 	"github.com/AdConDev/pos-printer/profile"
-	"github.com/AdConDev/pos-printer/types"
 )
 
 func main() {
@@ -33,11 +33,11 @@ func main() {
 
 	// === Crear impresora genérica ===
 	// === Inicializar impresora ===
-	printer, err := posprinter.NewGenericPrinter(types.EscposProto, conn, prof)
+	printer, err := pos.NewEscposPrinter(pos.EscposProto, conn, prof)
 	if err != nil {
 		log.Fatalf("Error al crear impresora: %v", err)
 	}
-	defer func(printer *posprinter.GenericPrinter) {
+	defer func(printer *pos.EscposPrinter) {
 		err := printer.Close()
 		if err != nil {
 			log.Printf("Error al cerrar impresora: %v", err)
@@ -45,19 +45,19 @@ func main() {
 	}(printer)
 
 	// === Imprimir título ===
-	if err := printer.SetFont(types.FontA); err != nil {
+	if err := printer.SetFont(escpos.FontA); err != nil {
 		log.Printf("Error: %v", err)
 	}
-	if err := printer.SetJustification(types.AlignCenter); err != nil {
+	if err := printer.SetJustification(escpos.AlignCenter); err != nil {
 		log.Printf("Error: %v", err)
 	}
-	if err := printer.SetEmphasis(types.EmphOn); err != nil {
+	if err := printer.SetEmphasis(escpos.EmphOn); err != nil {
 		log.Printf("Error: %v", err)
 	}
 	if err := printer.TextLn("PRUEBA DE QR á é í ó ú ñ"); err != nil {
 		log.Printf("Error: %v", err)
 	}
-	if err := printer.SetEmphasis(types.EmphOff); err != nil {
+	if err := printer.SetEmphasis(escpos.EmphOff); err != nil {
 		log.Printf("Error: %v", err)
 	}
 	if err := printer.Feed(1); err != nil {
@@ -65,19 +65,22 @@ func main() {
 	}
 	// === Imprimir QR Code ===
 	if err := printer.PrintQR(
-		"https://github.com/AdConDev/pos-daemon", // Contenido del QR Code
-		types.Model2,                             // Modelo de QR Code (Model1, Model2)
-		types.ECHigh,                             // Nivel de corrección de errores (Low, Medium, High, Highest)
-		8,                                        // Tamaño del módulo (1-16)
-		256,                                      // Tamaño del QR Code (en pixeles, si el protocolo no soporta QR nativo)
+		"https://github.com/AdConDev/pos-printer", // Contenido del QR Code
+		escpos.Model2, // Modelo de QR Code (Model1, Model2)
+		escpos.ECHigh, // Nivel de corrección de errores (Low, Medium, High, Highest)
+		8,             // Tamaño del módulo (1-16)
+		256,           // Tamaño del QR Code (en pixeles, si el protocolo no soporta QR nativo)
 	); err != nil {
 		log.Printf("Error: %v", err)
 	}
 	if err := printer.Feed(1); err != nil {
 		log.Printf("Error: %v", err)
 	}
-	if err := printer.Cut(types.CutFeed, 1); err != nil {
+	if err := printer.Cut(escpos.PartialCut); err != nil {
 		log.Printf("Error al cortar: %v", err)
+	}
+	if err := printer.Feed(1); err != nil {
+		log.Printf("Error: %v", err)
 	}
 	log.Println("Impresión de QR completada exitosamente.")
 }

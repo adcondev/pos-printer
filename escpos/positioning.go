@@ -2,8 +2,6 @@ package escpos
 
 import (
 	"fmt"
-
-	"github.com/AdConDev/pos-printer/types"
 )
 
 // TODO: Comandos para posicionar texto e imágenes
@@ -23,14 +21,14 @@ func (p *Commands) SetPrintWidth(width int) []byte {
 	return []byte{}
 }
 
-var alignMap = map[types.Alignment]byte{
-	types.AlignLeft:   0, // ESC/POS: 0 = left
-	types.AlignCenter: 1, // ESC/POS: 1 = center
-	types.AlignRight:  2, // ESC/POS: 2 = right
+var alignMap = map[Alignment]byte{
+	AlignLeft:   0, // ESC/POS: 0 = left
+	AlignCenter: 1, // ESC/POS: 1 = center
+	AlignRight:  2, // ESC/POS: 2 = right
 }
 
 // SetJustification convierte el tipo genérico al específico de ESC/POS
-func (p *Commands) SetJustification(justification types.Alignment) ([]byte, error) {
+func (p *Commands) SetJustification(justification Alignment) ([]byte, error) {
 	alignment, ok := alignMap[justification]
 	if !ok {
 		return nil, fmt.Errorf("justificación no soportada: %v", justification)
@@ -39,7 +37,7 @@ func (p *Commands) SetJustification(justification types.Alignment) ([]byte, erro
 	return []byte{ESC, 'a', alignment}, nil
 }
 
-func SetHorizontalTabPositions(n types.TabColumnNumber, k types.TabTotalPosition) ([]byte, error) {
+func SetHorizontalTabPositions(n TabColumnNumber, k TabTotalPosition) ([]byte, error) {
 	if k > 32 {
 		return nil, fmt.Errorf("k fuera de rango (0-32): %d", k)
 	}
@@ -59,7 +57,7 @@ func SetHorizontalTabPositions(n types.TabColumnNumber, k types.TabTotalPosition
 	return cmd, nil
 }
 
-func (p *Commands) SetLineSpacing(n types.LineSpace) []byte {
+func (p *Commands) SetLineSpacing(n LineSpace) []byte {
 	return []byte{ESC, '3', byte(n)}
 }
 

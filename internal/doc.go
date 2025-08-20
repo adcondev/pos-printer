@@ -1,4 +1,4 @@
-// Package posprinter proporciona una interfaz unificada para interactuar con impresoras
+// Package pos proporciona una interfaz unificada para interactuar con impresoras
 // térmicas de puntos de venta (POS), utilizando una arquitectura modular que separa
 // protocolos, conectores y perfiles de impresoras.
 //
@@ -18,14 +18,14 @@
 //	conn, err := connector.NewWindowsPrintConnector("Nombre de Impresora")
 //	proto := escpos.NewESCPOSProtocol()
 //	prof := profile.CreateProfile58mm()
-//	printer, err := posprinter.NewGenericPrinter(proto, conn, prof)
+//	printer, err := pos.NewGenericPrinter(proto, conn, prof)
 //
 //	// Imprimir texto
-//	printer.TextLn("Hola Mundo")
+//	printer.Ln("Hola Mundo")
 //
 //	// Formateo
 //	printer.TurnEmphasizedMode(true)
-//	printer.TextLn("Texto en negrita")
+//	printer.Ln("Texto en negrita")
 //
 //	// Imprimir imagen
 //	printer.PrintImageFromFile("logo.png")

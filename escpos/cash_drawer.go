@@ -2,8 +2,6 @@ package escpos
 
 import (
 	"fmt"
-
-	"github.com/AdConDev/pos-printer/types"
 )
 
 // TODO: Comandos para control del cajón de efectivo
@@ -11,21 +9,21 @@ import (
 // - Estado de cajón
 
 // cashPin mapea el pin del cajón de efectivo a su valor ESC/POS correspondiente.
-var cashPin = map[types.CashDrawerPin]byte{
-	types.Pin2: 0,
-	types.Pin5: 1,
+var cashPin = map[CashDrawerPin]byte{
+	Pin2: 0,
+	Pin5: 1,
 }
 
 // timeMap mapea el tiempo del cajón de efectivo a su valor ESC/POS correspondiente.
-var timeMap = map[types.CashDrawerTimePulse]byte{
-	types.Pulse100ms: 1,
-	types.Pulse200ms: 2,
-	types.Pulse300ms: 3,
-	types.Pulse400ms: 4,
-	types.Pulse500ms: 5,
-	types.Pulse600ms: 6,
-	types.Pulse700ms: 7,
-	types.Pulse800ms: 8,
+var timeMap = map[CashDrawerTimePulse]byte{
+	Pulse100ms: 1,
+	Pulse200ms: 2,
+	Pulse300ms: 3,
+	Pulse400ms: 4,
+	Pulse500ms: 5,
+	Pulse600ms: 6,
+	Pulse700ms: 7,
+	Pulse800ms: 8,
 }
 
 func (p *Commands) Pulse(pin int, onMS int, offMS int) []byte {
@@ -33,7 +31,7 @@ func (p *Commands) Pulse(pin int, onMS int, offMS int) []byte {
 	return []byte{}
 }
 
-func GenerateRealTimePulse(m types.CashDrawerPin, t types.CashDrawerTimePulse) ([]byte, error) {
+func GenerateRealTimePulse(m CashDrawerPin, t CashDrawerTimePulse) ([]byte, error) {
 	drawerPin, ok := cashPin[m]
 	if !ok {
 		return nil, fmt.Errorf("pin de cajón de efectivo no soportado: %v", m)

@@ -2,8 +2,6 @@ package escpos
 
 import (
 	"fmt"
-
-	"github.com/AdConDev/pos-printer/types"
 )
 
 // TODO: Comandos para dar formato al texto
@@ -12,29 +10,29 @@ import (
 // - Espaciado de caracteres
 
 // emphMap mapea el modo enfatizado a su valor ESC/POS correspondiente.
-var emphMap = map[types.EmphasizedMode]byte{
-	types.EmphOff: 0,
-	types.EmphOn:  1,
+var emphMap = map[EmphasizedMode]byte{
+	EmphOff: 0,
+	EmphOn:  1,
 }
 
 // ulModeMap mapea el modo subrayado a su valor ESC/POS correspondiente.
-var ulModeMap = map[types.UnderlineMode]byte{
-	types.UnderNone:   0,
-	types.UnderSingle: 1,
-	types.UnderDouble: 2,
+var ulModeMap = map[UnderlineMode]byte{
+	UnderNone:   0,
+	UnderSingle: 1,
+	UnderDouble: 2,
 }
 
-var fontMap = map[types.Font]byte{
-	types.FontA:    0,
-	types.FontB:    1,
-	types.FontC:    2,
-	types.FontD:    3,
-	types.FontE:    4,
-	types.SpecialA: 'a', // 97
-	types.SpecialB: 'b', // 98
+var fontMap = map[Font]byte{
+	FontA:    0,
+	FontB:    1,
+	FontC:    2,
+	FontD:    3,
+	FontE:    4,
+	SpecialA: 'a', // 97
+	SpecialB: 'b', // 98
 }
 
-func (p *Commands) SelectCharacterFont(n types.Font) ([]byte, error) {
+func (p *Commands) SelectCharacterFont(n Font) ([]byte, error) {
 	font, ok := fontMap[n]
 	if !ok {
 		return nil, fmt.Errorf("no font found for font %v", n)
@@ -44,7 +42,7 @@ func (p *Commands) SelectCharacterFont(n types.Font) ([]byte, error) {
 	return []byte{ESC, 'M', font}, nil
 }
 
-func (p *Commands) TurnEmphasizedMode(n types.EmphasizedMode) ([]byte, error) {
+func (p *Commands) TurnEmphasizedMode(n EmphasizedMode) ([]byte, error) {
 	emph, ok := emphMap[n]
 	if !ok {
 		return nil, fmt.Errorf("no emph mode found")
@@ -63,7 +61,7 @@ func (p *Commands) SetDoubleStrike(on bool) []byte {
 	return []byte{ESC, 'G', val}
 }
 
-func (p *Commands) TurnUnderlineMode(n types.UnderlineMode) ([]byte, error) {
+func (p *Commands) TurnUnderlineMode(n UnderlineMode) ([]byte, error) {
 	mode, ok := ulModeMap[n]
 	if !ok {
 		return nil, fmt.Errorf("invalid underline mode: %d", n)

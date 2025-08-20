@@ -20,4 +20,4 @@ import posprinter "github.com/AdConDev/pos-printer"
 
 - Multiple protocol support
 - Multiple connection types
-- Profile management
+- Escpos management

@@ -2,8 +2,6 @@ package escpos
 
 import (
 	"fmt"
-
-	"github.com/AdConDev/pos-printer/types"
 )
 
 // TODO: Comandos para configuración de hardware específico
@@ -12,12 +10,12 @@ import (
 // - Modo de ahorro de energía
 // - Control de periféricos
 
-var printerEnaMap = map[types.PrinterEnabled]byte{
-	types.EnaOff: 0,
-	types.EnaOn:  1,
+var printerEnaMap = map[PrinterEnabled]byte{
+	EnaOff: 0,
+	EnaOn:  1,
 }
 
-func SetPeripheralDevice(n types.PrinterEnabled) ([]byte, error) {
+func SetPeripheralDevice(n PrinterEnabled) ([]byte, error) {
 	enabled, ok := printerEnaMap[n]
 	if !ok {
 		return nil, fmt.Errorf("invalid printer enabled value: %v", n)

@@ -17,8 +17,9 @@ func SafeOpen(filename string) (*os.File, error) {
 	if err != nil {
 		return nil, err
 	}
+	absPath = filepath.Clean(absPath)
 	if !strings.HasPrefix(absPath, cwd+string(os.PathSeparator)) {
 		return nil, fmt.Errorf("invalid imaging path: %s", filename)
 	}
-	return os.Open(absPath) //nolint:gosec
+	return os.Open(absPath)
 }

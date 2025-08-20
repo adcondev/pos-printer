@@ -3,33 +3,32 @@ package escpos
 import (
 	"fmt"
 
-	"github.com/AdConDev/pos-printer/types"
 	"github.com/AdConDev/pos-printer/utils"
 )
 
 // modelMap mapea los modelos de QR a sus valores ESC/POS
-var modelMap = map[types.QRModel]byte{
-	types.Model1: '1', // Modelo 1
-	types.Model2: '2', // Modelo 2
+var modelMap = map[QRModel]byte{
+	Model1: '1', // Modelo 1
+	Model2: '2', // Modelo 2
 }
 
 // ecMap mapea los niveles de corrección de errores a sus valores ESC/POS
-var ecMap = map[types.QRErrorCorrection]byte{
-	types.ECLow:     '0', // 7% de corrección
-	types.ECMedium:  '1', // 15% de corrección
-	types.ECHigh:    '2', // 25% de corrección
-	types.ECHighest: '3', // 30% de corrección
+var ecMap = map[QRErrorCorrection]byte{
+	ECLow:     '0', // 7% de corrección
+	ECMedium:  '1', // 15% de corrección
+	ECHigh:    '2', // 25% de corrección
+	ECHighest: '3', // 30% de corrección
 }
 
 // PrintQR implementa el comando ESC Z para imprimir códigos QR
 func (p *Commands) PrintQR(
 	data string,
-	model types.QRModel,
-	moduleSize types.QRModuleSize,
-	ecLevel types.QRErrorCorrection,
+	model QRModel,
+	moduleSize QRModuleSize,
+	ecLevel QRErrorCorrection,
 ) ([][]byte, error) {
 	// Validación de modelo
-	if model < types.Model1 || model > types.Model2 {
+	if model < Model1 || model > Model2 {
 		return nil, fmt.Errorf("modelo de QR inválida(0-1): %d", model)
 	}
 
@@ -72,9 +71,9 @@ func (p *Commands) PrintQR(
 }
 
 // SelectQRModel selecciona el modelo de código QR a utilizar
-func (p *Commands) SelectQRModel(model types.QRModel) ([]byte, error) {
+func (p *Commands) SelectQRModel(model QRModel) ([]byte, error) {
 	// Validación de modelo
-	if model < types.Model1 || model > types.Model2 {
+	if model < Model1 || model > Model2 {
 		return nil, fmt.Errorf("modelo de QR inválida(0-1): %d", model)
 	}
 
@@ -94,9 +93,9 @@ func (p *Commands) SelectQRModel(model types.QRModel) ([]byte, error) {
 }
 
 // SelectQRSize selecciona el tamaño del módulo del código QR
-func (p *Commands) SelectQRSize(moduleSize types.QRModuleSize) ([]byte, error) {
+func (p *Commands) SelectQRSize(moduleSize QRModuleSize) ([]byte, error) {
 	// Validar tamaño del módulo
-	if moduleSize < types.MinType || moduleSize > types.MaxType {
+	if moduleSize < MinType || moduleSize > MaxType {
 		return nil, fmt.Errorf("tamaño de módulo QR inválido(1-16): %d", moduleSize)
 	}
 
@@ -115,7 +114,7 @@ func (p *Commands) SelectQRSize(moduleSize types.QRModuleSize) ([]byte, error) {
 }
 
 // SelectQRErrorCorrection selecciona el nivel de corrección de errores del código QR
-func (p *Commands) SelectQRErrorCorrection(level types.QRErrorCorrection) ([]byte, error) {
+func (p *Commands) SelectQRErrorCorrection(level QRErrorCorrection) ([]byte, error) {
 	// Validar nivel de corrección
 	ec, ok := ecMap[level]
 	if !ok {

@@ -6,46 +6,46 @@ import (
 
 	"github.com/AdConDev/pos-printer/connector"
 	"github.com/AdConDev/pos-printer/encoding"
-	"github.com/AdConDev/pos-printer/posprinter"
+	"github.com/AdConDev/pos-printer/escpos"
+	"github.com/AdConDev/pos-printer/pos"
 	"github.com/AdConDev/pos-printer/profile"
-	"github.com/AdConDev/pos-printer/types"
 )
 
 func main() {
 	// Configuración de impresoras para probar
 	printers := []struct {
 		Name     string
-		CharSets []types.CharacterSet // Charsets reportados por el fabricante
+		CharSets []encoding.CharacterSet // Charsets reportados por el fabricante
 	}{
 		{
 			Name:     "80mm EC-PM-80250 x",
-			CharSets: []types.CharacterSet{types.WCP1252, types.CP858},
+			CharSets: []encoding.CharacterSet{encoding.WCP1252, encoding.CP858},
 		},
 		{
 			Name: "58mm PT-210",
-			CharSets: []types.CharacterSet{
-				types.CP437,
-				types.Katakana,
-				types.CP850,
-				types.CP860,
-				types.CP863,
-				types.CP865,
-				types.WestEurope,
-				types.Greek,
-				types.Hebrew,
-				// types.CP755, // No soportado directamente
-				types.Iran,
-				types.WCP1252,
-				types.CP866,
-				types.CP852,
-				types.CP858,
-				types.IranII,
-				types.Latvian,
+			CharSets: []encoding.CharacterSet{
+				encoding.CP437,
+				encoding.Katakana,
+				encoding.CP850,
+				encoding.CP860,
+				encoding.CP863,
+				encoding.CP865,
+				encoding.WestEurope,
+				encoding.Greek,
+				encoding.Hebrew,
+				// encoding.CP755, // No soportado directamente
+				encoding.Iran,
+				encoding.WCP1252,
+				encoding.CP866,
+				encoding.CP852,
+				encoding.CP858,
+				encoding.IranII,
+				encoding.Latvian,
 			},
 		},
 		{
 			Name:     "58mm GP-58N x",
-			CharSets: []types.CharacterSet{types.WCP1252, types.CP858},
+			CharSets: []encoding.CharacterSet{encoding.WCP1252, encoding.CP858},
 		},
 		// Agregar tu tercera impresora aquí
 	}
@@ -81,12 +81,12 @@ func main() {
 		prof.CharacterSets = printer.CharSets
 		prof.Model = printer.Name
 
-		p, err := posprinter.NewGenericPrinter(types.EscposProto, conn, prof)
+		p, err := pos.NewEscposPrinter(pos.EscposProto, conn, prof)
 		if err != nil {
 			log.Printf("Error creando impresora: %v", err)
 			continue
 		}
-		defer func(p *posprinter.GenericPrinter) {
+		defer func(p *pos.EscposPrinter) {
 			err := p.Close()
 			if err != nil {
 				log.Printf("Error al cerrar la impresora %s: %v", printer.Name, err)
@@ -94,12 +94,12 @@ func main() {
 		}(p)
 
 		// Imprimir encabezado
-		if err := p.SetJustification(types.AlignCenter); err != nil {
+		if err := p.SetJustification(escpos.AlignCenter); err != nil {
 			log.Printf("Error estableciendo alineación centrada: %v", err)
 			continue
 		}
 
-		if err := p.SetEmphasis(types.EmphOn); err != nil {
+		if err := p.SetEmphasis(escpos.EmphOn); err != nil {
 			log.Printf("Error activando negrita: %v", err)
 			continue
 		}
@@ -110,7 +110,7 @@ func main() {
 			continue
 		}
 
-		if err := p.SetEmphasis(types.EmphOff); err != nil {
+		if err := p.SetEmphasis(escpos.EmphOff); err != nil {
 			log.Printf("Error desactivando negrita: %v", err)
 			continue
 		}
@@ -127,13 +127,13 @@ func main() {
 				continue
 			}
 
-			err := p.SetJustification(types.AlignLeft)
+			err := p.SetJustification(escpos.AlignLeft)
 			if err != nil {
 				log.Printf("Error estableciendo alineación izquierda: %v", err)
 				continue
 			}
 
-			if err := p.SetEmphasis(types.EmphOn); err != nil {
+			if err := p.SetEmphasis(escpos.EmphOn); err != nil {
 				log.Printf("Error activando negrita: %v", err)
 				continue
 			}
@@ -143,7 +143,7 @@ func main() {
 				log.Printf("Error imprimiendo encabezado de charset: %v", err)
 				continue
 			}
-			if err := p.SetEmphasis(types.EmphOff); err != nil {
+			if err := p.SetEmphasis(escpos.EmphOff); err != nil {
 				log.Printf("Error desactivando negrita: %v", err)
 				continue
 			}
@@ -188,8 +188,13 @@ func main() {
 			continue
 		}
 
-		if err := p.Cut(types.CutFeed, 1); err != nil {
+		if err := p.Cut(escpos.PartialCut); err != nil {
 			log.Printf("Error cortando papel: %v", err)
+			continue
+		}
+
+		if err := p.Feed(1); err != nil {
+			log.Printf("Error alimentando papel: %v", err)
 			continue
 		}
 	}
