@@ -26,11 +26,13 @@ var timeMap = map[CashDrawerTimePulse]byte{
 	Pulse800ms: 8,
 }
 
-func (p *Commands) Pulse(pin int, onMS int, offMS int) []byte {
+// Pulse envía un pulso al pin especificado del cajón de efectivo.
+func (c *Commands) Pulse(_ int, _ int, _ int) []byte {
 	// TODO: Implementar ESC p m t1 t2
 	return []byte{}
 }
 
+// GenerateRealTimePulse genera el comando para enviar un pulso al pin especificado del cajón de efectivo.
 func GenerateRealTimePulse(m CashDrawerPin, t CashDrawerTimePulse) ([]byte, error) {
 	drawerPin, ok := cashPin[m]
 	if !ok {

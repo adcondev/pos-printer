@@ -32,7 +32,8 @@ var fontMap = map[Font]byte{
 	SpecialB: 'b', // 98
 }
 
-func (p *Commands) SelectCharacterFont(n Font) ([]byte, error) {
+// SelectCharacterFont sets the character font
+func (c *Commands) SelectCharacterFont(n Font) ([]byte, error) {
 	font, ok := fontMap[n]
 	if !ok {
 		return nil, fmt.Errorf("no font found for font %v", n)
@@ -42,7 +43,8 @@ func (p *Commands) SelectCharacterFont(n Font) ([]byte, error) {
 	return []byte{ESC, 'M', font}, nil
 }
 
-func (p *Commands) TurnEmphasizedMode(n EmphasizedMode) ([]byte, error) {
+// TurnEmphasizedMode enables or disables emphasized mode
+func (c *Commands) TurnEmphasizedMode(n EmphasizedMode) ([]byte, error) {
 	emph, ok := emphMap[n]
 	if !ok {
 		return nil, fmt.Errorf("no emph mode found")
@@ -52,7 +54,7 @@ func (p *Commands) TurnEmphasizedMode(n EmphasizedMode) ([]byte, error) {
 }
 
 // SetDoubleStrike activa/desactiva doble golpe
-func (p *Commands) SetDoubleStrike(on bool) []byte {
+func (c *Commands) SetDoubleStrike(on bool) []byte {
 	val := byte(0)
 	if on {
 		val = 1
@@ -61,7 +63,8 @@ func (p *Commands) SetDoubleStrike(on bool) []byte {
 	return []byte{ESC, 'G', val}
 }
 
-func (p *Commands) TurnUnderlineMode(n UnderlineMode) ([]byte, error) {
+// TurnUnderlineMode enables or disables underline mode
+func (c *Commands) TurnUnderlineMode(n UnderlineMode) ([]byte, error) {
 	mode, ok := ulModeMap[n]
 	if !ok {
 		return nil, fmt.Errorf("invalid underline mode: %d", n)
@@ -71,7 +74,7 @@ func (p *Commands) TurnUnderlineMode(n UnderlineMode) ([]byte, error) {
 }
 
 // SetTextSize Implementar
-func (p *Commands) SetTextSize(widthMultiplier, heightMultiplier int) []byte {
+func (c *Commands) SetTextSize(_, _ int) []byte {
 	// TODO: Implementar usando GS ! n
 	// Hint: n = (widthMultiplier-1)<<4 | (heightMultiplier-1)
 	return []byte{}

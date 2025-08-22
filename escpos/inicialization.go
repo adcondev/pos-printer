@@ -5,22 +5,18 @@ package escpos
 // - Configuración regional
 // - Reinicio de impresora
 
-func (p *Commands) InitializePrinter() []byte {
+// InitializePrinter restores the printer to its default state
+func (c *Commands) InitializePrinter() []byte {
 	// ESC @ - Reset printer
 	return []byte{ESC, '@'}
 }
 
-// Close genera comandos de cierre (si los hay)
-func (p *Commands) Close() []byte {
-	// ESC/POS no tiene un comando específico de cierre
-	// pero podrías incluir un reset o feed final o ambos
-	return []byte{NUL}
-}
-
+// SelectStandardMode sets the printer to standard mode
 func SelectStandardMode() []byte {
 	return []byte{ESC, 'S'}
 }
 
+// SelectPageMode sets the printer to page mode
 func SelectPageMode() []byte {
 	return []byte{ESC, 'L'}
 }

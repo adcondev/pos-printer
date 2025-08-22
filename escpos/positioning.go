@@ -9,14 +9,17 @@ import (
 // - Posicionamiento absoluto
 // - Posicionamiento relativo
 
+// HT is the control code for horizontal tab
 const HT byte = 0x09
 
-func (p *Commands) SetPrintLeftMargin(margin int) []byte {
+// SetPrintLeftMargin sets the left margin for printing
+func (c *Commands) SetPrintLeftMargin(_ byte) []byte {
 	// TODO: Implementar usando GS L nL nH
 	return []byte{}
 }
 
-func (p *Commands) SetPrintWidth(width int) []byte {
+// SetPrintWidth establece el ancho de impresión
+func (c *Commands) SetPrintWidth(_ byte) []byte {
 	// TODO: Implementar usando GS W nL nH
 	return []byte{}
 }
@@ -28,7 +31,7 @@ var alignMap = map[Alignment]byte{
 }
 
 // SetJustification convierte el tipo genérico al específico de ESC/POS
-func (p *Commands) SetJustification(justification Alignment) ([]byte, error) {
+func (c *Commands) SetJustification(justification Alignment) ([]byte, error) {
 	alignment, ok := alignMap[justification]
 	if !ok {
 		return nil, fmt.Errorf("justificación no soportada: %v", justification)
@@ -37,6 +40,7 @@ func (p *Commands) SetJustification(justification Alignment) ([]byte, error) {
 	return []byte{ESC, 'a', alignment}, nil
 }
 
+// SetHorizontalTabPositions establece las posiciones de tabulación horizontal
 func SetHorizontalTabPositions(n TabColumnNumber, k TabTotalPosition) ([]byte, error) {
 	if k > 32 {
 		return nil, fmt.Errorf("k fuera de rango (0-32): %d", k)
@@ -57,10 +61,12 @@ func SetHorizontalTabPositions(n TabColumnNumber, k TabTotalPosition) ([]byte, e
 	return cmd, nil
 }
 
-func (p *Commands) SetLineSpacing(n LineSpace) []byte {
+// SetLineSpacing establece el espaciado entre líneas
+func (c *Commands) SetLineSpacing(n LineSpace) []byte {
 	return []byte{ESC, '3', byte(n)}
 }
 
+// SelectDefaultLineSpacing restablece el espaciado entre líneas al valor predeterminado
 func SelectDefaultLineSpacing() []byte {
 	return []byte{ESC, '2'}
 }

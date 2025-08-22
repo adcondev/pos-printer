@@ -33,7 +33,7 @@ type EscposPrinter struct {
 	ESCPOS *escpos.Commands
 
 	// Command Types
-	// Text *escpos.TextCommands
+	// PrintDataInPageMode *escpos.TextCommands
 
 	// Protocolo activo
 	protocolType Protocol
@@ -145,22 +145,7 @@ func (p *EscposPrinter) Initialize() error {
 // Close cierra la conexión con la impresora
 func (p *EscposPrinter) Close() error {
 	// Primero enviar comandos de cierre del protocolo
-	var cmd []byte
-	switch protoMap[p.protocolType] {
-	case "ESCPOS":
-		cmd = p.ESCPOS.Close()
-	case "ZPL":
-		// ZPL
-	case "PDF":
-		// PDF
-	default:
-		return fmt.Errorf("protocol %s not implemented", protoMap[p.protocolType])
-	}
-	// Luego cerrar el conector
-	_, err := p.Connector.Write(cmd)
-	if err == nil {
-		p.initialized = false
-	}
+	// cerrar el conector
 	return p.Connector.Close()
 }
 
@@ -310,28 +295,39 @@ func (p *EscposPrinter) Print(str string) error {
 	}
 
 	// Enviar al protocolo como bytes raw
-	cmd := p.ESCPOS.Text(string(encoded))
+	cmd, err := p.ESCPOS.Print.Text(string(encoded))
+	if err != nil {
+		return fmt.Errorf("error al generar comando de impresión: %w", err)
+	}
 	_, err = p.Connector.Write(cmd)
-	return err
+	if err != nil {
+		return fmt.Errorf("error al enviar comando de impresión: %v", err)
+	}
+	return nil
 }
 
 // TextLn imprime texto con salto de línea
 func (p *EscposPrinter) TextLn(str string) error {
-	// Similar a Print pero agregando LF
-	encoded, err := encoding.EncodeString(str, p.activeCharset)
+	// Similar a PrintDataInPageMode pero agregando LF
+	encoded, err := encoding.EncodeString(str+"\n", p.activeCharset)
 	if err != nil {
-		encoded, err = encoding.EncodeString(str, p.Profile.DefaultCharSet)
+		log.Printf("trying default... failed to encode text \"%s\": %v", str, encoding.Registry[p.activeCharset].Name)
+		encoded, err = encoding.EncodeString(str+"\n", p.Profile.DefaultCharSet)
 		if err != nil {
-			log.Printf("failed to encode text: %v", err)
-			cmd := p.ESCPOS.Ln(" err ")
-			_, err = p.Connector.Write(cmd)
+			log.Printf("failed to encode text \"%s\": %v", str, encoding.Registry[p.Profile.DefaultCharSet].Name)
 			return err
 		}
 	}
 
 	// El protocolo agrega el LF
-	cmd := p.ESCPOS.Ln(string(encoded))
+	cmd, err := p.ESCPOS.Print.Text(string(encoded))
+	if err != nil {
+		return fmt.Errorf("failed to generate print command: %w", err)
+	}
 	_, err = p.Connector.Write(cmd)
+	if err != nil {
+		return fmt.Errorf("failed to send print command: %v", err)
+	}
 	return err
 }
 
@@ -348,7 +344,7 @@ func (p *EscposPrinter) Cut(mode escpos.CutPaper) error {
 
 // Feed alimenta papel
 func (p *EscposPrinter) Feed(lines byte) error {
-	cmd := p.ESCPOS.Feed(lines)
+	cmd := p.ESCPOS.Print.PrintAndFeedPaper(lines)
 	_, err := p.Connector.Write(cmd)
 	return err
 }

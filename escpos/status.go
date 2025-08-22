@@ -14,7 +14,8 @@ var realTimeStatusMap = map[RealTimeStatus]byte{
 	PaperSensorStatus: 4,
 }
 
-func (p *Commands) TransmitRealTimeStatus(n RealTimeStatus) ([]byte, error) {
+// TransmitRealTimeStatus asks the printer to transmit its real-time status
+func (c *Commands) TransmitRealTimeStatus(n RealTimeStatus) ([]byte, error) {
 	status, ok := realTimeStatusMap[n]
 	if !ok {
 		return nil, fmt.Errorf("estado en tiempo real inválido: %d", n)

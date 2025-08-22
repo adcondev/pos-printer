@@ -21,7 +21,7 @@ var ecMap = map[QRErrorCorrection]byte{
 }
 
 // PrintQR implementa el comando ESC Z para imprimir códigos QR
-func (p *Commands) PrintQR(
+func (c *Commands) PrintQR(
 	data string,
 	model QRModel,
 	moduleSize QRModuleSize,
@@ -33,31 +33,31 @@ func (p *Commands) PrintQR(
 	}
 
 	// Comando para seleccionar tamaño del módulo
-	mdl, err := p.SelectQRModel(model)
+	mdl, err := c.SelectQRModel(model)
 	if err != nil {
 		return nil, fmt.Errorf("error al seleccionar modelo de QR: %w", err)
 	}
 
 	// Comando para seleccionar tamaño del módulo
-	mdlSz, err := p.SelectQRSize(moduleSize)
+	mdlSz, err := c.SelectQRSize(moduleSize)
 	if err != nil {
 		return nil, fmt.Errorf("error al seleccionar tamaño de módulo de QR: %w", err)
 	}
 
 	// Obtener el byte correspondiente al nivel de corrección
-	ec, err := p.SelectQRErrorCorrection(ecLevel)
+	ec, err := c.SelectQRErrorCorrection(ecLevel)
 	if err != nil {
 		return nil, fmt.Errorf("error al seleccionar nivel de corrección de QR: %w", err)
 	}
 
 	// Almacenamiento de datos para QR
-	ct, err := p.SetQRData(data)
+	ct, err := c.SetQRData(data)
 	if err != nil {
 		return nil, fmt.Errorf("error al preparar datos de QR: %w", err)
 	}
 
 	// Comando para imprimir QR
-	prnt, err := p.PrintQRData()
+	prnt, err := c.PrintQRData()
 	if err != nil {
 		return nil, fmt.Errorf("error al generar comando de impresión de QR: %w", err)
 	}
@@ -71,7 +71,7 @@ func (p *Commands) PrintQR(
 }
 
 // SelectQRModel selecciona el modelo de código QR a utilizar
-func (p *Commands) SelectQRModel(model QRModel) ([]byte, error) {
+func (c *Commands) SelectQRModel(model QRModel) ([]byte, error) {
 	// Validación de modelo
 	if model < Model1 || model > Model2 {
 		return nil, fmt.Errorf("modelo de QR inválida(0-1): %d", model)
@@ -93,7 +93,7 @@ func (p *Commands) SelectQRModel(model QRModel) ([]byte, error) {
 }
 
 // SelectQRSize selecciona el tamaño del módulo del código QR
-func (p *Commands) SelectQRSize(moduleSize QRModuleSize) ([]byte, error) {
+func (c *Commands) SelectQRSize(moduleSize QRModuleSize) ([]byte, error) {
 	// Validar tamaño del módulo
 	if moduleSize < MinType || moduleSize > MaxType {
 		return nil, fmt.Errorf("tamaño de módulo QR inválido(1-16): %d", moduleSize)
@@ -114,7 +114,7 @@ func (p *Commands) SelectQRSize(moduleSize QRModuleSize) ([]byte, error) {
 }
 
 // SelectQRErrorCorrection selecciona el nivel de corrección de errores del código QR
-func (p *Commands) SelectQRErrorCorrection(level QRErrorCorrection) ([]byte, error) {
+func (c *Commands) SelectQRErrorCorrection(level QRErrorCorrection) ([]byte, error) {
 	// Validar nivel de corrección
 	ec, ok := ecMap[level]
 	if !ok {
@@ -135,7 +135,7 @@ func (p *Commands) SelectQRErrorCorrection(level QRErrorCorrection) ([]byte, err
 }
 
 // SetQRData prepara los datos para el código QR
-func (p *Commands) SetQRData(data string) ([]byte, error) {
+func (c *Commands) SetQRData(data string) ([]byte, error) {
 	// Validar longitud de datos
 	if len(data) == 0 || len(data) > 7089 {
 		return nil, fmt.Errorf("longitud de datos de QR inválida (1-7089): %d", len(data))
@@ -157,7 +157,7 @@ func (p *Commands) SetQRData(data string) ([]byte, error) {
 }
 
 // PrintQRData genera el comando para imprimir el código QR
-func (p *Commands) PrintQRData() ([]byte, error) {
+func (c *Commands) PrintQRData() ([]byte, error) {
 	// Comando para imprimir QR
 	pL, pH, err := utils.LengthLowHigh(3)
 	if err != nil {

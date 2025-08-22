@@ -60,7 +60,7 @@ func NewWindowsPrintConnector(printerName string) (*WindowsPrintConnector, error
 		return nil, fmt.Errorf("no se pudo abrir la impresora '%s': %w", printerName, err)
 	}
 
-	docName, _ := syscall.UTF16PtrFromString("ESC/POS Print Job")
+	docName, _ := syscall.UTF16PtrFromString("ESC/POS PrintDataInPageMode Job")
 	dataType, _ := syscall.UTF16PtrFromString("RAW")
 
 	doc := &docInfo1{

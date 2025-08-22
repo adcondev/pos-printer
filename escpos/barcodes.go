@@ -22,7 +22,8 @@ var barcodeWidthMap = map[BarcodeWidth]byte{
 	ExtraLargeWidth: 6,
 }
 
-func (p *Commands) SetBarcodeHeight(height BarcodeHeight) ([]byte, error) {
+// SetBarcodeHeight establece la altura del código de barras en puntos
+func (c *Commands) SetBarcodeHeight(height BarcodeHeight) ([]byte, error) {
 	if height == 0 {
 		return nil, fmt.Errorf("barcode height cannot be zero")
 	}
@@ -30,7 +31,8 @@ func (p *Commands) SetBarcodeHeight(height BarcodeHeight) ([]byte, error) {
 	return []byte{GS, 'h', byte(height)}, nil
 }
 
-func (p *Commands) SetBarcodeWidth(width BarcodeWidth) ([]byte, error) {
+// SetBarcodeWidth establece el ancho del código de barras
+func (c *Commands) SetBarcodeWidth(width BarcodeWidth) ([]byte, error) {
 	bcWidth, ok := barcodeWidthMap[width]
 	if !ok {
 		return nil, fmt.Errorf("no barcode width found for width %v", width)
@@ -39,7 +41,8 @@ func (p *Commands) SetBarcodeWidth(width BarcodeWidth) ([]byte, error) {
 	return []byte{GS, 'w', bcWidth}, nil
 }
 
-func (p *Commands) SelectBarcodeTextPosition(position TextPositionBarcode) ([]byte, error) {
+// SelectBarcodeTextPosition establece la posición del texto del código de barras
+func (c *Commands) SelectBarcodeTextPosition(position TextPositionBarcode) ([]byte, error) {
 	pos, ok := textPosBarcodeMap[position]
 	if !ok {
 		return nil, fmt.Errorf("unknown position: %d", position)
@@ -47,12 +50,14 @@ func (p *Commands) SelectBarcodeTextPosition(position TextPositionBarcode) ([]by
 	return []byte{GS, 'H', pos}, nil
 }
 
-func (p *Commands) Barcode(content string, barType BarcodeType) ([]byte, error) {
+// Barcode imprime un código de barras con el contenido y tipo especificados
+func (c *Commands) Barcode(_ string, _ BarcodeType) ([]byte, error) {
 
 	return []byte{}, nil
 }
 
-func (p *Commands) SelectFontBarcode(font Font) ([]byte, error) {
+// SelectFontBarcode selecciona la fuente para el código de barras
+func (c *Commands) SelectFontBarcode(font Font) ([]byte, error) {
 	bcFont, ok := fontMap[font]
 	if !ok {
 		return nil, fmt.Errorf("no barcode font found for font %v", font)

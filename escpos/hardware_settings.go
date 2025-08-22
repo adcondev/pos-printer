@@ -15,6 +15,7 @@ var printerEnaMap = map[PrinterEnabled]byte{
 	EnaOn:  1,
 }
 
+// SetPeripheralDevice configura el estado del dispositivo periférico (como un lector de tarjetas o un escáner de códigos de barras).
 func SetPeripheralDevice(n PrinterEnabled) ([]byte, error) {
 	enabled, ok := printerEnaMap[n]
 	if !ok {

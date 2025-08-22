@@ -21,11 +21,11 @@
 //	printer, err := pos.NewGenericPrinter(proto, conn, prof)
 //
 //	// Imprimir texto
-//	printer.Ln("Hola Mundo")
+//	printer.PrintLn("Hola Mundo")
 //
 //	// Formateo
 //	printer.TurnEmphasizedMode(true)
-//	printer.Ln("Texto en negrita")
+//	printer.PrintLn("Texto en negrita")
 //
 //	// Imprimir imagen
 //	printer.PrintImageFromFile("logo.png")

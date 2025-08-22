@@ -12,23 +12,40 @@ import (
 type CharacterSet int
 
 const (
-	CP437      CharacterSet = iota // CP437 U.S.A. / Standard Europe
-	Katakana                       // Katakana (JIS X 0201)
-	CP850                          // CP850 Multilingual
-	CP860                          // CP860 Portuguese
-	CP863                          // CP863 Canadian French
-	CP865                          // CP865 Nordic
-	WestEurope                     // WestEurope (ISO-8859-1)
-	Greek                          // Greek (ISO-8859-7)
-	Hebrew                         // Hebrew (ISO-8859-8)
-	CP755                          // CP755 East Europe (not directly supported)
-	Iran                           // Iran (CP720 Arabic)
-	WCP1252                        // WCP1252 Windows-1252
-	CP866                          // CP866 Cyrillic #2
-	CP852                          // CP852 Latin2
-	CP858                          // CP858 Multilingual + Euro
-	IranII                         // IranII (CP864)
-	Latvian                        // Latvian (Windows-1257)
+	// CP437 U.S.A. Standard Europe
+	CP437      CharacterSet = iota
+	// Katakana (JIS X 0201)
+	Katakana
+	// CP850 Multilingual
+	CP850
+	// CP860 Portuguese
+	CP860
+	// CP863 Canadian French
+	CP863
+	// CP865 Nordic
+	CP865
+	// WestEurope (ISO-8859-1)
+	WestEurope
+	// Greek (ISO-8859-7)
+	Greek
+	// Hebrew (ISO-8859-8)
+	Hebrew
+	// CP755 East Europe (not directly supported)
+	CP755
+	// Iran (CP720 Arabic)
+	Iran
+	// WCP1252 Windows-1252
+	WCP1252
+	// CP866 Cyrillic #2
+	CP866
+	// CP852 Latin2
+	CP852
+	// CP858 Multilingual + Euro
+	CP858
+	// IranII (CP864)
+	IranII
+	// Latvian (Windows-1257)
+	Latvian
 )
 
 // CharacterSetData representa un conjunto de caracteres con su codificación

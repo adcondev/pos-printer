@@ -64,20 +64,21 @@ func (e *ESCImage) GetWidthBytes() int {
 }
 
 // toRasterFormat convierte la imagen al formato raster de ESC/POS
-func (e *ESCImage) toRasterFormat() ([]byte, error) {
+func (e *ESCImage) toRasterFormat() []byte {
 	// Si ya tenemos los datos en cache, devolverlos
 	if e.rasterData != nil {
-		return e.rasterData, nil
+		return e.rasterData
 	}
 
 	// Obtener datos monocromáticos de la imagen
 	// PrintRasterBitImage se encarga de aplicar dithering si fue configurado
 	e.rasterData = e.printImage.ToMonochrome()
 
-	return e.rasterData, nil
+	return e.rasterData
 }
 
-func (p *Commands) PrintRasterBitImage(img *imaging.PrintImage, density Density) ([]byte, error) {
+// PrintRasterBitImage genera los comandos para imprimir una imagen rasterizada
+func (c *Commands) PrintRasterBitImage(img *imaging.PrintImage, density Density) ([]byte, error) {
 	// Crear ESCImage
 	escImg, err := newESCImageFromPrintImage(img)
 	if err != nil {
@@ -85,10 +86,7 @@ func (p *Commands) PrintRasterBitImage(img *imaging.PrintImage, density Density)
 	}
 
 	// Obtener datos rasterizados
-	rasterData, err := escImg.toRasterFormat()
-	if err != nil {
-		return nil, err
-	}
+	rasterData := escImg.toRasterFormat()
 
 	mode, ok := densityMap[density]
 	if !ok {
@@ -116,7 +114,7 @@ func (p *Commands) PrintRasterBitImage(img *imaging.PrintImage, density Density)
 }
 
 // GetMaxImageWidth devuelve el ancho máximo de imagen que soporta la impresora
-func (p *Commands) GetMaxImageWidth(paperWidth, dpi int) int {
+func (c *Commands) GetMaxImageWidth(paperWidth, dpi int) int {
 	// Cálculo basado en el ancho del papel y resolución
 	// Formula: (ancho_papel_mm / 25.4) * dpi
 	if paperWidth > 0 && dpi > 0 {
@@ -126,11 +124,11 @@ func (p *Commands) GetMaxImageWidth(paperWidth, dpi int) int {
 	// Valores predeterminados si no hay configuración
 	if paperWidth >= 80 {
 		return 576 // Para papel de 80mm a 203dpi
-	} else {
-		return 384 // Para papel de 58mm a 203dpi
 	}
+	return 384 // Para papel de 58mm a 203dpi
 }
 
+// SelectBitImageMode selecciona el modo de imagen de bits y prepara los datos para impresión
 func SelectBitImageMode(m BitImageMode, nL, nH byte, data []byte) ([]byte, error) {
 	mode, ok := bitImageMap[m]
 	if !ok {

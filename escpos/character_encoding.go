@@ -11,6 +11,7 @@ import (
 // - Caracteres internacionales
 // - Caracteres especiales
 
+// CodePage define los conjuntos de caracteres estándar
 type CodePage byte
 
 const (
@@ -53,7 +54,8 @@ var codePageMap = map[CodePage]byte{
 	Latvian:    21,
 }
 
-func (p *Commands) SelectCharacterTable(table encoding.CharacterSet) ([]byte, error) {
+// SelectCharacterTable selecciona el conjunto de caracteres para la impresora
+func (c *Commands) SelectCharacterTable(table encoding.CharacterSet) ([]byte, error) {
 	encoder, ok := encoding.Registry[table]
 	if !ok {
 		return nil, fmt.Errorf("error: conjunto de caracteres %s no soportado por implementacion", encoder.Name)
@@ -70,21 +72,25 @@ func (p *Commands) SelectCharacterTable(table encoding.CharacterSet) ([]byte, er
 	return cmd, nil
 }
 
-func (p *Commands) CancelKanjiMode() []byte {
+// CancelKanjiMode deactivates Kanji mode
+func (c *Commands) CancelKanjiMode() []byte {
 	return []byte{FS, '.'}
 }
 
-func (p *Commands) SelectKanjiMode() []byte {
+// SelectKanjiMode activates Kanji mode
+func (c *Commands) SelectKanjiMode() []byte {
 	return []byte{FS, '&'}
 }
 
 // FIXME: Hacer trabajo similar al de las codepages.
 
+// SelectInternationalCharacterSet define los conjuntos de caracteres internacionales
 func SelectInternationalCharacterSet(n byte) []byte {
 	cmd := []byte{ESC, 'R', n}
 	return cmd
 }
 
+// CancelUserDefinedCharacters cancela la definición de un carácter definido por el usuario
 func CancelUserDefinedCharacters(n UserDefinedChar) ([]byte, error) {
 	if n < 32 || n > 126 {
 		return nil, fmt.Errorf("n debe estar en el rango de 32 a 126, recibido: %d", n)
@@ -94,6 +100,7 @@ func CancelUserDefinedCharacters(n UserDefinedChar) ([]byte, error) {
 	return cmd, nil
 }
 
+// DefineUserDefinedCharacters define uno o más caracteres definidos por el usuario
 func DefineUserDefinedCharacters(y, c1, c2 byte, data ...[]byte) []byte {
 	cmd := []byte{ESC, '&', y, c1, c2}
 	for _, d := range data {

@@ -92,7 +92,7 @@ func main() {
 
 	// === Opción 2: Imprimir con Floyd-Steinberg ===
 	/*
-		if err := printer.Ln("Imagen con Floyd-Steinberg:"); err != nil {
+		if err := printer.PrintLn("Imagen con Floyd-Steinberg:"); err != nil {
 			log.Printf("Error: %v", err)
 		}
 

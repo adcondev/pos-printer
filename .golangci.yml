@@ -1,7 +1,7 @@
 # Configuración simple pero efectiva para proyecto personal/pequeño
 version: "2"
 run:
-  timeout: 3m  # 3 minutos es suficiente
+  timeout: 5m  # 5 minutos es suficiente
   tests: true
   build-tags:
     - integration
@@ -16,6 +16,10 @@ linters:
     - ineffassign  # Variables no usadas
     - gosec        # Seguridad básica
     - unused      # Código no usado
+    - gocyclo     # Complejidad ciclomática
+    - gocritic     # Buenas prácticas
+    - unparam    # Parámetros no usados
+    - revive    # Código muerto
 
 issues:
   # Límites razonables
