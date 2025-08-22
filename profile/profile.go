@@ -1,7 +1,7 @@
 package profile
 
 import (
-	"github.com/AdConDev/pos-printer/encoding"
+	"github.com/adcondev/pos-printer/encoding"
 )
 
 // Escpos define todas las características físicas y capacidades de una impresora

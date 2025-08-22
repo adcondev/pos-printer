@@ -5,14 +5,14 @@ import (
 	"image"
 	"log"
 
-	"github.com/AdConDev/pos-printer/encoding"
-	"github.com/AdConDev/pos-printer/escpos"
-	"github.com/AdConDev/pos-printer/imaging"
+	"github.com/adcondev/pos-printer/encoding"
+	"github.com/adcondev/pos-printer/escpos"
+	"github.com/adcondev/pos-printer/imaging"
 	"github.com/skip2/go-qrcode"
 
-	"github.com/AdConDev/pos-printer/connector"
-	"github.com/AdConDev/pos-printer/profile"
-	"github.com/AdConDev/pos-printer/utils"
+	"github.com/adcondev/pos-printer/connector"
+	"github.com/adcondev/pos-printer/profile"
+	"github.com/adcondev/pos-printer/utils"
 )
 
 type Protocol byte

@@ -1,7 +1,7 @@
 package imaging
 
 import (
-	"github.com/AdConDev/pos-printer/utils"
+	"github.com/adcondev/pos-printer/utils"
 	"golang.org/x/image/draw"
 
 	"image"

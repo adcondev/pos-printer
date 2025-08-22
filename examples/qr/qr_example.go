@@ -3,10 +3,10 @@ package main
 import (
 	"log"
 
-	"github.com/AdConDev/pos-printer/connector"
-	"github.com/AdConDev/pos-printer/escpos"
-	"github.com/AdConDev/pos-printer/pos"
-	"github.com/AdConDev/pos-printer/profile"
+	"github.com/adcondev/pos-printer/connector"
+	"github.com/adcondev/pos-printer/escpos"
+	"github.com/adcondev/pos-printer/pos"
+	"github.com/adcondev/pos-printer/profile"
 )
 
 func main() {
@@ -65,7 +65,7 @@ func main() {
 	}
 	// === Imprimir QR Code ===
 	if err := printer.PrintQR(
-		"https://github.com/AdConDev/pos-printer", // Contenido del QR Code
+		"https://github.com/adcondev/pos-printer", // Contenido del QR Code
 		escpos.Model2, // Modelo de QR Code (Model1, Model2)
 		escpos.ECHigh, // Nivel de corrección de errores (Low, Medium, High, Highest)
 		8,             // Tamaño del módulo (1-16)

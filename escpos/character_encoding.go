@@ -3,7 +3,7 @@ package escpos
 import (
 	"fmt"
 
-	"github.com/AdConDev/pos-printer/encoding"
+	"github.com/adcondev/pos-printer/encoding"
 )
 
 // TODO: Comandos para manejo de codificación de caracteres

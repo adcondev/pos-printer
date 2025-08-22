@@ -2,8 +2,6 @@ package escpos
 
 import (
 	"fmt"
-
-	"github.com/AdConDev/pos-printer/utils"
 )
 
 // modelMap mapea los modelos de QR a sus valores ESC/POS
@@ -77,7 +75,7 @@ func (c *Commands) SelectQRModel(model QRModel) ([]byte, error) {
 		return nil, fmt.Errorf("modelo de QR inválida(0-1): %d", model)
 	}
 
-	pL, pH, err := utils.LengthLowHigh(4)
+	pL, pH, err := lengthLowHigh(4)
 	if err != nil {
 		return nil, fmt.Errorf("error al calcular longitud de parametros QR: %w", err)
 	}
@@ -99,7 +97,7 @@ func (c *Commands) SelectQRSize(moduleSize QRModuleSize) ([]byte, error) {
 		return nil, fmt.Errorf("tamaño de módulo QR inválido(1-16): %d", moduleSize)
 	}
 
-	pL, pH, err := utils.LengthLowHigh(3)
+	pL, pH, err := lengthLowHigh(3)
 	if err != nil {
 		return nil, fmt.Errorf("error al calcular longitud de parametros QR: %w", err)
 	}
@@ -121,7 +119,7 @@ func (c *Commands) SelectQRErrorCorrection(level QRErrorCorrection) ([]byte, err
 		return nil, fmt.Errorf("nivel de corrección de QR inválido(0-3): %d", level)
 	}
 
-	pL, pH, err := utils.LengthLowHigh(3)
+	pL, pH, err := lengthLowHigh(3)
 	if err != nil {
 		return nil, fmt.Errorf("error al calcular longitud de parametros QR: %w", err)
 	}
@@ -141,7 +139,7 @@ func (c *Commands) SetQRData(data string) ([]byte, error) {
 		return nil, fmt.Errorf("longitud de datos de QR inválida (1-7089): %d", len(data))
 	}
 
-	pL, pH, err := utils.LengthLowHigh(len(data) + 3)
+	pL, pH, err := lengthLowHigh(len(data) + 3)
 	if err != nil {
 		return nil, fmt.Errorf("error al calcular longitud de parametros QR: %w", err)
 	}
@@ -159,7 +157,7 @@ func (c *Commands) SetQRData(data string) ([]byte, error) {
 // PrintQRData genera el comando para imprimir el código QR
 func (c *Commands) PrintQRData() ([]byte, error) {
 	// Comando para imprimir QR
-	pL, pH, err := utils.LengthLowHigh(3)
+	pL, pH, err := lengthLowHigh(3)
 	if err != nil {
 		return nil, fmt.Errorf("error al calcular longitud de parametros QR: %w", err)
 	}

@@ -138,7 +138,7 @@ func (p *PrintCommands) PrintAndFeedPaper(n byte) []byte {
 //	ESC K n -> 0x1B, 0x4B, n
 func (p *PagePrint) PrintAndReverseFeed(n byte) ([]byte, error) {
 	if n > MaxReverseMotionUnits {
-		return nil, ErrPrintReverseFeed
+		return nil, errPrintReverseFeed
 	}
 	return []byte{ESC, 'K', n}, nil
 }
@@ -186,7 +186,7 @@ func (p *PagePrint) PrintAndReverseFeed(n byte) ([]byte, error) {
 //	ESC e n -> 0x1B, 0x65, n
 func (p *PagePrint) PrintAndReverseFeedLines(n byte) ([]byte, error) {
 	if n > MaxReverseFeedLines {
-		return nil, ErrPrintReverseFeedLines
+		return nil, errPrintReverseFeedLines
 	}
 	return []byte{ESC, 'e', n}, nil
 }

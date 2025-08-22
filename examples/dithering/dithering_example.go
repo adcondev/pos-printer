@@ -3,11 +3,11 @@ package main
 import (
 	"log"
 
-	"github.com/AdConDev/pos-printer/connector"
-	"github.com/AdConDev/pos-printer/escpos"
-	"github.com/AdConDev/pos-printer/imaging"
-	"github.com/AdConDev/pos-printer/pos"
-	"github.com/AdConDev/pos-printer/profile"
+	"github.com/adcondev/pos-printer/connector"
+	"github.com/adcondev/pos-printer/escpos"
+	"github.com/adcondev/pos-printer/imaging"
+	"github.com/adcondev/pos-printer/pos"
+	"github.com/adcondev/pos-printer/profile"
 )
 
 func main() {

@@ -3,8 +3,7 @@ package escpos
 import (
 	"fmt"
 
-	"github.com/AdConDev/pos-printer/imaging"
-	"github.com/AdConDev/pos-printer/utils"
+	"github.com/adcondev/pos-printer/imaging"
 )
 
 // TODO: Comandos para impresión de gráficos e imágenes
@@ -97,11 +96,11 @@ func (c *Commands) PrintRasterBitImage(img *imaging.PrintImage, density Density)
 	cmd := []byte{GS, 'v', '0', mode}
 
 	// Agregar dimensiones
-	wL, wH, err := utils.LengthLowHigh(escImg.GetWidthBytes())
+	wL, wH, err := lengthLowHigh(escImg.GetWidthBytes())
 	if err != nil {
 		return nil, err
 	}
-	hL, hH, err := utils.LengthLowHigh(escImg.GetHeight())
+	hL, hH, err := lengthLowHigh(escImg.GetHeight())
 	if err != nil {
 		return nil, err
 	}
