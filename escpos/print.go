@@ -9,37 +9,51 @@ const (
 	CR byte = 0x0D
 )
 
-// PrintDataInPageMode prints the data in the print buffer collectively when
-// the printer is in Page mode.
-//
-// Text:
-//
-//	ASCII: ESC FF
-//	Hex:   0x1B 0x0C
-//	Decimal: 27 12
-//
-// Description:
-//
-//	In Page mode, this command prints all the data currently buffered in the
-//	print area collectively.
-//
-// Notes:
-//   - This command is enabled only in Page mode. Page mode can be selected by
-//     ESC L.
-//   - After printing with ESC FF, the printer does NOT clear the buffered
-//     data, the print position, or values set by other commands — the buffer
-//     remains intact for repeated printing.
-//   - The printer returns to Standard mode when FF (in Page mode), ESC S, or
-//     ESC @ is issued. If the return to Standard mode is caused by ESC @,
-//     all settings are canceled.
-//   - This command is commonly used for printing the same Page-mode data
-//     multiple times without rebuilding the page buffer.
-//
-// Byte sequence:
-//
-//	ESC FF -> 0x1B, 0x0C
-func (p *PagePrint) PrintDataInPageMode() []byte {
-	return []byte{ESC, FF}
+// Interface compliance check
+var (
+	_ PrinterCapability = (*PrintCommands)(nil)
+
+	_ PageModeCapability = (*PagePrint)(nil)
+)
+
+// PrinterCapability defines the interface for printer capabilities
+type PrinterCapability interface {
+	Text(n string) ([]byte, error)
+	PrintAndFeedPaper(n byte) []byte
+	FormFeed() []byte
+	PrintAndCarriageReturn() []byte
+	PrintAndLineFeed() []byte
+}
+
+// PageModeCapability defines the interface for page mode capabilities
+type PageModeCapability interface {
+	ReverseCapability
+	PageCapability
+}
+
+// ReverseCapability defines the interface for reverse printing capabilities
+type ReverseCapability interface {
+	PrintAndReverseFeed(n byte) ([]byte, error)
+	PrintAndReverseFeedLines(n byte) ([]byte, error)
+}
+
+// PageCapability defines the interface for page operations capabilities
+type PageCapability interface {
+	PrintDataInPageMode() []byte
+	PrintAndFeedLines(n byte) ([]byte, error)
+}
+
+// PrintCommands groups printing-related commands
+type PrintCommands struct {
+	Page PageCapability
+}
+
+// Text formats and sends a string for printing
+func (pc *PrintCommands) Text(n string) ([]byte, error) {
+	if err := isBufOk([]byte(n)); err != nil {
+		return nil, err
+	}
+	return format([]byte(n)), nil
 }
 
 // PrintAndFeedPaper prints the data in the print buffer and feeds the paper
@@ -86,178 +100,8 @@ func (p *PagePrint) PrintDataInPageMode() []byte {
 // Byte sequence:
 //
 //	ESC J n -> 0x1B, 0x4A, n
-func (p *PrintCommands) PrintAndFeedPaper(n byte) []byte {
+func (pc *PrintCommands) PrintAndFeedPaper(n byte) []byte {
 	return []byte{ESC, 'J', n}
-}
-
-// PrintAndReverseFeed prints the data in the print buffer and feeds the
-// paper in the reverse direction by n × (vertical or horizontal motion unit).
-//
-// Text:
-//
-//	ASCII: ESC K n
-//	Hex:   0x1B 0x4B n
-//	Decimal: 27 75 n
-//
-// Range:
-//
-//	n = 0–48
-//
-// Default:
-//
-//	None
-//
-// Description:
-//
-//	Prints the data in the print buffer and feeds the paper n × (vertical or
-//	horizontal motion unit) in the reverse direction.
-//
-// Notes:
-//   - In Standard mode the vertical motion unit is used.
-//   - In Page mode the vertical or horizontal motion unit is used according
-//     to the print direction set by ESC T.
-//   - When the starting position is set to the upper-left or lower-right of
-//     the print area using ESC T, the vertical motion unit is used.
-//   - When the starting position is set to the upper-right or lower-left of
-//     the print area using ESC T, the horizontal motion unit is used.
-//   - When this command is processed in Page mode, only the print position
-//     moves; the printer does not perform actual printing.
-//   - After printing, the print position is moved to the left side of the
-//     printable area and the printer enters the "Beginning of the line"
-//     status.
-//   - The maximum paper reverse-feed amount depends on the printer model.
-//     If n is specified greater than the model maximum, the reverse feed is
-//     not executed although the printing is executed.
-//   - This command is used to temporarily feed a specific length without
-//     changing the line spacing set by other commands.
-//   - Some printers perform a small forward paper feed after a reverse feed
-//     due to mechanical restrictions.
-//
-// Byte sequence:
-//
-//	ESC K n -> 0x1B, 0x4B, n
-func (p *PagePrint) PrintAndReverseFeed(n byte) ([]byte, error) {
-	if n > MaxReverseMotionUnits {
-		return nil, errPrintReverseFeed
-	}
-	return []byte{ESC, 'K', n}, nil
-}
-
-// PrintAndReverseFeedLines prints the data in the print buffer and feeds n
-// lines in the reverse direction.
-//
-// Text:
-//
-//	ASCII: ESC e n
-//	Hex:   0x1B 0x65 n
-//	Decimal: 27 101 n
-//
-// Range:
-//
-//	n = 0–2
-//
-// Default:
-//
-//	None
-//
-// Description:
-//
-//	Prints the data in the print buffer and feeds n lines in the reverse
-//	direction.
-//
-// Notes:
-//   - The amount of paper fed per line is based on the value set using the
-//     line spacing command (ESC 2 or ESC 3).
-//   - The maximum paper reverse-feed amount depends on the printer model.
-//     If n is specified greater than the model maximum, the reverse feed is
-//     not executed although the printing is executed.
-//   - After printing, the print position is moved to the left side of the
-//     printable area and the printer enters the "Beginning of the line"
-//     status.
-//   - When this command is processed in Page mode, only the print position
-//     moves and the printer does not perform actual printing.
-//   - This command is used to temporarily feed a specific number of lines
-//     without changing the line spacing set by other commands.
-//   - Some printers perform a small forward paper feed after a reverse feed
-//     due to mechanical restrictions.
-//
-// Byte sequence:
-//
-//	ESC e n -> 0x1B, 0x65, n
-func (p *PagePrint) PrintAndReverseFeedLines(n byte) ([]byte, error) {
-	if n > MaxReverseFeedLines {
-		return nil, errPrintReverseFeedLines
-	}
-	return []byte{ESC, 'e', n}, nil
-}
-
-// PrintAndFeedLines prints the data in the print buffer and feeds n lines.
-//
-// Text:
-//
-//	ASCII: ESC d n
-//	Hex:   0x1B 0x64 n
-//	Decimal: 27 100 n
-//
-// Range:
-//
-//	n = 0–255
-//
-// Default:
-//
-//	None
-//
-// Description:
-//
-//	Prints the data in the print buffer and feeds n lines.
-//
-// Notes:
-//   - The amount of paper fed per line is based on the value set using the
-//     line spacing command (ESC 2 or ESC 3).
-//   - The maximum paper feed amount depends on the printer model. If n is
-//     specified greater than the model maximum, the printer executes the
-//     maximum paper feed amount.
-//   - After printing, the print position is moved to the left side of the
-//     printable area and the printer enters the "Beginning of the line"
-//     status.
-//   - When this command is processed in Page mode, only the print position
-//     moves and the printer does not perform actual printing.
-//   - This command is used to temporarily feed a specific number of lines
-//     without changing the line spacing set by other commands.
-//
-// Byte sequence:
-//
-//	ESC d n -> 0x1B, 0x64, n
-func (p *PagePrint) PrintAndFeedLines(n byte) ([]byte, error) {
-	return []byte{ESC, 'd', n}, nil
-}
-
-// PrintAndLineFeed prints the data in the print buffer and feeds one line,
-// based on the current line spacing.
-//
-// Text:
-//
-//	ASCII: LF
-//	Hex:   0x0A
-//	Decimal: 10
-//
-// Description:
-//
-//	Prints the data in the print buffer and feeds one line, based on the
-//	current line spacing.
-//
-// Notes:
-//   - The amount of paper fed per line is based on the value set using the
-//     line spacing command (ESC 2 or ESC 3).
-//   - After printing, the print position is moved to the left side of the
-//     printable area and the printer enters the "Beginning of the line"
-//     status.
-//   - When this command is processed in Page mode, only the print position
-//     moves and the printer does not perform actual printing.
-//
-// Value is the single-byte LF (line feed) control code.
-func (p *PagePrint) PrintAndLineFeed() []byte {
-	return []byte{LF}
 }
 
 // FormFeed (Form Feed) — behaviour in Standard mode and Page mode.
@@ -316,7 +160,7 @@ func (p *PagePrint) PrintAndLineFeed() []byte {
 // Value:
 //
 //	The FF control code is a single byte 0x0C (decimal 12).
-func (p *PrintCommands) FormFeed() []byte {
+func (pc *PrintCommands) FormFeed() []byte {
 	return []byte{FF}
 }
 
@@ -359,6 +203,212 @@ func (p *PrintCommands) FormFeed() []byte {
 //     printer does not perform actual printing.
 //
 // Value is the single-byte CR (carriage return) control code.
-func (p *PrintCommands) PrintAndCarriageReturn() []byte {
+func (pc *PrintCommands) PrintAndCarriageReturn() []byte {
 	return []byte{CR}
+}
+
+// PrintAndLineFeed prints the data in the print buffer and feeds one line,
+// based on the current line spacing.
+//
+// Text:
+//
+//	ASCII: LF
+//	Hex:   0x0A
+//	Decimal: 10
+//
+// Description:
+//
+//	Prints the data in the print buffer and feeds one line, based on the
+//	current line spacing.
+//
+// Notes:
+//   - The amount of paper fed per line is based on the value set using the
+//     line spacing command (ESC 2 or ESC 3).
+//   - After printing, the print position is moved to the left side of the
+//     printable area and the printer enters the "Beginning of the line"
+//     status.
+//   - When this command is processed in Page mode, only the print position
+//     moves and the printer does not perform actual printing.
+//
+// Value is the single-byte LF (line feed) control code.
+func (pc *PrintCommands) PrintAndLineFeed() []byte {
+	return []byte{LF}
+}
+
+// PagePrint groups page mode printing commands
+type PagePrint struct{}
+
+// PrintDataInPageMode prints the data in the print buffer collectively when
+// the printer is in Page mode.
+//
+// Text:
+//
+//	ASCII: ESC FF
+//	Hex:   0x1B 0x0C
+//	Decimal: 27 12
+//
+// Description:
+//
+//	In Page mode, this command prints all the data currently buffered in the
+//	print area collectively.
+//
+// Notes:
+//   - This command is enabled only in Page mode. Page mode can be selected by
+//     ESC L.
+//   - After printing with ESC FF, the printer does NOT clear the buffered
+//     data, the print position, or values set by other commands — the buffer
+//     remains intact for repeated printing.
+//   - The printer returns to Standard mode when FF (in Page mode), ESC S, or
+//     ESC @ is issued. If the return to Standard mode is caused by ESC @,
+//     all settings are canceled.
+//   - This command is commonly used for printing the same Page-mode data
+//     multiple times without rebuilding the page buffer.
+//
+// Byte sequence:
+//
+//	ESC FF -> 0x1B, 0x0C
+func (pp *PagePrint) PrintDataInPageMode() []byte {
+	return []byte{ESC, FF}
+}
+
+// PrintAndReverseFeed prints the data in the print buffer and feeds the
+// paper in the reverse direction by n × (vertical or horizontal motion unit).
+//
+// Text:
+//
+//	ASCII: ESC K n
+//	Hex:   0x1B 0x4B n
+//	Decimal: 27 75 n
+//
+// Range:
+//
+//	n = 0–48
+//
+// Default:
+//
+//	None
+//
+// Description:
+//
+//	Prints the data in the print buffer and feeds the paper n × (vertical or
+//	horizontal motion unit) in the reverse direction.
+//
+// Notes:
+//   - In Standard mode the vertical motion unit is used.
+//   - In Page mode the vertical or horizontal motion unit is used according
+//     to the print direction set by ESC T.
+//   - When the starting position is set to the upper-left or lower-right of
+//     the print area using ESC T, the vertical motion unit is used.
+//   - When the starting position is set to the upper-right or lower-left of
+//     the print area using ESC T, the horizontal motion unit is used.
+//   - When this command is processed in Page mode, only the print position
+//     moves; the printer does not perform actual printing.
+//   - After printing, the print position is moved to the left side of the
+//     printable area and the printer enters the "Beginning of the line"
+//     status.
+//   - The maximum paper reverse-feed amount depends on the printer model.
+//     If n is specified greater than the model maximum, the reverse feed is
+//     not executed although the printing is executed.
+//   - This command is used to temporarily feed a specific length without
+//     changing the line spacing set by other commands.
+//   - Some printers perform a small forward paper feed after a reverse feed
+//     due to mechanical restrictions.
+//
+// Byte sequence:
+//
+//	ESC K n -> 0x1B, 0x4B, n
+func (pp *PagePrint) PrintAndReverseFeed(n byte) ([]byte, error) {
+	if n > MaxReverseMotionUnits {
+		return nil, errPrintReverseFeed
+	}
+	return []byte{ESC, 'K', n}, nil
+}
+
+// PrintAndReverseFeedLines prints the data in the print buffer and feeds n
+// lines in the reverse direction.
+//
+// Text:
+//
+//	ASCII: ESC e n
+//	Hex:   0x1B 0x65 n
+//	Decimal: 27 101 n
+//
+// Range:
+//
+//	n = 0–2
+//
+// Default:
+//
+//	None
+//
+// Description:
+//
+//	Prints the data in the print buffer and feeds n lines in the reverse
+//	direction.
+//
+// Notes:
+//   - The amount of paper fed per line is based on the value set using the
+//     line spacing command (ESC 2 or ESC 3).
+//   - The maximum paper reverse-feed amount depends on the printer model.
+//     If n is specified greater than the model maximum, the reverse feed is
+//     not executed although the printing is executed.
+//   - After printing, the print position is moved to the left side of the
+//     printable area and the printer enters the "Beginning of the line"
+//     status.
+//   - When this command is processed in Page mode, only the print position
+//     moves and the printer does not perform actual printing.
+//   - This command is used to temporarily feed a specific number of lines
+//     without changing the line spacing set by other commands.
+//   - Some printers perform a small forward paper feed after a reverse feed
+//     due to mechanical restrictions.
+//
+// Byte sequence:
+//
+//	ESC e n -> 0x1B, 0x65, n
+func (pp *PagePrint) PrintAndReverseFeedLines(n byte) ([]byte, error) {
+	if n > MaxReverseFeedLines {
+		return nil, errPrintReverseFeedLines
+	}
+	return []byte{ESC, 'e', n}, nil
+}
+
+// PrintAndFeedLines prints the data in the print buffer and feeds n lines.
+//
+// Text:
+//
+//	ASCII: ESC d n
+//	Hex:   0x1B 0x64 n
+//	Decimal: 27 100 n
+//
+// Range:
+//
+//	n = 0–255
+//
+// Default:
+//
+//	None
+//
+// Description:
+//
+//	Prints the data in the print buffer and feeds n lines.
+//
+// Notes:
+//   - The amount of paper fed per line is based on the value set using the
+//     line spacing command (ESC 2 or ESC 3).
+//   - The maximum paper feed amount depends on the printer model. If n is
+//     specified greater than the model maximum, the printer executes the
+//     maximum paper feed amount.
+//   - After printing, the print position is moved to the left side of the
+//     printable area and the printer enters the "Beginning of the line"
+//     status.
+//   - When this command is processed in Page mode, only the print position
+//     moves and the printer does not perform actual printing.
+//   - This command is used to temporarily feed a specific number of lines
+//     without changing the line spacing set by other commands.
+//
+// Byte sequence:
+//
+//	ESC d n -> 0x1B, 0x64, n
+func (pp *PagePrint) PrintAndFeedLines(n byte) ([]byte, error) {
+	return []byte{ESC, 'd', n}, nil
 }

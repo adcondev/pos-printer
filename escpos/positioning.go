@@ -60,13 +60,3 @@ func SetHorizontalTabPositions(n TabColumnNumber, k TabTotalPosition) ([]byte, e
 
 	return cmd, nil
 }
-
-// SetLineSpacing establece el espaciado entre líneas
-func (c *Commands) SetLineSpacing(n LineSpace) []byte {
-	return []byte{ESC, '3', byte(n)}
-}
-
-// SelectDefaultLineSpacing restablece el espaciado entre líneas al valor predeterminado
-func SelectDefaultLineSpacing() []byte {
-	return []byte{ESC, '2'}
-}
