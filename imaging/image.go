@@ -1,7 +1,7 @@
 package imaging
 
 import (
-	"github.com/adcondev/pos-printer/utils"
+	"github.com/adcondev/pos-printer/internal"
 	"golang.org/x/image/draw"
 
 	"image"
@@ -68,7 +68,6 @@ func (p *PrintImage) GetEffectiveImage() image.Image {
 	return p.Source
 }
 
-// TODO: Revisar linter
 // GetPixel obtiene el valor de un pixel como blanco (false) o negro (true)
 func (p *PrintImage) GetPixel(x, y int) bool {
 	// Si tenemos datos monocromáticos, usarlos
@@ -105,7 +104,6 @@ func (p *PrintImage) ToMonochrome() []byte {
 	img := p.GetEffectiveImage()
 
 	// Convertir pixel por pixel
-	// TODO: Revisar linters
 	for y := 0; y < p.Height; y++ {
 		for x := 0; x < p.Width; x++ {
 			// Para imágenes ya procesadas con dithering
@@ -163,8 +161,9 @@ func ResizeToWidth(img image.Image, newWidth, maxWidth int) image.Image {
 	return newImg
 }
 
+// LoadImage loads a JPEG image from a file
 func LoadImage(filename string) (image.Image, error) {
-	file, err := utils.SafeOpen(filename)
+	file, err := internal.SafeOpen(filename)
 	if err != nil {
 		log.Printf("Error al abrir imagen: %v", err)
 		return nil, err

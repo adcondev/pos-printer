@@ -42,4 +42,4 @@
 //   - Soporte para diferentes modelos de impresoras térmicas
 //
 // Para más detalles, consulte los ejemplos en la carpeta 'examples'.
-package internal
+package pos

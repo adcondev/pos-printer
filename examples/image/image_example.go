@@ -1,3 +1,4 @@
+// Package main demonstrates how to print images using a POS printer with different dithering algorithms.
 package main
 
 import (
@@ -52,7 +53,7 @@ func useESCPOS(conn connector.Connector) {
 	// Cargar imagen
 	img, err := imaging.LoadImage("./img/perro.jpeg")
 	if err != nil {
-		log.Fatalf("Error al cargar imagen: %v", err)
+		log.Printf("Error al cargar imagen: %v", err)
 	}
 
 	err = printer.Feed(3)

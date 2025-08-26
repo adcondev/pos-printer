@@ -82,6 +82,7 @@ type MockLineSpacingCapability struct {
 	SelectDefaultReturn []byte
 }
 
+// SetLineSpacing mock
 func (m *MockLineSpacingCapability) SetLineSpacing(n byte) []byte {
 	m.SetLineSpacingCalled = true
 	m.SetLineSpacingInput = n
@@ -91,6 +92,7 @@ func (m *MockLineSpacingCapability) SetLineSpacing(n byte) []byte {
 	return []byte{ESC, '3', n}
 }
 
+// SelectDefaultLineSpacing mock
 func (m *MockLineSpacingCapability) SelectDefaultLineSpacing() []byte {
 	m.SelectDefaultCalled = true
 	if m.SelectDefaultReturn != nil {

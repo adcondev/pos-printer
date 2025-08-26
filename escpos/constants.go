@@ -12,13 +12,13 @@ const (
 	ENQ byte = 0x05
 	// DC4 representa el byte "Device Control 4" en ESC/POS.
 	DC4 byte = 0x14
-	// SP
+	// SP representa el byte de espacio en blanco en ESC/POS.
 	SP byte = 0x20 // Espacio (carácter de espacio en blanco)
-	// FS
+	// FS File Separator
 	FS byte = 0x1C
-	// GS
+	// GS Group Separator
 	GS byte = 0x1D
-	// NUL
+	// NUL 0
 	NUL byte = 0x00
 	// ESC Comando de escape para impresoras
 	ESC byte = 0x1B

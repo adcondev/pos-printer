@@ -1,4 +1,4 @@
-package utils
+package internal
 
 import (
 	"fmt"
@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-// SafeOpen valida que filename no escape del directorio de trabajo
+// SafeOpen válida que filename no escape del directorio de trabajo
 func SafeOpen(filename string) (*os.File, error) {
 	absPath, err := filepath.Abs(filename)
 	if err != nil {

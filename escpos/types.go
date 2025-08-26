@@ -4,9 +4,13 @@ package escpos
 type Alignment int
 
 const (
+	// AlignLeft Left alignment
 	AlignLeft Alignment = iota
+	// AlignCenter Center alignment
 	AlignCenter
+	// AlignRight Right alignment
 	AlignRight
+	// AlignJustified Justified alignment
 	AlignJustified // Algunos protocolos podrían soportar esto
 )
 
@@ -14,12 +18,19 @@ const (
 type Font byte
 
 const (
+	// FontA A (normal)
 	FontA Font = iota
+	// FontB B (smaller)
 	FontB
+	// FontC C
 	FontC
+	// FontD D
 	FontD
+	// FontE E
 	FontE
+	// SpecialA Special font A
 	SpecialA
+	// SpecialB Special font B
 	SpecialB
 )
 
@@ -27,8 +38,11 @@ const (
 type UnderlineMode byte
 
 const (
+	// UnderNone No underline
 	UnderNone UnderlineMode = iota
+	// UnderSingle Single underline
 	UnderSingle
+	// UnderDouble Double underline
 	UnderDouble
 )
 
@@ -36,34 +50,52 @@ const (
 type BarcodeType int
 
 const (
+	// UPCA Universal Product Code - A
 	UPCA BarcodeType = iota
+	// UPCE Universal Product Code - Compressed
 	UPCE
+	// EAN13 European Article Number - 13
 	EAN13
+	// EAN8 European Article Number - 8
 	EAN8
+	// Code39 CODE 39
 	Code39
+	// ITF Interleaved 2 of 5
 	ITF
-	Codebar
+	// Codabar Lineal Barcode
+	Codabar
 )
 
 // TextPositionBarcode define posiciones estándar para texto en códigos de barras
 type TextPositionBarcode byte
 
 const (
+	// NonePosBarcode No text
 	NonePosBarcode TextPositionBarcode = iota
+	// AbovePosBarcode Text above the barcode
 	AbovePosBarcode
+	// BelowPosBarcode Text below the barcode
 	BelowPosBarcode
+	// BothPosBarcode Text both above and below the barcode
 	BothPosBarcode
 )
 
+// BarcodeHeight define heights for barcodes
 type BarcodeHeight byte
 
+// BarcodeWidth define widths for barcodes
 type BarcodeWidth byte
 
 const (
+	// ExtraSmallWidth Tiny width
 	ExtraSmallWidth BarcodeWidth = iota
+	// SmallWidth Small width
 	SmallWidth
+	// MediumWidth Medium width
 	MediumWidth
+	// LargeWidth Large width
 	LargeWidth
+	// ExtraLargeWidth Extra large width
 	ExtraLargeWidth
 )
 
@@ -71,7 +103,9 @@ const (
 type CutPaper byte
 
 const (
+	// FullCut Full paper cut
 	FullCut CutPaper = iota
+	// PartialCut  Partial paper cut
 	PartialCut
 )
 
@@ -79,9 +113,13 @@ const (
 type Density int
 
 const (
+	// DensitySingle No density (default)
 	DensitySingle Density = iota
+	// DensityDouble Double density
 	DensityDouble
+	// DensityTriple Triple density
 	DensityTriple
+	// DensityQuadruple Quadruple density
 	DensityQuadruple
 )
 
@@ -89,99 +127,137 @@ const (
 type QRModel byte
 
 const (
-	Model1 QRModel = iota // Modelo 1 (estándar)
-	Model2                // Modelo 2 (recomendado y estándar)
+	// Model1 QR Type 1 (standard)
+	Model1 QRModel = iota
+	// Model2 QR Type 2 (recommended)
+	Model2
 )
 
 // QRErrorCorrection define los niveles de corrección de errores estándar para códigos QR
 type QRErrorCorrection byte
 
 const (
-	ECLow     QRErrorCorrection = iota // 7% de corrección
-	ECMedium                           // 15% de corrección
-	ECHigh                             // 25% de corrección
-	ECHighest                          // 30% de corrección
+	// ECLow 7% error correction
+	ECLow QRErrorCorrection = iota
+	// ECMedium 15% error correction
+	ECMedium
+	// ECHigh 25% error correction
+	ECHigh
+	// ECHighest 30% error correction
+	ECHighest
 )
 
-// FIXME: Corregir los types con Min y Max, dejarlo en ESCPOS
-
-// QRModuleSize define los tamaños de módulo estándar para códigos QR
+// QRModuleSize defines the size of QR code modules
 type QRModuleSize byte
 
 const (
+	// MinType Minimum module size
 	MinType QRModuleSize = 1
+	// MaxType Maximum module size
 	MaxType QRModuleSize = 16
 )
 
+// Lines defines the number of lines to feed
 type Lines byte
 
-// RealTimeStatus define los estados de tiempo real de la impresora
+// RealTimeStatus defines the real-time status types
 type RealTimeStatus byte
 
 const (
+	// PrinterStatus defines the state of the printer
 	PrinterStatus RealTimeStatus = iota
+	// OfflineStatus defines the state of the printer's offline status
 	OfflineStatus
+	// ErrorStatus defines the state of the printer's error status
 	ErrorStatus
+	// PaperSensorStatus defines the state of the paper sensor
 	PaperSensorStatus
 )
 
-// CashDrawerPin define los pines del cajón de dinero
+// CashDrawerPin defines the pins for the cash drawer
 type CashDrawerPin byte
 
 const (
-	Pin2 CashDrawerPin = iota // Pin 1
-	Pin5                      // Pin 2
+	// Pin2 Cash Drawer Pin 2
+	Pin2 CashDrawerPin = iota
+	// Pin5 Cash Drawer Pin 5
+	Pin5
 )
 
-// CashDrawerTimePulse define los tiempos de pulso del cajón de dinero
+// CashDrawerTimePulse defines the pulse duration for the cash drawer
 type CashDrawerTimePulse byte
 
 const (
-	Pulse100ms CashDrawerTimePulse = iota // 1x (100 ms)
-	Pulse200ms                            // 2x (200 ms)
-	Pulse300ms                            // 3x (300 ms)
-	Pulse400ms                            // 4x (400 ms)
-	Pulse500ms                            // 5x (500 ms)
-	Pulse600ms                            // 6x (600 ms)
-	Pulse700ms                            // 7x (700 ms)
-	Pulse800ms                            // 8x (800 ms)
+	// Pulse100ms 1x (100 ms)
+	Pulse100ms CashDrawerTimePulse = iota
+	// Pulse200ms 2x (200 ms)
+	Pulse200ms
+	// Pulse300ms 3x (300 ms)
+	Pulse300ms
+	// Pulse400ms 4x (400 ms)
+	Pulse400ms
+	// Pulse500ms 5x (500 ms)
+	Pulse500ms
+	// Pulse600ms 6x (600 ms)
+	Pulse600ms
+	// Pulse700ms 7x (700 ms)
+	Pulse700ms
+	// Pulse800ms 8x (800 ms)
+	Pulse800ms
 )
 
-// EmphasizedMode define los modos de énfasis de texto
+// EmphasizedMode defines the emphasized text modes
 type EmphasizedMode byte
 
 const (
-	EmphOff EmphasizedMode = iota // Modo normal (sin énfasis)
-	EmphOn                        // Modo enfatizado (negrita)
+	// EmphOff Normal mode (no emphasis)
+	EmphOff EmphasizedMode = iota
+	// EmphOn Emphasized mode (bold)
+	EmphOn
 )
 
+// TabColumnNumber defines the tab column numbers
 type TabColumnNumber []byte
 
+// TabTotalPosition defines the total tab positions
 type TabTotalPosition byte
 
+// UserDefinedChar defines user-defined character slots
 type UserDefinedChar byte
 
+// PrinterEnabled defines whether the printer is enabled or disabled
 type PrinterEnabled byte
 
 const (
+	// EnaOff Printer disabled
 	EnaOff PrinterEnabled = iota
+	// EnaOn Printer enabled
 	EnaOn
 )
 
+// LineSpace defines the line spacing in dots
 type LineSpace byte
 
+// BitImageMode defines the bit image modes
 type BitImageMode byte
 
 const (
-	Mode8DotSingleDen  BitImageMode = iota // Modo de 8 puntos, densidad simple
-	Mode8DotDoubleDen                      // Modo de 8 puntos, doble densidad
-	Mode24DotSingleDen                     // Modo de 24 puntos, densidad simple
-	Mode24DotDoubleDen                     // Modo de 24 puntos, doble densidad
+	// Mode8DotSingleDen 8-dot mode, single density
+	Mode8DotSingleDen BitImageMode = iota
+	// Mode8DotDoubleDen  8-dot mode, double density
+	Mode8DotDoubleDen
+	// Mode24DotSingleDen  24-dot mode, single density
+	Mode24DotSingleDen
+	// Mode24DotDoubleDen  24-dot mode, double density
+	Mode24DotDoubleDen
 )
 
+// PrinterInitiated indicates whether to initialize the printer
 type PrinterInitiated bool
 
 const (
-	OnInit  PrinterInitiated = true  // Inicializar la impresora
+	// OnInit Printer initialized
+	OnInit PrinterInitiated = true // Inicializar la impresora
+	// OffInit Printer not initialized
 	OffInit PrinterInitiated = false // No inicializar la impresora
 )

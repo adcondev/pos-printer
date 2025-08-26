@@ -36,6 +36,7 @@ type docInfo1 struct {
 
 // === Estructura del conector ===
 
+// WindowsPrintConnector implements a connector for Windows printers using the Windows API.
 type WindowsPrintConnector struct {
 	printerName   string
 	printerHandle syscall.Handle
@@ -45,6 +46,7 @@ type WindowsPrintConnector struct {
 
 // === Constructor ===
 
+// NewWindowsPrintConnector creates a new connector for the specified printer name.
 func NewWindowsPrintConnector(printerName string) (*WindowsPrintConnector, error) {
 	if printerName == "" {
 		return nil, errors.New("el nombre de la impresora no puede estar vacío")
@@ -106,6 +108,7 @@ func (c *WindowsPrintConnector) Write(data []byte) (int, error) {
 	return int(bytesWritten), nil
 }
 
+// Close ends the print job and closes the printer handle.
 func (c *WindowsPrintConnector) Close() error {
 	var finalErr error
 

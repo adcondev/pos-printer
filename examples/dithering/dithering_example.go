@@ -35,7 +35,7 @@ func main() {
 	// === Crear impresora genérica ===
 	printer, err := pos.NewEscposPrinter(pos.EscposProto, conn, prof)
 	if err != nil {
-		log.Fatalf("Error al crear impresora: %v", err)
+		log.Printf("Error al crear impresora: %v", err)
 	}
 	defer func(printer *pos.EscposPrinter) {
 		err := printer.Close()
@@ -52,7 +52,7 @@ func main() {
 	// === Cargar imagen ===
 	img, err := imaging.LoadImage("./img/perro.jpeg")
 	if err != nil {
-		log.Fatalf("Error al cargar imagen: %v", err)
+		log.Printf("Error al cargar imagen: %v", err)
 	}
 
 	// === Imprimir título ===

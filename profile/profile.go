@@ -77,7 +77,8 @@ func CreatePt210() *Escpos {
 	return p
 }
 
-func CreateProfGP_58N() *Escpos {
+// CreateGP58N crea un perfil para impresora térmica de 58mm GP-58N
+func CreateGP58N() *Escpos {
 	p := CreateProfile58mm()
 	p.Model = "58mm GP-58N"
 	p.CharacterSets = []encoding.CharacterSet{
@@ -152,7 +153,8 @@ func CreateProfile58mm() *Escpos {
 	}
 }
 
-func CreateProfEC_PM_80250() *Escpos {
+// CreateECPM80250 crea un perfil para impresora térmica de 80mm EC-PM-80250
+func CreateECPM80250() *Escpos {
 	p := CreateProfile80mm()
 	p.Model = "80mm EC-PM-80250"
 	p.CharacterSets = []encoding.CharacterSet{
@@ -225,6 +227,7 @@ func CreateProfile80mm() *Escpos {
 	}
 }
 
+// HasImageSupport indica si la impresora soporta impresión de imágenes
 func (p *Escpos) HasImageSupport() bool {
 	return p.SupportsGraphics
 }

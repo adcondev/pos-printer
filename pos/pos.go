@@ -11,15 +11,19 @@ import (
 	"github.com/skip2/go-qrcode"
 
 	"github.com/adcondev/pos-printer/connector"
+	"github.com/adcondev/pos-printer/internal"
 	"github.com/adcondev/pos-printer/profile"
-	"github.com/adcondev/pos-printer/utils"
 )
 
+// Protocol defines the printing protocol (ESCPOS, ZPL, PDF, etc.
 type Protocol byte
 
 const (
+	// EscposProto defines the ESCPOS protocol
 	EscposProto Protocol = iota
+	// ZplProto defines the ZPL protocol
 	ZplProto
+	// PdfProto defines the PDF generation protocol
 	PdfProto
 )
 
@@ -170,9 +174,8 @@ func (p *EscposPrinter) SetJustification(alignment escpos.Alignment) error {
 	_, err = p.Connector.Write(cmd)
 	if err != nil {
 		return fmt.Errorf("error al establecer alineación: %w", err)
-	} else {
-		p.activeAlignment = alignment
 	}
+	p.activeAlignment = alignment
 
 	return err
 }
@@ -198,9 +201,8 @@ func (p *EscposPrinter) SetFont(font escpos.Font) error {
 	_, err = p.Connector.Write(cmd)
 	if err != nil {
 		return fmt.Errorf("error al establecer fuente: %w", err)
-	} else {
-		p.activeFont = font
 	}
+	p.activeFont = font
 
 	return err
 }
@@ -226,9 +228,8 @@ func (p *EscposPrinter) SetEmphasis(on escpos.EmphasizedMode) error {
 	_, err = p.Connector.Write(cmd)
 	if err != nil {
 		return fmt.Errorf("error al establecer negrita: %w", err)
-	} else {
-		p.activeEmphasis = on
 	}
+	p.activeEmphasis = on
 	return err
 }
 
@@ -333,7 +334,6 @@ func (p *EscposPrinter) TextLn(str string) error {
 
 // Cut corta el papel
 func (p *EscposPrinter) Cut(mode escpos.CutPaper) error {
-	// TODO: Verificar si la impresora tiene cutter con HasCapability
 	cmd, err := p.ESCPOS.Cut(mode) // 0 lines feed antes del corte
 	if err != nil {
 		return fmt.Errorf("error al generar comando de corte: %w", err)
@@ -403,8 +403,9 @@ func (p *EscposPrinter) PrintImageWithOptions(img image.Image, opts PrintImageOp
 	return err
 }
 
+// PrintImageFromFile opens and prints an image from a file
 func (p *EscposPrinter) PrintImageFromFile(filename string) error {
-	file, err := utils.SafeOpen(filename)
+	file, err := internal.SafeOpen(filename)
 	if err != nil {
 		return fmt.Errorf("failed to open imaging file: %w", err)
 	}
@@ -421,11 +422,13 @@ func (p *EscposPrinter) PrintImageFromFile(filename string) error {
 	return p.PrintImage(img)
 }
 
+// GetSupportedCharsets returns the character sets supported by the printer profile
 func (p *EscposPrinter) GetSupportedCharsets() []encoding.CharacterSet {
 	// Retorna los juegos de caracteres soportados por el perfil
 	return p.Profile.CharacterSets
 }
 
+// CancelKanjiMode deactivates Kanji mode
 func (p *EscposPrinter) CancelKanjiMode() error {
 	// Enviar comando para cancelar modo Kanji
 	cmd := p.ESCPOS.CancelKanjiMode()
