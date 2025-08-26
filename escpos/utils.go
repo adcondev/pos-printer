@@ -30,7 +30,7 @@ func format(data []byte) []byte {
 
 // lengthLowHigh convierte una longitud en dos bytes little-endian (dL,dH)
 // para usar en comandos ESC/Z.
-// length debe estar entre 0 y 0xFFFF (65535), de lo contrario devuelve error.
+// length debe estar entre 0 y 0 xFF FF (65535), de lo contrario devuelve error.
 func lengthLowHigh(length int) (dL, dH byte, err error) {
 	if length < 0 {
 		return 0, 0, errNegativeInt

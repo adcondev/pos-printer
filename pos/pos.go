@@ -15,11 +15,11 @@ import (
 	"github.com/adcondev/pos-printer/profile"
 )
 
-// Protocol defines the printing protocol (ESCPOS, ZPL, PDF, etc.
+// Protocol defines the printing protocol (Escpos, ZPL, PDF, etc.
 type Protocol byte
 
 const (
-	// EscposProto defines the ESCPOS protocol
+	// EscposProto defines the Escpos protocol
 	EscposProto Protocol = iota
 	// ZplProto defines the ZPL protocol
 	ZplProto
@@ -34,7 +34,7 @@ type EscposPrinter struct {
 	Profile   *profile.Escpos
 
 	// Commands
-	ESCPOS *escpos.Commands
+	Escpos *escpos.Commands
 
 	// Command Types
 	// PrintDataInPageMode *escpos.TextCommands
@@ -52,7 +52,7 @@ type EscposPrinter struct {
 }
 
 var protoMap = map[Protocol]string{
-	EscposProto: "ESCPOS",
+	EscposProto: "Escpos",
 	// types.ZplProto:    "ZPL",
 	// types.PdfProto:    "PDF",
 }
@@ -83,8 +83,8 @@ func NewEscposPrinter(proto Protocol, conn connector.Connector, prof *profile.Es
 	}
 
 	switch protoMap[proto] {
-	case "ESCPOS":
-		printer.ESCPOS = escpos.NewEscposProtocol()
+	case "Escpos":
+		printer.Escpos = escpos.NewEscposProtocol()
 	case "ZPL":
 		// printer.zpl = zpl.NewZPLProtocol()
 		return nil, fmt.Errorf("protocol %s not released yet", protoType)
@@ -129,8 +129,8 @@ func (p *EscposPrinter) GetProtocolName() string {
 func (p *EscposPrinter) Initialize() error {
 	var cmd []byte
 	switch protoMap[p.protocolType] {
-	case "ESCPOS":
-		cmd = p.ESCPOS.InitializePrinter()
+	case "Escpos":
+		cmd = p.Escpos.InitializePrinter()
 	case "ZPL":
 		// cmd := p.ZPL.InitializePrinter()
 	case "PDF":
@@ -158,8 +158,8 @@ func (p *EscposPrinter) SetJustification(alignment escpos.Alignment) error {
 	var cmd []byte
 	var err error
 	switch protoMap[p.protocolType] {
-	case "ESCPOS":
-		cmd, err = p.ESCPOS.SetJustification(alignment)
+	case "Escpos":
+		cmd, err = p.Escpos.SetJustification(alignment)
 		if err != nil {
 			return fmt.Errorf("error al establecer alineación: %w", err)
 		}
@@ -185,8 +185,8 @@ func (p *EscposPrinter) SetFont(font escpos.Font) error {
 	var cmd []byte
 	var err error
 	switch protoMap[p.protocolType] {
-	case "ESCPOS":
-		cmd, err = p.ESCPOS.SelectCharacterFont(font)
+	case "Escpos":
+		cmd, err = p.Escpos.SelectCharacterFont(font)
 		if err != nil {
 			return err
 		}
@@ -212,8 +212,8 @@ func (p *EscposPrinter) SetEmphasis(on escpos.EmphasizedMode) error {
 	var cmd []byte
 	var err error
 	switch protoMap[p.protocolType] {
-	case "ESCPOS":
-		cmd, err = p.ESCPOS.TurnEmphasizedMode(on)
+	case "Escpos":
+		cmd, err = p.Escpos.TurnEmphasizedMode(on)
 		if err != nil {
 			return fmt.Errorf("escpos: error al establecer negrita: %w", err)
 		}
@@ -236,14 +236,14 @@ func (p *EscposPrinter) SetEmphasis(on escpos.EmphasizedMode) error {
 // SetDoubleStrike activa/desactiva doble golpe
 func (p *EscposPrinter) SetDoubleStrike(on bool) error {
 
-	cmd := p.ESCPOS.SetDoubleStrike(on)
+	cmd := p.Escpos.SetDoubleStrike(on)
 	_, err := p.Connector.Write(cmd)
 	return err
 }
 
 // SetUnderline configura el subrayado
 func (p *EscposPrinter) SetUnderline(underline escpos.UnderlineMode) error {
-	cmd, err := p.ESCPOS.TurnUnderlineMode(underline)
+	cmd, err := p.Escpos.TurnUnderlineMode(underline)
 	if err != nil {
 		return fmt.Errorf("underline mode error: %w", err)
 	}
@@ -267,7 +267,7 @@ func (p *EscposPrinter) SetCharacterSet(charsetCode encoding.CharacterSet) error
 	}
 
 	// Enviar comando al protocolo
-	cmd, err := p.ESCPOS.SelectCharacterTable(charsetCode)
+	cmd, err := p.Escpos.SelectCharacterTable(charsetCode)
 	if err != nil {
 		return fmt.Errorf("error al generar comando de cambio de charset: %w", err)
 	}
@@ -296,7 +296,7 @@ func (p *EscposPrinter) Print(str string) error {
 	}
 
 	// Enviar al protocolo como bytes raw
-	cmd, err := p.ESCPOS.Print.Text(string(encoded))
+	cmd, err := p.Escpos.Print.Text(string(encoded))
 	if err != nil {
 		return fmt.Errorf("error al generar comando de impresión: %w", err)
 	}
@@ -321,7 +321,7 @@ func (p *EscposPrinter) TextLn(str string) error {
 	}
 
 	// El protocolo agrega el LF
-	cmd, err := p.ESCPOS.Print.Text(string(encoded))
+	cmd, err := p.Escpos.Print.Text(string(encoded))
 	if err != nil {
 		return fmt.Errorf("failed to generate print command: %w", err)
 	}
@@ -334,7 +334,7 @@ func (p *EscposPrinter) TextLn(str string) error {
 
 // Cut corta el papel
 func (p *EscposPrinter) Cut(mode escpos.CutPaper) error {
-	cmd, err := p.ESCPOS.Cut(mode) // 0 lines feed antes del corte
+	cmd, err := p.Escpos.Cut(mode) // 0 lines feed antes del corte
 	if err != nil {
 		return fmt.Errorf("error al generar comando de corte: %w", err)
 	}
@@ -344,7 +344,7 @@ func (p *EscposPrinter) Cut(mode escpos.CutPaper) error {
 
 // Feed alimenta papel
 func (p *EscposPrinter) Feed(lines byte) error {
-	cmd := p.ESCPOS.Print.PrintAndFeedPaper(lines)
+	cmd := p.Escpos.Print.PrintAndFeedPaper(lines)
 	_, err := p.Connector.Write(cmd)
 	return err
 }
@@ -393,7 +393,7 @@ func (p *EscposPrinter) PrintImageWithOptions(img image.Image, opts PrintImageOp
 	}
 
 	// Generar comandos
-	cmd, err := p.ESCPOS.PrintRasterBitImage(printImg, opts.Density)
+	cmd, err := p.Escpos.PrintRasterBitImage(printImg, opts.Density)
 	if err != nil {
 		return fmt.Errorf("failed to generate imaging commands: %w", err)
 	}
@@ -431,7 +431,7 @@ func (p *EscposPrinter) GetSupportedCharsets() []encoding.CharacterSet {
 // CancelKanjiMode deactivates Kanji mode
 func (p *EscposPrinter) CancelKanjiMode() error {
 	// Enviar comando para cancelar modo Kanji
-	cmd := p.ESCPOS.CancelKanjiMode()
+	cmd := p.Escpos.CancelKanjiMode()
 	_, err := p.Connector.Write(cmd)
 	return err
 }
@@ -460,7 +460,7 @@ func (p *EscposPrinter) PrintQR(
 	}
 
 	// Usar el comando nativo
-	cmdLines, err := p.ESCPOS.PrintQR(data, model, moduleSize, ecLevel)
+	cmdLines, err := p.Escpos.PrintQR(data, model, moduleSize, ecLevel)
 	if err != nil {
 		return fmt.Errorf("error al generar QR: %w", err)
 	}

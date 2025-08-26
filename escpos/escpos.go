@@ -11,17 +11,16 @@ func (c *Commands) Raw(n string) ([]byte, error) {
 	if err := isBufOk([]byte(n)); err != nil {
 		return nil, err
 	}
-	// Sin procesar
 	return []byte(n), nil
 }
 
-// NewEscposProtocol crea una nueva instancia del protocolo ESC/POS
+// NewEscposProtocol creates a new instance of the ESC/POS protocol
+// Using Escpos (all caps) for consistency with the protocol name
 func NewEscposProtocol() *Commands {
-	c := &Commands{
+	return &Commands{
 		Print: &PrintCommands{
 			Page: &PagePrint{},
 		},
 		LineSpace: &LineSpacingCommands{},
 	}
-	return c
 }
