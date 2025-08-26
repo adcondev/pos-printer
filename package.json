@@ -10,9 +10,9 @@
   "description": "POS Printer Commands Core Logic",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/AdConDev/pos-printer.git"
+    "url": "git+https://github.com/adcondev/pos-printer.git"
   },
-  "author": "AdConDev",
+  "author": "adcondev",
   "license": "MIT",
   "scripts": {
     "release": "standard-version"

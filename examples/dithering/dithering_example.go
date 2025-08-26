@@ -1,14 +1,14 @@
+// Package main demonstrates how to print images with different dithering methods using a POS printer.
 package main
 
 import (
 	"log"
 
-	"github.com/AdConDev/pos-printer"
-	"github.com/AdConDev/pos-printer/connector"
-	"github.com/AdConDev/pos-printer/imaging"
-	"github.com/AdConDev/pos-printer/profile"
-	"github.com/AdConDev/pos-printer/protocol/escpos"
-	"github.com/AdConDev/pos-printer/types"
+	"github.com/adcondev/pos-printer/connector"
+	"github.com/adcondev/pos-printer/escpos"
+	"github.com/adcondev/pos-printer/imaging"
+	"github.com/adcondev/pos-printer/pos"
+	"github.com/adcondev/pos-printer/profile"
 )
 
 func main() {
@@ -33,16 +33,12 @@ func main() {
 		}
 	}(conn)
 
-	// === Crear protocolo ===
-	// Aquí es donde seleccionas qué protocolo usar (ESC/POS, ZPL, etc.)
-	proto := escpos.NewESCPOSProtocol()
-
 	// === Crear impresora genérica ===
-	printer, err := posprinter.NewGenericPrinter(proto, conn, prof)
+	printer, err := pos.NewEscposPrinter(pos.EscposProto, conn, prof)
 	if err != nil {
-		log.Fatalf("Error al crear impresora: %v", err)
+		log.Printf("Error al crear impresora: %v", err)
 	}
-	defer func(printer *posprinter.GenericPrinter) {
+	defer func(printer *pos.EscposPrinter) {
 		err := printer.Close()
 		if err != nil {
 			log.Printf("Error al cerrar impresora: %v", err)
@@ -57,20 +53,20 @@ func main() {
 	// === Cargar imagen ===
 	img, err := imaging.LoadImage("./img/perro.jpeg")
 	if err != nil {
-		log.Fatalf("Error al cargar imagen: %v", err)
+		log.Printf("Error al cargar imagen: %v", err)
 	}
 
 	// === Imprimir título ===
-	if err := printer.SetJustification(types.AlignCenter); err != nil {
+	if err := printer.SetJustification(escpos.AlignCenter); err != nil {
 		log.Printf("Error: %v", err)
 	}
-	if err := printer.SetEmphasis(types.EmphOn); err != nil {
+	if err := printer.SetEmphasis(escpos.EmphOn); err != nil {
 		log.Printf("Error: %v", err)
 	}
 	if err := printer.TextLn("PRUEBA DE DITHERING"); err != nil {
 		log.Printf("Error: %v", err)
 	}
-	if err := printer.SetEmphasis(types.EmphOff); err != nil {
+	if err := printer.SetEmphasis(escpos.EmphOff); err != nil {
 		log.Printf("Error: %v", err)
 	}
 	if err := printer.Feed(1); err != nil {
@@ -88,8 +84,8 @@ func main() {
 		log.Printf("Error: %v", err)
 	}
 
-	opts := posprinter.PrintImageOptions{
-		Density:    types.DensitySingle,
+	opts := pos.PrintImageOptions{
+		Density:    escpos.DensitySingle,
 		DitherMode: imaging.DitherFloydSteinberg,
 		Threshold:  128,
 		Width:      256, // 0 = usar ancho original de imagen. La imagen podría salir más ancha que el papel
@@ -97,7 +93,7 @@ func main() {
 
 	// === Opción 2: Imprimir con Floyd-Steinberg ===
 	/*
-		if err := printer.TextLn("Imagen con Floyd-Steinberg:"); err != nil {
+		if err := printer.PrintLn("Imagen con Floyd-Steinberg:"); err != nil {
 			log.Printf("Error: %v", err)
 		}
 
@@ -119,16 +115,19 @@ func main() {
 	}
 
 	// === Finalizar impresión ===
-	if err := printer.Feed(1); err != nil {
+	if err = printer.Feed(1); err != nil {
 		log.Printf("Error: %v", err)
 	}
-	if err := printer.TextLn("Fin del test de imágenes"); err != nil {
+	if err = printer.TextLn("Fin del test de imágenes"); err != nil {
 		log.Printf("Error: %v", err)
 	}
-	if err := printer.Feed(3); err != nil {
+	if err = printer.Feed(3); err != nil {
 		log.Printf("Error: %v", err)
 	}
-	if err := printer.Cut(types.CutFeed, 3); err != nil {
+	if err = printer.Cut(escpos.PartialCut); err != nil {
+		log.Printf("Error: %v", err)
+	}
+	if err = printer.Feed(3); err != nil {
 		log.Printf("Error: %v", err)
 	}
 }

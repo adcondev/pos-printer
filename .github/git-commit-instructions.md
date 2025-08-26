@@ -5,7 +5,7 @@
 You are tasked with generating Conventional Commit messages for code changes. These commit messages MUST be in English
 and follow the specification below.
 
-## Format
+## Text
 
 ```
 <type>[(scope)][!]: <description>

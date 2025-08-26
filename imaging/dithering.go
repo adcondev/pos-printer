@@ -11,12 +11,12 @@ import (
 type DitherMode int
 
 const (
+	// DitherNone indicates no dithering, just thresholding
 	DitherNone DitherMode = iota
+	// DitherFloydSteinberg indicates Floyd-Steinberg dithering algorithm
 	DitherFloydSteinberg
+	// DitherAtkinson indicates Atkinson dithering algorithm
 	DitherAtkinson
-	DitherOrdered
-	DitherHalftone
-	// TODO: Agregar más métodos según necesites
 )
 
 // DitherProcessor es una interfaz para procesar imágenes con dithering
@@ -31,8 +31,8 @@ type DitherProcessor interface {
 // FloydSteinbergDithering implementa el algoritmo Floyd-Steinberg
 type FloydSteinbergDithering struct{}
 
-// TODO: Revisar linter
-func (f *FloydSteinbergDithering) Apply(src image.Image, threshold uint8) image.Image {
+// Apply applies the Floyd-Steinberg dithering algorithm to the source image
+func (f *FloydSteinbergDithering) Apply(src image.Image, _ uint8) image.Image {
 	bounds := src.Bounds()
 	// Crear imagen en escala de grises para trabajar
 	gray := image.NewGray(bounds)
@@ -46,14 +46,11 @@ func (f *FloydSteinbergDithering) Apply(src image.Image, threshold uint8) image.
 		for x := bounds.Min.X; x < bounds.Max.X; x++ {
 			oldPixel := gray.GrayAt(x, y).Y
 			newPixel := uint8(0)
-			if oldPixel > threshold {
-				newPixel = 255
-			}
 
-			dst.SetGray(x, y, color.Gray{newPixel})
+			dst.SetGray(x, y, color.Gray{Y: newPixel})
 
 			// Calcular error
-			err := int(oldPixel) - int(newPixel)
+			err := oldPixel - newPixel
 
 			// Distribuir error a píxeles vecinos
 			distributeError := func(dx, dy int, factor float32) {
@@ -61,13 +58,9 @@ func (f *FloydSteinbergDithering) Apply(src image.Image, threshold uint8) image.
 				if nx >= bounds.Min.X && nx < bounds.Max.X &&
 					ny >= bounds.Min.Y && ny < bounds.Max.Y {
 					oldVal := gray.GrayAt(nx, ny).Y
-					newVal := int(oldVal) + int(float32(err)*factor)
-					if newVal < 0 {
-						newVal = 0
-					} else if newVal > 255 {
-						newVal = 255
-					}
-					gray.SetGray(nx, ny, color.Gray{uint8(newVal)}) //nolint:gosec
+					newVal := oldVal + uint8(float32(err)*factor)
+
+					gray.SetGray(nx, ny, color.Gray{Y: newVal}) //nolint:gosec
 				}
 			}
 
@@ -87,8 +80,8 @@ func (f *FloydSteinbergDithering) Apply(src image.Image, threshold uint8) image.
 // AtkinsonDithering implementa el algoritmo Atkinson
 type AtkinsonDithering struct{}
 
-// TODO: Revisar linter
-func (a *AtkinsonDithering) Apply(src image.Image, threshold uint8) image.Image {
+// Apply applies the Atkinson dithering algorithm to the source image
+func (a *AtkinsonDithering) Apply(src image.Image, _ uint8) image.Image {
 	bounds := src.Bounds()
 	gray := image.NewGray(bounds)
 	draw.Draw(gray, bounds, src, bounds.Min, draw.Src)
@@ -100,14 +93,11 @@ func (a *AtkinsonDithering) Apply(src image.Image, threshold uint8) image.Image 
 		for x := bounds.Min.X; x < bounds.Max.X; x++ {
 			oldPixel := gray.GrayAt(x, y).Y
 			newPixel := uint8(0)
-			if oldPixel > threshold {
-				newPixel = 255
-			}
 
-			dst.SetGray(x, y, color.Gray{newPixel})
+			dst.SetGray(x, y, color.Gray{Y: newPixel})
 
 			// Calcular error (Atkinson difunde solo 3/4 del error)
-			err := int(oldPixel) - int(newPixel)
+			err := oldPixel - newPixel
 			diffusedError := err * 3 / 4
 
 			// Distribuir error
@@ -117,13 +107,9 @@ func (a *AtkinsonDithering) Apply(src image.Image, threshold uint8) image.Image 
 					ny >= bounds.Min.Y && ny < bounds.Max.Y {
 					oldVal := gray.GrayAt(nx, ny).Y
 					// Cada vecino recibe 1/8 del error original
-					newVal := int(oldVal) + diffusedError/8
-					if newVal < 0 {
-						newVal = 0
-					} else if newVal > 255 {
-						newVal = 255
-					}
-					gray.SetGray(nx, ny, color.Gray{uint8(newVal)}) //nolint:gosec
+					newVal := oldVal + diffusedError/8
+
+					gray.SetGray(nx, ny, color.Gray{Y: newVal})
 				}
 			}
 
@@ -146,6 +132,7 @@ func (a *AtkinsonDithering) Apply(src image.Image, threshold uint8) image.Image 
 // ThresholdDithering implementa umbralización simple (sin dithering real)
 type ThresholdDithering struct{}
 
+// Apply applies simple thresholding to the source image
 func (t *ThresholdDithering) Apply(src image.Image, threshold uint8) image.Image {
 	bounds := src.Bounds()
 	dst := image.NewGray(bounds)
@@ -157,9 +144,9 @@ func (t *ThresholdDithering) Apply(src image.Image, threshold uint8) image.Image
 
 			// Aplicar umbral
 			if gray.Y > threshold {
-				dst.SetGray(x, y, color.Gray{255})
+				dst.SetGray(x, y, color.Gray{Y: 255})
 			} else {
-				dst.SetGray(x, y, color.Gray{0})
+				dst.SetGray(x, y, color.Gray{})
 			}
 		}
 	}
@@ -195,11 +182,3 @@ func ProcessImageWithDithering(img image.Image, mode DitherMode, threshold uint8
 
 	return processor.Apply(img, threshold), nil
 }
-
-// TODO: Agregar más algoritmos de dithering según necesites:
-// - Ordered dithering (Bayer matrix)
-// - Halftone dithering
-// - Jarvis-Judice-Ninke
-// - Stucki
-// - Burkes
-// - Sierra

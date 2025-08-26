@@ -1,5 +1,4 @@
 //go:build windows
-// +build windows
 
 // Package connector proporciona interfaces para comunicarse con impresoras.
 // NOTA: Este archivo usa unsafe.Pointer de manera deliberada y controlada para
@@ -37,6 +36,7 @@ type docInfo1 struct {
 
 // === Estructura del conector ===
 
+// WindowsPrintConnector implements a connector for Windows printers using the Windows API.
 type WindowsPrintConnector struct {
 	printerName   string
 	printerHandle syscall.Handle
@@ -46,6 +46,7 @@ type WindowsPrintConnector struct {
 
 // === Constructor ===
 
+// NewWindowsPrintConnector creates a new connector for the specified printer name.
 func NewWindowsPrintConnector(printerName string) (*WindowsPrintConnector, error) {
 	if printerName == "" {
 		return nil, errors.New("el nombre de la impresora no puede estar vacío")
@@ -61,7 +62,7 @@ func NewWindowsPrintConnector(printerName string) (*WindowsPrintConnector, error
 		return nil, fmt.Errorf("no se pudo abrir la impresora '%s': %w", printerName, err)
 	}
 
-	docName, _ := syscall.UTF16PtrFromString("ESC/POS Print Job")
+	docName, _ := syscall.UTF16PtrFromString("ESC/POS PrintDataInPageMode Job")
 	dataType, _ := syscall.UTF16PtrFromString("RAW")
 
 	doc := &docInfo1{
@@ -107,6 +108,7 @@ func (c *WindowsPrintConnector) Write(data []byte) (int, error) {
 	return int(bytesWritten), nil
 }
 
+// Close ends the print job and closes the printer handle.
 func (c *WindowsPrintConnector) Close() error {
 	var finalErr error
 
@@ -141,10 +143,8 @@ func (c *WindowsPrintConnector) Close() error {
 func openPrinter(name *uint16) (handle syscall.Handle, err error) {
 	var h syscall.Handle
 	r1, _, err := procOpenPrinter.Call(
-		//nolint:gosec
-		uintptr(unsafe.Pointer(name)),
-		//nolint:gosec
-		uintptr(unsafe.Pointer(&h)),
+		uintptr(unsafe.Pointer(name)), //nolint:gosec
+		uintptr(unsafe.Pointer(&h)),   //nolint:gosec
 		0,
 	)
 	if r1 == 0 {
@@ -162,12 +162,8 @@ func closePrinter(handle syscall.Handle) error {
 }
 
 func startDocPrinter(handle syscall.Handle, docInfo *docInfo1) (uint32, error) {
-	//nolint:gosec // Necesario para interactuar con la API de Windows
-	r1, _, err := procStartDocPrinter.Call(
-		uintptr(handle),
-		1,
-		uintptr(unsafe.Pointer(docInfo)),
-	)
+	// Necesario para interactuar con la API de Windows
+	r1, _, err := procStartDocPrinter.Call(uintptr(handle), 1, uintptr(unsafe.Pointer(docInfo))) //nolint:gosec
 	if r1 == 0 {
 		return 0, err
 	}
@@ -195,11 +191,9 @@ func writePrinter(handle syscall.Handle, data []byte) (uint32, error) {
 	var bytesWritten uint32
 	r1, _, err := procWritePrinter.Call(
 		uintptr(handle),
-		//nolint:gosec
-		uintptr(unsafe.Pointer(&data[0])),
+		uintptr(unsafe.Pointer(&data[0])), //nolint:gosec
 		uintptr(len(data)),
-		//nolint:gosec
-		uintptr(unsafe.Pointer(&bytesWritten)),
+		uintptr(unsafe.Pointer(&bytesWritten)), //nolint:gosec
 	)
 	if r1 == 0 {
 		return 0, err

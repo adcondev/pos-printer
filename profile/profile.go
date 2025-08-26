@@ -1,9 +1,11 @@
 package profile
 
-import "github.com/AdConDev/pos-printer/types"
+import (
+	"github.com/adcondev/pos-printer/encoding"
+)
 
-// Profile define todas las características físicas y capacidades de una impresora
-type Profile struct {
+// Escpos define todas las características físicas y capacidades de una impresora
+type Escpos struct {
 	// Información básica
 	Model       string
 	Vendor      string
@@ -22,19 +24,15 @@ type Profile struct {
 	SupportsQR       bool // Soporta códigos QR nativos
 	SupportsCutter   bool // Tiene cortador automático
 	SupportsDrawer   bool // Soporta cajón de dinero
-	SupportsColor    bool // Soporta impresión a color
 
 	QRMaxVersion byte // Máxima versión soportada
 
 	// Juegos de caracteres
-	CharacterSets    []types.CharacterSet // Códigos de página soportados
-	DefaultCharSet   types.CharacterSet   // Código de página por defecto0
-	ActiveCharSet    types.CharacterSet   // Código de página actualmente activo
-	DefaultKanjiMode bool                 // Modo Kanji por defecto (true/false)
+	CharacterSets  []encoding.CharacterSet // Códigos de página soportados
+	DefaultCharSet encoding.CharacterSet   // Código de página por defecto0
 
 	// Configuración avanzada (opcional)
-	FeedLinesAfterCut int // Líneas de avance después de cortar
-	ImageThreshold    int // Umbral para conversión B/N (0-255)
+	ImageThreshold int // Umbral para conversión B/N (0-255)
 
 	// Fuentes
 	Fonts map[string]int // Lista de fuentes soportadas, nombre -> ancho (en puntos)
@@ -45,33 +43,32 @@ type Profile struct {
 }
 
 // ModelInfo devuelve una representación de string del modelo
-func (p *Profile) ModelInfo() string {
+func (p *Escpos) ModelInfo() string {
 	return p.Vendor + " " + p.Model
 }
 
 // GetCharWidth calcula el ancho físico de un caracter en milímetros
-func (p *Profile) GetCharWidth(font string) int {
+func (p *Escpos) GetCharWidth(font string) int {
 	return p.DotsPerLine / p.Fonts[font]
 }
 
 // CreatePt210 crea un perfil para impresora térmica de 58mm PT-58N
-func CreatePt210() *Profile {
+func CreatePt210() *Escpos {
 	p := CreateProfile58mm()
 	p.Model = "58mm PT-210"
 	p.Vendor = "GOOJPRT"
-	p.DefaultKanjiMode = true // Esta impresora inicia con Kanji activo
-	p.CharacterSets = []types.CharacterSet{
-		types.CP437,
-		types.Katakana,
-		types.CP850,
-		types.CP860,
-		types.CP863,
-		types.CP865,
-		types.WestEurope,
-		types.WCP1252,
-		types.CP866,
-		types.CP852,
-		types.CP858,
+	p.CharacterSets = []encoding.CharacterSet{
+		encoding.CP437,
+		encoding.Katakana,
+		encoding.CP850,
+		encoding.CP860,
+		encoding.CP863,
+		encoding.CP865,
+		encoding.WestEurope,
+		encoding.WCP1252,
+		encoding.CP866,
+		encoding.CP852,
+		encoding.CP858,
 	}
 
 	p.DefaultCharSet = 0 // CP858 para español
@@ -80,27 +77,28 @@ func CreatePt210() *Profile {
 	return p
 }
 
-func CreateProfGP_58N() *Profile {
+// CreateGP58N crea un perfil para impresora térmica de 58mm GP-58N
+func CreateGP58N() *Escpos {
 	p := CreateProfile58mm()
 	p.Model = "58mm GP-58N"
-	p.CharacterSets = []types.CharacterSet{
-		types.CP437,
-		types.Katakana,
-		types.CP850,
-		types.CP860,
-		types.CP863,
-		types.CP865,
-		types.WestEurope,
-		types.Greek,
-		types.Hebrew,
-		// types.CP755, // No soportado directamente
-		types.Iran,
-		types.WCP1252,
-		types.CP866,
-		types.CP852,
-		types.CP858,
-		types.IranII,
-		types.Latvian,
+	p.CharacterSets = []encoding.CharacterSet{
+		encoding.CP437,
+		encoding.Katakana,
+		encoding.CP850,
+		encoding.CP860,
+		encoding.CP863,
+		encoding.CP865,
+		encoding.WestEurope,
+		encoding.Greek,
+		encoding.Hebrew,
+		// encoding.CP755, // No soportado directamente
+		encoding.Iran,
+		encoding.WCP1252,
+		encoding.CP866,
+		encoding.CP852,
+		encoding.CP858,
+		encoding.IranII,
+		encoding.Latvian,
 	}
 
 	p.DefaultCharSet = 19 // CP858 para español
@@ -108,8 +106,8 @@ func CreateProfGP_58N() *Profile {
 }
 
 // CreateProfile58mm crea un perfil para impresora térmica de 58mm común
-func CreateProfile58mm() *Profile {
-	return &Profile{
+func CreateProfile58mm() *Escpos {
+	return &Escpos{
 		Model:       "Generic 58mm",
 		Vendor:      "Generic",
 		Description: "Impresora térmica genérica de 58mm",
@@ -124,26 +122,25 @@ func CreateProfile58mm() *Profile {
 		SupportsQR:       false, // Muchas impresoras baratas no soportan QR nativo
 		SupportsCutter:   false,
 		SupportsDrawer:   false,
-		SupportsColor:    false,
 
-		CharacterSets: []types.CharacterSet{
-			types.CP437,
-			types.Katakana,
-			types.CP850,
-			types.CP860,
-			types.CP863,
-			types.CP865,
-			types.WestEurope,
-			types.Greek,
-			types.Hebrew,
-			// types.CP755, // No soportado directamente
-			types.Iran,
-			types.WCP1252,
-			types.CP866,
-			types.CP852,
-			types.CP858,
-			types.IranII,
-			types.Latvian,
+		CharacterSets: []encoding.CharacterSet{
+			encoding.CP437,
+			encoding.Katakana,
+			encoding.CP850,
+			encoding.CP860,
+			encoding.CP863,
+			encoding.CP865,
+			encoding.WestEurope,
+			encoding.Greek,
+			encoding.Hebrew,
+			// encoding.CP755, // No soportado directamente
+			encoding.Iran,
+			encoding.WCP1252,
+			encoding.CP866,
+			encoding.CP852,
+			encoding.CP858,
+			encoding.IranII,
+			encoding.Latvian,
 		}, // Más juegos de caracteres
 		DefaultCharSet: 19, // CP858
 
@@ -156,36 +153,37 @@ func CreateProfile58mm() *Profile {
 	}
 }
 
-func CreateProfEC_PM_80250() *Profile {
+// CreateECPM80250 crea un perfil para impresora térmica de 80mm EC-PM-80250
+func CreateECPM80250() *Escpos {
 	p := CreateProfile80mm()
 	p.Model = "80mm EC-PM-80250"
-	p.CharacterSets = []types.CharacterSet{
-		types.CP437,
-		types.Katakana,
-		types.CP850,
-		types.CP860,
-		types.CP863,
-		types.CP865,
-		types.WestEurope,
-		types.Greek,
-		types.Hebrew,
-		// types.CP755, // No soportado directamente
-		types.Iran,
-		types.WCP1252,
-		types.CP866,
-		types.CP852,
-		types.CP858,
-		types.IranII,
-		types.Latvian,
+	p.CharacterSets = []encoding.CharacterSet{
+		encoding.CP437,
+		encoding.Katakana,
+		encoding.CP850,
+		encoding.CP860,
+		encoding.CP863,
+		encoding.CP865,
+		encoding.WestEurope,
+		encoding.Greek,
+		encoding.Hebrew,
+		// encoding.CP755, // No soportado directamente
+		encoding.Iran,
+		encoding.WCP1252,
+		encoding.CP866,
+		encoding.CP852,
+		encoding.CP858,
+		encoding.IranII,
+		encoding.Latvian,
 	}
 
-	p.DefaultCharSet = types.CP437 // CP858 para español
+	p.DefaultCharSet = encoding.CP437 // CP858 para español
 	return p
 }
 
 // CreateProfile80mm crea un perfil para impresora térmica de 80mm común
-func CreateProfile80mm() *Profile {
-	return &Profile{
+func CreateProfile80mm() *Escpos {
+	return &Escpos{
 		Model:       "Generic 80mm",
 		Vendor:      "Generic",
 		Description: "Impresora térmica genérica de 80mm",
@@ -199,38 +197,37 @@ func CreateProfile80mm() *Profile {
 		SupportsQR:       true, // Las 80mm suelen tener más funciones
 		SupportsCutter:   true,
 		SupportsDrawer:   true,
-		SupportsColor:    false,
 
-		CharacterSets: []types.CharacterSet{
-			types.CP437,
-			types.Katakana,
-			types.CP850,
-			types.CP860,
-			types.CP863,
-			types.CP865,
-			types.WestEurope,
-			types.Greek,
-			types.Hebrew,
-			// types.CP755, // No soportado directamente
-			types.Iran,
-			types.WCP1252,
-			types.CP866,
-			types.CP852,
-			types.CP858,
-			types.IranII,
-			types.Latvian,
+		CharacterSets: []encoding.CharacterSet{
+			encoding.CP437,
+			encoding.Katakana,
+			encoding.CP850,
+			encoding.CP860,
+			encoding.CP863,
+			encoding.CP865,
+			encoding.WestEurope,
+			encoding.Greek,
+			encoding.Hebrew,
+			// encoding.CP755, // No soportado directamente
+			encoding.Iran,
+			encoding.WCP1252,
+			encoding.CP866,
+			encoding.CP852,
+			encoding.CP858,
+			encoding.IranII,
+			encoding.Latvian,
 		},
 
 		// Más juegos de caracteres
-		DefaultCharSet: types.CP437, // CP858
+		DefaultCharSet: encoding.CP437, // CP858
 
-		FeedLinesAfterCut: 5,
-		ImageThreshold:    128,
+		ImageThreshold: 128,
 
 		ExtendedFeatures: make(map[string]interface{}),
 	}
 }
 
-func (p *Profile) HasImageSupport() bool {
+// HasImageSupport indica si la impresora soporta impresión de imágenes
+func (p *Escpos) HasImageSupport() bool {
 	return p.SupportsGraphics
 }

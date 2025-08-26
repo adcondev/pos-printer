@@ -1,15 +1,15 @@
+// Package main demonstrates how to print images using a POS printer with different dithering algorithms.
 package main
 
 import (
 	"log"
 
-	"github.com/AdConDev/pos-printer"
-	"github.com/AdConDev/pos-printer/connector"
-	"github.com/AdConDev/pos-printer/imaging"
-	"github.com/AdConDev/pos-printer/profile"
-	"github.com/AdConDev/pos-printer/protocol/escpos"
-	"github.com/AdConDev/pos-printer/types"
-	// En el futuro: "github.com/AdConDev/pos-printer/protocol/zpl"
+	"github.com/adcondev/pos-printer/connector"
+	"github.com/adcondev/pos-printer/escpos"
+	"github.com/adcondev/pos-printer/imaging"
+	"github.com/adcondev/pos-printer/pos"
+	"github.com/adcondev/pos-printer/profile"
+	// En el futuro: "github.com/adcondev/pos-printer/protocol/zpl"
 )
 
 func main() {
@@ -34,19 +34,16 @@ func main() {
 }
 
 func useESCPOS(conn connector.Connector) {
-	// Crear protocolo ESC/POS
-	proto := escpos.NewESCPOSProtocol()
-
 	// === Crear Perfil de impresora ===
 	// Puedes definir un perfil si necesitas configuraciones específicas
 	prof := profile.CreateProfile80mm()
 
 	// Crear impresora
-	printer, err := posprinter.NewGenericPrinter(proto, conn, prof)
+	printer, err := pos.NewEscposPrinter(pos.EscposProto, conn, prof)
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer func(printer *posprinter.GenericPrinter) {
+	defer func(printer *pos.EscposPrinter) {
 		err := printer.Close()
 		if err != nil {
 			log.Printf("dithering: error al cerrar impresora")
@@ -56,7 +53,7 @@ func useESCPOS(conn connector.Connector) {
 	// Cargar imagen
 	img, err := imaging.LoadImage("./img/perro.jpeg")
 	if err != nil {
-		log.Fatalf("Error al cargar imagen: %v", err)
+		log.Printf("Error al cargar imagen: %v", err)
 	}
 
 	err = printer.Feed(3)
@@ -70,8 +67,8 @@ func useESCPOS(conn connector.Connector) {
 
 	// === Opción 2: Imprimir con Floyd-Steinberg ===
 	log.Println("Imprimiendo con Floyd-Steinberg...")
-	opts := posprinter.PrintImageOptions{
-		Density:    types.DensitySingle,
+	opts := pos.PrintImageOptions{
+		Density:    escpos.DensitySingle,
 		DitherMode: imaging.DitherFloydSteinberg,
 		Threshold:  128,
 		Width:      256,
@@ -92,7 +89,7 @@ func useESCPOS(conn connector.Connector) {
 	if err != nil {
 		return
 	}
-	err = printer.Text("Fin del test de imágenes")
+	err = printer.Print("Fin del test de imágenes")
 	if err != nil {
 		return
 	}
@@ -100,8 +97,11 @@ func useESCPOS(conn connector.Connector) {
 	if err != nil {
 		return
 	}
-
-	err = printer.Cut(types.CutFeed, 3)
+	err = printer.Cut(escpos.PartialCut)
+	if err != nil {
+		return
+	}
+	err = printer.Feed(3)
 	if err != nil {
 		return
 	}
@@ -112,7 +112,7 @@ func useESCPOS(conn connector.Connector) {
 // TODO: Cuando implementes ZPL
 /*
 	protocol := zpl.NewZPLProtocol()
-	printer, err := posprinter.NewGenericPrinter(protocol, conn)
+	printer, err := pos.NewEscposPrinter(protocol, conn)
 	if err != nil {
 		log.Fatal(err)
 	}
