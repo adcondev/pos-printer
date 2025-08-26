@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.0.1](https://github.com/AdConDev/pos-daemon/compare/v1.0.0...v1.0.1) (2025-08-26)
+
+
+### 📦 Dependencies
+
+* **go.mod:** add missing golang.org/x/text dependency ([83d8598](https://github.com/AdConDev/pos-daemon/commit/83d859877d9b6a46d7ae9c6f65862ff6d7d09d9e))
+* **go.mod:** fix go.mod file ([9d5b966](https://github.com/AdConDev/pos-daemon/commit/9d5b966795494d94b3fdd651fcbd03379de9da9e)), closes [#7](https://github.com/adcondev/pos-printer/issues/7)
+
 ## [1.0.0](https://github.com/AdConDev/pos-daemon/compare/v0.2.0...v1.0.0) (2025-08-26)
 
 
