@@ -11,8 +11,11 @@ import (
 type DitherMode int
 
 const (
+	// DitherNone indicates no dithering, just thresholding
 	DitherNone DitherMode = iota
+	// DitherFloydSteinberg indicates Floyd-Steinberg dithering algorithm
 	DitherFloydSteinberg
+	// DitherAtkinson indicates Atkinson dithering algorithm
 	DitherAtkinson
 )
 
@@ -28,6 +31,7 @@ type DitherProcessor interface {
 // FloydSteinbergDithering implementa el algoritmo Floyd-Steinberg
 type FloydSteinbergDithering struct{}
 
+// Apply applies the Floyd-Steinberg dithering algorithm to the source image
 func (f *FloydSteinbergDithering) Apply(src image.Image, _ uint8) image.Image {
 	bounds := src.Bounds()
 	// Crear imagen en escala de grises para trabajar
@@ -76,6 +80,7 @@ func (f *FloydSteinbergDithering) Apply(src image.Image, _ uint8) image.Image {
 // AtkinsonDithering implementa el algoritmo Atkinson
 type AtkinsonDithering struct{}
 
+// Apply applies the Atkinson dithering algorithm to the source image
 func (a *AtkinsonDithering) Apply(src image.Image, _ uint8) image.Image {
 	bounds := src.Bounds()
 	gray := image.NewGray(bounds)
@@ -127,6 +132,7 @@ func (a *AtkinsonDithering) Apply(src image.Image, _ uint8) image.Image {
 // ThresholdDithering implementa umbralización simple (sin dithering real)
 type ThresholdDithering struct{}
 
+// Apply applies simple thresholding to the source image
 func (t *ThresholdDithering) Apply(src image.Image, threshold uint8) image.Image {
 	bounds := src.Bounds()
 	dst := image.NewGray(bounds)

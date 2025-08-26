@@ -123,7 +123,7 @@ func TestMockPrinterCapability_Text_BehaviorTracking(t *testing.T) {
 
 		_, err := mock.Text("any input")
 
-		if err != expectedErr {
+		if !errors.Is(err, expectedErr) {
 			t.Errorf("MockPrinterCapability.Text() error = %v, want %v", err, expectedErr)
 		}
 	})

@@ -1,3 +1,4 @@
+// Package main demonstrates how to test different character encodings
 package main
 
 import (
@@ -11,12 +12,15 @@ import (
 	"github.com/adcondev/pos-printer/profile"
 )
 
+// PrinterConfig holds configuration for a printer to test
+type PrinterConfig struct {
+	Name     string
+	CharSets []encoding.CharacterSet
+}
+
 func main() {
 	// Configuración de impresoras para probar
-	printers := []struct {
-		Name     string
-		CharSets []encoding.CharacterSet // Charsets reportados por el fabricante
-	}{
+	printers := []PrinterConfig{
 		{
 			Name:     "80mm EC-PM-80250 x",
 			CharSets: []encoding.CharacterSet{encoding.WCP1252, encoding.CP858},
@@ -61,141 +65,152 @@ func main() {
 
 	// Probar cada impresora
 	for _, printer := range printers {
-		fmt.Printf("\n=== Probando %s ===\n", printer.Name)
+		testPrinter(printer, testTexts)
+	}
+}
 
-		// Conectar a la impresora
-		conn, err := connector.NewWindowsPrintConnector(printer.Name)
+// testPrinter tests a single printer with the provided test texts
+func testPrinter(printer PrinterConfig, testTexts []string) {
+	fmt.Printf("\n=== Probando %s ===\n", printer.Name)
+
+	// Conectar a la impresora
+	conn, err := connector.NewWindowsPrintConnector(printer.Name)
+	if err != nil {
+		log.Printf("Error conectando a %s: %v", printer.Name, err)
+		return
+	}
+	defer func() {
+		err := conn.Close()
 		if err != nil {
-			log.Printf("Error conectando a %s: %v", printer.Name, err)
-			continue
+			log.Printf("Error al cerrar el conector de %s: %v", printer.Name, err)
 		}
-		defer func(conn *connector.WindowsPrintConnector) {
-			err := conn.Close()
-			if err != nil {
-				log.Printf("Error al cerrar el conector de %s: %v", printer.Name, err)
-			}
-		}(conn)
+	}()
 
-		// Crear perfil personalizado
-		prof := profile.CreateProfile80mm()
-		prof.CharacterSets = printer.CharSets
-		prof.Model = printer.Name
+	// Crear perfil personalizado
+	prof := profile.CreateProfile80mm()
+	prof.CharacterSets = printer.CharSets
+	prof.Model = printer.Name
 
-		p, err := pos.NewEscposPrinter(pos.EscposProto, conn, prof)
+	p, err := pos.NewEscposPrinter(pos.EscposProto, conn, prof)
+	if err != nil {
+		log.Printf("Error creando impresora: %v", err)
+		return
+	}
+	defer func() {
+		err := p.Close()
 		if err != nil {
-			log.Printf("Error creando impresora: %v", err)
-			continue
+			log.Printf("Error al cerrar la impresora %s: %v", printer.Name, err)
 		}
-		defer func(p *pos.EscposPrinter) {
-			err := p.Close()
-			if err != nil {
-				log.Printf("Error al cerrar la impresora %s: %v", printer.Name, err)
-			}
-		}(p)
+	}()
 
-		// Imprimir encabezado
-		if err := p.SetJustification(escpos.AlignCenter); err != nil {
-			log.Printf("Error estableciendo alineación centrada: %v", err)
-			continue
-		}
+	// Imprimir encabezado
+	if err := p.SetJustification(escpos.AlignCenter); err != nil {
+		log.Printf("Error estableciendo alineación centrada: %v", err)
+		return
+	}
 
-		if err := p.SetEmphasis(escpos.EmphOn); err != nil {
-			log.Printf("Error activando negrita: %v", err)
-			continue
-		}
+	if err := p.SetEmphasis(escpos.EmphOn); err != nil {
+		log.Printf("Error activando negrita: %v", err)
+		return
+	}
 
-		err = p.TextLn(fmt.Sprintf("TEST CODIFICACIÓN - %s", printer.Name))
+	err = p.TextLn(fmt.Sprintf("TEST CODIFICACIÓN - %s", printer.Name))
+	if err != nil {
+		log.Printf("Error imprimiendo encabezado: %v", err)
+		return
+	}
+
+	if err := p.SetEmphasis(escpos.EmphOff); err != nil {
+		log.Printf("Error desactivando negrita: %v", err)
+		return
+	}
+
+	if err := p.Feed(1); err != nil {
+		log.Printf("Error alimentando papel: %v", err)
+		return
+	}
+
+	// Probar cada charset soportado
+	for _, charset := range printer.CharSets {
+		testCharset(p, charset, testTexts)
+	}
+
+	// Cortar
+	if err := p.Feed(1); err != nil {
+		log.Printf("Error alimentando papel: %v", err)
+		return
+	}
+
+	if err := p.Cut(escpos.PartialCut); err != nil {
+		log.Printf("Error cortando papel: %v", err)
+		return
+	}
+
+	if err := p.Feed(1); err != nil {
+		log.Printf("Error alimentando papel: %v", err)
+		return
+	}
+}
+
+// testCharset tests a specific charset on the printer
+func testCharset(p *pos.EscposPrinter, charset encoding.CharacterSet, testTexts []string) {
+	// Verificar que el charset esté en nuestro Registry
+	if _, exists := encoding.Registry[charset]; !exists {
+		return
+	}
+
+	err := p.SetJustification(escpos.AlignLeft)
+	if err != nil {
+		log.Printf("Error estableciendo alineación izquierda: %v", err)
+		return
+	}
+
+	if err := p.SetEmphasis(escpos.EmphOn); err != nil {
+		log.Printf("Error activando negrita: %v", err)
+		return
+	}
+
+	err = p.TextLn(fmt.Sprintf("=== Charset %d (%s) ===",
+		charset, encoding.Registry[charset].Name))
+	if err != nil {
+		log.Printf("Error imprimiendo encabezado de charset: %v", err)
+		return
+	}
+
+	if err := p.SetEmphasis(escpos.EmphOff); err != nil {
+		log.Printf("Error desactivando negrita: %v", err)
+		return
+	}
+
+	// Cancelar modo Kanji
+	if err := p.CancelKanjiMode(); err != nil {
+		log.Printf("Error cancelando modo Kanji: %v", err)
+		return
+	}
+
+	// Cambiar al charset
+	if err := p.SetCharacterSet(charset); err != nil {
+		err := p.TextLn(fmt.Sprintf("Error: %v", err))
 		if err != nil {
-			log.Printf("Error imprimiendo encabezado: %v", err)
-			continue
+			log.Printf("Error imprimiendo mensaje de error: %v", err)
+			return
 		}
+		return
+	}
 
-		if err := p.SetEmphasis(escpos.EmphOff); err != nil {
-			log.Printf("Error desactivando negrita: %v", err)
-			continue
-		}
-
-		if err := p.Feed(1); err != nil {
-			log.Printf("Error alimentando papel: %v", err)
-			continue
-		}
-
-		// Probar cada charset soportado
-		for _, charset := range printer.CharSets {
-			// Verificar que el charset esté en nuestro Registry
-			if _, exists := encoding.Registry[charset]; !exists {
-				continue
-			}
-
-			err := p.SetJustification(escpos.AlignLeft)
+	// Imprimir textos de prueba
+	for _, text := range testTexts {
+		if err := p.TextLn(text); err != nil {
+			err := p.TextLn(fmt.Sprintf("Error imprimiendo: %v", err))
 			if err != nil {
-				log.Printf("Error estableciendo alineación izquierda: %v", err)
-				continue
-			}
-
-			if err := p.SetEmphasis(escpos.EmphOn); err != nil {
-				log.Printf("Error activando negrita: %v", err)
-				continue
-			}
-			err = p.TextLn(fmt.Sprintf("=== Charset %d (%s) ===",
-				charset, encoding.Registry[charset].Name))
-			if err != nil {
-				log.Printf("Error imprimiendo encabezado de charset: %v", err)
-				continue
-			}
-			if err := p.SetEmphasis(escpos.EmphOff); err != nil {
-				log.Printf("Error desactivando negrita: %v", err)
-				continue
-			}
-
-			// Cancelar modo Kanji
-			if err := p.CancelKanjiMode(); err != nil {
-				log.Printf("Error cancelando modo Kanji: %v", err)
-				continue
-			}
-
-			// Cambiar al charset
-			if err := p.SetCharacterSet(charset); err != nil {
-				err := p.TextLn(fmt.Sprintf("Error: %v", err))
-				if err != nil {
-					log.Printf("Error imprimiendo mensaje de error: %v", err)
-					continue
-				}
-				continue
-			}
-
-			// Imprimir textos de prueba
-			for _, text := range testTexts {
-				if err := p.TextLn(text); err != nil {
-					err := p.TextLn(fmt.Sprintf("Error imprimiendo: %v", err))
-					if err != nil {
-						log.Printf("Error imprimiendo texto: %v", err)
-						continue
-					}
-				}
-			}
-
-			if err := p.Feed(1); err != nil {
-				log.Printf("Error alimentando papel: %v", err)
-				continue
+				log.Printf("Error imprimiendo texto: %v", err)
+				return
 			}
 		}
+	}
 
-		// Cortar
-
-		if err := p.Feed(1); err != nil {
-			log.Printf("Error alimentando papel: %v", err)
-			continue
-		}
-
-		if err := p.Cut(escpos.PartialCut); err != nil {
-			log.Printf("Error cortando papel: %v", err)
-			continue
-		}
-
-		if err := p.Feed(1); err != nil {
-			log.Printf("Error alimentando papel: %v", err)
-			continue
-		}
+	if err := p.Feed(1); err != nil {
+		log.Printf("Error alimentando papel: %v", err)
+		return
 	}
 }

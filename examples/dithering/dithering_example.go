@@ -1,3 +1,4 @@
+// Package main demonstrates how to print images with different dithering methods using a POS printer.
 package main
 
 import (

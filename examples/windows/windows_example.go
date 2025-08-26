@@ -1,3 +1,4 @@
+// Package main demonstrates how to print a QR code using a POS printer in Go.
 package main
 
 import (
@@ -34,7 +35,7 @@ func main() {
 	// === Crear impresora genérica ===
 	printer, err := pos.NewEscposPrinter(pos.EscposProto, conn, prof)
 	if err != nil {
-		log.Fatalf("Error al crear la impresora: %v", err)
+		log.Printf("Error al crear la impresora: %v", err)
 	}
 	defer func(printer *pos.EscposPrinter) {
 		err := printer.Close()
