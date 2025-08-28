@@ -1,23 +1,16 @@
-package escpos
+package print
 
-const (
-	// LF is the control code for line feed.
-	LF byte = 0x0A
-	// FF is the control code for form feed.
-	FF byte = 0x0C
-	// CR is the control code for carriage return.
-	CR byte = 0x0D
-)
+import "github.com/adcondev/pos-printer/escpos/common"
 
 // Interface compliance check
 var (
-	_ PrinterCapability = (*PrintCommands)(nil)
+	_ Capability = (*Commands)(nil)
 
 	_ PageModeCapability = (*PagePrint)(nil)
 )
 
-// PrinterCapability defines the interface for printer capabilities
-type PrinterCapability interface {
+// Capability defines the interface for printer capabilities
+type Capability interface {
 	Text(n string) ([]byte, error)
 	PrintAndFeedPaper(n byte) []byte
 	FormFeed() []byte
@@ -43,17 +36,17 @@ type PageCapability interface {
 	PrintAndFeedLines(n byte) ([]byte, error)
 }
 
-// PrintCommands groups printing-related commands
-type PrintCommands struct {
+// Commands groups printing-related commands
+type Commands struct {
 	Page PageCapability
 }
 
 // Text formats and sends a string for printing
-func (pc *PrintCommands) Text(n string) ([]byte, error) {
-	if err := isBufOk([]byte(n)); err != nil {
+func (pc *Commands) Text(n string) ([]byte, error) {
+	if err := common.IsBufOk([]byte(n)); err != nil {
 		return nil, err
 	}
-	return format([]byte(n)), nil
+	return common.Format([]byte(n)), nil
 }
 
 // PrintAndFeedPaper prints the data in the print buffer and feeds the paper
@@ -100,8 +93,8 @@ func (pc *PrintCommands) Text(n string) ([]byte, error) {
 // Byte sequence:
 //
 //	ESC J n -> 0x1B, 0x4A, n
-func (pc *PrintCommands) PrintAndFeedPaper(n byte) []byte {
-	return []byte{ESC, 'J', n}
+func (pc *Commands) PrintAndFeedPaper(n byte) []byte {
+	return []byte{common.ESC, 'J', n}
 }
 
 // FormFeed (Form Feed) — behaviour in Standard mode and Page mode.
@@ -160,8 +153,8 @@ func (pc *PrintCommands) PrintAndFeedPaper(n byte) []byte {
 // Value:
 //
 //	The FF control code is a single byte 0x0C (decimal 12).
-func (pc *PrintCommands) FormFeed() []byte {
-	return []byte{FF}
+func (pc *Commands) FormFeed() []byte {
+	return []byte{common.FF}
 }
 
 // PrintAndCarriageReturn prints the data in the print buffer and performs a
@@ -203,8 +196,8 @@ func (pc *PrintCommands) FormFeed() []byte {
 //     printer does not perform actual printing.
 //
 // Value is the single-byte CR (carriage return) control code.
-func (pc *PrintCommands) PrintAndCarriageReturn() []byte {
-	return []byte{CR}
+func (pc *Commands) PrintAndCarriageReturn() []byte {
+	return []byte{common.CR}
 }
 
 // PrintAndLineFeed prints the data in the print buffer and feeds one line,
@@ -231,8 +224,8 @@ func (pc *PrintCommands) PrintAndCarriageReturn() []byte {
 //     moves and the printer does not perform actual printing.
 //
 // Value is the single-byte LF (line feed) control code.
-func (pc *PrintCommands) PrintAndLineFeed() []byte {
-	return []byte{LF}
+func (pc *Commands) PrintAndLineFeed() []byte {
+	return []byte{common.LF}
 }
 
 // PagePrint groups page mode printing commands
@@ -268,7 +261,7 @@ type PagePrint struct{}
 //
 //	ESC FF -> 0x1B, 0x0C
 func (pp *PagePrint) PrintDataInPageMode() []byte {
-	return []byte{ESC, FF}
+	return []byte{common.ESC, common.FF}
 }
 
 // PrintAndReverseFeed prints the data in the print buffer and feeds the
@@ -318,10 +311,10 @@ func (pp *PagePrint) PrintDataInPageMode() []byte {
 //
 //	ESC K n -> 0x1B, 0x4B, n
 func (pp *PagePrint) PrintAndReverseFeed(n byte) ([]byte, error) {
-	if n > MaxReverseMotionUnits {
-		return nil, errPrintReverseFeed
+	if n > common.MaxReverseMotionUnits {
+		return nil, common.ErrPrintReverseFeed
 	}
-	return []byte{ESC, 'K', n}, nil
+	return []byte{common.ESC, 'K', n}, nil
 }
 
 // PrintAndReverseFeedLines prints the data in the print buffer and feeds n
@@ -366,10 +359,10 @@ func (pp *PagePrint) PrintAndReverseFeed(n byte) ([]byte, error) {
 //
 //	ESC e n -> 0x1B, 0x65, n
 func (pp *PagePrint) PrintAndReverseFeedLines(n byte) ([]byte, error) {
-	if n > MaxReverseFeedLines {
-		return nil, errPrintReverseFeedLines
+	if n > common.MaxReverseFeedLines {
+		return nil, common.ErrPrintReverseFeedLines
 	}
-	return []byte{ESC, 'e', n}, nil
+	return []byte{common.ESC, 'e', n}, nil
 }
 
 // PrintAndFeedLines prints the data in the print buffer and feeds n lines.
@@ -410,5 +403,5 @@ func (pp *PagePrint) PrintAndReverseFeedLines(n byte) ([]byte, error) {
 //
 //	ESC d n -> 0x1B, 0x64, n
 func (pp *PagePrint) PrintAndFeedLines(n byte) ([]byte, error) {
-	return []byte{ESC, 'd', n}, nil
+	return []byte{common.ESC, 'd', n}, nil
 }

@@ -1,4 +1,4 @@
-package escpos
+package common
 
 // Buffer limits
 var (

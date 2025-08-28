@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/adcondev/pos-printer/encoding"
+	"github.com/adcondev/pos-printer/escpos/common"
 )
 
 // TODO: Comandos para manejo de codificación de caracteres
@@ -67,26 +68,26 @@ func (c *Commands) SelectCharacterTable(table encoding.CharacterSet) ([]byte, er
 		return nil, fmt.Errorf("error: código de página %s no soportado por protocolo", encoder.Name)
 	}
 	// ESC t n - Select character code table
-	cmd := []byte{ESC, 't', charSet}
+	cmd := []byte{common.ESC, 't', charSet}
 
 	return cmd, nil
 }
 
 // CancelKanjiMode deactivates Kanji mode
 func (c *Commands) CancelKanjiMode() []byte {
-	return []byte{FS, '.'}
+	return []byte{common.FS, '.'}
 }
 
 // SelectKanjiMode activates Kanji mode
 func (c *Commands) SelectKanjiMode() []byte {
-	return []byte{FS, '&'}
+	return []byte{common.FS, '&'}
 }
 
 // FIXME: Hacer trabajo similar al de las codepages.
 
 // SelectInternationalCharacterSet define los conjuntos de caracteres internacionales
 func SelectInternationalCharacterSet(n byte) []byte {
-	cmd := []byte{ESC, 'R', n}
+	cmd := []byte{common.ESC, 'R', n}
 	return cmd
 }
 
@@ -96,13 +97,13 @@ func CancelUserDefinedCharacters(n UserDefinedChar) ([]byte, error) {
 		return nil, fmt.Errorf("n debe estar en el rango de 32 a 126, recibido: %d", n)
 	}
 	defChar := byte(n)
-	cmd := []byte{ESC, '?', defChar}
+	cmd := []byte{common.ESC, '?', defChar}
 	return cmd, nil
 }
 
 // DefineUserDefinedCharacters define uno o más caracteres definidos por el usuario
 func DefineUserDefinedCharacters(y, c1, c2 byte, data ...[]byte) []byte {
-	cmd := []byte{ESC, '&', y, c1, c2}
+	cmd := []byte{common.ESC, '&', y, c1, c2}
 	for _, d := range data {
 		cmd = append(cmd, d...)
 	}

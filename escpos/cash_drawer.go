@@ -2,6 +2,8 @@ package escpos
 
 import (
 	"fmt"
+
+	"github.com/adcondev/pos-printer/escpos/common"
 )
 
 // TODO: Comandos para control del cajón de efectivo
@@ -42,6 +44,6 @@ func GenerateRealTimePulse(m CashDrawerPin, t CashDrawerTimePulse) ([]byte, erro
 	if !ok {
 		return nil, fmt.Errorf("tiempo de pulso no soportado: %v", t)
 	}
-	cmd := []byte{DLE, DC4, 1, drawerPin, pulseTime}
+	cmd := []byte{common.DLE, common.DC4, 1, drawerPin, pulseTime}
 	return cmd, nil
 }

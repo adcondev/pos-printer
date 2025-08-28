@@ -1,9 +1,14 @@
-package escpos
+package escpos_test
 
 import (
 	"bytes"
 	"errors"
 	"testing"
+
+	"github.com/adcondev/pos-printer/escpos"
+	"github.com/adcondev/pos-printer/escpos/common"
+	"github.com/adcondev/pos-printer/escpos/lineSpacing"
+	"github.com/adcondev/pos-printer/escpos/print"
 )
 
 // ============================================================================
@@ -11,17 +16,17 @@ import (
 // ============================================================================
 
 func TestCommands_Raw_EmptyBuffer(t *testing.T) {
-	cmd := NewEscposProtocol()
+	cmd := escpos.NewEscposProtocol()
 
 	_, err := cmd.Raw("")
 
-	if !errors.Is(err, errEmptyBuffer) {
-		t.Errorf("Commands.Raw(\"\") error = %v, want %v", err, errEmptyBuffer)
+	if !errors.Is(err, common.ErrEmptyBuffer) {
+		t.Errorf("Commands.Raw(\"\") error = %v, want %v", err, common.ErrEmptyBuffer)
 	}
 }
 
 func TestCommands_Raw_ValidInput(t *testing.T) {
-	cmd := NewEscposProtocol()
+	cmd := escpos.NewEscposProtocol()
 
 	tests := []struct {
 		name  string
@@ -60,7 +65,7 @@ func TestCommands_Raw_ValidInput(t *testing.T) {
 }
 
 func TestNewEscposProtocol_Initialization(t *testing.T) {
-	cmd := NewEscposProtocol()
+	cmd := escpos.NewEscposProtocol()
 
 	// Verify Commands struct is created
 	if cmd == nil {
@@ -78,7 +83,7 @@ func TestNewEscposProtocol_Initialization(t *testing.T) {
 	}
 
 	// Verify Print has correct type and Page capability
-	pc, ok := cmd.Print.(*PrintCommands)
+	pc, ok := cmd.Print.(*print.Commands)
 	if !ok {
 		t.Fatal("NewEscposProtocol() Print should be of type *PrintCommands")
 	}
@@ -88,24 +93,24 @@ func TestNewEscposProtocol_Initialization(t *testing.T) {
 	}
 
 	// Verify Page has correct type
-	_, ok = pc.Page.(*PagePrint)
+	_, ok = pc.Page.(*print.PagePrint)
 	if !ok {
 		t.Error("NewEscposProtocol() Page should be of type *PagePrint")
 	}
 
 	// Verify LineSpace has correct type
-	_, ok = cmd.LineSpace.(*LineSpacingCommands)
+	_, ok = cmd.LineSpace.(*lineSpacing.Commands)
 	if !ok {
 		t.Error("NewEscposProtocol() LineSpace should be of type *LineSpacingCommands")
 	}
 }
 
 func TestCommands_Integration_PrintWithLineSpacing(t *testing.T) {
-	cmd := NewEscposProtocol()
+	cmd := escpos.NewEscposProtocol()
 
 	// Set line spacing
 	spacingResult := cmd.LineSpace.SetLineSpacing(40)
-	expectedSpacing := []byte{ESC, '3', 40}
+	expectedSpacing := []byte{common.ESC, '3', 40}
 
 	if !bytes.Equal(spacingResult, expectedSpacing) {
 		t.Errorf("Commands.LineSpace.SetLineSpacing(40) = %#v, want %#v",
@@ -125,8 +130,8 @@ func TestCommands_Integration_PrintWithLineSpacing(t *testing.T) {
 
 	// Line feed (which should use the line spacing)
 	lfResult := cmd.Print.PrintAndLineFeed()
-	if !bytes.Equal(lfResult, []byte{LF}) {
+	if !bytes.Equal(lfResult, []byte{common.LF}) {
 		t.Errorf("Commands.Print.PrintAndLineFeed() = %#v, want %#v",
-			lfResult, []byte{LF})
+			lfResult, []byte{common.LF})
 	}
 }

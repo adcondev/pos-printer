@@ -1,16 +1,20 @@
-package escpos
+package lineSpacing
+
+import (
+	"github.com/adcondev/pos-printer/escpos/common"
+)
 
 // Interface compliance check
-var _ LineSpacingCapability = (*LineSpacingCommands)(nil)
+var _ Capability = (*Commands)(nil)
 
-// LineSpacingCapability defines the interface for line spacing commands in ESC/POS printers.
-type LineSpacingCapability interface {
+// Capability defines the interface for line spacing commands in ESC/POS printers.
+type Capability interface {
 	SetLineSpacing(n byte) []byte
 	SelectDefaultLineSpacing() []byte
 }
 
-// LineSpacingCommands implements the LineSpacingCapability interface for ESC/POS printers.
-type LineSpacingCommands struct{}
+// Commands implements the Capability interface for ESC/POS printers.
+type Commands struct{}
 
 // SetLineSpacing sets the line spacing to n × (vertical or horizontal motion unit).
 //
@@ -58,8 +62,8 @@ type LineSpacingCommands struct{}
 // Byte sequence:
 //
 //	ESC 3 n -> 0x1B, 0x33, n
-func (lsc *LineSpacingCommands) SetLineSpacing(n byte) []byte {
-	return []byte{ESC, '3', n}
+func (lsc *Commands) SetLineSpacing(n byte) []byte {
+	return []byte{common.ESC, '3', n}
 }
 
 // SelectDefaultLineSpacing sets the line spacing to the printer's "default
@@ -86,6 +90,6 @@ func (lsc *LineSpacingCommands) SetLineSpacing(n byte) []byte {
 // Byte sequence:
 //
 //	ESC 2 -> 0x1B, 0x32
-func (lsc *LineSpacingCommands) SelectDefaultLineSpacing() []byte {
-	return []byte{ESC, '2'}
+func (lsc *Commands) SelectDefaultLineSpacing() []byte {
+	return []byte{common.ESC, '2'}
 }

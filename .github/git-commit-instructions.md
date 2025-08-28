@@ -93,4 +93,4 @@ Breaking changes MUST be indicated in one of two ways:
 7. Wrap the body text at 72 characters
 
 When presented with code changes, first identify the primary purpose of the change to select the appropriate type and
-scope, then follow this format to generate a conventional commit message.
+scope, then follow this Format to generate a conventional commit message.

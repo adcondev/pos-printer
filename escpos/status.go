@@ -2,6 +2,8 @@ package escpos
 
 import (
 	"fmt"
+
+	"github.com/adcondev/pos-printer/escpos/common"
 )
 
 // TODO: Comandos para obtener estado de la impresora
@@ -20,6 +22,6 @@ func (c *Commands) TransmitRealTimeStatus(n RealTimeStatus) ([]byte, error) {
 	if !ok {
 		return nil, fmt.Errorf("estado en tiempo real inválido: %d", n)
 	}
-	cmd := []byte{DLE, EOT, status}
+	cmd := []byte{common.DLE, common.EOT, status}
 	return cmd, nil
 }

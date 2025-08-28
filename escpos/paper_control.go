@@ -2,6 +2,8 @@ package escpos
 
 import (
 	"fmt"
+
+	"github.com/adcondev/pos-printer/escpos/common"
 )
 
 var cutMap = map[CutPaper]byte{
@@ -16,5 +18,5 @@ func (c *Commands) Cut(mode CutPaper) ([]byte, error) {
 		return nil, fmt.Errorf("invalid cut mode: %v", mode)
 	}
 
-	return []byte{GS, 'V', cut}, nil
+	return []byte{common.GS, 'V', cut}, nil
 }

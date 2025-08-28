@@ -3,6 +3,7 @@ package escpos
 import (
 	"fmt"
 
+	"github.com/adcondev/pos-printer/escpos/common"
 	"github.com/adcondev/pos-printer/imaging"
 )
 
@@ -93,14 +94,14 @@ func (c *Commands) PrintRasterBitImage(img *imaging.PrintImage, density Density)
 	}
 
 	// Construir comando GS v 0
-	cmd := []byte{GS, 'v', '0', mode}
+	cmd := []byte{common.GS, 'v', '0', mode}
 
 	// Agregar dimensiones
-	wL, wH, err := lengthLowHigh(escImg.GetWidthBytes())
+	wL, wH, err := common.LengthLowHigh(escImg.GetWidthBytes())
 	if err != nil {
 		return nil, err
 	}
-	hL, hH, err := lengthLowHigh(escImg.GetHeight())
+	hL, hH, err := common.LengthLowHigh(escImg.GetHeight())
 	if err != nil {
 		return nil, err
 	}
@@ -133,6 +134,6 @@ func SelectBitImageMode(m BitImageMode, nL, nH byte, data []byte) ([]byte, error
 	if !ok {
 		return nil, fmt.Errorf("invalid bit image mode: %v", m)
 	}
-	cmd := []byte{ESC, '*', mode, nL, nH}
+	cmd := []byte{common.ESC, '*', mode, nL, nH}
 	return append(cmd, data...), nil
 }

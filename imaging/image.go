@@ -82,11 +82,11 @@ func (p *PrintImage) GetPixel(x, y int) bool {
 
 	// Si la imagen ya es en escala de grises (resultado de dithering)
 	if grayImg, ok := img.(*image.Gray); ok {
-		return grayImg.GrayAt(x, y).Y < p.Threshold
+		return grayImg.GrayAt(int(x), int(y)).Y < p.Threshold
 	}
 
 	// Convertir a escala de grises
-	gray := color.GrayModel.Convert(img.At(x, y)).(color.Gray)
+	gray := color.GrayModel.Convert(img.At(int(x), int(y))).(color.Gray)
 	return gray.Y < p.Threshold
 }
 
@@ -108,7 +108,7 @@ func (p *PrintImage) ToMonochrome() []byte {
 		for x := 0; x < p.Width; x++ {
 			// Para imágenes ya procesadas con dithering
 			if grayImg, ok := img.(*image.Gray); ok {
-				if grayImg.GrayAt(x, y).Y < p.Threshold {
+				if grayImg.GrayAt(int(x), int(y)).Y < p.Threshold {
 					byteIndex := y*bytesPerRow + x/8
 					bitIndex := 7 - uint(x%8) // #nosec G115
 					data[byteIndex] |= 1 << bitIndex

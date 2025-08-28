@@ -1,19 +1,22 @@
-package escpos
+package print_test
 
 import (
 	"bytes"
 	"errors"
 	"testing"
+
+	"github.com/adcondev/pos-printer/escpos/common"
+	"github.com/adcondev/pos-printer/escpos/print"
 )
 
 // Naming Convention: Test{Struct}_{Method}_{Scenario}
 
 // ============================================================================
-// PrintCommands Tests
+// Commands Tests
 // ============================================================================
 
 func TestPrintCommands_Text_ValidInput(t *testing.T) {
-	pc := &PrintCommands{}
+	pc := &print.Commands{}
 
 	tests := []struct {
 		name    string
@@ -30,7 +33,7 @@ func TestPrintCommands_Text_ValidInput(t *testing.T) {
 		{
 			name:    "text with control characters",
 			input:   "A\nB\tC\rD",
-			want:    []byte{'A', LF, 'B', HT, 'C', CR, 'D'},
+			want:    []byte{'A', common.LF, 'B', common.HT, 'C', common.CR, 'D'},
 			wantErr: false,
 		},
 		{
@@ -47,20 +50,20 @@ func TestPrintCommands_Text_ValidInput(t *testing.T) {
 
 			// Check error state
 			if (err != nil) != tt.wantErr {
-				t.Errorf("PrintCommands.Text(%q) error = %v, wantErr %v", tt.input, err, tt.wantErr)
+				t.Errorf("Commands.Text(%q) error = %v, wantErr %v", tt.input, err, tt.wantErr)
 				return
 			}
 
 			// Check result only if no error expected
 			if !tt.wantErr && !bytes.Equal(got, tt.want) {
-				t.Errorf("PrintCommands.Text(%q) = %#v, want %#v", tt.input, got, tt.want)
+				t.Errorf("Commands.Text(%q) = %#v, want %#v", tt.input, got, tt.want)
 			}
 		})
 	}
 }
 
 func TestPrintCommands_PrintAndFeedPaper_ByteSequence(t *testing.T) {
-	pc := &PrintCommands{}
+	pc := &print.Commands{}
 
 	tests := []struct {
 		name string
@@ -70,17 +73,17 @@ func TestPrintCommands_PrintAndFeedPaper_ByteSequence(t *testing.T) {
 		{
 			name: "minimum feed (0 units)",
 			n:    0,
-			want: []byte{ESC, 'J', 0},
+			want: []byte{common.ESC, 'J', 0},
 		},
 		{
 			name: "typical feed (5 units)",
 			n:    5,
-			want: []byte{ESC, 'J', 5},
+			want: []byte{common.ESC, 'J', 5},
 		},
 		{
 			name: "maximum feed (255 units)",
 			n:    255,
-			want: []byte{ESC, 'J', 255},
+			want: []byte{common.ESC, 'J', 255},
 		},
 	}
 
@@ -88,42 +91,42 @@ func TestPrintCommands_PrintAndFeedPaper_ByteSequence(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got := pc.PrintAndFeedPaper(tt.n)
 			if !bytes.Equal(got, tt.want) {
-				t.Errorf("PrintCommands.PrintAndFeedPaper(%d) = %#v, want %#v", tt.n, got, tt.want)
+				t.Errorf("Commands.PrintAndFeedPaper(%d) = %#v, want %#v", tt.n, got, tt.want)
 			}
 		})
 	}
 }
 
 func TestPrintCommands_FormFeed_SingleByte(t *testing.T) {
-	pc := &PrintCommands{}
+	pc := &print.Commands{}
 
 	got := pc.FormFeed()
-	want := []byte{FF}
+	want := []byte{common.FF}
 
 	if !bytes.Equal(got, want) {
-		t.Errorf("PrintCommands.FormFeed() = %#v, want %#v", got, want)
+		t.Errorf("Commands.FormFeed() = %#v, want %#v", got, want)
 	}
 }
 
 func TestPrintCommands_PrintAndCarriageReturn_SingleByte(t *testing.T) {
-	pc := &PrintCommands{}
+	pc := &print.Commands{}
 
 	got := pc.PrintAndCarriageReturn()
-	want := []byte{CR}
+	want := []byte{common.CR}
 
 	if !bytes.Equal(got, want) {
-		t.Errorf("PrintCommands.PrintAndCarriageReturn() = %#v, want %#v", got, want)
+		t.Errorf("Commands.PrintAndCarriageReturn() = %#v, want %#v", got, want)
 	}
 }
 
 func TestPrintCommands_PrintAndLineFeed_SingleByte(t *testing.T) {
-	pc := &PrintCommands{}
+	pc := &print.Commands{}
 
 	got := pc.PrintAndLineFeed()
-	want := []byte{LF}
+	want := []byte{common.LF}
 
 	if !bytes.Equal(got, want) {
-		t.Errorf("PrintCommands.PrintAndLineFeed() = %#v, want %#v", got, want)
+		t.Errorf("Commands.PrintAndLineFeed() = %#v, want %#v", got, want)
 	}
 }
 
@@ -132,10 +135,10 @@ func TestPrintCommands_PrintAndLineFeed_SingleByte(t *testing.T) {
 // ============================================================================
 
 func TestPagePrint_PrintDataInPageMode_ByteSequence(t *testing.T) {
-	pp := &PagePrint{}
+	pp := &print.PagePrint{}
 
 	got := pp.PrintDataInPageMode()
-	want := []byte{ESC, FF}
+	want := []byte{common.ESC, common.FF}
 
 	if !bytes.Equal(got, want) {
 		t.Errorf("PagePrint.PrintDataInPageMode() = %#v, want %#v", got, want)
@@ -143,7 +146,7 @@ func TestPagePrint_PrintDataInPageMode_ByteSequence(t *testing.T) {
 }
 
 func TestPagePrint_PrintAndReverseFeed_Validation(t *testing.T) {
-	pp := &PagePrint{}
+	pp := &print.PagePrint{}
 
 	t.Run("valid range", func(t *testing.T) {
 		tests := []struct {
@@ -154,17 +157,17 @@ func TestPagePrint_PrintAndReverseFeed_Validation(t *testing.T) {
 			{
 				name: "minimum reverse feed (0 units)",
 				n:    0,
-				want: []byte{ESC, 'K', 0},
+				want: []byte{common.ESC, 'K', 0},
 			},
 			{
 				name: "typical reverse feed (10 units)",
 				n:    10,
-				want: []byte{ESC, 'K', 10},
+				want: []byte{common.ESC, 'K', 10},
 			},
 			{
 				name: "maximum allowed reverse feed",
-				n:    MaxReverseMotionUnits,
-				want: []byte{ESC, 'K', MaxReverseMotionUnits},
+				n:    common.MaxReverseMotionUnits,
+				want: []byte{common.ESC, 'K', common.MaxReverseMotionUnits},
 			},
 		}
 
@@ -183,17 +186,17 @@ func TestPagePrint_PrintAndReverseFeed_Validation(t *testing.T) {
 	})
 
 	t.Run("overflow error", func(t *testing.T) {
-		n := MaxReverseMotionUnits + 1
+		n := common.MaxReverseMotionUnits + 1
 		_, err := pp.PrintAndReverseFeed(n)
 
-		if !errors.Is(err, errPrintReverseFeed) {
-			t.Errorf("PagePrint.PrintAndReverseFeed(%d) error = %v, want %v", n, err, errPrintReverseFeed)
+		if !errors.Is(err, common.ErrPrintReverseFeed) {
+			t.Errorf("PagePrint.PrintAndReverseFeed(%d) error = %v, want %v", n, err, common.ErrPrintReverseFeed)
 		}
 	})
 }
 
 func TestPagePrint_PrintAndReverseFeedLines_Validation(t *testing.T) {
-	pp := &PagePrint{}
+	pp := &print.PagePrint{}
 
 	t.Run("valid range", func(t *testing.T) {
 		tests := []struct {
@@ -204,17 +207,17 @@ func TestPagePrint_PrintAndReverseFeedLines_Validation(t *testing.T) {
 			{
 				name: "minimum lines (0)",
 				n:    0,
-				want: []byte{ESC, 'e', 0},
+				want: []byte{common.ESC, 'e', 0},
 			},
 			{
 				name: "single line reverse",
 				n:    1,
-				want: []byte{ESC, 'e', 1},
+				want: []byte{common.ESC, 'e', 1},
 			},
 			{
 				name: "maximum allowed lines",
-				n:    MaxReverseFeedLines,
-				want: []byte{ESC, 'e', MaxReverseFeedLines},
+				n:    common.MaxReverseFeedLines,
+				want: []byte{common.ESC, 'e', common.MaxReverseFeedLines},
 			},
 		}
 
@@ -233,17 +236,17 @@ func TestPagePrint_PrintAndReverseFeedLines_Validation(t *testing.T) {
 	})
 
 	t.Run("overflow error", func(t *testing.T) {
-		n := MaxReverseFeedLines + 1
+		n := common.MaxReverseFeedLines + 1
 		_, err := pp.PrintAndReverseFeedLines(n)
 
-		if !errors.Is(err, errPrintReverseFeedLines) {
-			t.Errorf("PagePrint.PrintAndReverseFeedLines(%d) error = %v, want %v", n, err, errPrintReverseFeedLines)
+		if !errors.Is(err, common.ErrPrintReverseFeedLines) {
+			t.Errorf("PagePrint.PrintAndReverseFeedLines(%d) error = %v, want %v", n, err, common.ErrPrintReverseFeedLines)
 		}
 	})
 }
 
 func TestPagePrint_PrintAndFeedLines_ByteSequence(t *testing.T) {
-	pp := &PagePrint{}
+	pp := &print.PagePrint{}
 
 	tests := []struct {
 		name string
@@ -253,17 +256,17 @@ func TestPagePrint_PrintAndFeedLines_ByteSequence(t *testing.T) {
 		{
 			name: "no feed (0 lines)",
 			n:    0,
-			want: []byte{ESC, 'd', 0},
+			want: []byte{common.ESC, 'd', 0},
 		},
 		{
 			name: "typical feed (7 lines)",
 			n:    7,
-			want: []byte{ESC, 'd', 7},
+			want: []byte{common.ESC, 'd', 7},
 		},
 		{
 			name: "maximum feed (255 lines)",
 			n:    255,
-			want: []byte{ESC, 'd', 255},
+			want: []byte{common.ESC, 'd', 255},
 		},
 	}
 

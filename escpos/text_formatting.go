@@ -2,6 +2,8 @@ package escpos
 
 import (
 	"fmt"
+
+	"github.com/adcondev/pos-printer/escpos/common"
 )
 
 // TODO: Comandos para dar formato al texto
@@ -40,7 +42,7 @@ func (c *Commands) SelectCharacterFont(n Font) ([]byte, error) {
 	}
 
 	// ESC M n
-	return []byte{ESC, 'M', font}, nil
+	return []byte{common.ESC, 'M', font}, nil
 }
 
 // TurnEmphasizedMode enables or disables emphasized mode
@@ -50,7 +52,7 @@ func (c *Commands) TurnEmphasizedMode(n EmphasizedMode) ([]byte, error) {
 		return nil, fmt.Errorf("no emph mode found")
 	}
 
-	return []byte{ESC, 'E', emph}, nil
+	return []byte{common.ESC, 'E', emph}, nil
 }
 
 // SetDoubleStrike activa/desactiva doble golpe
@@ -60,7 +62,7 @@ func (c *Commands) SetDoubleStrike(on bool) []byte {
 		val = 1
 	}
 	// ESC G n
-	return []byte{ESC, 'G', val}
+	return []byte{common.ESC, 'G', val}
 }
 
 // TurnUnderlineMode enables or disables underline mode
@@ -70,7 +72,7 @@ func (c *Commands) TurnUnderlineMode(n UnderlineMode) ([]byte, error) {
 		return nil, fmt.Errorf("invalid underline mode: %d", n)
 	}
 	// ESC - n
-	return []byte{ESC, '-', mode}, nil
+	return []byte{common.ESC, '-', mode}, nil
 }
 
 // SetTextSize Implementar

@@ -2,6 +2,8 @@ package escpos
 
 import (
 	"fmt"
+
+	"github.com/adcondev/pos-printer/escpos/common"
 )
 
 // TODO: Comandos para impresión de códigos de barras
@@ -28,7 +30,7 @@ func (c *Commands) SetBarcodeHeight(height BarcodeHeight) ([]byte, error) {
 		return nil, fmt.Errorf("barcode height cannot be zero")
 	}
 
-	return []byte{GS, 'h', byte(height)}, nil
+	return []byte{common.GS, 'h', byte(height)}, nil
 }
 
 // SetBarcodeWidth establece el ancho del código de barras
@@ -38,7 +40,7 @@ func (c *Commands) SetBarcodeWidth(width BarcodeWidth) ([]byte, error) {
 		return nil, fmt.Errorf("no barcode width found for width %v", width)
 	}
 
-	return []byte{GS, 'w', bcWidth}, nil
+	return []byte{common.GS, 'w', bcWidth}, nil
 }
 
 // SelectBarcodeTextPosition establece la posición del texto del código de barras
@@ -47,7 +49,7 @@ func (c *Commands) SelectBarcodeTextPosition(position TextPositionBarcode) ([]by
 	if !ok {
 		return nil, fmt.Errorf("unknown position: %d", position)
 	}
-	return []byte{GS, 'H', pos}, nil
+	return []byte{common.GS, 'H', pos}, nil
 }
 
 // Barcode imprime un código de barras con el contenido y tipo especificados
@@ -63,5 +65,5 @@ func (c *Commands) SelectFontBarcode(font Font) ([]byte, error) {
 		return nil, fmt.Errorf("no barcode font found for font %v", font)
 	}
 
-	return []byte{GS, 'f', bcFont}, nil
+	return []byte{common.GS, 'f', bcFont}, nil
 }

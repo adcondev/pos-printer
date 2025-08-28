@@ -1,8 +1,11 @@
-package escpos
+package print_test
 
 import (
 	"bytes"
 	"testing"
+
+	"github.com/adcondev/pos-printer/escpos/common"
+	"github.com/adcondev/pos-printer/escpos/print"
 )
 
 // ============================================================================
@@ -10,14 +13,14 @@ import (
 // ============================================================================
 
 func TestPagePrint_Implements_PageCapability(t *testing.T) {
-	pp := &PagePrint{}
+	pp := &print.PagePrint{}
 
 	// Verify PagePrint can be used as PageCapability
-	var pageCapability PageCapability = pp
+	var pageCapability print.PageCapability = pp
 
 	// Test PrintDataInPageMode through interface
 	result := pageCapability.PrintDataInPageMode()
-	expectedBytes := []byte{ESC, FF}
+	expectedBytes := []byte{common.ESC, common.FF}
 
 	if !bytes.Equal(result, expectedBytes) {
 		t.Errorf("PageCapability.PrintDataInPageMode() = %#v, want %#v",
@@ -31,7 +34,7 @@ func TestPagePrint_Implements_PageCapability(t *testing.T) {
 		t.Errorf("PageCapability.PrintAndFeedLines(%d) unexpected error: %v", lines, err)
 	}
 
-	expectedFeed := []byte{ESC, 'd', lines}
+	expectedFeed := []byte{common.ESC, 'd', lines}
 	if !bytes.Equal(feedResult, expectedFeed) {
 		t.Errorf("PageCapability.PrintAndFeedLines(%d) = %#v, want %#v",
 			lines, feedResult, expectedFeed)
@@ -39,10 +42,10 @@ func TestPagePrint_Implements_PageCapability(t *testing.T) {
 }
 
 func TestPagePrint_Implements_ReverseCapability(t *testing.T) {
-	pp := &PagePrint{}
+	pp := &print.PagePrint{}
 
 	// Verify PagePrint can be used as ReverseCapability
-	var reverseCapability ReverseCapability = pp
+	var reverseCapability print.ReverseCapability = pp
 
 	t.Run("PrintAndReverseFeed", func(t *testing.T) {
 		units := byte(10)
@@ -53,7 +56,7 @@ func TestPagePrint_Implements_ReverseCapability(t *testing.T) {
 				units, err)
 		}
 
-		expected := []byte{ESC, 'K', units}
+		expected := []byte{common.ESC, 'K', units}
 		if !bytes.Equal(result, expected) {
 			t.Errorf("ReverseCapability.PrintAndReverseFeed(%d) = %#v, want %#v",
 				units, result, expected)
@@ -69,7 +72,7 @@ func TestPagePrint_Implements_ReverseCapability(t *testing.T) {
 				lines, err)
 		}
 
-		expected := []byte{ESC, 'e', lines}
+		expected := []byte{common.ESC, 'e', lines}
 		if !bytes.Equal(result, expected) {
 			t.Errorf("ReverseCapability.PrintAndReverseFeedLines(%d) = %#v, want %#v",
 				lines, result, expected)
@@ -78,10 +81,10 @@ func TestPagePrint_Implements_ReverseCapability(t *testing.T) {
 }
 
 func TestPagePrint_Implements_PageModeCapability(t *testing.T) {
-	pp := &PagePrint{}
+	pp := &print.PagePrint{}
 
 	// Verify PagePrint can be used as complete PageModeCapability
-	var pageModeCapability PageModeCapability = pp
+	var pageModeCapability print.PageModeCapability = pp
 
 	// PageModeCapability embeds both PageCapability and ReverseCapability
 	// Test through the composite interface
@@ -120,22 +123,22 @@ func TestInterfaceComposition_Polymorphism(t *testing.T) {
 	// This test demonstrates that the same struct can be used
 	// through different interface views
 
-	pp := &PagePrint{}
+	pp := &print.PagePrint{}
 
 	// Function that accepts PageCapability
-	testPageCapability := func(pc PageCapability) bool {
+	testPageCapability := func(pc print.PageCapability) bool {
 		result := pc.PrintDataInPageMode()
 		return len(result) == 2
 	}
 
 	// Function that accepts ReverseCapability
-	testReverseCapability := func(rc ReverseCapability) bool {
+	testReverseCapability := func(rc print.ReverseCapability) bool {
 		_, err := rc.PrintAndReverseFeed(10)
 		return err == nil
 	}
 
 	// Function that accepts PageModeCapability
-	testPageModeCapability := func(pmc PageModeCapability) bool {
+	testPageModeCapability := func(pmc print.PageModeCapability) bool {
 		result := pmc.PrintDataInPageMode()
 		_, err := pmc.PrintAndReverseFeed(5)
 		return len(result) == 2 && err == nil
