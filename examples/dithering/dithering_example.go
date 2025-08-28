@@ -34,7 +34,7 @@ func main() {
 	}(conn)
 
 	// === Crear impresora genérica ===
-	printer, err := pos.NewEscposPrinter(pos.EscposProto, conn, prof)
+	printer, err := pos.NewPrinter(pos.EscposProto, conn, prof)
 	if err != nil {
 		log.Printf("Error al crear impresora: %v", err)
 	}
@@ -60,13 +60,13 @@ func main() {
 	if err := printer.SetJustification(escpos.AlignCenter); err != nil {
 		log.Printf("Error: %v", err)
 	}
-	if err := printer.SetEmphasis(escpos.EmphOn); err != nil {
+	if err := printer.SetEmphasis(escpos.EmphasizedOn); err != nil {
 		log.Printf("Error: %v", err)
 	}
 	if err := printer.TextLn("PRUEBA DE DITHERING"); err != nil {
 		log.Printf("Error: %v", err)
 	}
-	if err := printer.SetEmphasis(escpos.EmphOff); err != nil {
+	if err := printer.SetEmphasis(escpos.EmphasizedOff); err != nil {
 		log.Printf("Error: %v", err)
 	}
 	if err := printer.Feed(1); err != nil {

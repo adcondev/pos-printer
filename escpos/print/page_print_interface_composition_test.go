@@ -20,7 +20,7 @@ func TestPagePrint_Implements_PageCapability(t *testing.T) {
 
 	// Test PrintDataInPageMode through interface
 	result := pageCapability.PrintDataInPageMode()
-	expectedBytes := []byte{common.ESC, common.FF}
+	expectedBytes := []byte{common.ESC, print.FF}
 
 	if !bytes.Equal(result, expectedBytes) {
 		t.Errorf("PageCapability.PrintDataInPageMode() = %#v, want %#v",
@@ -102,6 +102,13 @@ func TestPagePrint_Implements_PageModeCapability(t *testing.T) {
 		if err != nil {
 			t.Errorf("PageModeCapability.PrintAndFeedLines(3) unexpected error: %v", err)
 		}
+
+		// Test CancelData
+		cancelResult := pageModeCapability.CancelData()
+		if len(cancelResult) != 1 {
+			t.Errorf("PageModeCapability.CancelData() returned %d bytes, want 1",
+				len(cancelResult))
+		}
 	})
 
 	t.Run("ReverseCapability methods", func(t *testing.T) {
@@ -141,7 +148,8 @@ func TestInterfaceComposition_Polymorphism(t *testing.T) {
 	testPageModeCapability := func(pmc print.PageModeCapability) bool {
 		result := pmc.PrintDataInPageMode()
 		_, err := pmc.PrintAndReverseFeed(5)
-		return len(result) == 2 && err == nil
+		cancel := pmc.CancelData()
+		return len(result) == 2 && err == nil && len(cancel) == 1
 	}
 
 	// Same struct works with all interface types

@@ -37,7 +37,7 @@ func (f *FakeCapability) Text(n string) ([]byte, error) {
 		return nil, common.ErrEmptyBuffer
 	}
 
-	data := common.Format([]byte(n))
+	data := print.Formatting([]byte(n))
 	f.buffer = append(f.buffer, data...)
 	f.position += len(data)
 	f.lastCommand = "Text"
@@ -54,26 +54,26 @@ func (f *FakeCapability) PrintAndFeedPaper(n byte) []byte {
 }
 
 func (f *FakeCapability) FormFeed() []byte {
-	f.buffer = append(f.buffer, common.FF)
+	f.buffer = append(f.buffer, print.FF)
 	f.position = 0
 	f.formsFed++
 	f.lastCommand = "FormFeed"
-	return []byte{common.FF}
+	return []byte{print.FF}
 }
 
 func (f *FakeCapability) PrintAndCarriageReturn() []byte {
-	f.buffer = append(f.buffer, common.CR)
+	f.buffer = append(f.buffer, print.CR)
 	f.position = 0
 	f.lastCommand = "PrintAndCarriageReturn"
-	return []byte{common.CR}
+	return []byte{print.CR}
 }
 
 func (f *FakeCapability) PrintAndLineFeed() []byte {
-	f.buffer = append(f.buffer, common.LF)
+	f.buffer = append(f.buffer, print.LF)
 	f.position = 0
 	f.linesFed++
 	f.lastCommand = "PrintAndLineFeed"
-	return []byte{common.LF}
+	return []byte{print.LF}
 }
 
 // Helper methods
@@ -174,10 +174,10 @@ func TestFakeCapability_StateTracking(t *testing.T) {
 		if !bytes.Contains(buffer, []byte("Body")) {
 			t.Error("Buffer should contain 'Body'")
 		}
-		if bytes.Count(buffer, []byte{common.LF}) != 1 {
+		if bytes.Count(buffer, []byte{print.LF}) != 1 {
 			t.Error("Buffer should contain exactly 1 LF")
 		}
-		if bytes.Count(buffer, []byte{common.FF}) != 1 {
+		if bytes.Count(buffer, []byte{print.FF}) != 1 {
 			t.Error("Buffer should contain exactly 1 FF")
 		}
 		if fake.GetLinesFed() != 1 {

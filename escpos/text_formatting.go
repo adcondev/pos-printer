@@ -13,8 +13,8 @@ import (
 
 // emphMap mapea el modo enfatizado a su valor ESC/POS correspondiente.
 var emphMap = map[EmphasizedMode]byte{
-	EmphOff: 0,
-	EmphOn:  1,
+	EmphasizedOff: 0,
+	EmphasizedOn:  1,
 }
 
 // ulModeMap mapea el modo subrayado a su valor ESC/POS correspondiente.

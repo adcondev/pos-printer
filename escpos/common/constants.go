@@ -1,8 +1,6 @@
 package common
 
 const (
-	// CAN represent the byte de "Cancel" en ESC/POS.
-	CAN byte = 0x18
 	// DLE represent the byte de "Data Link Escape" en ESC/POS.
 	DLE byte = 0x10
 	// EOT represent the byte de "End of Transmission" en ESC/POS.
@@ -23,10 +21,4 @@ const (
 	ESC byte = 0x1B
 	// HT represents the byte de "Horizontal Tab" en ESC/POS.
 	HT byte = 0x09
-	// LF represents the byte de "Line Feed" en ESC/POS.
-	LF byte = 0x0A
-	// CR represents the byte de "Carriage Return" en ESC/POS.
-	CR byte = 0x0D
-	// FF represents the byte de "Form Feed" en ESC/POS.
-	FF byte = 0x0C
 )

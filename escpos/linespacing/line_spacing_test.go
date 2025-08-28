@@ -1,17 +1,17 @@
-package lineSpacing_test
+package linespacing_test
 
 import (
 	"bytes"
 	"testing"
 
 	"github.com/adcondev/pos-printer/escpos/common"
-	"github.com/adcondev/pos-printer/escpos/lineSpacing"
+	"github.com/adcondev/pos-printer/escpos/linespacing"
 )
 
 // Naming Convention: Test{Struct}_{Method}_{Scenario}
 
 func TestLineSpacingCommands_SetLineSpacing(t *testing.T) {
-	lsc := &lineSpacing.Commands{}
+	lsc := &linespacing.Commands{}
 	tests := []struct {
 		name string
 		n    byte
@@ -45,7 +45,7 @@ func TestLineSpacingCommands_SetLineSpacing(t *testing.T) {
 }
 
 func TestLineSpacingCommands_SelectDefaultLineSpacing(t *testing.T) {
-	lsc := &lineSpacing.Commands{}
+	lsc := &linespacing.Commands{}
 	got := lsc.SelectDefaultLineSpacing()
 	want := []byte{common.ESC, '2'}
 	if !bytes.Equal(got, want) {

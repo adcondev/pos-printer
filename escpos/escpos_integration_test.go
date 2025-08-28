@@ -6,7 +6,7 @@ import (
 
 	"github.com/adcondev/pos-printer/escpos"
 	"github.com/adcondev/pos-printer/escpos/common"
-	"github.com/adcondev/pos-printer/escpos/lineSpacing"
+	"github.com/adcondev/pos-printer/escpos/linespacing"
 	"github.com/adcondev/pos-printer/escpos/print"
 )
 
@@ -15,7 +15,7 @@ import (
 // ============================================================================
 
 func TestIntegration_PrintWithLineSpacing_RealImplementations(t *testing.T) {
-	cmd := escpos.NewEscposProtocol()
+	cmd := escpos.NewEscposCommands()
 
 	// Set custom line spacing
 	spacingCmd := cmd.LineSpace.SetLineSpacing(50)
@@ -38,13 +38,13 @@ func TestIntegration_PrintWithLineSpacing_RealImplementations(t *testing.T) {
 	if !bytes.Equal(textCmd, []byte("Hello World")) {
 		t.Errorf("Text() = %#v, want %#v", textCmd, []byte("Hello World"))
 	}
-	if !bytes.Equal(lfCmd, []byte{common.LF}) {
-		t.Errorf("PrintAndLineFeed() = %#v, want %#v", lfCmd, []byte{common.LF})
+	if !bytes.Equal(lfCmd, []byte{print.LF}) {
+		t.Errorf("PrintAndLineFeed() = %#v, want %#v", lfCmd, []byte{print.LF})
 	}
 }
 
 func TestIntegration_CompleteReceiptFlow(t *testing.T) {
-	cmd := escpos.NewEscposProtocol()
+	cmd := escpos.NewEscposCommands()
 
 	// Build a complete receipt flow
 	commands := []struct {
@@ -83,7 +83,7 @@ func TestIntegration_CompleteReceiptFlow(t *testing.T) {
 				return cmd.Print.PrintAndLineFeed(), nil
 			},
 			verify: func(result []byte) error {
-				if !bytes.Equal(result, []byte{common.LF}) {
+				if !bytes.Equal(result, []byte{print.LF}) {
 					t.Errorf("LineFeed = %#v, want LF", result)
 				}
 				return nil
@@ -107,7 +107,7 @@ func TestIntegration_CompleteReceiptFlow(t *testing.T) {
 				return cmd.Print.FormFeed(), nil
 			},
 			verify: func(result []byte) error {
-				if !bytes.Equal(result, []byte{common.FF}) {
+				if !bytes.Equal(result, []byte{print.FF}) {
 					t.Errorf("FormFeed = %#v, want FF", result)
 				}
 				return nil
@@ -134,7 +134,7 @@ func TestIntegration_CustomCapabilities(t *testing.T) {
 	// Create a custom Commands with specific implementations
 	customCmd := &escpos.Commands{
 		Print:     &print.Commands{Page: &print.PagePrint{}},
-		LineSpace: &lineSpacing.Commands{},
+		LineSpace: &linespacing.Commands{},
 	}
 
 	// Test that custom configuration works

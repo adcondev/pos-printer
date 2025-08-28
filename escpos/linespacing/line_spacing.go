@@ -1,8 +1,12 @@
-package lineSpacing
+package linespacing
 
 import (
 	"github.com/adcondev/pos-printer/escpos/common"
 )
+
+// ============================================================================
+// Interface Definitions
+// ============================================================================
 
 // Interface compliance check
 var _ Capability = (*Commands)(nil)
@@ -12,6 +16,10 @@ type Capability interface {
 	SetLineSpacing(n byte) []byte
 	SelectDefaultLineSpacing() []byte
 }
+
+// ============================================================================
+// Main Implementation
+// ============================================================================
 
 // Commands implements the Capability interface for ESC/POS printers.
 type Commands struct{}

@@ -1,7 +1,6 @@
 package common_test
 
 import (
-	"bytes"
 	"errors"
 	"testing"
 
@@ -21,22 +20,11 @@ func TestUtils_IsBufOk_ValidInput(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err := common.IsBufOk(tt.buf)
+			err := common.IsBufLenOk(tt.buf)
 			if !errors.Is(tt.wantErr, err) {
-				t.Errorf("IsBufOk len=%d error = %v; want %v", len(tt.buf), err, tt.wantErr)
+				t.Errorf("IsBufLenOk len=%d error = %v; want %v", len(tt.buf), err, tt.wantErr)
 			}
 		})
-	}
-}
-
-func TestUtils_Format_ByteSequence(t *testing.T) {
-	input := []byte("a\n\t\rB")
-	want := []byte{'a', common.LF, common.HT, common.CR, 'B'}
-	// clone input to avoid modifying original
-	data := append([]byte(nil), input...)
-	got := common.Format(data)
-	if !bytes.Equal(got, want) {
-		t.Errorf("Format(%q) = %v; want %v", input, got, want)
 	}
 }
 

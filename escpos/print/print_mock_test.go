@@ -70,7 +70,7 @@ func (m *MockCapability) FormFeed() []byte {
 	if m.FormFeedReturn != nil {
 		return m.FormFeedReturn
 	}
-	return []byte{common.FF}
+	return []byte{print.FF}
 }
 
 func (m *MockCapability) PrintAndCarriageReturn() []byte {
@@ -78,7 +78,7 @@ func (m *MockCapability) PrintAndCarriageReturn() []byte {
 	if m.PrintAndCarriageReturnReturn != nil {
 		return m.PrintAndCarriageReturnReturn
 	}
-	return []byte{common.CR}
+	return []byte{print.CR}
 }
 
 func (m *MockCapability) PrintAndLineFeed() []byte {
@@ -86,7 +86,7 @@ func (m *MockCapability) PrintAndLineFeed() []byte {
 	if m.PrintAndLineFeedReturn != nil {
 		return m.PrintAndLineFeedReturn
 	}
-	return []byte{common.LF}
+	return []byte{print.LF}
 }
 
 // ============================================================================

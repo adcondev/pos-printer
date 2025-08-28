@@ -1,11 +1,11 @@
-package lineSpacing_test
+package linespacing_test
 
 import (
 	"bytes"
 	"testing"
 
 	"github.com/adcondev/pos-printer/escpos/common"
-	"github.com/adcondev/pos-printer/escpos/lineSpacing"
+	"github.com/adcondev/pos-printer/escpos/linespacing"
 )
 
 // ============================================================================
@@ -30,8 +30,8 @@ func NewFakeCapability() *FakeCapability {
 	}
 }
 
-// Ensure FakeCapability implements lineSpacing.Capability
-var _ lineSpacing.Capability = (*FakeCapability)(nil)
+// Ensure FakeCapability implements linespacing.Capability
+var _ linespacing.Capability = (*FakeCapability)(nil)
 
 func (f *FakeCapability) SetLineSpacing(n byte) []byte {
 	cmd := []byte{common.ESC, '3', n}

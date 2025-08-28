@@ -1,18 +1,18 @@
-package lineSpacing_test
+package linespacing_test
 
 import (
 	"bytes"
 	"testing"
 
 	"github.com/adcondev/pos-printer/escpos/common"
-	"github.com/adcondev/pos-printer/escpos/lineSpacing"
+	"github.com/adcondev/pos-printer/escpos/linespacing"
 )
 
 // ============================================================================
 // Mock Implementation
 // ============================================================================
 
-// MockCapability provides a test double for lineSpacing.Capability interface
+// MockCapability provides a test double for linespacing.Capability interface
 type MockCapability struct {
 	SetLineSpacingCalled bool
 	SetLineSpacingInput  byte
@@ -22,8 +22,8 @@ type MockCapability struct {
 	SelectDefaultReturn []byte
 }
 
-// Ensure MockCapability implements lineSpacing.Capability
-var _ lineSpacing.Capability = (*MockCapability)(nil)
+// Ensure MockCapability implements linespacing.Capability
+var _ linespacing.Capability = (*MockCapability)(nil)
 
 func (m *MockCapability) SetLineSpacing(n byte) []byte {
 	m.SetLineSpacingCalled = true
