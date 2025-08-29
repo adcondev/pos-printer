@@ -2,6 +2,8 @@ package escpos
 
 import (
 	"fmt"
+
+	"github.com/adcondev/pos-printer/escpos/common"
 )
 
 // TODO: Comandos para configuración de hardware específico
@@ -21,6 +23,6 @@ func SetPeripheralDevice(n PrinterEnabled) ([]byte, error) {
 	if !ok {
 		return nil, fmt.Errorf("invalid printer enabled value: %v", n)
 	}
-	cmd := []byte{ESC, '=', enabled}
+	cmd := []byte{common.ESC, '=', enabled}
 	return cmd, nil
 }

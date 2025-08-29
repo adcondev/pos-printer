@@ -13,7 +13,7 @@ type CharacterSet int
 
 const (
 	// CP437 U.S.A. Standard Europe
-	CP437      CharacterSet = iota
+	CP437 CharacterSet = iota
 	// Katakana (JIS X 0201)
 	Katakana
 	// CP850 Multilingual

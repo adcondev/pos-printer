@@ -3,6 +3,7 @@ package escpos
 import (
 	"fmt"
 
+	"github.com/adcondev/pos-printer/escpos/common"
 	"github.com/adcondev/pos-printer/imaging"
 )
 
@@ -77,7 +78,7 @@ func (e *ESCImage) toRasterFormat() []byte {
 }
 
 // PrintRasterBitImage genera los comandos para imprimir una imagen rasterizada
-func (c *Commands) PrintRasterBitImage(img *imaging.PrintImage, density Density) ([]byte, error) {
+func (c *Protocol) PrintRasterBitImage(img *imaging.PrintImage, density Density) ([]byte, error) {
 	// Crear ESCImage
 	escImg, err := newESCImageFromPrintImage(img)
 	if err != nil {
@@ -93,14 +94,14 @@ func (c *Commands) PrintRasterBitImage(img *imaging.PrintImage, density Density)
 	}
 
 	// Construir comando GS v 0
-	cmd := []byte{GS, 'v', '0', mode}
+	cmd := []byte{common.GS, 'v', '0', mode}
 
 	// Agregar dimensiones
-	wL, wH, err := lengthLowHigh(escImg.GetWidthBytes())
+	wL, wH, err := common.LengthLowHigh(escImg.GetWidthBytes())
 	if err != nil {
 		return nil, err
 	}
-	hL, hH, err := lengthLowHigh(escImg.GetHeight())
+	hL, hH, err := common.LengthLowHigh(escImg.GetHeight())
 	if err != nil {
 		return nil, err
 	}
@@ -113,7 +114,7 @@ func (c *Commands) PrintRasterBitImage(img *imaging.PrintImage, density Density)
 }
 
 // GetMaxImageWidth devuelve el ancho máximo de imagen que soporta la impresora
-func (c *Commands) GetMaxImageWidth(paperWidth, dpi int) int {
+func (c *Protocol) GetMaxImageWidth(paperWidth, dpi int) int {
 	// Cálculo basado en el ancho del papel y resolución
 	// Formula: (ancho_papel_mm / 25.4) * dpi
 	if paperWidth > 0 && dpi > 0 {
@@ -133,6 +134,6 @@ func SelectBitImageMode(m BitImageMode, nL, nH byte, data []byte) ([]byte, error
 	if !ok {
 		return nil, fmt.Errorf("invalid bit image mode: %v", m)
 	}
-	cmd := []byte{ESC, '*', mode, nL, nH}
+	cmd := []byte{common.ESC, '*', mode, nL, nH}
 	return append(cmd, data...), nil
 }

@@ -34,7 +34,7 @@ type EscposPrinter struct {
 	Profile   *profile.Escpos
 
 	// Commands
-	Escpos *escpos.Commands
+	Escpos *escpos.Protocol
 
 	// Command Types
 	// PrintDataInPageMode *escpos.TextCommands
@@ -57,8 +57,8 @@ var protoMap = map[Protocol]string{
 	// types.PdfProto:    "PDF",
 }
 
-// NewEscposPrinter crea una nueva impresora genérica
-func NewEscposPrinter(proto Protocol, conn connector.Connector, prof *profile.Escpos) (*EscposPrinter, error) {
+// NewPrinter crea una nueva impresora genérica
+func NewPrinter(proto Protocol, conn connector.Connector, prof *profile.Escpos) (*EscposPrinter, error) {
 	protoType, ok := protoMap[proto]
 	if !ok {
 		return nil, fmt.Errorf("not defined protocol: %d", proto)
@@ -78,13 +78,13 @@ func NewEscposPrinter(proto Protocol, conn connector.Connector, prof *profile.Es
 		activeAlignment: escpos.AlignLeft,
 		activeUnderline: escpos.UnderNone,
 		activeCharset:   prof.DefaultCharSet,
-		activeEmphasis:  escpos.EmphOff,
+		activeEmphasis:  escpos.EmphasizedOff,
 		protocolType:    proto,
 	}
 
 	switch protoMap[proto] {
 	case "Escpos":
-		printer.Escpos = escpos.NewEscposProtocol()
+		printer.Escpos = escpos.NewEscposCommands()
 	case "ZPL":
 		// printer.zpl = zpl.NewZPLProtocol()
 		return nil, fmt.Errorf("protocol %s not released yet", protoType)

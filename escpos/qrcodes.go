@@ -2,6 +2,8 @@ package escpos
 
 import (
 	"fmt"
+
+	"github.com/adcondev/pos-printer/escpos/common"
 )
 
 // modelMap mapea los modelos de QR a sus valores ESC/POS
@@ -19,7 +21,7 @@ var ecMap = map[QRErrorCorrection]byte{
 }
 
 // PrintQR implementa el comando ESC Z para imprimir códigos QR
-func (c *Commands) PrintQR(
+func (c *Protocol) PrintQR(
 	data string,
 	model QRModel,
 	moduleSize QRModuleSize,
@@ -69,13 +71,13 @@ func (c *Commands) PrintQR(
 }
 
 // SelectQRModel selecciona el modelo de código QR a utilizar
-func (c *Commands) SelectQRModel(model QRModel) ([]byte, error) {
+func (c *Protocol) SelectQRModel(model QRModel) ([]byte, error) {
 	// Validación de modelo
 	if model < Model1 || model > Model2 {
 		return nil, fmt.Errorf("modelo de QR inválida(0-1): %d", model)
 	}
 
-	pL, pH, err := lengthLowHigh(4)
+	pL, pH, err := common.LengthLowHigh(4)
 	if err != nil {
 		return nil, fmt.Errorf("error al calcular longitud de parametros QR: %w", err)
 	}
@@ -84,20 +86,20 @@ func (c *Commands) SelectQRModel(model QRModel) ([]byte, error) {
 	n2 := byte(0) // Siempre 0, reservado
 
 	cmd := make([]byte, 0, 9)
-	cmd = append(cmd, GS, '(', 'k') // Comando QR
+	cmd = append(cmd, common.GS, '(', 'k') // Comando QR
 	cmd = append(cmd, pL, pH, cn, fn, n1, n2)
 
 	return cmd, nil
 }
 
 // SelectQRSize selecciona el tamaño del módulo del código QR
-func (c *Commands) SelectQRSize(moduleSize QRModuleSize) ([]byte, error) {
+func (c *Protocol) SelectQRSize(moduleSize QRModuleSize) ([]byte, error) {
 	// Validar tamaño del módulo
 	if moduleSize < MinType || moduleSize > MaxType {
 		return nil, fmt.Errorf("tamaño de módulo QR inválido(1-16): %d", moduleSize)
 	}
 
-	pL, pH, err := lengthLowHigh(3)
+	pL, pH, err := common.LengthLowHigh(3)
 	if err != nil {
 		return nil, fmt.Errorf("error al calcular longitud de parametros QR: %w", err)
 	}
@@ -105,41 +107,41 @@ func (c *Commands) SelectQRSize(moduleSize QRModuleSize) ([]byte, error) {
 	n := byte(moduleSize)
 
 	cmd := make([]byte, 0, 8)
-	cmd = append(cmd, GS, '(', 'k') // Comando QR
+	cmd = append(cmd, common.GS, '(', 'k') // Comando QR
 	cmd = append(cmd, pL, pH, cn, fn, n)
 
 	return cmd, nil
 }
 
 // SelectQRErrorCorrection selecciona el nivel de corrección de errores del código QR
-func (c *Commands) SelectQRErrorCorrection(level QRErrorCorrection) ([]byte, error) {
+func (c *Protocol) SelectQRErrorCorrection(level QRErrorCorrection) ([]byte, error) {
 	// Validar nivel de corrección
 	ec, ok := ecMap[level]
 	if !ok {
 		return nil, fmt.Errorf("nivel de corrección de QR inválido(0-3): %d", level)
 	}
 
-	pL, pH, err := lengthLowHigh(3)
+	pL, pH, err := common.LengthLowHigh(3)
 	if err != nil {
 		return nil, fmt.Errorf("error al calcular longitud de parametros QR: %w", err)
 	}
 	cn, fn := byte('1'), byte('E')
 
 	cmd := make([]byte, 0, 8)
-	cmd = append(cmd, GS, '(', 'k') // Comando QR
+	cmd = append(cmd, common.GS, '(', 'k') // Comando QR
 	cmd = append(cmd, pL, pH, cn, fn, ec)
 
 	return cmd, nil
 }
 
 // SetQRData prepara los datos para el código QR
-func (c *Commands) SetQRData(data string) ([]byte, error) {
+func (c *Protocol) SetQRData(data string) ([]byte, error) {
 	// Validar longitud de datos
 	if len(data) == 0 || len(data) > 7089 {
 		return nil, fmt.Errorf("longitud de datos de QR inválida (1-7089): %d", len(data))
 	}
 
-	pL, pH, err := lengthLowHigh(len(data) + 3)
+	pL, pH, err := common.LengthLowHigh(len(data) + 3)
 	if err != nil {
 		return nil, fmt.Errorf("error al calcular longitud de parametros QR: %w", err)
 	}
@@ -147,7 +149,7 @@ func (c *Commands) SetQRData(data string) ([]byte, error) {
 	m := byte('0') // Siempre 0, reservado
 
 	cmd := make([]byte, 0, 7+len(data))
-	cmd = append(cmd, GS, '(', 'k') // Comando QR
+	cmd = append(cmd, common.GS, '(', 'k') // Comando QR
 	cmd = append(cmd, pL, pH, cn, fn, m)
 	cmd = append(cmd, data...)
 
@@ -155,9 +157,9 @@ func (c *Commands) SetQRData(data string) ([]byte, error) {
 }
 
 // PrintQRData genera el comando para imprimir el código QR
-func (c *Commands) PrintQRData() ([]byte, error) {
+func (c *Protocol) PrintQRData() ([]byte, error) {
 	// Comando para imprimir QR
-	pL, pH, err := lengthLowHigh(3)
+	pL, pH, err := common.LengthLowHigh(3)
 	if err != nil {
 		return nil, fmt.Errorf("error al calcular longitud de parametros QR: %w", err)
 	}
@@ -165,7 +167,7 @@ func (c *Commands) PrintQRData() ([]byte, error) {
 	m := byte('0') // Siempre 0 para impresion estandard
 
 	cmd := make([]byte, 0, 8)
-	cmd = append(cmd, GS, '(', 'k') // Comando QR
+	cmd = append(cmd, common.GS, '(', 'k') // Comando QR
 	cmd = append(cmd, pL, pH, cn, fn, m)
 
 	return cmd, nil

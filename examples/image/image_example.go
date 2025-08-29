@@ -39,7 +39,7 @@ func useESCPOS(conn connector.Connector) {
 	prof := profile.CreateProfile80mm()
 
 	// Crear impresora
-	printer, err := pos.NewEscposPrinter(pos.EscposProto, conn, prof)
+	printer, err := pos.NewPrinter(pos.EscposProto, conn, prof)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -112,7 +112,7 @@ func useESCPOS(conn connector.Connector) {
 // TODO: Cuando implementes ZPL
 /*
 	protocol := zpl.NewZPLProtocol()
-	printer, err := pos.NewEscposPrinter(protocol, conn)
+	printer, err := pos.NewPrinter(protocol, conn)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -2,6 +2,8 @@ package escpos
 
 import (
 	"fmt"
+
+	"github.com/adcondev/pos-printer/escpos/common"
 )
 
 // TODO: Comandos para posicionar texto e imágenes
@@ -9,17 +11,14 @@ import (
 // - Posicionamiento absoluto
 // - Posicionamiento relativo
 
-// HT is the control code for horizontal tab
-const HT byte = 0x09
-
 // SetPrintLeftMargin sets the left margin for printing
-func (c *Commands) SetPrintLeftMargin(_ byte) []byte {
+func (c *Protocol) SetPrintLeftMargin(_ byte) []byte {
 	// TODO: Implementar usando GS L nL nH
 	return []byte{}
 }
 
 // SetPrintWidth establece el ancho de impresión
-func (c *Commands) SetPrintWidth(_ byte) []byte {
+func (c *Protocol) SetPrintWidth(_ byte) []byte {
 	// TODO: Implementar usando GS W nL nH
 	return []byte{}
 }
@@ -31,13 +30,13 @@ var alignMap = map[Alignment]byte{
 }
 
 // SetJustification convierte el tipo genérico al específico de ESC/POS
-func (c *Commands) SetJustification(justification Alignment) ([]byte, error) {
+func (c *Protocol) SetJustification(justification Alignment) ([]byte, error) {
 	alignment, ok := alignMap[justification]
 	if !ok {
 		return nil, fmt.Errorf("justificación no soportada: %v", justification)
 	}
 	// ESC a n
-	return []byte{ESC, 'a', alignment}, nil
+	return []byte{common.ESC, 'a', alignment}, nil
 }
 
 // SetHorizontalTabPositions establece las posiciones de tabulación horizontal
@@ -54,9 +53,9 @@ func SetHorizontalTabPositions(n TabColumnNumber, k TabTotalPosition) ([]byte, e
 		}
 	}
 
-	cmd := []byte{ESC, 'D'}
+	cmd := []byte{common.ESC, 'D'}
 	cmd = append(cmd, n...)
-	cmd = append(cmd, NUL) // NUL al final
+	cmd = append(cmd, common.NUL) // NUL al final
 
 	return cmd, nil
 }

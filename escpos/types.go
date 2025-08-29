@@ -210,10 +210,10 @@ const (
 type EmphasizedMode byte
 
 const (
-	// EmphOff Normal mode (no emphasis)
-	EmphOff EmphasizedMode = iota
-	// EmphOn Emphasized mode (bold)
-	EmphOn
+	// EmphasizedOff Normal mode (no emphasis)
+	EmphasizedOff EmphasizedMode = iota
+	// EmphasizedOn Emphasized mode (bold)
+	EmphasizedOn
 )
 
 // TabColumnNumber defines the tab column numbers
@@ -260,4 +260,20 @@ const (
 	OnInit PrinterInitiated = true // Inicializar la impresora
 	// OffInit Printer not initialized
 	OffInit PrinterInitiated = false // No inicializar la impresora
+)
+
+type PrintMode byte
+
+const (
+	// TODO: placehold this constants for future validation maps
+	PMFontA PrintMode = iota
+	PMFontB
+	PMEmphasizedOff
+	PMEmphasizedOn
+	PMDoubleHeightOff
+	PMDoubleHeightOn
+	PMDoubleWidthOff
+	PMDoubleWidthOn
+	PMUnderlineOff
+	PMUnderlineOn
 )

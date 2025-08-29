@@ -1,26 +1,33 @@
 package escpos
 
-// Commands implements the ESC/POS Protocol
-type Commands struct {
-	Print     PrinterCapability
-	LineSpace LineSpacingCapability
+import (
+	"github.com/adcondev/pos-printer/escpos/character"
+	"github.com/adcondev/pos-printer/escpos/common"
+	"github.com/adcondev/pos-printer/escpos/linespacing"
+	"github.com/adcondev/pos-printer/escpos/print"
+)
+
+// Protocol implements the ESCPOS Commands
+type Protocol struct {
+	Print     print.Capability
+	LineSpace linespacing.Capability
+	Character character.Capability
 }
 
 // Raw sends raw data without processing
-func (c *Commands) Raw(n string) ([]byte, error) {
-	if err := isBufOk([]byte(n)); err != nil {
+func (c *Protocol) Raw(n []byte) ([]byte, error) {
+	if err := common.IsBufLenOk(n); err != nil {
 		return nil, err
 	}
-	return []byte(n), nil
+	return n, nil
 }
 
-// NewEscposProtocol creates a new instance of the ESC/POS protocol
+// NewEscposCommands creates a new instance of the ESC/POS protocol
 // Using Escpos (all caps) for consistency with the protocol name
-func NewEscposProtocol() *Commands {
-	return &Commands{
-		Print: &PrintCommands{
-			Page: &PagePrint{},
-		},
-		LineSpace: &LineSpacingCommands{},
+func NewEscposCommands() *Protocol {
+	return &Protocol{
+		Print:     print.NewCommands(),
+		LineSpace: linespacing.NewCommands(),
+		Character: character.NewCommands(),
 	}
 }

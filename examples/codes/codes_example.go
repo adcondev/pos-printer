@@ -91,7 +91,7 @@ func testPrinter(printer PrinterConfig, testTexts []string) {
 	prof.CharacterSets = printer.CharSets
 	prof.Model = printer.Name
 
-	p, err := pos.NewEscposPrinter(pos.EscposProto, conn, prof)
+	p, err := pos.NewPrinter(pos.EscposProto, conn, prof)
 	if err != nil {
 		log.Printf("Error creando impresora: %v", err)
 		return
@@ -109,7 +109,7 @@ func testPrinter(printer PrinterConfig, testTexts []string) {
 		return
 	}
 
-	if err := p.SetEmphasis(escpos.EmphOn); err != nil {
+	if err := p.SetEmphasis(escpos.EmphasizedOn); err != nil {
 		log.Printf("Error activando negrita: %v", err)
 		return
 	}
@@ -120,7 +120,7 @@ func testPrinter(printer PrinterConfig, testTexts []string) {
 		return
 	}
 
-	if err := p.SetEmphasis(escpos.EmphOff); err != nil {
+	if err := p.SetEmphasis(escpos.EmphasizedOff); err != nil {
 		log.Printf("Error desactivando negrita: %v", err)
 		return
 	}
@@ -165,7 +165,7 @@ func testCharset(p *pos.EscposPrinter, charset encoding.CharacterSet, testTexts 
 		return
 	}
 
-	if err := p.SetEmphasis(escpos.EmphOn); err != nil {
+	if err := p.SetEmphasis(escpos.EmphasizedOn); err != nil {
 		log.Printf("Error activando negrita: %v", err)
 		return
 	}
@@ -177,7 +177,7 @@ func testCharset(p *pos.EscposPrinter, charset encoding.CharacterSet, testTexts 
 		return
 	}
 
-	if err := p.SetEmphasis(escpos.EmphOff); err != nil {
+	if err := p.SetEmphasis(escpos.EmphasizedOff); err != nil {
 		log.Printf("Error desactivando negrita: %v", err)
 		return
 	}

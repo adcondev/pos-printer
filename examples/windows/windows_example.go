@@ -33,7 +33,7 @@ func main() {
 	prof := profile.CreateProfile80mm()
 
 	// === Crear impresora genérica ===
-	printer, err := pos.NewEscposPrinter(pos.EscposProto, conn, prof)
+	printer, err := pos.NewPrinter(pos.EscposProto, conn, prof)
 	if err != nil {
 		log.Printf("Error al crear la impresora: %v", err)
 	}
@@ -58,7 +58,7 @@ func main() {
 	}
 
 	// Texto en negrita
-	if err = printer.SetEmphasis(escpos.EmphOn); err != nil {
+	if err = printer.SetEmphasis(escpos.EmphasizedOn); err != nil {
 		log.Printf("Error al activar negrita: %v", err)
 	}
 
@@ -68,7 +68,7 @@ func main() {
 	}
 
 	// Desactivar negrita
-	if err = printer.SetEmphasis(escpos.EmphOff); err != nil {
+	if err = printer.SetEmphasis(escpos.EmphasizedOff); err != nil {
 		log.Printf("Error al desactivar negrita: %v", err)
 	}
 
@@ -91,13 +91,13 @@ func main() {
 	if err := printer.TextLn(""); err != nil {
 		log.Printf("Error: %v", err)
 	}
-	if err := printer.SetEmphasis(escpos.EmphOn); err != nil {
+	if err := printer.SetEmphasis(escpos.EmphasizedOn); err != nil {
 		log.Printf("Error: %v", err)
 	}
 	if err := printer.TextLn("Ventajas de la nueva arquitectura:"); err != nil {
 		log.Printf("Error: %v", err)
 	}
-	if err := printer.SetEmphasis(escpos.EmphOff); err != nil {
+	if err := printer.SetEmphasis(escpos.EmphasizedOff); err != nil {
 		log.Printf("Error: %v", err)
 	}
 

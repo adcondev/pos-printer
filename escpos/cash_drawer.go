@@ -2,6 +2,8 @@ package escpos
 
 import (
 	"fmt"
+
+	"github.com/adcondev/pos-printer/escpos/common"
 )
 
 // TODO: Comandos para control del cajón de efectivo
@@ -27,7 +29,7 @@ var timeMap = map[CashDrawerTimePulse]byte{
 }
 
 // Pulse envía un pulso al pin especificado del cajón de efectivo.
-func (c *Commands) Pulse(_ int, _ int, _ int) []byte {
+func (c *Protocol) Pulse(_ int, _ int, _ int) []byte {
 	// TODO: Implementar ESC p m t1 t2
 	return []byte{}
 }
@@ -42,6 +44,6 @@ func GenerateRealTimePulse(m CashDrawerPin, t CashDrawerTimePulse) ([]byte, erro
 	if !ok {
 		return nil, fmt.Errorf("tiempo de pulso no soportado: %v", t)
 	}
-	cmd := []byte{DLE, DC4, 1, drawerPin, pulseTime}
+	cmd := []byte{common.DLE, common.DC4, 1, drawerPin, pulseTime}
 	return cmd, nil
 }
