@@ -21,7 +21,7 @@ var ecMap = map[QRErrorCorrection]byte{
 }
 
 // PrintQR implementa el comando ESC Z para imprimir códigos QR
-func (c *Commands) PrintQR(
+func (c *Protocol) PrintQR(
 	data string,
 	model QRModel,
 	moduleSize QRModuleSize,
@@ -71,7 +71,7 @@ func (c *Commands) PrintQR(
 }
 
 // SelectQRModel selecciona el modelo de código QR a utilizar
-func (c *Commands) SelectQRModel(model QRModel) ([]byte, error) {
+func (c *Protocol) SelectQRModel(model QRModel) ([]byte, error) {
 	// Validación de modelo
 	if model < Model1 || model > Model2 {
 		return nil, fmt.Errorf("modelo de QR inválida(0-1): %d", model)
@@ -93,7 +93,7 @@ func (c *Commands) SelectQRModel(model QRModel) ([]byte, error) {
 }
 
 // SelectQRSize selecciona el tamaño del módulo del código QR
-func (c *Commands) SelectQRSize(moduleSize QRModuleSize) ([]byte, error) {
+func (c *Protocol) SelectQRSize(moduleSize QRModuleSize) ([]byte, error) {
 	// Validar tamaño del módulo
 	if moduleSize < MinType || moduleSize > MaxType {
 		return nil, fmt.Errorf("tamaño de módulo QR inválido(1-16): %d", moduleSize)
@@ -114,7 +114,7 @@ func (c *Commands) SelectQRSize(moduleSize QRModuleSize) ([]byte, error) {
 }
 
 // SelectQRErrorCorrection selecciona el nivel de corrección de errores del código QR
-func (c *Commands) SelectQRErrorCorrection(level QRErrorCorrection) ([]byte, error) {
+func (c *Protocol) SelectQRErrorCorrection(level QRErrorCorrection) ([]byte, error) {
 	// Validar nivel de corrección
 	ec, ok := ecMap[level]
 	if !ok {
@@ -135,7 +135,7 @@ func (c *Commands) SelectQRErrorCorrection(level QRErrorCorrection) ([]byte, err
 }
 
 // SetQRData prepara los datos para el código QR
-func (c *Commands) SetQRData(data string) ([]byte, error) {
+func (c *Protocol) SetQRData(data string) ([]byte, error) {
 	// Validar longitud de datos
 	if len(data) == 0 || len(data) > 7089 {
 		return nil, fmt.Errorf("longitud de datos de QR inválida (1-7089): %d", len(data))
@@ -157,7 +157,7 @@ func (c *Commands) SetQRData(data string) ([]byte, error) {
 }
 
 // PrintQRData genera el comando para imprimir el código QR
-func (c *Commands) PrintQRData() ([]byte, error) {
+func (c *Protocol) PrintQRData() ([]byte, error) {
 	// Comando para imprimir QR
 	pL, pH, err := common.LengthLowHigh(3)
 	if err != nil {

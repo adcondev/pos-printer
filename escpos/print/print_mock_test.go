@@ -52,7 +52,7 @@ func (m *MockCapability) Text(n string) ([]byte, error) {
 	if m.TextReturn != nil {
 		return m.TextReturn, nil
 	}
-	return []byte(n), nil
+	return print.Formatting([]byte(n)), nil
 }
 
 func (m *MockCapability) PrintAndFeedPaper(n byte) []byte {
@@ -96,51 +96,69 @@ func (m *MockCapability) PrintAndLineFeed() []byte {
 func TestMockCapability_BehaviorTracking(t *testing.T) {
 	t.Run("tracks Text calls", func(t *testing.T) {
 		mock := &MockCapability{
-			TextReturn: []byte("mocked"),
+			TextReturn: []byte{0xFF, 0xFE, 0xFD},
 		}
 
-		result, err := mock.Text("input")
+		result, err := mock.Text("test input")
 
 		if !mock.TextCalled {
 			t.Error("Text() should be marked as called")
 		}
-		if mock.TextInput != "input" {
-			t.Errorf("Text() input = %q, want %q", mock.TextInput, "input")
+		if mock.TextInput != "test input" {
+			t.Errorf("Text() input = %q, want %q", mock.TextInput, "test input")
 		}
 		if err != nil {
 			t.Errorf("Text() unexpected error: %v", err)
 		}
-		if !bytes.Equal(result, []byte("mocked")) {
-			t.Errorf("Text() = %#v, want %#v", result, []byte("mocked"))
+		if !bytes.Equal(result, []byte{0xFF, 0xFE, 0xFD}) {
+			t.Errorf("Text() = %#v, want custom return", result)
 		}
 	})
 
-	t.Run("simulates errors", func(t *testing.T) {
+	t.Run("simulates Text error", func(t *testing.T) {
 		mock := &MockCapability{
 			TextError: common.ErrEmptyBuffer,
 		}
 
 		_, err := mock.Text("")
 
+		if !mock.TextCalled {
+			t.Error("Text() should be marked as called")
+		}
 		if !errors.Is(err, common.ErrEmptyBuffer) {
 			t.Errorf("Text() error = %v, want %v", err, common.ErrEmptyBuffer)
 		}
 	})
 
 	t.Run("tracks PrintAndFeedPaper calls", func(t *testing.T) {
-		mock := &MockCapability{}
+		mock := &MockCapability{
+			PrintAndFeedPaperReturn: []byte{0xAA, 0xBB, 0xCC},
+		}
 
-		result := mock.PrintAndFeedPaper(5)
+		result := mock.PrintAndFeedPaper(100)
 
 		if !mock.PrintAndFeedPaperCalled {
 			t.Error("PrintAndFeedPaper() should be marked as called")
 		}
-		if mock.PrintAndFeedPaperInput != 5 {
-			t.Errorf("PrintAndFeedPaper() input = %d, want 5", mock.PrintAndFeedPaperInput)
+		if mock.PrintAndFeedPaperInput != 100 {
+			t.Errorf("PrintAndFeedPaper() input = %d, want 100", mock.PrintAndFeedPaperInput)
 		}
-		expected := []byte{common.ESC, 'J', 5}
+		if !bytes.Equal(result, []byte{0xAA, 0xBB, 0xCC}) {
+			t.Errorf("PrintAndFeedPaper() = %#v, want custom return", result)
+		}
+	})
+
+	t.Run("returns default behavior when no return configured", func(t *testing.T) {
+		mock := &MockCapability{}
+
+		result := mock.PrintAndLineFeed()
+
+		if !mock.PrintAndLineFeedCalled {
+			t.Error("PrintAndLineFeed() should be marked as called")
+		}
+		expected := []byte{print.LF}
 		if !bytes.Equal(result, expected) {
-			t.Errorf("PrintAndFeedPaper() = %#v, want %#v", result, expected)
+			t.Errorf("PrintAndLineFeed() = %#v, want %#v", result, expected)
 		}
 	})
 }

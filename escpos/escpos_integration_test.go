@@ -132,7 +132,7 @@ func TestIntegration_CompleteReceiptFlow(t *testing.T) {
 // TestIntegration_CustomCapabilities tests using custom capability implementations
 func TestIntegration_CustomCapabilities(t *testing.T) {
 	// Create a custom Commands with specific implementations
-	customCmd := &escpos.Commands{
+	customCmd := &escpos.Protocol{
 		Print:     &print.Commands{Page: &print.PagePrint{}},
 		LineSpace: &linespacing.Commands{},
 	}

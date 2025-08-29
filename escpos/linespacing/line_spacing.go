@@ -24,6 +24,10 @@ type Capability interface {
 // Commands implements the Capability interface for ESC/POS printers.
 type Commands struct{}
 
+func NewCommands() *Commands {
+	return &Commands{}
+}
+
 // SetLineSpacing sets the line spacing to n × (vertical or horizontal motion unit).
 //
 // Format:

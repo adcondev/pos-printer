@@ -29,7 +29,7 @@ var timeMap = map[CashDrawerTimePulse]byte{
 }
 
 // Pulse envía un pulso al pin especificado del cajón de efectivo.
-func (c *Commands) Pulse(_ int, _ int, _ int) []byte {
+func (c *Protocol) Pulse(_ int, _ int, _ int) []byte {
 	// TODO: Implementar ESC p m t1 t2
 	return []byte{}
 }

@@ -8,7 +8,7 @@ import "github.com/adcondev/pos-printer/escpos/common"
 // - Reinicio de impresora
 
 // InitializePrinter restores the printer to its default state
-func (c *Commands) InitializePrinter() []byte {
+func (c *Protocol) InitializePrinter() []byte {
 	// ESC @ - Reset printer
 	return []byte{common.ESC, '@'}
 }

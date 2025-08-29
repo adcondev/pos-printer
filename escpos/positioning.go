@@ -12,13 +12,13 @@ import (
 // - Posicionamiento relativo
 
 // SetPrintLeftMargin sets the left margin for printing
-func (c *Commands) SetPrintLeftMargin(_ byte) []byte {
+func (c *Protocol) SetPrintLeftMargin(_ byte) []byte {
 	// TODO: Implementar usando GS L nL nH
 	return []byte{}
 }
 
 // SetPrintWidth establece el ancho de impresión
-func (c *Commands) SetPrintWidth(_ byte) []byte {
+func (c *Protocol) SetPrintWidth(_ byte) []byte {
 	// TODO: Implementar usando GS W nL nH
 	return []byte{}
 }
@@ -30,7 +30,7 @@ var alignMap = map[Alignment]byte{
 }
 
 // SetJustification convierte el tipo genérico al específico de ESC/POS
-func (c *Commands) SetJustification(justification Alignment) ([]byte, error) {
+func (c *Protocol) SetJustification(justification Alignment) ([]byte, error) {
 	alignment, ok := alignMap[justification]
 	if !ok {
 		return nil, fmt.Errorf("justificación no soportada: %v", justification)

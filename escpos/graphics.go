@@ -78,7 +78,7 @@ func (e *ESCImage) toRasterFormat() []byte {
 }
 
 // PrintRasterBitImage genera los comandos para imprimir una imagen rasterizada
-func (c *Commands) PrintRasterBitImage(img *imaging.PrintImage, density Density) ([]byte, error) {
+func (c *Protocol) PrintRasterBitImage(img *imaging.PrintImage, density Density) ([]byte, error) {
 	// Crear ESCImage
 	escImg, err := newESCImageFromPrintImage(img)
 	if err != nil {
@@ -114,7 +114,7 @@ func (c *Commands) PrintRasterBitImage(img *imaging.PrintImage, density Density)
 }
 
 // GetMaxImageWidth devuelve el ancho máximo de imagen que soporta la impresora
-func (c *Commands) GetMaxImageWidth(paperWidth, dpi int) int {
+func (c *Protocol) GetMaxImageWidth(paperWidth, dpi int) int {
 	// Cálculo basado en el ancho del papel y resolución
 	// Formula: (ancho_papel_mm / 25.4) * dpi
 	if paperWidth > 0 && dpi > 0 {

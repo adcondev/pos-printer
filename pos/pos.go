@@ -34,7 +34,7 @@ type EscposPrinter struct {
 	Profile   *profile.Escpos
 
 	// Commands
-	Escpos *escpos.Commands
+	Escpos *escpos.Protocol
 
 	// Command Types
 	// PrintDataInPageMode *escpos.TextCommands
