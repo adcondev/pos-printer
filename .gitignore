@@ -58,10 +58,11 @@ go.work.sum
 
 !.versionrc.js
 
-# !Makefile
+!Makefile
 
 # ...even if they are in subdirectories
 !*/
+!img/*.jpg
 
 ### GoLand template
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio, WebStorm and Rider
