@@ -2,12 +2,11 @@
 
 <div align="center">
 
-![POS Printer Logo](https://via.placeholder.com/150?text=POS+Printer)
-![CI Status](https://github.com/AdConDev/pos-daemon/actions/workflows/ci.yml/badge.svg)
+![CI Status](https://github.com/adcondev/pos-printer/actions/workflows/ci.yml/badge.svg) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+<img src="img/pos-printer.jpg" alt="POS Printer Logo" width="200" height="auto">
 
 **A modular, extensible library for thermal printer communication across multiple protocols**
-
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 </div>
 
