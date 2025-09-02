@@ -2,6 +2,8 @@ package escpos
 
 import (
 	"fmt"
+
+	"github.com/adcondev/pos-printer/escpos/common"
 )
 
 // TODO: Comandos para dar formato al texto
@@ -11,8 +13,8 @@ import (
 
 // emphMap mapea el modo enfatizado a su valor ESC/POS correspondiente.
 var emphMap = map[EmphasizedMode]byte{
-	EmphOff: 0,
-	EmphOn:  1,
+	EmphasizedOff: 0,
+	EmphasizedOn:  1,
 }
 
 // ulModeMap mapea el modo subrayado a su valor ESC/POS correspondiente.
@@ -33,48 +35,48 @@ var fontMap = map[Font]byte{
 }
 
 // SelectCharacterFont sets the character font
-func (c *Commands) SelectCharacterFont(n Font) ([]byte, error) {
+func (c *Protocol) SelectCharacterFont(n Font) ([]byte, error) {
 	font, ok := fontMap[n]
 	if !ok {
 		return nil, fmt.Errorf("no font found for font %v", n)
 	}
 
 	// ESC M n
-	return []byte{ESC, 'M', font}, nil
+	return []byte{common.ESC, 'M', font}, nil
 }
 
 // TurnEmphasizedMode enables or disables emphasized mode
-func (c *Commands) TurnEmphasizedMode(n EmphasizedMode) ([]byte, error) {
+func (c *Protocol) TurnEmphasizedMode(n EmphasizedMode) ([]byte, error) {
 	emph, ok := emphMap[n]
 	if !ok {
 		return nil, fmt.Errorf("no emph mode found")
 	}
 
-	return []byte{ESC, 'E', emph}, nil
+	return []byte{common.ESC, 'E', emph}, nil
 }
 
 // SetDoubleStrike activa/desactiva doble golpe
-func (c *Commands) SetDoubleStrike(on bool) []byte {
+func (c *Protocol) SetDoubleStrike(on bool) []byte {
 	val := byte(0)
 	if on {
 		val = 1
 	}
 	// ESC G n
-	return []byte{ESC, 'G', val}
+	return []byte{common.ESC, 'G', val}
 }
 
 // TurnUnderlineMode enables or disables underline mode
-func (c *Commands) TurnUnderlineMode(n UnderlineMode) ([]byte, error) {
+func (c *Protocol) TurnUnderlineMode(n UnderlineMode) ([]byte, error) {
 	mode, ok := ulModeMap[n]
 	if !ok {
 		return nil, fmt.Errorf("invalid underline mode: %d", n)
 	}
 	// ESC - n
-	return []byte{ESC, '-', mode}, nil
+	return []byte{common.ESC, '-', mode}, nil
 }
 
 // SetTextSize Implementar
-func (c *Commands) SetTextSize(_, _ int) []byte {
+func (c *Protocol) SetTextSize(_, _ int) []byte {
 	// TODO: Implementar usando GS ! n
 	// Hint: n = (widthMultiplier-1)<<4 | (heightMultiplier-1)
 	return []byte{}
