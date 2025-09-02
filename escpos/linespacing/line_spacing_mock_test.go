@@ -8,6 +8,9 @@ import (
 	"github.com/adcondev/pos-printer/escpos/linespacing"
 )
 
+// Ensure MockCapability implements linespacing.Capability
+var _ linespacing.Capability = (*MockCapability)(nil)
+
 // ============================================================================
 // Mock Implementation
 // ============================================================================
@@ -20,14 +23,32 @@ type MockCapability struct {
 
 	SelectDefaultCalled bool
 	SelectDefaultReturn []byte
+
+	// Add call counting
+	CallCount map[string]int
 }
 
-// Ensure MockCapability implements linespacing.Capability
-var _ linespacing.Capability = (*MockCapability)(nil)
+// Add constructor
+func NewMockCapability() *MockCapability {
+	return &MockCapability{
+		CallCount: make(map[string]int),
+	}
+}
+
+// Add Reset method
+func (m *MockCapability) Reset() {
+	*m = *NewMockCapability()
+}
+
+// Add helper methods
+func (m *MockCapability) GetCallCount(method string) int {
+	return m.CallCount[method]
+}
 
 func (m *MockCapability) SetLineSpacing(n byte) []byte {
 	m.SetLineSpacingCalled = true
 	m.SetLineSpacingInput = n
+	m.CallCount["SetLineSpacing"]++
 
 	if m.SetLineSpacingReturn != nil {
 		return m.SetLineSpacingReturn
@@ -37,6 +58,7 @@ func (m *MockCapability) SetLineSpacing(n byte) []byte {
 
 func (m *MockCapability) SelectDefaultLineSpacing() []byte {
 	m.SelectDefaultCalled = true
+	m.CallCount["SelectDefaultLineSpacing"]++
 
 	if m.SelectDefaultReturn != nil {
 		return m.SelectDefaultReturn
@@ -50,9 +72,8 @@ func (m *MockCapability) SelectDefaultLineSpacing() []byte {
 
 func TestMockCapability_BehaviorTracking(t *testing.T) {
 	t.Run("tracks SetLineSpacing calls", func(t *testing.T) {
-		mock := &MockCapability{
-			SetLineSpacingReturn: []byte{0xFF, 0xFF, 0xFF},
-		}
+		mock := NewMockCapability()
+		mock.SetLineSpacingReturn = []byte{0xFF, 0xFF, 0xFF}
 
 		result := mock.SetLineSpacing(50)
 
@@ -68,7 +89,7 @@ func TestMockCapability_BehaviorTracking(t *testing.T) {
 	})
 
 	t.Run("tracks SelectDefaultLineSpacing calls", func(t *testing.T) {
-		mock := &MockCapability{}
+		mock := NewMockCapability()
 
 		result := mock.SelectDefaultLineSpacing()
 
@@ -82,7 +103,7 @@ func TestMockCapability_BehaviorTracking(t *testing.T) {
 	})
 
 	t.Run("returns default behavior when no return configured", func(t *testing.T) {
-		mock := &MockCapability{}
+		mock := NewMockCapability()
 
 		result := mock.SetLineSpacing(30)
 

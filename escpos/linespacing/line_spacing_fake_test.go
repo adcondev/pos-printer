@@ -8,6 +8,9 @@ import (
 	"github.com/adcondev/pos-printer/escpos/linespacing"
 )
 
+// Ensure FakeCapability implements linespacing.Capability
+var _ linespacing.Capability = (*FakeCapability)(nil)
+
 // ============================================================================
 // Fake Implementation
 // ============================================================================
@@ -19,6 +22,19 @@ type FakeCapability struct {
 	defaultSpacing byte
 	timesChanged   int
 	lastCommand    string
+	commandHistory []string
+}
+
+func (f *FakeCapability) GetCommandHistory() []string {
+	return f.commandHistory
+}
+
+func (f *FakeCapability) GetState() map[string]interface{} {
+	return map[string]interface{}{
+		"currentSpacing": f.currentSpacing,
+		"defaultSpacing": f.defaultSpacing,
+		"timesChanged":   f.timesChanged,
+	}
 }
 
 // NewFakeCapability creates a new fake line spacing
@@ -27,11 +43,9 @@ func NewFakeCapability() *FakeCapability {
 		buffer:         make([]byte, 0),
 		currentSpacing: 30, // Default
 		defaultSpacing: 30,
+		commandHistory: make([]string, 0),
 	}
 }
-
-// Ensure FakeCapability implements linespacing.Capability
-var _ linespacing.Capability = (*FakeCapability)(nil)
 
 func (f *FakeCapability) SetLineSpacing(n byte) []byte {
 	cmd := []byte{common.ESC, '3', n}
@@ -39,6 +53,7 @@ func (f *FakeCapability) SetLineSpacing(n byte) []byte {
 	f.currentSpacing = n
 	f.timesChanged++
 	f.lastCommand = "SetLineSpacing"
+	f.commandHistory = append(f.commandHistory, f.lastCommand)
 	return cmd
 }
 
@@ -46,7 +61,9 @@ func (f *FakeCapability) SelectDefaultLineSpacing() []byte {
 	cmd := []byte{common.ESC, '2'}
 	f.buffer = append(f.buffer, cmd...)
 	f.currentSpacing = f.defaultSpacing
+	f.timesChanged++
 	f.lastCommand = "SelectDefaultLineSpacing"
+	f.commandHistory = append(f.commandHistory, f.lastCommand)
 	return cmd
 }
 
@@ -158,6 +175,51 @@ func TestFakeCapability_StateTracking(t *testing.T) {
 		}
 		if fake.GetTimesChanged() != 0 {
 			t.Error("TimesChanged should be 0 after reset")
+		}
+	})
+}
+
+func TestFakeCapability_CompleteScenarios(t *testing.T) {
+	t.Run("command history accuracy", func(t *testing.T) {
+		fake := NewFakeCapability()
+
+		operations := []struct {
+			action   func()
+			expected string
+		}{
+			{func() { fake.SetLineSpacing(10) }, "SetLineSpacing"},
+			{func() { fake.SelectDefaultLineSpacing() }, "SelectDefaultLineSpacing"},
+			{func() { fake.SetLineSpacing(20) }, "SetLineSpacing"},
+		}
+
+		for _, op := range operations {
+			op.action()
+		}
+
+		history := fake.GetCommandHistory()
+		for i, op := range operations {
+			if history[i] != op.expected {
+				t.Errorf("History[%d] = %s, want %s", i, history[i], op.expected)
+			}
+		}
+	})
+
+	t.Run("buffer integrity", func(t *testing.T) {
+		fake := NewFakeCapability()
+
+		// Build expected buffer manually
+		var expected []byte
+		expected = append(expected, common.ESC, '3', 15)
+		expected = append(expected, common.ESC, '2')
+		expected = append(expected, common.ESC, '3', 30)
+
+		// Execute same commands
+		fake.SetLineSpacing(15)
+		fake.SelectDefaultLineSpacing()
+		fake.SetLineSpacing(30)
+
+		if !bytes.Equal(fake.GetBuffer(), expected) {
+			t.Errorf("Buffer = %#v, want %#v", fake.GetBuffer(), expected)
 		}
 	})
 }

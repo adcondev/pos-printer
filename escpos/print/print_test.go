@@ -17,44 +17,44 @@ import (
 
 func TestUtility_Formatting_CharacterReplacement(t *testing.T) {
 	tests := []struct {
-		name  string
-		input []byte
-		want  []byte
+		name string
+		data []byte
+		want []byte
 	}{
 		{
-			name:  "replaces newline with LF",
-			input: []byte("Hello\nWorld"),
-			want:  []byte{'H', 'e', 'l', 'l', 'o', print.LF, 'W', 'o', 'r', 'l', 'd'},
+			name: "replaces newline with LF",
+			data: []byte("Hello\nWorld"),
+			want: []byte{'H', 'e', 'l', 'l', 'o', print.LF, 'W', 'o', 'r', 'l', 'd'},
 		},
 		{
-			name:  "replaces tab with HT",
-			input: []byte("Col1\tCol2"),
-			want:  []byte{'C', 'o', 'l', '1', common.HT, 'C', 'o', 'l', '2'},
+			name: "replaces tab with HT",
+			data: []byte("Col1\tCol2"),
+			want: []byte{'C', 'o', 'l', '1', common.HT, 'C', 'o', 'l', '2'},
 		},
 		{
-			name:  "replaces carriage return with CR",
-			input: []byte("Line1\rLine2"),
-			want:  []byte{'L', 'i', 'n', 'e', '1', print.CR, 'L', 'i', 'n', 'e', '2'},
+			name: "replaces carriage return with CR",
+			data: []byte("Line1\rLine2"),
+			want: []byte{'L', 'i', 'n', 'e', '1', print.CR, 'L', 'i', 'n', 'e', '2'},
 		},
 		{
-			name:  "handles multiple replacements",
-			input: []byte("A\nB\tC\rD"),
-			want:  []byte{'A', print.LF, 'B', common.HT, 'C', print.CR, 'D'},
+			name: "handles multiple replacements",
+			data: []byte("A\nB\tC\rD"),
+			want: []byte{'A', print.LF, 'B', common.HT, 'C', print.CR, 'D'},
 		},
 		{
-			name:  "preserves regular characters",
-			input: []byte("NoSpecialChars123!@#"),
-			want:  []byte("NoSpecialChars123!@#"),
+			name: "preserves regular characters",
+			data: []byte("NoSpecialChars123!@#"),
+			want: []byte("NoSpecialChars123!@#"),
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// Clone input to avoid modifying original
-			data := append([]byte(nil), tt.input...)
+			data := append([]byte(nil), tt.data...)
 			got := print.Formatting(data)
 			if !bytes.Equal(got, tt.want) {
-				t.Errorf("Formatting(%q) = %#v, want %#v", tt.input, got, tt.want)
+				t.Errorf("Formatting(%q) = %#v, want %#v", tt.data, got, tt.want)
 			}
 		})
 	}
@@ -71,37 +71,37 @@ func TestCommands_Text(t *testing.T) {
 
 	tests := []struct {
 		name    string
-		input   string
+		text    string
 		want    []byte
 		wantErr bool
 	}{
 		{
 			name:    "simple text",
-			input:   "Hello",
+			text:    "Hello",
 			want:    []byte("Hello"),
 			wantErr: false,
 		},
 		{
 			name:    "text with newline",
-			input:   "Line1\nLine2",
+			text:    "Line1\nLine2",
 			want:    []byte{'L', 'i', 'n', 'e', '1', print.LF, 'L', 'i', 'n', 'e', '2'},
 			wantErr: false,
 		},
 		{
 			name:    "text with tab",
-			input:   "A\tB",
+			text:    "A\tB",
 			want:    []byte{'A', common.HT, 'B'},
 			wantErr: false,
 		},
 		{
 			name:    "text with carriage return",
-			input:   "A\rB",
+			text:    "A\rB",
 			want:    []byte{'A', print.CR, 'B'},
 			wantErr: false,
 		},
 		{
 			name:    "empty text returns error",
-			input:   "",
+			text:    "",
 			want:    nil,
 			wantErr: true,
 		},
@@ -109,15 +109,28 @@ func TestCommands_Text(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := cmd.Text(tt.input)
+			got, err := cmd.Text(tt.text)
 
+			// Standardized error checking
 			if (err != nil) != tt.wantErr {
-				t.Errorf("Text(%q) error = %v, wantErr %v", tt.input, err, tt.wantErr)
+				t.Errorf("Text(%s) error = %v, wantErr %v", tt.text, err, tt.wantErr)
 				return
 			}
 
+			// Check specific error type if expecting error
+			if tt.wantErr && err != nil {
+				if !errors.Is(err, common.ErrEmptyBuffer) {
+					t.Errorf("Text(%s) error = %v, want %v", tt.text, err, common.ErrEmptyBuffer)
+				}
+				if !errors.Is(err, common.ErrBufferOverflow) {
+					t.Errorf("Text(%s) error = %v, want %v", tt.text, err, common.ErrBufferOverflow)
+				}
+				return
+			}
+
+			// Check result if no error expected
 			if !tt.wantErr && !bytes.Equal(got, tt.want) {
-				t.Errorf("Text(%q) = %#v, want %#v", tt.input, got, tt.want)
+				t.Errorf("Text(%s) = %#v, want %#v", tt.text, got, tt.want)
 			}
 		})
 	}
@@ -127,32 +140,32 @@ func TestCommands_PrintAndFeedPaper(t *testing.T) {
 	cmd := print.NewCommands()
 
 	tests := []struct {
-		name string
-		n    byte
-		want []byte
+		name  string
+		units byte
+		want  []byte
 	}{
 		{
-			name: "minimum feed (0 units)",
-			n:    0,
-			want: []byte{common.ESC, 'J', 0},
+			name:  "minimum feed (0 units)",
+			units: 0,
+			want:  []byte{common.ESC, 'J', 0},
 		},
 		{
-			name: "typical feed (30 units)",
-			n:    30,
-			want: []byte{common.ESC, 'J', 30},
+			name:  "typical feed (30 units)",
+			units: 30,
+			want:  []byte{common.ESC, 'J', 30},
 		},
 		{
-			name: "maximum feed (255 units)",
-			n:    255,
-			want: []byte{common.ESC, 'J', 255},
+			name:  "maximum feed (255 units)",
+			units: 255,
+			want:  []byte{common.ESC, 'J', 255},
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := cmd.PrintAndFeedPaper(tt.n)
+			got := cmd.PrintAndFeedPaper(tt.units)
 			if !bytes.Equal(got, tt.want) {
-				t.Errorf("PrintAndFeedPaper(%d) = %#v, want %#v", tt.n, got, tt.want)
+				t.Errorf("PrintAndFeedPaper(%d) = %#v, want %#v", tt.units, got, tt.want)
 			}
 		})
 	}
@@ -217,31 +230,31 @@ func TestPagePrint_PrintAndReverseFeed(t *testing.T) {
 
 	tests := []struct {
 		name    string
-		n       byte
+		reverse byte
 		want    []byte
 		wantErr bool
 	}{
 		{
 			name:    "minimum reverse feed (0 units)",
-			n:       0,
+			reverse: 0,
 			want:    []byte{common.ESC, 'K', 0},
 			wantErr: false,
 		},
 		{
 			name:    "typical reverse feed (10 units)",
-			n:       10,
+			reverse: 10,
 			want:    []byte{common.ESC, 'K', 10},
 			wantErr: false,
 		},
 		{
 			name:    "maximum allowed reverse feed",
-			n:       print.MaxReverseMotionUnits,
+			reverse: print.MaxReverseMotionUnits,
 			want:    []byte{common.ESC, 'K', print.MaxReverseMotionUnits},
 			wantErr: false,
 		},
 		{
 			name:    "exceeds maximum returns error",
-			n:       print.MaxReverseMotionUnits + 1,
+			reverse: print.MaxReverseMotionUnits + 1,
 			want:    nil,
 			wantErr: true,
 		},
@@ -249,19 +262,26 @@ func TestPagePrint_PrintAndReverseFeed(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := pp.PrintAndReverseFeed(tt.n)
+			got, err := pp.PrintAndReverseFeed(tt.reverse)
 
+			// Standardized error checking
 			if (err != nil) != tt.wantErr {
-				t.Errorf("PrintAndReverseFeed(%d) error = %v, wantErr %v", tt.n, err, tt.wantErr)
+				t.Errorf("PrintAndReverseFeed(%d) error = %v, wantErr %v", tt.reverse, err, tt.wantErr)
 				return
 			}
 
-			if !tt.wantErr && !bytes.Equal(got, tt.want) {
-				t.Errorf("PrintAndReverseFeed(%d) = %#v, want %#v", tt.n, got, tt.want)
+			// Check specific error type if expecting error
+			if tt.wantErr && err != nil {
+				if !errors.Is(err, print.ErrPrintReverseFeed) {
+					t.Errorf("PrintAndReverseFeed(%v) error = %v, want %v",
+						tt.reverse, err, print.ErrPrintReverseFeed)
+				}
+				return
 			}
 
-			if tt.wantErr && !errors.Is(err, print.ErrPrintReverseFeed) {
-				t.Errorf("PrintAndReverseFeed(%d) error = %v, want %v", tt.n, err, print.ErrPrintReverseFeed)
+			// Check result if no error expected
+			if !tt.wantErr && !bytes.Equal(got, tt.want) {
+				t.Errorf("PrintAndReverseFeed(%v) = %#v, want %#v", tt.reverse, got, tt.want)
 			}
 		})
 	}
@@ -272,31 +292,31 @@ func TestPagePrint_PrintAndReverseFeedLines(t *testing.T) {
 
 	tests := []struct {
 		name    string
-		n       byte
+		lines   byte
 		want    []byte
 		wantErr bool
 	}{
 		{
 			name:    "minimum lines (0)",
-			n:       0,
+			lines:   0,
 			want:    []byte{common.ESC, 'e', 0},
 			wantErr: false,
 		},
 		{
 			name:    "single line reverse",
-			n:       1,
+			lines:   1,
 			want:    []byte{common.ESC, 'e', 1},
 			wantErr: false,
 		},
 		{
 			name:    "maximum allowed lines",
-			n:       print.MaxReverseFeedLines,
+			lines:   print.MaxReverseFeedLines,
 			want:    []byte{common.ESC, 'e', print.MaxReverseFeedLines},
 			wantErr: false,
 		},
 		{
 			name:    "exceeds maximum returns error",
-			n:       print.MaxReverseFeedLines + 1,
+			lines:   print.MaxReverseFeedLines + 1,
 			want:    nil,
 			wantErr: true,
 		},
@@ -304,19 +324,26 @@ func TestPagePrint_PrintAndReverseFeedLines(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := pp.PrintAndReverseFeedLines(tt.n)
+			got, err := pp.PrintAndReverseFeedLines(tt.lines)
 
+			// Standardized error checking
 			if (err != nil) != tt.wantErr {
-				t.Errorf("PrintAndReverseFeedLines(%d) error = %v, wantErr %v", tt.n, err, tt.wantErr)
+				t.Errorf("PrintAndReverseFeedLines(%d) error = %v, wantErr %v", tt.lines, err, tt.wantErr)
 				return
 			}
 
-			if !tt.wantErr && !bytes.Equal(got, tt.want) {
-				t.Errorf("PrintAndReverseFeedLines(%d) = %#v, want %#v", tt.n, got, tt.want)
+			// Check specific error type if expecting error
+			if tt.wantErr && err != nil {
+				if !errors.Is(err, print.ErrPrintReverseFeedLines) {
+					t.Errorf("PrintAndReverseFeedLines(%v) error = %v, want %v",
+						tt.lines, err, print.ErrPrintReverseFeedLines)
+				}
+				return
 			}
 
-			if tt.wantErr && !errors.Is(err, print.ErrPrintReverseFeedLines) {
-				t.Errorf("PrintAndReverseFeedLines(%d) error = %v, want %v", tt.n, err, print.ErrPrintReverseFeedLines)
+			// Check result if no error expected
+			if !tt.wantErr && !bytes.Equal(got, tt.want) {
+				t.Errorf("PrintAndReverseFeedLines(%v) = %#v, want %#v", tt.lines, got, tt.want)
 			}
 		})
 	}
@@ -326,36 +353,35 @@ func TestPagePrint_PrintAndFeedLines(t *testing.T) {
 	pp := &print.PagePrint{}
 
 	tests := []struct {
-		name string
-		n    byte
-		want []byte
+		name    string
+		lines   byte
+		want    []byte
+		wantErr bool
 	}{
 		{
-			name: "no feed (0 lines)",
-			n:    0,
-			want: []byte{common.ESC, 'd', 0},
+			name:  "no feed (0 lines)",
+			lines: 0,
+			want:  []byte{common.ESC, 'd', 0},
 		},
 		{
-			name: "typical feed (5 lines)",
-			n:    5,
-			want: []byte{common.ESC, 'd', 5},
+			name:  "typical feed (5 lines)",
+			lines: 5,
+			want:  []byte{common.ESC, 'd', 5},
 		},
 		{
-			name: "maximum feed (255 lines)",
-			n:    255,
-			want: []byte{common.ESC, 'd', 255},
+			name:  "maximum feed (255 lines)",
+			lines: 255,
+			want:  []byte{common.ESC, 'd', 255},
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := pp.PrintAndFeedLines(tt.n)
+			got := pp.PrintAndFeedLines(tt.lines)
 
-			if err != nil {
-				t.Errorf("PrintAndFeedLines(%d) unexpected error: %v", tt.n, err)
-			}
-			if !bytes.Equal(got, tt.want) {
-				t.Errorf("PrintAndFeedLines(%d) = %#v, want %#v", tt.n, got, tt.want)
+			// Check result if no error expected
+			if !tt.wantErr && !bytes.Equal(got, tt.want) {
+				t.Errorf("PrintAndFeedLines(%v) = %#v, want %#v", tt.lines, got, tt.want)
 			}
 		})
 	}

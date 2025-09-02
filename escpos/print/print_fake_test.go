@@ -9,18 +9,39 @@ import (
 	"github.com/adcondev/pos-printer/escpos/print"
 )
 
+// Ensure FakeCapability implements print.Capability
+var _ print.Capability = (*FakeCapability)(nil)
+
+// Ensure FakePageModeCapability implements print.PageModeCapability
+var _ print.PageModeCapability = (*FakePageModeCapability)(nil)
+
 // ============================================================================
 // Fake Implementation
 // ============================================================================
 
 // FakeCapability simulates a real printer with state tracking
 type FakeCapability struct {
-	buffer      []byte
-	position    int
-	linesFed    int
-	formsFed    int
-	paperFed    int // Track total units of paper fed
-	lastCommand string
+	buffer         []byte
+	position       int
+	linesFed       int
+	formsFed       int
+	paperFed       int // Track total units of paper fed
+	lastCommand    string
+	commandHistory []string
+}
+
+func (f *FakeCapability) GetCommandHistory() []string {
+	return f.commandHistory
+}
+
+func (f *FakeCapability) GetState() map[string]interface{} {
+	return map[string]interface{}{
+		"buffer":   f.buffer,
+		"position": f.position,
+		"linesFed": f.linesFed,
+		"formsFed": f.formsFed,
+		"paperFed": f.paperFed,
+	}
 }
 
 // NewFakeCapability creates a new fake printer
@@ -31,9 +52,6 @@ func NewFakeCapability() *FakeCapability {
 	}
 }
 
-// Ensure FakeCapability implements print.Capability
-var _ print.Capability = (*FakeCapability)(nil)
-
 func (f *FakeCapability) Text(n string) ([]byte, error) {
 	if n == "" {
 		return nil, common.ErrEmptyBuffer
@@ -43,7 +61,7 @@ func (f *FakeCapability) Text(n string) ([]byte, error) {
 	f.buffer = append(f.buffer, data...)
 	f.position += len(data)
 	f.lastCommand = "Text"
-
+	f.commandHistory = append(f.commandHistory, f.lastCommand)
 	return data, nil
 }
 
@@ -53,6 +71,7 @@ func (f *FakeCapability) PrintAndFeedPaper(n byte) []byte {
 	f.position = 0 // Reset to beginning of line
 	f.paperFed += int(n)
 	f.lastCommand = "PrintAndFeedPaper"
+	f.commandHistory = append(f.commandHistory, f.lastCommand)
 	return cmd
 }
 
@@ -61,6 +80,7 @@ func (f *FakeCapability) FormFeed() []byte {
 	f.position = 0
 	f.formsFed++
 	f.lastCommand = "FormFeed"
+	f.commandHistory = append(f.commandHistory, f.lastCommand)
 	return []byte{print.FF}
 }
 
@@ -68,6 +88,7 @@ func (f *FakeCapability) PrintAndCarriageReturn() []byte {
 	f.buffer = append(f.buffer, print.CR)
 	f.position = 0
 	f.lastCommand = "PrintAndCarriageReturn"
+	f.commandHistory = append(f.commandHistory, f.lastCommand)
 	return []byte{print.CR}
 }
 
@@ -76,6 +97,7 @@ func (f *FakeCapability) PrintAndLineFeed() []byte {
 	f.position = 0
 	f.linesFed++
 	f.lastCommand = "PrintAndLineFeed"
+	f.commandHistory = append(f.commandHistory, f.lastCommand)
 	return []byte{print.LF}
 }
 
@@ -111,6 +133,94 @@ func (f *FakeCapability) Reset() {
 	f.formsFed = 0
 	f.paperFed = 0
 	f.lastCommand = ""
+}
+
+// FakePageModeCapability simulates page mode operations
+type FakePageModeCapability struct {
+	buffer         []byte
+	pageBuffer     []byte
+	reverseFed     int
+	linesReversed  int
+	pagesPrinted   int
+	dataCleared    int
+	lastCommand    string
+	commandHistory []string
+}
+
+func NewFakePageModeCapability() *FakePageModeCapability {
+	return &FakePageModeCapability{
+		buffer:         make([]byte, 0),
+		pageBuffer:     make([]byte, 0),
+		commandHistory: make([]string, 0),
+	}
+}
+
+func (f *FakePageModeCapability) PrintAndReverseFeed(n byte) ([]byte, error) {
+	if n > print.MaxReverseMotionUnits {
+		return nil, print.ErrPrintReverseFeed
+	}
+	cmd := []byte{common.ESC, 'K', n}
+	f.buffer = append(f.buffer, cmd...)
+	f.reverseFed += int(n)
+	f.lastCommand = "PrintAndReverseFeed"
+	f.commandHistory = append(f.commandHistory, f.lastCommand)
+	return cmd, nil
+}
+
+func (f *FakePageModeCapability) PrintAndReverseFeedLines(n byte) ([]byte, error) {
+	if n > print.MaxReverseFeedLines {
+		return nil, print.ErrPrintReverseFeedLines
+	}
+	cmd := []byte{common.ESC, 'e', n}
+	f.buffer = append(f.buffer, cmd...)
+	f.linesReversed += int(n)
+	f.lastCommand = "PrintAndReverseFeedLines"
+	f.commandHistory = append(f.commandHistory, f.lastCommand)
+	return cmd, nil
+}
+
+func (f *FakePageModeCapability) CancelData() []byte {
+	f.pageBuffer = make([]byte, 0)
+	f.dataCleared++
+	f.lastCommand = "CancelData"
+	f.commandHistory = append(f.commandHistory, f.lastCommand)
+	return []byte{print.CAN}
+}
+
+func (f *FakePageModeCapability) PrintDataInPageMode() []byte {
+	f.pagesPrinted++
+	f.lastCommand = "PrintDataInPageMode"
+	f.commandHistory = append(f.commandHistory, f.lastCommand)
+	return []byte{common.ESC, print.FF}
+}
+
+func (f *FakePageModeCapability) PrintAndFeedLines(n byte) []byte {
+	cmd := []byte{common.ESC, 'd', n}
+	f.buffer = append(f.buffer, cmd...)
+	f.lastCommand = "PrintAndFeedLines"
+	f.commandHistory = append(f.commandHistory, f.lastCommand)
+	return cmd
+}
+
+// Helper methods
+func (f *FakePageModeCapability) GetState() map[string]interface{} {
+	return map[string]interface{}{
+		"reverseFed":    f.reverseFed,
+		"linesReversed": f.linesReversed,
+		"pagesPrinted":  f.pagesPrinted,
+		"dataCleared":   f.dataCleared,
+	}
+}
+
+func (f *FakePageModeCapability) Reset() {
+	f.buffer = make([]byte, 0)
+	f.pageBuffer = make([]byte, 0)
+	f.reverseFed = 0
+	f.linesReversed = 0
+	f.pagesPrinted = 0
+	f.dataCleared = 0
+	f.lastCommand = ""
+	f.commandHistory = make([]string, 0)
 }
 
 // ============================================================================

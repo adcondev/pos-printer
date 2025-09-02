@@ -9,6 +9,9 @@ import (
 	"github.com/adcondev/pos-printer/escpos/print"
 )
 
+// Ensure MockCapability implements print.Capability
+var _ print.Capability = (*MockCapability)(nil)
+
 // ============================================================================
 // Mock Implementation
 // ============================================================================
@@ -37,14 +40,32 @@ type MockCapability struct {
 	// PrintAndLineFeed tracking
 	PrintAndLineFeedCalled bool
 	PrintAndLineFeedReturn []byte
+
+	// Add call counting
+	CallCount map[string]int
 }
 
-// Ensure MockCapability implements print.Capability
-var _ print.Capability = (*MockCapability)(nil)
+// Add constructor
+func NewMockCapability() *MockCapability {
+	return &MockCapability{
+		CallCount: make(map[string]int),
+	}
+}
+
+// Add Reset method
+func (m *MockCapability) Reset() {
+	*m = *NewMockCapability()
+}
+
+// Add helper methods
+func (m *MockCapability) GetCallCount(method string) int {
+	return m.CallCount[method]
+}
 
 func (m *MockCapability) Text(n string) ([]byte, error) {
 	m.TextCalled = true
 	m.TextInput = n
+	m.CallCount["Text"]++
 
 	if m.TextError != nil {
 		return nil, m.TextError
@@ -58,6 +79,7 @@ func (m *MockCapability) Text(n string) ([]byte, error) {
 func (m *MockCapability) PrintAndFeedPaper(n byte) []byte {
 	m.PrintAndFeedPaperCalled = true
 	m.PrintAndFeedPaperInput = n
+	m.CallCount["PrintAndFeedPaper"]++
 
 	if m.PrintAndFeedPaperReturn != nil {
 		return m.PrintAndFeedPaperReturn
@@ -67,6 +89,8 @@ func (m *MockCapability) PrintAndFeedPaper(n byte) []byte {
 
 func (m *MockCapability) FormFeed() []byte {
 	m.FormFeedCalled = true
+	m.CallCount["FormFeed"]++
+
 	if m.FormFeedReturn != nil {
 		return m.FormFeedReturn
 	}
@@ -75,6 +99,8 @@ func (m *MockCapability) FormFeed() []byte {
 
 func (m *MockCapability) PrintAndCarriageReturn() []byte {
 	m.PrintAndCarriageReturnCalled = true
+	m.CallCount["PrintAndCarriageReturn"]++
+
 	if m.PrintAndCarriageReturnReturn != nil {
 		return m.PrintAndCarriageReturnReturn
 	}
@@ -83,10 +109,129 @@ func (m *MockCapability) PrintAndCarriageReturn() []byte {
 
 func (m *MockCapability) PrintAndLineFeed() []byte {
 	m.PrintAndLineFeedCalled = true
+	m.CallCount["PrintAndLineFeed"]++
+
 	if m.PrintAndLineFeedReturn != nil {
 		return m.PrintAndLineFeedReturn
 	}
 	return []byte{print.LF}
+}
+
+type MockPageModeCapability struct {
+	// PrintAndReverseFeed tracking
+	PrintAndReverseFeedCalled bool
+	PrintAndReverseFeedInput  byte
+	PrintAndReverseFeedReturn []byte
+	PrintAndReverseFeedError  error
+
+	// PrintAndReverseFeedLines tracking
+	PrintAndReverseFeedLinesCalled bool
+	PrintAndReverseFeedLinesInput  byte
+	PrintAndReverseFeedLinesReturn []byte
+	PrintAndReverseFeedLinesError  error
+
+	// CancelData tracking
+	CancelDataCalled bool
+	CancelDataReturn []byte
+
+	// PrintDataInPageMode tracking
+	PrintDataInPageModeCalled bool
+	PrintDataInPageModeReturn []byte
+
+	// PrintAndFeedLines tracking
+	PrintAndFeedLinesCalled bool
+	PrintAndFeedLinesInput  byte
+	PrintAndFeedLinesReturn []byte
+	PrintAndFeedLinesError  error
+
+	// Add call counting
+	CallCount map[string]int
+}
+
+// Add constructor
+func NewMockPageModeCapability() *MockPageModeCapability {
+	return &MockPageModeCapability{
+		CallCount: make(map[string]int),
+	}
+}
+
+// Add Reset method
+func (m *MockPageModeCapability) Reset() {
+	*m = *NewMockPageModeCapability()
+}
+
+// Add helper methods
+func (m *MockPageModeCapability) GetCallCount(method string) int {
+	return m.CallCount[method]
+
+}
+
+func (m *MockPageModeCapability) PrintAndReverseFeed(units byte) ([]byte, error) {
+	m.PrintAndReverseFeedCalled = true
+	m.PrintAndReverseFeedInput = units
+	m.CallCount["PrintAndReverseFeed"]++
+
+	if m.PrintAndReverseFeedError != nil {
+		return nil, m.PrintAndReverseFeedError
+	}
+	if m.PrintAndReverseFeedReturn != nil {
+		return m.PrintAndReverseFeedReturn, nil
+	}
+	if units > print.MaxReverseMotionUnits {
+		return nil, print.ErrPrintReverseFeed
+	}
+	return []byte{common.ESC, 'K', units}, nil
+}
+
+func (m *MockPageModeCapability) PrintAndReverseFeedLines(lines byte) ([]byte, error) {
+	m.PrintAndReverseFeedLinesCalled = true
+	m.PrintAndReverseFeedLinesInput = lines
+	m.CallCount["PrintAndReverseFeedLines"]++
+
+	if m.PrintAndReverseFeedLinesError != nil {
+		return nil, m.PrintAndReverseFeedLinesError
+	}
+	if m.PrintAndReverseFeedLinesReturn != nil {
+		return m.PrintAndReverseFeedLinesReturn, nil
+	}
+	if lines > print.MaxReverseFeedLines {
+		return nil, print.ErrPrintReverseFeed
+	}
+	return []byte{common.ESC, 'K', lines}, nil
+}
+
+func (m *MockPageModeCapability) CancelData() []byte {
+	m.CancelDataCalled = true
+	m.CallCount["CancelData"]++
+
+	if m.CancelDataReturn != nil {
+		return m.CancelDataReturn
+	}
+	return []byte{print.CAN}
+}
+
+func (m *MockPageModeCapability) PrintDataInPageMode() []byte {
+	m.PrintDataInPageModeCalled = true
+	m.CallCount["PrintDataInPageMode"]++
+
+	if m.PrintDataInPageModeReturn != nil {
+		return m.PrintDataInPageModeReturn
+	}
+	return []byte{common.ESC, print.FF}
+}
+
+func (m *MockPageModeCapability) PrintAndFeedLines(lines byte) ([]byte, error) {
+	m.PrintAndFeedLinesCalled = true
+	m.PrintAndFeedLinesInput = lines
+	m.CallCount["PrintAndFeedLines"]++
+
+	if m.PrintAndFeedLinesError != nil {
+		return nil, m.PrintAndFeedLinesError
+	}
+	if m.PrintAndFeedLinesReturn != nil {
+		return m.PrintAndFeedLinesReturn, nil
+	}
+	return []byte{common.ESC, 'd', lines}, nil
 }
 
 // ============================================================================
@@ -95,9 +240,8 @@ func (m *MockCapability) PrintAndLineFeed() []byte {
 
 func TestMockCapability_BehaviorTracking(t *testing.T) {
 	t.Run("tracks Text calls", func(t *testing.T) {
-		mock := &MockCapability{
-			TextReturn: []byte{0xFF, 0xFE, 0xFD},
-		}
+		mock := NewMockCapability()
+		mock.TextReturn = []byte{0xFF, 0xFE, 0xFD}
 
 		result, err := mock.Text("test input")
 
@@ -116,9 +260,8 @@ func TestMockCapability_BehaviorTracking(t *testing.T) {
 	})
 
 	t.Run("simulates Text error", func(t *testing.T) {
-		mock := &MockCapability{
-			TextError: common.ErrEmptyBuffer,
-		}
+		mock := NewMockCapability()
+		mock.TextError = common.ErrEmptyBuffer
 
 		_, err := mock.Text("")
 
@@ -131,9 +274,8 @@ func TestMockCapability_BehaviorTracking(t *testing.T) {
 	})
 
 	t.Run("tracks PrintAndFeedPaper calls", func(t *testing.T) {
-		mock := &MockCapability{
-			PrintAndFeedPaperReturn: []byte{0xAA, 0xBB, 0xCC},
-		}
+		mock := NewMockCapability()
+		mock.PrintAndFeedPaperReturn = []byte{0xAA, 0xBB, 0xCC}
 
 		result := mock.PrintAndFeedPaper(100)
 
@@ -149,7 +291,7 @@ func TestMockCapability_BehaviorTracking(t *testing.T) {
 	})
 
 	t.Run("returns default behavior when no return configured", func(t *testing.T) {
-		mock := &MockCapability{}
+		mock := NewMockCapability()
 
 		result := mock.PrintAndLineFeed()
 

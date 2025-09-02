@@ -11,7 +11,7 @@ import (
 // Naming Convention: Test{Struct}_{Method}_{Scenario}
 
 func TestLineSpacingCommands_SetLineSpacing(t *testing.T) {
-	lsc := &linespacing.Commands{}
+	lsc := linespacing.NewCommands()
 	tests := []struct {
 		name string
 		n    byte
@@ -45,7 +45,7 @@ func TestLineSpacingCommands_SetLineSpacing(t *testing.T) {
 }
 
 func TestLineSpacingCommands_SelectDefaultLineSpacing(t *testing.T) {
-	lsc := &linespacing.Commands{}
+	lsc := linespacing.NewCommands()
 	got := lsc.SelectDefaultLineSpacing()
 	want := []byte{common.ESC, '2'}
 	if !bytes.Equal(got, want) {
