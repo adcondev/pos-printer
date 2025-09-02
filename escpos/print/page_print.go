@@ -55,30 +55,8 @@ var (
 )
 
 // ============================================================================
-// Interface Definitions
-// ============================================================================
-
-var _ PageModeCapability = (*PagePrint)(nil)
-
-// PageModeCapability defines the interface for page mode capabilities
-type PageModeCapability interface {
-	PrintAndReverseFeed(units byte) ([]byte, error)
-	PrintAndReverseFeedLines(lines byte) ([]byte, error)
-	CancelData() []byte
-	PrintDataInPageMode() []byte
-	PrintAndFeedLines(lines byte) []byte
-}
-
-// ============================================================================
 // Main Implementation
 // ============================================================================
-
-// PagePrint groups page mode printing commands
-type PagePrint struct{}
-
-func NewPagePrint() *PagePrint {
-	return &PagePrint{}
-}
 
 // PrintDataInPageMode prints the data in the print buffer collectively when
 // the printer is in Page mode.
@@ -109,7 +87,7 @@ func NewPagePrint() *PagePrint {
 // Byte sequence:
 //
 //	ESC FF -> 0x1B, 0x0C
-func (pp *PagePrint) PrintDataInPageMode() []byte {
+func (c *Commands) PrintDataInPageMode() []byte {
 	return []byte{common.ESC, FF}
 }
 
@@ -159,7 +137,7 @@ func (pp *PagePrint) PrintDataInPageMode() []byte {
 // Byte sequence:
 //
 //	ESC K input -> 0x1B, 0x4B, input
-func (pp *PagePrint) PrintAndReverseFeed(n byte) ([]byte, error) {
+func (c *Commands) PrintAndReverseFeed(n byte) ([]byte, error) {
 	if n > MaxReverseMotionUnits {
 		return nil, ErrPrintReverseFeed
 	}
@@ -207,7 +185,7 @@ func (pp *PagePrint) PrintAndReverseFeed(n byte) ([]byte, error) {
 // Byte sequence:
 //
 //	ESC e input -> 0x1B, 0x65, input
-func (pp *PagePrint) PrintAndReverseFeedLines(n byte) ([]byte, error) {
+func (c *Commands) PrintAndReverseFeedLines(n byte) ([]byte, error) {
 	if n > MaxReverseFeedLines {
 		return nil, ErrPrintReverseFeedLines
 	}
@@ -251,10 +229,10 @@ func (pp *PagePrint) PrintAndReverseFeedLines(n byte) ([]byte, error) {
 // Byte sequence:
 //
 //	ESC d input -> 0x1B, 0x64, input
-func (pp *PagePrint) PrintAndFeedLines(n byte) []byte {
+func (c *Commands) PrintAndFeedLines(n byte) []byte {
 	return []byte{common.ESC, 'd', n}
 }
 
-func (pp *PagePrint) CancelData() []byte {
+func (c *Commands) CancelData() []byte {
 	return []byte{CAN}
 }

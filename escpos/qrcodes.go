@@ -77,10 +77,8 @@ func (c *Protocol) SelectQRModel(model QRModel) ([]byte, error) {
 		return nil, fmt.Errorf("modelo de QR inválida(0-1): %d", model)
 	}
 
-	pL, pH, err := common.LengthLowHigh(4)
-	if err != nil {
-		return nil, fmt.Errorf("error al calcular longitud de parametros QR: %w", err)
-	}
+	pL, pH := common.LengthLowHigh(4)
+
 	cn, fn := byte('1'), byte('A')
 	n1 := modelMap[model]
 	n2 := byte(0) // Siempre 0, reservado
@@ -99,10 +97,8 @@ func (c *Protocol) SelectQRSize(moduleSize QRModuleSize) ([]byte, error) {
 		return nil, fmt.Errorf("tamaño de módulo QR inválido(1-16): %d", moduleSize)
 	}
 
-	pL, pH, err := common.LengthLowHigh(3)
-	if err != nil {
-		return nil, fmt.Errorf("error al calcular longitud de parametros QR: %w", err)
-	}
+	pL, pH := common.LengthLowHigh(3)
+
 	cn, fn := byte('1'), byte('C')
 	n := byte(moduleSize)
 
@@ -121,10 +117,8 @@ func (c *Protocol) SelectQRErrorCorrection(level QRErrorCorrection) ([]byte, err
 		return nil, fmt.Errorf("nivel de corrección de QR inválido(0-3): %d", level)
 	}
 
-	pL, pH, err := common.LengthLowHigh(3)
-	if err != nil {
-		return nil, fmt.Errorf("error al calcular longitud de parametros QR: %w", err)
-	}
+	pL, pH := common.LengthLowHigh(3)
+
 	cn, fn := byte('1'), byte('E')
 
 	cmd := make([]byte, 0, 8)
@@ -141,10 +135,9 @@ func (c *Protocol) SetQRData(data string) ([]byte, error) {
 		return nil, fmt.Errorf("longitud de datos de QR inválida (1-7089): %d", len(data))
 	}
 
-	pL, pH, err := common.LengthLowHigh(len(data) + 3)
-	if err != nil {
-		return nil, fmt.Errorf("error al calcular longitud de parametros QR: %w", err)
-	}
+	// Secure, it is validated before.
+	pL, pH := common.LengthLowHigh(uint16(len(data) + 3)) // nolint:gosec
+
 	cn, fn := byte('1'), byte('P')
 	m := byte('0') // Siempre 0, reservado
 
@@ -159,10 +152,8 @@ func (c *Protocol) SetQRData(data string) ([]byte, error) {
 // PrintQRData genera el comando para imprimir el código QR
 func (c *Protocol) PrintQRData() ([]byte, error) {
 	// Comando para imprimir QR
-	pL, pH, err := common.LengthLowHigh(3)
-	if err != nil {
-		return nil, fmt.Errorf("error al calcular longitud de parametros QR: %w", err)
-	}
+	pL, pH := common.LengthLowHigh(3)
+
 	cn, fn := byte('1'), byte('Q')
 	m := byte('0') // Siempre 0 para impresion estandard
 

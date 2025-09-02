@@ -97,14 +97,29 @@ func (c *Protocol) PrintRasterBitImage(img *imaging.PrintImage, density Density)
 	cmd := []byte{common.GS, 'v', '0', mode}
 
 	// Agregar dimensiones
-	wL, wH, err := common.LengthLowHigh(escImg.GetWidthBytes())
-	if err != nil {
-		return nil, err
+	var widthBytes uint16
+	switch {
+	case escImg.GetWidthBytes() > 0xFFFF:
+		widthBytes = 0xFFFF
+	case escImg.GetWidthBytes() < 0x0:
+		widthBytes = 0x0
+	default:
+		// Secure, it has been validated
+		widthBytes = uint16(escImg.GetWidthBytes()) // nolint:gosec
 	}
-	hL, hH, err := common.LengthLowHigh(escImg.GetHeight())
-	if err != nil {
-		return nil, err
+	wL, wH := common.LengthLowHigh(widthBytes)
+
+	var heightBytes uint16
+	switch {
+	case escImg.GetHeight() > 0xFFFF:
+		heightBytes = 0xFFFF
+	case escImg.GetHeight() < 0:
+		heightBytes = 0
+	default:
+		// Secure, it has been validated
+		heightBytes = uint16(escImg.GetHeight()) // nolint:gosec
 	}
+	hL, hH := common.LengthLowHigh(heightBytes)
 
 	cmd = append(cmd, wL, wH) // Ancho en bytes
 	cmd = append(cmd, hL, hH) // Alto en píxeles
