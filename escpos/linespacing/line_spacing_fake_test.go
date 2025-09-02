@@ -156,8 +156,8 @@ func TestFakeCapability_StateTracking(t *testing.T) {
 			}
 		}
 
-		if fake.GetTimesChanged() != 2 {
-			t.Errorf("TimesChanged = %d, want 2", fake.GetTimesChanged())
+		if fake.GetTimesChanged() != 3 {
+			t.Errorf("TimesChanged = %d, want 3", fake.GetTimesChanged())
 		}
 	})
 

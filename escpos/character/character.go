@@ -1092,14 +1092,14 @@ func (c *Commands) SetSmoothingMode(n byte) []byte {
 // TODO: Mover esto a Wrapper de ESCPOS en pos.go
 
 // BuildCharacterSize Helper functions for building character sizes
-func BuildCharacterSize(width, height int) (byte, error) {
+func BuildCharacterSize(width, height byte) (byte, error) {
 	if width < 1 || width > 8 {
 		return 0, ErrInvalidCharacterWidth
 	}
 	if height < 1 || height > 8 {
 		return 0, ErrInvalidCharacterHeight
 	}
-	w := byte(width-1) << 4
-	h := byte(height - 1)
+	w := (width - 1) << 4
+	h := height - 1
 	return w | h, nil
 }

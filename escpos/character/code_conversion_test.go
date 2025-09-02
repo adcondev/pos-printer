@@ -141,15 +141,25 @@ func TestCodeConversionCommands_SetFontPriority(t *testing.T) {
 				return
 			}
 
+			var baseErr error
+			switch tt.name {
+			case "invalid priority":
+				baseErr = character.ErrInvalidFontPriority
+			case "invalid font type":
+				baseErr = character.ErrInvalidFontType
+			default:
+				baseErr = nil
+			}
+
 			// Check specific error type if expecting error
 			if tt.wantErr && err != nil {
-				if !errors.Is(err, character.ErrInvalidFontPriority) {
+				if !errors.Is(err, baseErr) {
 					t.Errorf("SetFontPriority(%v, %v) error = %v, want %v",
-						tt.priority, tt.fontType, err, character.ErrInvalidFontPriority)
+						tt.priority, tt.fontType, err, baseErr)
 				}
-				if !errors.Is(err, character.ErrInvalidFontPriority) {
+				if !errors.Is(err, baseErr) {
 					t.Errorf("SetFontPriority(%v, %v) error = %v, want %v",
-						tt.priority, tt.fontType, err, character.ErrInvalidFontPriority)
+						tt.priority, tt.fontType, err, baseErr)
 				}
 				return
 			}

@@ -206,15 +206,25 @@ func TestEffectsCommands_SetCharacterShadowMode(t *testing.T) {
 				return
 			}
 
+			var baseErr error
+			switch tt.name {
+			case "invalid shadow mode":
+				baseErr = character.ErrInvalidShadowMode
+			case "invalid shadow color":
+				baseErr = character.ErrInvalidShadowColor
+			default:
+				baseErr = nil
+			}
+
 			// Check specific error type if expecting error
 			if tt.wantErr && err != nil {
-				if !errors.Is(err, character.ErrInvalidShadowMode) {
+				if !errors.Is(err, baseErr) {
 					t.Errorf("SetCharacterShadowMode(%v, %v) error = %v, want %v",
-						tt.shadowMode, tt.shadowColor, err, character.ErrInvalidShadowMode)
+						tt.shadowMode, tt.shadowColor, err, baseErr)
 				}
-				if !errors.Is(err, character.ErrInvalidShadowColor) {
+				if !errors.Is(err, baseErr) {
 					t.Errorf("SetCharacterShadowMode(%v, %v) error = %v, want %v",
-						tt.shadowMode, tt.shadowColor, err, character.ErrInvalidShadowColor)
+						tt.shadowMode, tt.shadowColor, err, baseErr)
 				}
 				return
 			}

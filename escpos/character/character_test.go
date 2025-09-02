@@ -16,8 +16,8 @@ import (
 func TestBuildCharacterSize(t *testing.T) {
 	tests := []struct {
 		name    string
-		width   int
-		height  int
+		width   byte
+		height  byte
 		want    byte
 		wantErr bool
 	}{
@@ -96,20 +96,28 @@ func TestBuildCharacterSize(t *testing.T) {
 				return
 			}
 
+			var baseErr error
+			switch tt.name {
+			case "invalid width", "zero width":
+				baseErr = character.ErrInvalidCharacterWidth
+			case "invalid height", "zero height":
+				baseErr = character.ErrInvalidCharacterHeight
+			}
+
 			if tt.wantErr && err != nil {
-				if !errors.Is(err, character.ErrInvalidCharacterWidth) {
-					t.Errorf("Method(%v) error = %v, want %v",
-						tt.width, err, character.ErrInvalidCharacterWidth)
+				if !errors.Is(err, baseErr) {
+					t.Errorf("BuildCharacterSize(%d, %d) error = %v, want %v",
+						tt.width, tt.height, err, character.ErrInvalidCharacterWidth)
 				}
-				if !errors.Is(err, character.ErrInvalidCharacterHeight) {
-					t.Errorf("Method(%v) error = %v, want %v",
-						tt.height, err, character.ErrInvalidCharacterHeight)
+				if !errors.Is(err, baseErr) {
+					t.Errorf("BuildCharacterSize(%d, %d) error = %v, want %v",
+						tt.width, tt.height, err, character.ErrInvalidCharacterHeight)
 				}
 				return
 			}
 
 			if !tt.wantErr && got != tt.want {
-				t.Errorf("BuildCharacterSize(%d, %d) = %#x, want %#x",
+				t.Errorf("BuildCharacterSize(%d, %d) = %v, want %v",
 					tt.width, tt.height, got, tt.want)
 			}
 		})

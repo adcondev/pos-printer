@@ -109,7 +109,7 @@ func TestUserDefinedCommands_DefineUserDefinedCharacters(t *testing.T) {
 			wantErr:    false,
 		},
 		{
-			name:      "invalid y value",
+			name:      "invalid value",
 			height:    0,
 			startCode: 65,
 			endCode:   65,
@@ -180,7 +180,7 @@ func TestUserDefinedCommands_DefineUserDefinedCharacters(t *testing.T) {
 				// For wrapped errors with fmt.Errorf, check the base error type
 				var baseErr error
 				switch tt.name {
-				case "invalid y value":
+				case "invalid value":
 					baseErr = character.ErrInvalidYValue
 				case "invalid character code":
 					baseErr = character.ErrInvalidCharacterCode
@@ -190,6 +190,8 @@ func TestUserDefinedCommands_DefineUserDefinedCharacters(t *testing.T) {
 					baseErr = character.ErrDefinitionMismatch
 				case "invalid data length":
 					baseErr = character.ErrInvalidDataLength
+				default:
+					baseErr = nil
 				}
 
 				if baseErr != nil && !errors.Is(err, baseErr) {

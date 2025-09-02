@@ -100,8 +100,17 @@ func TestCommands_Text(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name:    "empty text returns error",
+			name:    "empty buffer",
 			text:    "",
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			name: "buffer overflow",
+			text: func() string {
+				overflow := make([]byte, common.MaxBuf+1)
+				return string(overflow)
+			}(),
 			want:    nil,
 			wantErr: true,
 		},
@@ -117,13 +126,23 @@ func TestCommands_Text(t *testing.T) {
 				return
 			}
 
+			var baseErr error
+			switch tt.name {
+			case "empty buffer":
+				baseErr = common.ErrEmptyBuffer
+			case "buffer overflow":
+				baseErr = common.ErrBufferOverflow
+			default:
+				baseErr = nil
+			}
+
 			// Check specific error type if expecting error
 			if tt.wantErr && err != nil {
-				if !errors.Is(err, common.ErrEmptyBuffer) {
-					t.Errorf("Text(%s) error = %v, want %v", tt.text, err, common.ErrEmptyBuffer)
+				if !errors.Is(err, baseErr) {
+					t.Errorf("Text(%s) error = %v, want %v", tt.text, err, baseErr)
 				}
-				if !errors.Is(err, common.ErrBufferOverflow) {
-					t.Errorf("Text(%s) error = %v, want %v", tt.text, err, common.ErrBufferOverflow)
+				if !errors.Is(err, baseErr) {
+					t.Errorf("Text(%s) error = %v, want %v", tt.text, err, baseErr)
 				}
 				return
 			}
