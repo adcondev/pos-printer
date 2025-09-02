@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.1.0](https://github.com/AdConDev/pos-daemon/compare/v1.0.1...v1.1.0) (2025-09-02)
+
+
+### ✨ Features
+
+* **character:** add character handling capabilities ([#12](https://github.com/adcondev/pos-printer/issues/12)) ([c62dd8e](https://github.com/AdConDev/pos-daemon/commit/c62dd8eb651ee69cf9c7c92cadb2b3676bc2a344))
+
 ### [1.0.1](https://github.com/AdConDev/pos-daemon/compare/v1.0.0...v1.0.1) (2025-08-26)
 
 
