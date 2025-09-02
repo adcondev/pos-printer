@@ -38,6 +38,10 @@ type EffectsCapability interface {
 // EffectsCommands implements EffectsCapability
 type EffectsCommands struct{}
 
+func NewEffectsCommands() *EffectsCommands {
+	return &EffectsCommands{}
+}
+
 // TODO: Mover esto a Wrapper de ESCPOS en pos.go
 const (
 	CharColorNone byte = '0' // -> None (non-printing dots)

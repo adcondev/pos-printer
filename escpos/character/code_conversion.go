@@ -36,6 +36,10 @@ type CodeConversionCapability interface {
 // CodeConversionCommands implements CodeConversionCapability
 type CodeConversionCommands struct{}
 
+func NewCodeConversionCommands() *CodeConversionCommands {
+	return &CodeConversionCommands{}
+}
+
 // TODO: Mover esto a Wrapper de ESCPOS en pos.go
 const (
 	Encoding1Byte      byte = 1   // legacy 1-byte encoding

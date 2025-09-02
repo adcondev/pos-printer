@@ -11,12 +11,14 @@ import (
 // ============================================================================
 
 var (
-	ErrInvalidUnderlineMode = fmt.Errorf("invalid underline mode(try 0-2 or '0'..'2')")
-	ErrInvalidRotationMode  = fmt.Errorf("invalid rotation mode(try 0-2 or '0'..'2')")
-	ErrInvalidPrintColor    = fmt.Errorf("invalid print color(try 0-1 or '0'..'1')")
-	ErrInvalidCharacterFont = fmt.Errorf("invalid character font(try 0-4 or '0'..'4')")
-	ErrInvalidCodeTablePage = fmt.Errorf("invalid code table page(try check model support!)")
-	ErrInvalidCharacterSet  = fmt.Errorf("invalid international character set(try check model support!)")
+	ErrInvalidUnderlineMode   = fmt.Errorf("invalid underline mode(try 0-2 or '0'..'2')")
+	ErrInvalidRotationMode    = fmt.Errorf("invalid rotation mode(try 0-2 or '0'..'2')")
+	ErrInvalidPrintColor      = fmt.Errorf("invalid print color(try 0-1 or '0'..'1')")
+	ErrInvalidCharacterFont   = fmt.Errorf("invalid character font(try 0-4 or '0'..'4')")
+	ErrInvalidCodeTablePage   = fmt.Errorf("invalid code table page(try check model support!)")
+	ErrInvalidCharacterSet    = fmt.Errorf("invalid international character set(try check model support!)")
+	ErrInvalidCharacterWidth  = fmt.Errorf("invalid character width(try 1-8)")
+	ErrInvalidCharacterHeight = fmt.Errorf("invalid character height(try 1-8)")
 )
 
 // ============================================================================
@@ -1092,10 +1094,10 @@ func (c *Commands) SetSmoothingMode(n byte) []byte {
 // BuildCharacterSize Helper functions for building character sizes
 func BuildCharacterSize(width, height int) (byte, error) {
 	if width < 1 || width > 8 {
-		return 0, fmt.Errorf("width must be 1..8, got %d", width)
+		return 0, ErrInvalidCharacterWidth
 	}
 	if height < 1 || height > 8 {
-		return 0, fmt.Errorf("height must be 1..8, got %d", height)
+		return 0, ErrInvalidCharacterHeight
 	}
 	w := byte(width-1) << 4
 	h := byte(height - 1)
