@@ -224,8 +224,8 @@ func TestCommands_PrintAndLineFeed(t *testing.T) {
 // PagePrint Tests
 // ============================================================================
 
-func TestPagePrint_PrintDataInPageMode(t *testing.T) {
-	pp := &print.PagePrint{}
+func TestCommands_PrintDataInPageMode(t *testing.T) {
+	pp := print.NewCommands()
 	got := pp.PrintDataInPageMode()
 	want := []byte{common.ESC, print.FF}
 
@@ -234,8 +234,8 @@ func TestPagePrint_PrintDataInPageMode(t *testing.T) {
 	}
 }
 
-func TestPagePrint_CancelData(t *testing.T) {
-	pp := &print.PagePrint{}
+func TestCommands_CancelData(t *testing.T) {
+	pp := print.NewCommands()
 	got := pp.CancelData()
 	want := []byte{print.CAN}
 
@@ -244,8 +244,8 @@ func TestPagePrint_CancelData(t *testing.T) {
 	}
 }
 
-func TestPagePrint_PrintAndReverseFeed(t *testing.T) {
-	pp := &print.PagePrint{}
+func TestCommands_PrintAndReverseFeed(t *testing.T) {
+	pp := print.NewCommands()
 
 	tests := []struct {
 		name    string
@@ -306,8 +306,8 @@ func TestPagePrint_PrintAndReverseFeed(t *testing.T) {
 	}
 }
 
-func TestPagePrint_PrintAndReverseFeedLines(t *testing.T) {
-	pp := &print.PagePrint{}
+func TestCommands_PrintAndReverseFeedLines(t *testing.T) {
+	pp := print.NewCommands()
 
 	tests := []struct {
 		name    string
@@ -369,7 +369,7 @@ func TestPagePrint_PrintAndReverseFeedLines(t *testing.T) {
 }
 
 func TestPagePrint_PrintAndFeedLines(t *testing.T) {
-	pp := &print.PagePrint{}
+	pp := print.NewCommands()
 
 	tests := []struct {
 		name    string

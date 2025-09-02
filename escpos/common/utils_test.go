@@ -30,27 +30,21 @@ func TestUtils_IsBufOk_ValidInput(t *testing.T) {
 
 func TestUtils_LengthLowHigh_ValidInput(t *testing.T) {
 	tests := []struct {
-		length  int
-		wantDL  byte
-		wantDH  byte
-		wantErr error
+		length uint16
+		wantDL byte
+		wantDH byte
 	}{
-		{0, 0, 0, nil},
-		{1, 1, 0, nil},
-		{0x1234, 0x34, 0x12, nil},
-		{0xFFFF, 0xFF, 0xFF, nil},
-		{-1, 0, 0, common.ErrLengthOutOfRange},
-		{0x10000, 0, 0, common.ErrLengthOutOfRange},
+		{0, 0, 0},
+		{1, 1, 0},
+		{0x1234, 0x34, 0x12},
+		{0xFFFF, 0xFF, 0xFF},
 	}
 	for _, tt := range tests {
-		dL, dH, err := common.LengthLowHigh(tt.length)
-		if !errors.Is(err, tt.wantErr) {
-			t.Errorf("LengthLowHigh(%d) error = %v; want %v", tt.length, err, tt.wantErr)
+		dL, dH := common.LengthLowHigh(tt.length)
+
+		if dL != tt.wantDL || dH != tt.wantDH {
+			t.Errorf("LengthLowHigh(%d) = (%#x,%#x); want (%#x,%#x)", tt.length, dL, dH, tt.wantDL, tt.wantDH)
 		}
-		if err == nil {
-			if dL != tt.wantDL || dH != tt.wantDH {
-				t.Errorf("LengthLowHigh(%d) = (%#x,%#x); want (%#x,%#x)", tt.length, dL, dH, tt.wantDL, tt.wantDH)
-			}
-		}
+
 	}
 }

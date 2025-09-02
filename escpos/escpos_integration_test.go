@@ -133,7 +133,7 @@ func TestIntegration_CompleteReceiptFlow(t *testing.T) {
 func TestIntegration_CustomCapabilities(t *testing.T) {
 	// Create a custom Commands with specific implementations
 	customCmd := &escpos.Protocol{
-		Print:     &print.Commands{Page: &print.PagePrint{}},
+		Print:     &print.Commands{},
 		LineSpace: &linespacing.Commands{},
 	}
 

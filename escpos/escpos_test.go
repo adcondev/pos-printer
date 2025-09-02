@@ -7,7 +7,6 @@ import (
 
 	"github.com/adcondev/pos-printer/escpos"
 	"github.com/adcondev/pos-printer/escpos/common"
-	"github.com/adcondev/pos-printer/escpos/linespacing"
 	"github.com/adcondev/pos-printer/escpos/print"
 )
 
@@ -82,27 +81,6 @@ func TestNewEscposProtocol_Initialization(t *testing.T) {
 		t.Fatal("NewEscposCommands() LineSpace capability should not be nil")
 	}
 
-	// Verify Print has correct type and Page capability
-	pc, ok := cmd.Print.(*print.Commands)
-	if !ok {
-		t.Fatal("NewEscposCommands() Print should be of type *PrintCommands")
-	}
-
-	if pc.Page == nil {
-		t.Fatal("NewEscposCommands() PrintCommands.Page should not be nil")
-	}
-
-	// Verify Page has correct type
-	_, ok = pc.Page.(*print.PagePrint)
-	if !ok {
-		t.Error("NewEscposCommands() Page should be of type *PagePrint")
-	}
-
-	// Verify LineSpace has correct type
-	_, ok = cmd.LineSpace.(*linespacing.Commands)
-	if !ok {
-		t.Error("NewEscposCommands() LineSpace should be of type *LineSpacingCommands")
-	}
 }
 
 func TestCommands_Integration_PrintWithLineSpacing(t *testing.T) {

@@ -65,10 +65,10 @@ func TestIntegration_PageMode_Workflow(t *testing.T) {
 		buffer = append(buffer, text...)
 
 		// Print page
-		buffer = append(buffer, cmd.Page.PrintDataInPageMode()...)
+		buffer = append(buffer, cmd.PrintDataInPageMode()...)
 
 		// Cancel if needed
-		buffer = append(buffer, cmd.Page.CancelData()...)
+		buffer = append(buffer, cmd.CancelData()...)
 
 		// Verify page mode commands
 		if !bytes.Contains(buffer, []byte{print.CAN}) {
@@ -88,13 +88,13 @@ func TestIntegration_Print_ErrorHandling(t *testing.T) {
 	})
 
 	t.Run("handles page mode errors", func(t *testing.T) {
-		_, err := cmd.Page.PrintAndReverseFeed(100) // Exceeds max
+		_, err := cmd.PrintAndReverseFeed(100) // Exceeds max
 		if !errors.Is(err, print.ErrPrintReverseFeed) {
 			t.Errorf("PrintAndReverseFeed(100) error = %v, want %v",
 				err, print.ErrPrintReverseFeed)
 		}
 
-		_, err = cmd.Page.PrintAndReverseFeedLines(10) // Exceeds max
+		_, err = cmd.PrintAndReverseFeedLines(10) // Exceeds max
 		if !errors.Is(err, print.ErrPrintReverseFeedLines) {
 			t.Errorf("PrintAndReverseFeedLines(10) error = %v, want %v",
 				err, print.ErrPrintReverseFeedLines)
@@ -137,22 +137,22 @@ func TestIntegration_Print_PageModeComplete(t *testing.T) {
 		commands = append(commands, text...)
 
 		// Reverse operations
-		reverse, _ := cmd.Page.PrintAndReverseFeed(10)
+		reverse, _ := cmd.PrintAndReverseFeed(10)
 		commands = append(commands, reverse...)
 
-		reverseLine, _ := cmd.Page.PrintAndReverseFeedLines(1)
+		reverseLine, _ := cmd.PrintAndReverseFeedLines(1)
 		commands = append(commands, reverseLine...)
 
 		// Forward feed
-		forward := cmd.Page.PrintAndFeedLines(5)
+		forward := cmd.PrintAndFeedLines(5)
 		commands = append(commands, forward...)
 
 		// Print page
-		printPage := cmd.Page.PrintDataInPageMode()
+		printPage := cmd.PrintDataInPageMode()
 		commands = append(commands, printPage...)
 
 		// Clear if needed
-		clean := cmd.Page.CancelData()
+		clean := cmd.CancelData()
 		commands = append(commands, clean...)
 
 		// Verify sequence integrity
