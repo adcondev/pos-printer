@@ -1,6 +1,7 @@
 package printposition
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/adcondev/pos-printer/escpos/common"
@@ -59,13 +60,13 @@ const (
 // ============================================================================
 
 var (
-	ErrInvalidJustification  = fmt.Errorf("invalid justification mode (try 0-2 or '0'..'2')")
-	ErrInvalidPrintDirection = fmt.Errorf("invalid print direction (try 0-3 or '0'..'3')")
-	ErrInvalidBeginLineMode  = fmt.Errorf("invalid begin line mode (try 0-1 or '0'..'1')")
-	ErrTooManyTabPositions   = fmt.Errorf("too many tab positions (max %d)", MaxTabPositions)
-	ErrInvalidTabPosition    = fmt.Errorf("invalid tab position (must be 1-255 in ascending order)")
-	ErrInvalidPrintAreaSize  = fmt.Errorf("invalid print area size (width and height must be >= 1)")
-	ErrInvalidPosition       = fmt.Errorf("invalid position value")
+	ErrInvalidJustification       = errors.New("invalid justification mode (try 0-2 or '0'..'2')")
+	ErrInvalidPrintDirection      = errors.New("invalid print direction (try 0-3 or '0'..'3')")
+	ErrInvalidBeginLineMode       = errors.New("invalid begin line mode (try 0-1 or '0'..'1')")
+	ErrTooManyTabPositions        = fmt.Errorf("too many tab positions (max %d)", MaxTabPositions)
+	ErrInvalidTabPosition         = errors.New("invalid tab position (must be 1-255 in ascending order)")
+	ErrInvalidPrintAreaWidthSize  = errors.New("invalid print area size (width must be >= 1)")
+	ErrInvalidPrintAreaHeightSize = errors.New("invalid print area size (height must be >= 1)")
 )
 
 // ============================================================================
@@ -93,7 +94,7 @@ type Capability interface {
 
 	// Page mode specific
 	SelectPrintDirectionPageMode(direction byte) ([]byte, error)
-	SetPrintAreaPageMode(x, y, width, height uint16) []byte
+	SetPrintAreaPageMode(x, y, width, height uint16) ([]byte, error)
 	SetAbsoluteVerticalPrintPosition(position uint16) []byte
 	SetRelativeVerticalPrintPosition(distance int16) []byte
 }
@@ -174,8 +175,7 @@ func (c *Commands) HorizontalTab() []byte {
 //
 //	ESC $ nL nH -> 0x1B, 0x24, nL, nH
 func (c *Commands) SetAbsolutePrintPosition(position uint16) []byte {
-	nL := byte(position & 0xFF)
-	nH := byte((position >> 8) & 0xFF)
+	nL, nH := common.ToLittleEndian(position)
 	return []byte{common.ESC, '$', nL, nH}
 }
 
@@ -320,17 +320,19 @@ func (c *Commands) SelectPrintDirectionPageMode(direction byte) ([]byte, error) 
 // Byte sequence:
 //
 //	ESC W xL xH yL yH dxL dxH dyL dyH -> 0x1B, 0x57, xL, xH, yL, yH, dxL, dxH, dyL, dyH
-func (c *Commands) SetPrintAreaPageMode(x, y, width, height uint16) []byte {
-	xL := byte(x & 0xFF)
-	xH := byte((x >> 8) & 0xFF)
-	yL := byte(y & 0xFF)
-	yH := byte((y >> 8) & 0xFF)
-	dxL := byte(width & 0xFF)
-	dxH := byte((width >> 8) & 0xFF)
-	dyL := byte(height & 0xFF)
-	dyH := byte((height >> 8) & 0xFF)
+func (c *Commands) SetPrintAreaPageMode(x, y, width, height uint16) ([]byte, error) {
+	switch {
+	case width == 0:
+		return nil, ErrInvalidPrintAreaWidthSize
+	case height == 0:
+		return nil, ErrInvalidPrintAreaHeightSize
+	}
 
-	return []byte{common.ESC, 'W', xL, xH, yL, yH, dxL, dxH, dyL, dyH}
+	xL, xH := common.ToLittleEndian(x)
+	yL, yH := common.ToLittleEndian(y)
+	dxL, dxH := common.ToLittleEndian(width)
+	dyL, dyH := common.ToLittleEndian(height)
+	return []byte{common.ESC, 'W', xL, xH, yL, yH, dxL, dxH, dyL, dyH}, nil
 }
 
 // SetRelativePrintPosition moves the print position relative to the current position.
@@ -371,8 +373,7 @@ func (c *Commands) SetRelativePrintPosition(distance int16) []byte {
 	// Convert signed int16 to unsigned bytes (little-endian)
 	// intentional: preserve int16 two's-complement bit pattern for ESC \ command
 	value := uint16(distance) // nolint:gosec
-	nL := byte(value & 0xFF)
-	nH := byte((value >> 8) & 0xFF)
+	nL, nH := common.ToLittleEndian(value)
 	return []byte{common.ESC, '\\', nL, nH}
 }
 

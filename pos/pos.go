@@ -84,7 +84,7 @@ func NewPrinter(proto Protocol, conn connector.Connector, prof *profile.Escpos) 
 
 	switch protoMap[proto] {
 	case "Escpos":
-		printer.Escpos = escpos.NewEscposCommands()
+		printer.Escpos = escpos.NewEscposProtocol()
 	case "ZPL":
 		// printer.zpl = zpl.NewZPLProtocol()
 		return nil, fmt.Errorf("protocol %s not released yet", protoType)

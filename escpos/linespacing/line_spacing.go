@@ -5,6 +5,24 @@ import (
 )
 
 // ============================================================================
+// Constant and Var Definitions
+// ============================================================================
+
+// Line spacing limits and defaults
+const (
+	MinLineSpacing     = 0    // Minimum line spacing value
+	MaxLineSpacing     = 255  // Maximum line spacing value
+	DefaultLineSpacing = 30   // Default line spacing (model dependent, typically 30-80 dots)
+	MaxLineSpacingMM   = 1016 // Maximum line spacing in mm (40 inches)
+)
+
+// ============================================================================
+// Error Definitions
+// ============================================================================
+
+// No specific errors needed for line spacing as byte range (0-255) covers all valid values
+
+// ============================================================================
 // Interface Definitions
 // ============================================================================
 
@@ -13,7 +31,7 @@ var _ Capability = (*Commands)(nil)
 
 // Capability defines the interface for line spacing commands in ESC/POS printers.
 type Capability interface {
-	SetLineSpacing(n byte) []byte
+	SetLineSpacing(lines byte) []byte
 	SelectDefaultLineSpacing() []byte
 }
 
@@ -50,26 +68,12 @@ func NewCommands() *Commands {
 //	Sets the line spacing to n × (vertical or horizontal motion unit).
 //
 // Notes:
-//   - The maximum line spacing is 1016 mm (40 inches); actual maximum may be
-//     smaller depending on the printer model. If the specified amount
-//     exceeds the model maximum, the line spacing is automatically set to
-//     the maximum supported value.
+//   - Maximum line spacing is 1016 mm (40 inches); if exceeded, printer uses maximum.
 //   - In Standard mode the vertical motion unit is used.
-//   - In Page mode the vertical or horizontal motion unit is used according
-//     to the print direction set by ESC T.
-//   - When the starting position is set to the upper-left or lower-right of
-//     the print area using ESC T, the vertical motion unit is used.
-//   - When the starting position is set to the upper-right or lower-left of
-//     the print area using ESC T, the horizontal motion unit is used.
-//   - Line spacing can be set independently in Standard mode and in Page
-//     mode; this command affects the spacing for the currently selected
-//     mode (Standard or Page).
-//   - If the motion unit is changed after the line spacing is set, the
-//     numeric line spacing value does not change (the unit of measure for
-//     that numeric value changes).
-//   - The selected line spacing remains in effect until one of the
-//     following occurs: ESC 2 is executed, ESC @ is executed, the printer
-//     is reset, or power is turned off.
+//   - In Page mode the motion unit depends on ESC T setting.
+//   - Line spacing can be set independently in Standard and Page modes.
+//   - Motion unit changes after setting don't affect the numeric value.
+//   - Remains in effect until ESC 2, ESC @, reset, or power off.
 //
 // Byte sequence:
 //
@@ -78,8 +82,7 @@ func (lsc *Commands) SetLineSpacing(n byte) []byte {
 	return []byte{common.ESC, '3', n}
 }
 
-// SelectDefaultLineSpacing sets the line spacing to the printer's "default
-// line spacing".
+// SelectDefaultLineSpacing sets the line spacing to the printer's default.
 //
 // Format:
 //
@@ -92,12 +95,8 @@ func (lsc *Commands) SetLineSpacing(n byte) []byte {
 //	Sets the line spacing to the default line spacing value.
 //
 // Notes:
-//   - Line spacing can be set independently in Standard mode and in Page mode.
-//     In Standard mode this command sets the line spacing used by Standard
-//     mode; in Page mode it sets the line spacing used by Page mode.
-//   - The selected line spacing remains in effect until one of the following
-//     occurs: ESC 3 is executed, ESC @ is executed, the printer is reset, or
-//     power is turned off.
+//   - Line spacing can be set independently in Standard and Page modes.
+//   - Remains in effect until ESC 3, ESC @, reset, or power off.
 //
 // Byte sequence:
 //

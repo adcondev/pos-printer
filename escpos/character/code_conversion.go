@@ -7,6 +7,28 @@ import (
 )
 
 // ============================================================================
+// Constant and Var Definitions
+// ============================================================================
+
+const (
+	Encoding1Byte      byte = 1   // legacy 1-byte encoding
+	EncodingUTF8       byte = 2   // UTF-8 encoding
+	Encoding1ByteASCII byte = '1' // (ASCII form)
+	EncodingUTF8ASCII  byte = '2' // (ASCII form)
+
+	DefaultEncoding byte = Encoding1Byte
+
+	FontPriorityFirst  byte = 0 // m = 0 (1st priority)
+	FontPrioritySecond byte = 1 // m = 1 (2nd priority)
+
+	FontANK                byte = 0  // ANK font (Sans serif)
+	FontJapaneseGothic     byte = 11 // Japanese font (Gothic)
+	FontSimplifiedChinese  byte = 20 // Simplified Chinese (Mincho)
+	FontTraditionalChinese byte = 30 // Traditional Chinese (Mincho)
+	FontKoreanGothic       byte = 41 // Korean font (Gothic)
+)
+
+// ============================================================================
 // Error Definitions
 // ============================================================================
 
@@ -39,16 +61,6 @@ type CodeConversionCommands struct{}
 func NewCodeConversionCommands() *CodeConversionCommands {
 	return &CodeConversionCommands{}
 }
-
-// TODO: Mover esto a Wrapper de ESCPOS en pos.go
-const (
-	Encoding1Byte      byte = 1   // legacy 1-byte encoding
-	EncodingUTF8       byte = 2   // UTF-8 encoding
-	Encoding1ByteASCII byte = '1' // (ASCII form)
-	EncodingUTF8ASCII  byte = '2' // (ASCII form)
-
-	DefaultEncoding byte = Encoding1Byte
-)
 
 // SelectCharacterEncodeSystem selects the character encoding system.
 //
@@ -91,21 +103,6 @@ func (c *CodeConversionCommands) SelectCharacterEncodeSystem(m byte) ([]byte, er
 	}
 	return []byte{common.FS, '(', 'C', 0x02, 0x00, 0x30, m}, nil
 }
-
-// TODO: Mover esto a Wrapper de ESCPOS en pos.go
-const (
-	FontPriorityFirst  byte = 0 // m = 0 (1st priority)
-	FontPrioritySecond byte = 1 // m = 1 (2nd priority)
-)
-
-// TODO: Mover esto a Wrapper de ESCPOS en pos.go.
-const (
-	FontANK                byte = 0  // ANK font (Sans serif)
-	FontJapaneseGothic     byte = 11 // Japanese font (Gothic)
-	FontSimplifiedChinese  byte = 20 // Simplified Chinese (Mincho)
-	FontTraditionalChinese byte = 30 // Traditional Chinese (Mincho)
-	FontKoreanGothic       byte = 41 // Korean font (Gothic)
-)
 
 // SetFontPriority sets the font priority.
 //

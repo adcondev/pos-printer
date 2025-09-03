@@ -30,9 +30,9 @@ func IsBufLenOk(buf []byte) error {
 	return nil
 }
 
-// LengthLowHigh convierte una longitud en dos bytes little-endian (dL,dH) para usar en comandos ESCPOS.
-func LengthLowHigh(length uint16) (dL, dH byte) {
-	dL = byte(length & 0xFF)        // byte de menor peso
-	dH = byte((length >> 8) & 0xFF) // byte de mayor peso
-	return dL, dH
+// ToLittleEndian convierte una longitud en dos bytes little-endian (dL,dH) para usar en comandos ESCPOS.
+func ToLittleEndian(number uint16) (nL, nH byte) {
+	nL = byte(number & 0xFF)        // byte de menor peso
+	nH = byte((number >> 8) & 0xFF) // byte de mayor peso
+	return nL, nH
 }

@@ -41,6 +41,31 @@ type MockCapability struct {
 	PrintAndLineFeedCalled bool
 	PrintAndLineFeedReturn []byte
 
+	// PrintAndReverseFeed tracking
+	PrintAndReverseFeedCalled bool
+	PrintAndReverseFeedInput  byte
+	PrintAndReverseFeedReturn []byte
+	PrintAndReverseFeedError  error
+
+	// PrintAndReverseFeedLines tracking
+	PrintAndReverseFeedLinesCalled bool
+	PrintAndReverseFeedLinesInput  byte
+	PrintAndReverseFeedLinesReturn []byte
+	PrintAndReverseFeedLinesError  error
+
+	// CancelData tracking
+	CancelDataCalled bool
+	CancelDataReturn []byte
+
+	// PrintDataInPageMode tracking
+	PrintDataInPageModeCalled bool
+	PrintDataInPageModeReturn []byte
+
+	// PrintAndFeedLines tracking
+	PrintAndFeedLinesCalled bool
+	PrintAndFeedLinesInput  byte
+	PrintAndFeedLinesReturn []byte
+
 	// Add call counting
 	CallCount map[string]int
 }
@@ -117,56 +142,7 @@ func (m *MockCapability) PrintAndLineFeed() []byte {
 	return []byte{print.LF}
 }
 
-type MockPageModeCapability struct {
-	// PrintAndReverseFeed tracking
-	PrintAndReverseFeedCalled bool
-	PrintAndReverseFeedInput  byte
-	PrintAndReverseFeedReturn []byte
-	PrintAndReverseFeedError  error
-
-	// PrintAndReverseFeedLines tracking
-	PrintAndReverseFeedLinesCalled bool
-	PrintAndReverseFeedLinesInput  byte
-	PrintAndReverseFeedLinesReturn []byte
-	PrintAndReverseFeedLinesError  error
-
-	// CancelData tracking
-	CancelDataCalled bool
-	CancelDataReturn []byte
-
-	// PrintDataInPageMode tracking
-	PrintDataInPageModeCalled bool
-	PrintDataInPageModeReturn []byte
-
-	// PrintAndFeedLines tracking
-	PrintAndFeedLinesCalled bool
-	PrintAndFeedLinesInput  byte
-	PrintAndFeedLinesReturn []byte
-	PrintAndFeedLinesError  error
-
-	// Add call counting
-	CallCount map[string]int
-}
-
-// Add constructor
-func NewMockPageModeCapability() *MockPageModeCapability {
-	return &MockPageModeCapability{
-		CallCount: make(map[string]int),
-	}
-}
-
-// Add Reset method
-func (m *MockPageModeCapability) Reset() {
-	*m = *NewMockPageModeCapability()
-}
-
-// Add helper methods
-func (m *MockPageModeCapability) GetCallCount(method string) int {
-	return m.CallCount[method]
-
-}
-
-func (m *MockPageModeCapability) PrintAndReverseFeed(units byte) ([]byte, error) {
+func (m *MockCapability) PrintAndReverseFeed(units byte) ([]byte, error) {
 	m.PrintAndReverseFeedCalled = true
 	m.PrintAndReverseFeedInput = units
 	m.CallCount["PrintAndReverseFeed"]++
@@ -178,12 +154,12 @@ func (m *MockPageModeCapability) PrintAndReverseFeed(units byte) ([]byte, error)
 		return m.PrintAndReverseFeedReturn, nil
 	}
 	if units > print.MaxReverseMotionUnits {
-		return nil, print.ErrPrintReverseFeed
+		return nil, print.ErrInvalidReverseUnits
 	}
 	return []byte{common.ESC, 'K', units}, nil
 }
 
-func (m *MockPageModeCapability) PrintAndReverseFeedLines(lines byte) ([]byte, error) {
+func (m *MockCapability) PrintAndReverseFeedLines(lines byte) ([]byte, error) {
 	m.PrintAndReverseFeedLinesCalled = true
 	m.PrintAndReverseFeedLinesInput = lines
 	m.CallCount["PrintAndReverseFeedLines"]++
@@ -195,12 +171,12 @@ func (m *MockPageModeCapability) PrintAndReverseFeedLines(lines byte) ([]byte, e
 		return m.PrintAndReverseFeedLinesReturn, nil
 	}
 	if lines > print.MaxReverseFeedLines {
-		return nil, print.ErrPrintReverseFeed
+		return nil, print.ErrInvalidReverseUnits
 	}
 	return []byte{common.ESC, 'K', lines}, nil
 }
 
-func (m *MockPageModeCapability) CancelData() []byte {
+func (m *MockCapability) CancelData() []byte {
 	m.CancelDataCalled = true
 	m.CallCount["CancelData"]++
 
@@ -210,7 +186,7 @@ func (m *MockPageModeCapability) CancelData() []byte {
 	return []byte{print.CAN}
 }
 
-func (m *MockPageModeCapability) PrintDataInPageMode() []byte {
+func (m *MockCapability) PrintDataInPageMode() []byte {
 	m.PrintDataInPageModeCalled = true
 	m.CallCount["PrintDataInPageMode"]++
 
@@ -220,18 +196,15 @@ func (m *MockPageModeCapability) PrintDataInPageMode() []byte {
 	return []byte{common.ESC, print.FF}
 }
 
-func (m *MockPageModeCapability) PrintAndFeedLines(lines byte) ([]byte, error) {
+func (m *MockCapability) PrintAndFeedLines(lines byte) []byte {
 	m.PrintAndFeedLinesCalled = true
 	m.PrintAndFeedLinesInput = lines
 	m.CallCount["PrintAndFeedLines"]++
 
-	if m.PrintAndFeedLinesError != nil {
-		return nil, m.PrintAndFeedLinesError
-	}
 	if m.PrintAndFeedLinesReturn != nil {
-		return m.PrintAndFeedLinesReturn, nil
+		return m.PrintAndFeedLinesReturn
 	}
-	return []byte{common.ESC, 'd', lines}, nil
+	return []byte{common.ESC, 'd', lines}
 }
 
 // ============================================================================

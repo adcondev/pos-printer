@@ -5,29 +5,31 @@ import (
 	"github.com/adcondev/pos-printer/escpos/common"
 	"github.com/adcondev/pos-printer/escpos/linespacing"
 	"github.com/adcondev/pos-printer/escpos/print"
+	"github.com/adcondev/pos-printer/escpos/printposition"
 )
 
 // Protocol implements the ESCPOS Commands
 type Protocol struct {
-	Print     print.Capability
-	LineSpace linespacing.Capability
-	Character character.Capability
+	Print         print.Capability
+	LineSpace     linespacing.Capability
+	Character     character.Capability
+	PrintPosition printposition.Capability
 }
 
 // Raw sends raw data without processing
-func (c *Protocol) Raw(n []byte) ([]byte, error) {
-	if err := common.IsBufLenOk(n); err != nil {
+func (c *Protocol) Raw(data []byte) ([]byte, error) {
+	if err := common.IsBufLenOk(data); err != nil {
 		return nil, err
 	}
-	return n, nil
+	return data, nil
 }
 
-// NewEscposCommands creates a new instance of the ESC/POS protocol
-// Using Escpos (all caps) for consistency with the protocol name
-func NewEscposCommands() *Protocol {
+// NewEscposProtocol creates a new instance of the ESC/POS protocol
+func NewEscposProtocol() *Protocol {
 	return &Protocol{
-		Print:     print.NewCommands(),
-		LineSpace: linespacing.NewCommands(),
-		Character: character.NewCommands(),
+		Print:         print.NewCommands(),
+		LineSpace:     linespacing.NewCommands(),
+		Character:     character.NewCommands(),
+		PrintPosition: printposition.NewCommands(),
 	}
 }

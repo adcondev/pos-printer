@@ -3,6 +3,26 @@ package character
 import "fmt"
 
 // ============================================================================
+// Constant and Var Definitions
+// ============================================================================
+
+const (
+	UserDefinedOff byte = 0x00 // LSB = 0 -> user-defined OFF
+	UserDefinedOn  byte = 0x01 // LSB = 1 -> user-defined ON
+
+	// ASCII-digit variants sometimes accepted by implementations
+
+	UserDefinedOffASCII byte = '0'
+	UserDefinedOnASCII  byte = '1'
+
+	ESCAmpersand              = 0x26
+	DefineUDChars_preambleLen = 5 // ESC & y c1 c2
+
+	UserDefinedMinCode byte = 32
+	UserDefinedMaxCode byte = 126
+)
+
+// ============================================================================
 // Error Definitions
 // ============================================================================
 
@@ -10,7 +30,7 @@ var (
 	ErrInvalidCharacterCode = fmt.Errorf("invalid character code(try 32-126)")
 	ErrInvalidYValue        = fmt.Errorf("invalid y value(try y >= 1)")
 	ErrInvalidCodeRange     = fmt.Errorf("invalid code range(try c2 >= c1 and c2 <= 126)")
-	ErrDefinitionMismatch   = fmt.Errorf("invalid definition count(try matching number of codes in range c1-c2)")
+	ErrInvalidDefinition    = fmt.Errorf("invalid definition count(try matching number of codes in range c1-c2)")
 	ErrInvalidDataLength    = fmt.Errorf("invalid data length(try using exactly y*width bytes)")
 )
 
@@ -40,17 +60,6 @@ type UserDefinedChar struct {
 	Width byte   // Width in dots (xi)
 	Data  []byte // Raw column data, length must equal y * Width
 }
-
-// TODO: Mover esto a Wrapper de ESCPOS en pos.go
-const (
-	UserDefinedOff byte = 0x00 // LSB = 0 -> user-defined OFF
-	UserDefinedOn  byte = 0x01 // LSB = 1 -> user-defined ON
-
-	// ASCII-digit variants sometimes accepted by implementations
-
-	UserDefinedOffASCII byte = '0'
-	UserDefinedOnASCII  byte = '1'
-)
 
 // SelectUserDefinedCharacterSet selects or cancels the user-defined character set.
 //
@@ -88,12 +97,6 @@ const (
 func (udc *UserDefinedCommands) SelectUserDefinedCharacterSet(n byte) []byte {
 	return []byte{0x1B, 0x25, n}
 }
-
-// TODO: Mover esto a Wrapper de ESCPOS en pos.go
-const (
-	ESCAmpersand              = 0x26
-	DefineUDChars_preambleLen = 5 // ESC & y c1 c2
-)
 
 // DefineUserDefinedCharacters defines user-defined glyph patterns for character codes.
 //
@@ -138,7 +141,7 @@ func (udc *UserDefinedCommands) DefineUserDefinedCharacters(y, c1, c2 byte, defi
 	}
 	expected := int(c2 - c1 + 1)
 	if len(definitions) != expected {
-		return nil, fmt.Errorf("%w: got %d, expected %d", ErrDefinitionMismatch, len(definitions), expected)
+		return nil, fmt.Errorf("%w: got %d, expected %d", ErrInvalidDefinition, len(definitions), expected)
 	}
 
 	// Build command
@@ -163,13 +166,6 @@ func (udc *UserDefinedCommands) DefineUserDefinedCharacters(y, c1, c2 byte, defi
 
 	return seq, nil
 }
-
-// TODO: Mover esto a Wrapper de ESCPOS en pos.go
-const (
-	ESCPQuestion       byte = 0x3F // '?'
-	UserDefinedMinCode byte = 32
-	UserDefinedMaxCode byte = 126
-)
 
 // CancelUserDefinedCharacter deletes (cancels) a user-defined character.
 //

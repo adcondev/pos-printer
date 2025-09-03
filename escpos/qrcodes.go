@@ -77,7 +77,7 @@ func (c *Protocol) SelectQRModel(model QRModel) ([]byte, error) {
 		return nil, fmt.Errorf("modelo de QR inválida(0-1): %d", model)
 	}
 
-	pL, pH := common.LengthLowHigh(4)
+	pL, pH := common.ToLittleEndian(4)
 
 	cn, fn := byte('1'), byte('A')
 	n1 := modelMap[model]
@@ -97,7 +97,7 @@ func (c *Protocol) SelectQRSize(moduleSize QRModuleSize) ([]byte, error) {
 		return nil, fmt.Errorf("tamaño de módulo QR inválido(1-16): %d", moduleSize)
 	}
 
-	pL, pH := common.LengthLowHigh(3)
+	pL, pH := common.ToLittleEndian(3)
 
 	cn, fn := byte('1'), byte('C')
 	n := byte(moduleSize)
@@ -117,7 +117,7 @@ func (c *Protocol) SelectQRErrorCorrection(level QRErrorCorrection) ([]byte, err
 		return nil, fmt.Errorf("nivel de corrección de QR inválido(0-3): %d", level)
 	}
 
-	pL, pH := common.LengthLowHigh(3)
+	pL, pH := common.ToLittleEndian(3)
 
 	cn, fn := byte('1'), byte('E')
 
@@ -136,7 +136,7 @@ func (c *Protocol) SetQRData(data string) ([]byte, error) {
 	}
 
 	// Secure, it is validated before.
-	pL, pH := common.LengthLowHigh(uint16(len(data) + 3)) // nolint:gosec
+	pL, pH := common.ToLittleEndian(uint16(len(data) + 3)) // nolint:gosec
 
 	cn, fn := byte('1'), byte('P')
 	m := byte('0') // Siempre 0, reservado
@@ -152,7 +152,7 @@ func (c *Protocol) SetQRData(data string) ([]byte, error) {
 // PrintQRData genera el comando para imprimir el código QR
 func (c *Protocol) PrintQRData() ([]byte, error) {
 	// Comando para imprimir QR
-	pL, pH := common.LengthLowHigh(3)
+	pL, pH := common.ToLittleEndian(3)
 
 	cn, fn := byte('1'), byte('Q')
 	m := byte('0') // Siempre 0 para impresion estandard

@@ -7,6 +7,220 @@ import (
 )
 
 // ============================================================================
+// Constant and Var Definitions
+// ============================================================================
+
+const (
+	// Font selection
+	PrintModeFontA byte = 0x00 // Bit0 = 0
+	PrintModeFontB byte = 0x01 // Bit0 = 1
+
+	// Emphasis
+	PrintModeEmphasizedOff byte = 0x00
+	PrintModeEmphasizedOn  byte = 0x08 // Bit3
+
+	// Character size
+	PrintModeDoubleHeightOff byte = 0x00
+	PrintModeDoubleHeightOn  byte = 0x10 // Bit4
+	PrintModeDoubleWidthOff  byte = 0x00
+	PrintModeDoubleWidthOn   byte = 0x20 // Bit5
+
+	// Underline
+	PrintModeUnderlineOff byte = 0x00
+	PrintModeUnderlineOn  byte = 0x80 // Bit7
+
+	// Underline modes
+	UnderlineModeOff  byte = 0x00 // n = 0
+	UnderlineMode1Dot byte = 0x01 // n = 1 (1-dot)
+	UnderlineMode2Dot byte = 0x02 // n = 2 (2-dots)
+
+	// ASCII-code variants (some implementations send ASCII digit codes 48/49/50)
+	UnderlineModeOffASCII  byte = '0'
+	UnderlineMode1DotASCII byte = '1'
+	UnderlineMode2DotASCII byte = '2'
+
+	// Emphasized modes
+	EOff byte = 0x00 // LSB = 0 -> emphasized OFF
+	EOn  byte = 0x01 // LSB = 1 -> emphasized ON
+
+	// ASCII-digit variants some implementations accept
+	EOffASCII byte = '0'
+	EOnASCII  byte = '1'
+
+	// Font types
+	FontA        byte = 0x00
+	FontB        byte = 0x01
+	FontC        byte = 0x02
+	FontD        byte = 0x03
+	FontE        byte = 0x04
+	SpecialFontA byte = 97
+	SpecialFontB byte = 98
+
+	// Font ASCII-code variants
+	FontAASCII byte = '0'
+	FontBASCII byte = '1'
+	FontCASCII byte = '2'
+	FontDASCII byte = '3'
+	FontEASCII byte = '4'
+
+	// International character sets
+	CharsetUSA          byte = 0
+	CharsetFrance       byte = 1
+	CharsetGermany      byte = 2
+	CharsetUK           byte = 3
+	CharsetDenmarkI     byte = 4
+	CharsetSweden       byte = 5
+	CharsetItaly        byte = 6
+	CharsetSpainI       byte = 7
+	CharsetJapan        byte = 8
+	CharsetNorway       byte = 9
+	CharsetDenmarkII    byte = 10
+	CharsetSpainII      byte = 11
+	CharsetLatinAmerica byte = 12
+	CharsetKorea        byte = 13
+	CharsetSloveniaCro  byte = 14
+	CharsetChina        byte = 15
+	CharsetVietnam      byte = 16
+	CharsetArabia       byte = 17
+
+	// Extended India character sets (model-dependent)
+	CharsetIndiaDevanagari byte = 66
+	CharsetIndiaBengali    byte = 67
+	CharsetIndiaTamil      byte = 68
+	CharsetIndiaTelugu     byte = 69
+	CharsetIndiaAssamese   byte = 70
+	CharsetIndiaOriya      byte = 71
+	CharsetIndiaKannada    byte = 72
+	CharsetIndiaMalayalam  byte = 73
+	CharsetIndiaGujarati   byte = 74
+	CharsetIndiaPunjabi    byte = 75
+	CharsetIndiaMarathi    byte = 82
+
+	// Rotation modes
+	Rotation90Off     byte = 0x00 // n = 0
+	Rotation90On1Dot  byte = 0x01 // n = 1 (1-dot spacing)
+	Rotation90On15Dot byte = 0x02 // n = 2 (1.5-dot spacing)
+
+	// Rotation ASCII-digit variants
+	Rotation90OffASCII     byte = '0'
+	Rotation90On1DotASCII  byte = '1'
+	Rotation90On15DotASCII byte = '2'
+
+	// Print Color Modes
+	PrintColorBlack      byte = 0x00 // n = 0
+	PrintColorRed        byte = 0x01 // n = 1
+	PrintColorBlackASCII byte = '0'
+	PrintColorRedASCII   byte = '1'
+
+	// Character Code Table Pages (common values)
+	CodeTablePage0  byte = 0  // PC437: USA, Standard Europe
+	CodeTablePage1  byte = 1  // Katakana
+	CodeTablePage2  byte = 2  // PC850: Multilingual
+	CodeTablePage3  byte = 3  // PC860: Portuguese
+	CodeTablePage4  byte = 4  // PC863: Canadian-French
+	CodeTablePage5  byte = 5  // PC865: Nordic
+	CodeTablePage6  byte = 6  // Hiragana
+	CodeTablePage7  byte = 7  // One-pass Kanji
+	CodeTablePage8  byte = 8  // One-pass Kanji
+	CodeTablePage11 byte = 11 // PC851: Greek
+	CodeTablePage12 byte = 12 // PC853: Turkish
+	CodeTablePage13 byte = 13 // PC857: Turkish
+	CodeTablePage14 byte = 14 // PC737: Greek
+	CodeTablePage15 byte = 15 // ISO8859-7: Greek
+	CodeTablePage16 byte = 16 // WPC1252
+	CodeTablePage17 byte = 17 // PC866: Cyrillic #2
+	CodeTablePage18 byte = 18 // PC852: Latin 2
+	CodeTablePage19 byte = 19 // PC858: Euro
+	CodeTablePage20 byte = 20 // Thai Character Code 42
+	CodeTablePage21 byte = 21 // Thai Character Code 11
+	CodeTablePage22 byte = 22 // Thai Character Code 13
+	CodeTablePage23 byte = 23 // Thai Character Code 14
+	CodeTablePage24 byte = 24 // Thai Character Code 16
+	CodeTablePage25 byte = 25 // Thai Character Code 17
+	CodeTablePage26 byte = 26 // Thai Character Code 18
+	CodeTablePage30 byte = 30 // TCVN-3: Vietnamese
+	CodeTablePage31 byte = 31 // TCVN-3: Vietnamese
+	CodeTablePage32 byte = 32 // PC720: Arabic
+	CodeTablePage33 byte = 33 // WPC775: Baltic Rim
+	CodeTablePage34 byte = 34 // PC855: Cyrillic
+	CodeTablePage35 byte = 35 // PC861: Icelandic
+	CodeTablePage36 byte = 36 // PC862: Hebrew
+	CodeTablePage37 byte = 37 // PC864: Arabic
+	CodeTablePage38 byte = 38 // PC869: Greek
+	CodeTablePage39 byte = 39 // ISO8859-2: Latin 2
+	CodeTablePage40 byte = 40 // ISO8859-15: Latin 9
+	CodeTablePage41 byte = 41 // PC1098: Farsi
+	CodeTablePage42 byte = 42 // PC1118: Lithuanian
+	CodeTablePage43 byte = 43 // PC1119: Lithuanian
+	CodeTablePage44 byte = 44 // PC1125: Ukrainian
+	CodeTablePage45 byte = 45 // WPC1250: Latin 2
+	CodeTablePage46 byte = 46 // WPC1251: Cyrillic
+	CodeTablePage47 byte = 47 // WPC1253: Greek
+	CodeTablePage48 byte = 48 // WPC1254: Turkish
+	CodeTablePage49 byte = 49 // WPC1255: Hebrew
+	CodeTablePage50 byte = 50 // WPC1256: Arabic
+	CodeTablePage51 byte = 51 // WPC1257: Baltic Rim
+	CodeTablePage52 byte = 52 // WPC1258: Vietnamese
+	CodeTablePage53 byte = 53 // KZ-1048: Kazakhstan
+
+	// India-related pages (model-dependent)
+	CodeTablePage66 byte = 66 // Devanagari
+	CodeTablePage67 byte = 67 // Bengali
+	CodeTablePage68 byte = 68 // Tamil
+	CodeTablePage69 byte = 69 // Telugu
+	CodeTablePage70 byte = 70 // Assamese
+	CodeTablePage71 byte = 71 // Oriya
+	CodeTablePage72 byte = 72 // Kannada
+	CodeTablePage73 byte = 73 // Malayalam
+	CodeTablePage74 byte = 74 // Gujarati
+	CodeTablePage75 byte = 75 // Punjabi
+	CodeTablePage82 byte = 82 // Marathi
+
+	// Reserved / special
+	CodeTablePage254 byte = 254
+	CodeTablePage255 byte = 255
+
+	// Upside-down modes
+	UpsideDownOff byte = 0x00 // LSB = 0 -> upside-down OFF
+	UpsideDownOn  byte = 0x01 // LSB = 1 -> upside-down ON
+
+	// Upside-down ASCII-digit variants sometimes used by implementations
+	UpsideDownOffASCII byte = '0'
+	UpsideDownOnASCII  byte = '1'
+
+	// CharSizeHeightMask is used to extract height bits from n
+	CharSizeHeightMask byte = 0x07 // bits 0-2
+	// CharSizeWidthMask is used to extract width bits from n
+	CharSizeWidthMask byte = 0x70 // bits 4-6
+	// CharSizeWidthShift is used to shift width bits to LSB position
+	CharSizeWidthShift byte = 4
+
+	// Character size configurations
+	CharSize1x1 byte = 0x00 // width=1 height=1 (normal)
+	CharSize2x1 byte = 0x10 // width=2 height=1
+	CharSize3x1 byte = 0x20 // width=3 height=1
+	CharSize4x1 byte = 0x30 // width=4 height=1
+	CharSize1x2 byte = 0x01 // width=1 height=2
+	CharSize2x2 byte = 0x11 // width=2 height=2 (double width & height)
+
+	// White/black reverse modes
+	WhiteBlackReverseOff byte = 0x00 // LSB = 0 -> reverse OFF
+	WhiteBlackReverseOn  byte = 0x01 // LSB = 1 -> reverse ON
+
+	// ASCII-digit variants sometimes used by implementations
+	WhiteBlackReverseOffASCII byte = '0'
+	WhiteBlackReverseOnASCII  byte = '1'
+
+	// Smoothing modes
+	SmoothingOff byte = 0x00 // LSB = 0 -> smoothing OFF
+	SmoothingOn  byte = 0x01 // LSB = 1 -> smoothing ON
+
+	// ASCII-digit variants sometimes accepted by implementations
+	SmoothingOffASCII byte = '0'
+	SmoothingOnASCII  byte = '1'
+)
+
+// ============================================================================
 // Error Definitions
 // ============================================================================
 
@@ -115,28 +329,6 @@ func (c *Commands) SetRightSideCharacterSpacing(n byte) []byte {
 	return []byte{common.ESC, common.SP, n}
 }
 
-// TODO: Mover esto a Wrapper de ESCPOS en pos.go
-const (
-	// TODO: placehold this constants for future validation maps
-	// Font selection
-	PrintModeFontA byte = 0x00 // Bit0 = 0
-	PrintModeFontB byte = 0x01 // Bit0 = 1
-
-	// Emphasis
-	PrintModeEmphasizedOff byte = 0x00
-	PrintModeEmphasizedOn  byte = 0x08 // Bit3
-
-	// Character size
-	PrintModeDoubleHeightOff byte = 0x00
-	PrintModeDoubleHeightOn  byte = 0x10 // Bit4
-	PrintModeDoubleWidthOff  byte = 0x00
-	PrintModeDoubleWidthOn   byte = 0x20 // Bit5
-
-	// Underline
-	PrintModeUnderlineOff byte = 0x00
-	PrintModeUnderlineOn  byte = 0x80 // Bit7
-)
-
 // SelectPrintModes selects character font and style bits (emphasized,
 // double-height, double-width, underline) together.
 //
@@ -220,19 +412,6 @@ func (c *Commands) SelectPrintModes(n byte) []byte {
 	return []byte{common.ESC, '!', n}
 }
 
-// TODO: Mover esto a Wrapper de ESCPOS en pos.go
-const (
-	// TODO: placehold this constants for future validation maps
-	UnderlineModeOff  byte = 0x00 // n = 0
-	UnderlineMode1Dot byte = 0x01 // n = 1 (1-dot)
-	UnderlineMode2Dot byte = 0x02 // n = 2 (2-dots)
-
-	// ASCII-code variants (some implementations send ASCII digit codes 48/49/50)
-	UnderlineModeOffASCII  byte = '0'
-	UnderlineMode1DotASCII byte = '1'
-	UnderlineMode2DotASCII byte = '2'
-)
-
 // SetUnderlineMode sets underline mode on or off and selects underline thickness.
 //
 // Format:
@@ -287,17 +466,6 @@ func (c *Commands) SetUnderlineMode(n byte) ([]byte, error) {
 	}
 	return []byte{common.ESC, '-', n}, nil
 }
-
-// TODO: Mover esto a Wrapper de ESCPOS en pos.go
-const (
-	// TODO: placehold this constants for future validation maps
-	EOff byte = 0x00 // LSB = 0 -> emphasized OFF
-	EOn  byte = 0x01 // LSB = 1 -> emphasized ON
-
-	// ASCII-digit variants some implementations accept
-	EOffASCII byte = '0'
-	EOnASCII  byte = '1'
-)
 
 // SetEmphasizedMode turns emphasized (bold) mode on or off.
 //
@@ -369,23 +537,6 @@ func (c *Commands) SetDoubleStrikeMode(n byte) []byte {
 	return []byte{common.ESC, 'G', n}
 }
 
-// TODO: Mover esto a Wrapper de ESCPOS en pos.go
-const (
-	FontA        byte = 0x00 // n = 0
-	FontB        byte = 0x01 // n = 1
-	FontC        byte = 0x02 // n = 2
-	FontD        byte = 0x03 // n = 3
-	FontE        byte = 0x04 // n = 4
-	SpecialFontA byte = 97   // n = 97
-	SpecialFontB byte = 98   // n = 98
-
-	FontAASCII byte = '0'
-	FontBASCII byte = '1'
-	FontCASCII byte = '2'
-	FontDASCII byte = '3'
-	FontEASCII byte = '4'
-)
-
 // SelectCharacterFont selects a character font.
 //
 // Format:
@@ -441,41 +592,6 @@ func (c *Commands) SelectCharacterFont(n byte) ([]byte, error) {
 	}
 	return []byte{common.ESC, 'M', n}, nil
 }
-
-// TODO: Mover esto a Wrapper de ESCPOS en pos.go
-const (
-	CharsetUSA          byte = 0
-	CharsetFrance       byte = 1
-	CharsetGermany      byte = 2
-	CharsetUK           byte = 3
-	CharsetDenmarkI     byte = 4
-	CharsetSweden       byte = 5
-	CharsetItaly        byte = 6
-	CharsetSpainI       byte = 7
-	CharsetJapan        byte = 8
-	CharsetNorway       byte = 9
-	CharsetDenmarkII    byte = 10
-	CharsetSpainII      byte = 11
-	CharsetLatinAmerica byte = 12
-	CharsetKorea        byte = 13
-	CharsetSloveniaCro  byte = 14
-	CharsetChina        byte = 15
-	CharsetVietnam      byte = 16
-	CharsetArabia       byte = 17
-
-	// Extended India character sets (model-dependent)
-	CharsetIndiaDevanagari byte = 66
-	CharsetIndiaBengali    byte = 67
-	CharsetIndiaTamil      byte = 68
-	CharsetIndiaTelugu     byte = 69
-	CharsetIndiaAssamese   byte = 70
-	CharsetIndiaOriya      byte = 71
-	CharsetIndiaKannada    byte = 72
-	CharsetIndiaMalayalam  byte = 73
-	CharsetIndiaGujarati   byte = 74
-	CharsetIndiaPunjabi    byte = 75
-	CharsetIndiaMarathi    byte = 82
-)
 
 // SelectInternationalCharacterSet selects an international character set.
 //
@@ -561,18 +677,6 @@ func (c *Commands) SelectInternationalCharacterSet(n byte) ([]byte, error) {
 	return nil, ErrInvalidCharacterSet
 }
 
-// TODO: Mover esto a Wrapper de ESCPOS en pos.go
-const (
-	Rotation90Off     byte = 0x00 // n = 0
-	Rotation90On1Dot  byte = 0x01 // n = 1 (1-dot spacing)
-	Rotation90On15Dot byte = 0x02 // n = 2 (1.5-dot spacing)
-
-	// ASCII-digit variants
-	Rotation90OffASCII     byte = '0'
-	Rotation90On1DotASCII  byte = '1'
-	Rotation90On15DotASCII byte = '2'
-)
-
 // Set90DegreeClockwiseRotationMode turns 90° clockwise rotation mode on or off.
 //
 // Format:
@@ -626,14 +730,6 @@ func (c *Commands) Set90DegreeClockwiseRotationMode(n byte) ([]byte, error) {
 	return []byte{common.ESC, 'V', n}, nil
 }
 
-// TODO: Mover esto a Wrapper de ESCPOS en pos.go
-const (
-	PrintColorBlack      byte = 0x00 // n = 0
-	PrintColorRed        byte = 0x01 // n = 1
-	PrintColorBlackASCII byte = '0'
-	PrintColorRedASCII   byte = '1'
-)
-
 // SelectPrintColor selects the print color.
 //
 // Format:
@@ -682,76 +778,6 @@ func (c *Commands) SelectPrintColor(n byte) ([]byte, error) {
 	}
 	return []byte{common.ESC, 'r', n}, nil
 }
-
-// TODO: Mover esto a Wrapper de ESCPOS en pos.go
-const (
-	CodeTablePage0  byte = 0  // PC437: USA, Standard Europe
-	CodeTablePage1  byte = 1  // Katakana
-	CodeTablePage2  byte = 2  // PC850: Multilingual
-	CodeTablePage3  byte = 3  // PC860: Portuguese
-	CodeTablePage4  byte = 4  // PC863: Canadian-French
-	CodeTablePage5  byte = 5  // PC865: Nordic
-	CodeTablePage6  byte = 6  // Hiragana
-	CodeTablePage7  byte = 7  // One-pass Kanji
-	CodeTablePage8  byte = 8  // One-pass Kanji
-	CodeTablePage11 byte = 11 // PC851: Greek
-	CodeTablePage12 byte = 12 // PC853: Turkish
-	CodeTablePage13 byte = 13 // PC857: Turkish
-	CodeTablePage14 byte = 14 // PC737: Greek
-	CodeTablePage15 byte = 15 // ISO8859-7: Greek
-	CodeTablePage16 byte = 16 // WPC1252
-	CodeTablePage17 byte = 17 // PC866: Cyrillic #2
-	CodeTablePage18 byte = 18 // PC852: Latin 2
-	CodeTablePage19 byte = 19 // PC858: Euro
-	CodeTablePage20 byte = 20 // Thai Character Code 42
-	CodeTablePage21 byte = 21 // Thai Character Code 11
-	CodeTablePage22 byte = 22 // Thai Character Code 13
-	CodeTablePage23 byte = 23 // Thai Character Code 14
-	CodeTablePage24 byte = 24 // Thai Character Code 16
-	CodeTablePage25 byte = 25 // Thai Character Code 17
-	CodeTablePage26 byte = 26 // Thai Character Code 18
-	CodeTablePage30 byte = 30 // TCVN-3: Vietnamese
-	CodeTablePage31 byte = 31 // TCVN-3: Vietnamese
-	CodeTablePage32 byte = 32 // PC720: Arabic
-	CodeTablePage33 byte = 33 // WPC775: Baltic Rim
-	CodeTablePage34 byte = 34 // PC855: Cyrillic
-	CodeTablePage35 byte = 35 // PC861: Icelandic
-	CodeTablePage36 byte = 36 // PC862: Hebrew
-	CodeTablePage37 byte = 37 // PC864: Arabic
-	CodeTablePage38 byte = 38 // PC869: Greek
-	CodeTablePage39 byte = 39 // ISO8859-2: Latin 2
-	CodeTablePage40 byte = 40 // ISO8859-15: Latin 9
-	CodeTablePage41 byte = 41 // PC1098: Farsi
-	CodeTablePage42 byte = 42 // PC1118: Lithuanian
-	CodeTablePage43 byte = 43 // PC1119: Lithuanian
-	CodeTablePage44 byte = 44 // PC1125: Ukrainian
-	CodeTablePage45 byte = 45 // WPC1250: Latin 2
-	CodeTablePage46 byte = 46 // WPC1251: Cyrillic
-	CodeTablePage47 byte = 47 // WPC1253: Greek
-	CodeTablePage48 byte = 48 // WPC1254: Turkish
-	CodeTablePage49 byte = 49 // WPC1255: Hebrew
-	CodeTablePage50 byte = 50 // WPC1256: Arabic
-	CodeTablePage51 byte = 51 // WPC1257: Baltic Rim
-	CodeTablePage52 byte = 52 // WPC1258: Vietnamese
-	CodeTablePage53 byte = 53 // KZ-1048: Kazakhstan
-
-	// India-related pages (model-dependent)
-	CodeTablePage66 byte = 66 // Devanagari
-	CodeTablePage67 byte = 67 // Bengali
-	CodeTablePage68 byte = 68 // Tamil
-	CodeTablePage69 byte = 69 // Telugu
-	CodeTablePage70 byte = 70 // Assamese
-	CodeTablePage71 byte = 71 // Oriya
-	CodeTablePage72 byte = 72 // Kannada
-	CodeTablePage73 byte = 73 // Malayalam
-	CodeTablePage74 byte = 74 // Gujarati
-	CodeTablePage75 byte = 75 // Punjabi
-	CodeTablePage82 byte = 82 // Marathi
-
-	// Reserved / special
-	CodeTablePage254 byte = 254
-	CodeTablePage255 byte = 255
-)
 
 // SelectCharacterCodeTable selects a character code table page.
 //
@@ -867,16 +893,6 @@ func (c *Commands) SelectCharacterCodeTable(n byte) ([]byte, error) {
 	return []byte{common.ESC, 't', n}, nil
 }
 
-// TODO: Mover esto a Wrapper de ESCPOS en pos.go
-const (
-	UpsideDownOff byte = 0x00 // LSB = 0 -> upside-down OFF
-	UpsideDownOn  byte = 0x01 // LSB = 1 -> upside-down ON
-
-	// ASCII-digit variants sometimes used by implementations
-	UpsideDownOffASCII byte = '0'
-	UpsideDownOnASCII  byte = '1'
-)
-
 // SetUpsideDownMode turns upside-down (180° rotated) print mode on or off.
 //
 // Format:
@@ -918,26 +934,6 @@ const (
 func (c *Commands) SetUpsideDownMode(n byte) []byte {
 	return []byte{common.ESC, '{', n}
 }
-
-// TODO: Mover esto a Wrapper de ESCPOS en pos.go
-const (
-	// CharSizeHeightMask is used to extract height bits from n
-	CharSizeHeightMask byte = 0x07 // bits 0-2
-	// CharSizeWidthMask is used to extract width bits from n
-	CharSizeWidthMask byte = 0x70 // bits 4-6
-	// CharSizeWidthShift is used to shift width bits to LSB position
-	CharSizeWidthShift byte = 4
-)
-
-// TODO: Mover esto a Wrapper de ESCPOS en pos.go
-const (
-	CharSize1x1 byte = 0x00 // width=1 height=1 (normal)
-	CharSize2x1 byte = 0x10 // width=2 height=1
-	CharSize3x1 byte = 0x20 // width=3 height=1
-	CharSize4x1 byte = 0x30 // width=4 height=1
-	CharSize1x2 byte = 0x01 // width=1 height=2
-	CharSize2x2 byte = 0x11 // width=2 height=2 (double width & height)
-)
 
 // SelectCharacterSize selects character size (width and height magnification).
 //
@@ -991,16 +987,6 @@ func (c *Commands) SelectCharacterSize(n byte) []byte {
 	return []byte{common.GS, '!', n}
 }
 
-// TODO: Mover esto a Wrapper de ESCPOS en pos.go
-const (
-	WhiteBlackReverseOff byte = 0x00 // LSB = 0 -> reverse OFF
-	WhiteBlackReverseOn  byte = 0x01 // LSB = 1 -> reverse ON
-
-	// ASCII-digit variants sometimes used by implementations
-	WhiteBlackReverseOffASCII byte = '0'
-	WhiteBlackReverseOnASCII  byte = '1'
-)
-
 // SetWhiteBlackReverseMode turns white/black reverse print mode on or off.
 //
 // Format:
@@ -1043,16 +1029,6 @@ const (
 func (c *Commands) SetWhiteBlackReverseMode(n byte) []byte {
 	return []byte{common.GS, 'B', n}
 }
-
-// TODO: Mover esto a Wrapper de ESCPOS en pos.go
-const (
-	SmoothingOff byte = 0x00 // LSB = 0 -> smoothing OFF
-	SmoothingOn  byte = 0x01 // LSB = 1 -> smoothing ON
-
-	// ASCII-digit variants sometimes accepted by implementations
-	SmoothingOffASCII byte = '0'
-	SmoothingOnASCII  byte = '1'
-)
 
 // SetSmoothingMode turns smoothing mode on or off.
 //

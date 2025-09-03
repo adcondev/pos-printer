@@ -15,7 +15,7 @@ import (
 // ============================================================================
 
 func TestIntegration_PrintWithLineSpacing_RealImplementations(t *testing.T) {
-	cmd := escpos.NewEscposCommands()
+	cmd := escpos.NewEscposProtocol()
 
 	// Set custom line spacing
 	spacingCmd := cmd.LineSpace.SetLineSpacing(50)
@@ -44,7 +44,7 @@ func TestIntegration_PrintWithLineSpacing_RealImplementations(t *testing.T) {
 }
 
 func TestIntegration_CompleteReceiptFlow(t *testing.T) {
-	cmd := escpos.NewEscposCommands()
+	cmd := escpos.NewEscposProtocol()
 
 	// Build a complete receipt flow
 	commands := []struct {

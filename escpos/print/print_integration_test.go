@@ -89,15 +89,15 @@ func TestIntegration_Print_ErrorHandling(t *testing.T) {
 
 	t.Run("handles page mode errors", func(t *testing.T) {
 		_, err := cmd.PrintAndReverseFeed(100) // Exceeds max
-		if !errors.Is(err, print.ErrPrintReverseFeed) {
+		if !errors.Is(err, print.ErrInvalidReverseUnits) {
 			t.Errorf("PrintAndReverseFeed(100) error = %v, want %v",
-				err, print.ErrPrintReverseFeed)
+				err, print.ErrInvalidReverseUnits)
 		}
 
 		_, err = cmd.PrintAndReverseFeedLines(10) // Exceeds max
-		if !errors.Is(err, print.ErrPrintReverseFeedLines) {
+		if !errors.Is(err, print.ErrInvalidReverseLines) {
 			t.Errorf("PrintAndReverseFeedLines(10) error = %v, want %v",
-				err, print.ErrPrintReverseFeedLines)
+				err, print.ErrInvalidReverseLines)
 		}
 	})
 }

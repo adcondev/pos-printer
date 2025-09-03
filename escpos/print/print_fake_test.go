@@ -151,7 +151,7 @@ func (fc *FakeCapability) Reset() {
 
 func (fc *FakeCapability) PrintAndReverseFeed(n byte) ([]byte, error) {
 	if n > print.MaxReverseMotionUnits {
-		return nil, print.ErrPrintReverseFeed
+		return nil, print.ErrInvalidReverseUnits
 	}
 	cmd := []byte{common.ESC, 'K', n}
 	fc.buffer = append(fc.buffer, cmd...)
@@ -163,7 +163,7 @@ func (fc *FakeCapability) PrintAndReverseFeed(n byte) ([]byte, error) {
 
 func (fc *FakeCapability) PrintAndReverseFeedLines(n byte) ([]byte, error) {
 	if n > print.MaxReverseFeedLines {
-		return nil, print.ErrPrintReverseFeedLines
+		return nil, print.ErrInvalidReverseLines
 	}
 	cmd := []byte{common.ESC, 'e', n}
 	fc.buffer = append(fc.buffer, cmd...)

@@ -107,7 +107,7 @@ func (c *Protocol) PrintRasterBitImage(img *imaging.PrintImage, density Density)
 		// Secure, it has been validated
 		widthBytes = uint16(escImg.GetWidthBytes()) // nolint:gosec
 	}
-	wL, wH := common.LengthLowHigh(widthBytes)
+	wL, wH := common.ToLittleEndian(widthBytes)
 
 	var heightBytes uint16
 	switch {
@@ -119,7 +119,7 @@ func (c *Protocol) PrintRasterBitImage(img *imaging.PrintImage, density Density)
 		// Secure, it has been validated
 		heightBytes = uint16(escImg.GetHeight()) // nolint:gosec
 	}
-	hL, hH := common.LengthLowHigh(heightBytes)
+	hL, hH := common.ToLittleEndian(heightBytes)
 
 	cmd = append(cmd, wL, wH) // Ancho en bytes
 	cmd = append(cmd, hL, hH) // Alto en píxeles

@@ -129,9 +129,9 @@ func TestCommands_Text(t *testing.T) {
 			var baseErr error
 			switch tt.name {
 			case "empty buffer":
-				baseErr = common.ErrEmptyBuffer
+				baseErr = print.ErrEmptyText
 			case "buffer overflow":
-				baseErr = common.ErrBufferOverflow
+				baseErr = print.ErrTextTooLarge
 			default:
 				baseErr = nil
 			}
@@ -291,9 +291,9 @@ func TestCommands_PrintAndReverseFeed(t *testing.T) {
 
 			// Check specific error type if expecting error
 			if tt.wantErr && err != nil {
-				if !errors.Is(err, print.ErrPrintReverseFeed) {
+				if !errors.Is(err, print.ErrInvalidReverseUnits) {
 					t.Errorf("PrintAndReverseFeed(%v) error = %v, want %v",
-						tt.reverse, err, print.ErrPrintReverseFeed)
+						tt.reverse, err, print.ErrInvalidReverseUnits)
 				}
 				return
 			}
@@ -353,9 +353,9 @@ func TestCommands_PrintAndReverseFeedLines(t *testing.T) {
 
 			// Check specific error type if expecting error
 			if tt.wantErr && err != nil {
-				if !errors.Is(err, print.ErrPrintReverseFeedLines) {
+				if !errors.Is(err, print.ErrInvalidReverseLines) {
 					t.Errorf("PrintAndReverseFeedLines(%v) error = %v, want %v",
-						tt.lines, err, print.ErrPrintReverseFeedLines)
+						tt.lines, err, print.ErrInvalidReverseLines)
 				}
 				return
 			}
