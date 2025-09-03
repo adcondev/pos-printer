@@ -40,10 +40,10 @@ func TestUtils_LengthLowHigh_ValidInput(t *testing.T) {
 		{0xFFFF, 0xFF, 0xFF},
 	}
 	for _, tt := range tests {
-		dL, dH := common.LengthLowHigh(tt.length)
+		dL, dH := common.ToLittleEndian(tt.length)
 
 		if dL != tt.wantDL || dH != tt.wantDH {
-			t.Errorf("LengthLowHigh(%d) = (%#x,%#x); want (%#x,%#x)", tt.length, dL, dH, tt.wantDL, tt.wantDH)
+			t.Errorf("ToLittleEndian(%d) = (%#x,%#x); want (%#x,%#x)", tt.length, dL, dH, tt.wantDL, tt.wantDH)
 		}
 
 	}

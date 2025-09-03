@@ -187,7 +187,7 @@ func TestUserDefinedCommands_DefineUserDefinedCharacters(t *testing.T) {
 				case "invalid code range":
 					baseErr = character.ErrInvalidCodeRange
 				case "definition count mismatch":
-					baseErr = character.ErrDefinitionMismatch
+					baseErr = character.ErrInvalidDefinition
 				case "invalid data length":
 					baseErr = character.ErrInvalidDataLength
 				default:

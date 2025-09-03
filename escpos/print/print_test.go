@@ -107,6 +107,7 @@ func TestCommands_Text(t *testing.T) {
 		},
 		{
 			name: "buffer overflow",
+			// FIXME: change anonymous func to test helpers
 			text: func() string {
 				overflow := make([]byte, common.MaxBuf+1)
 				return string(overflow)
@@ -129,9 +130,9 @@ func TestCommands_Text(t *testing.T) {
 			var baseErr error
 			switch tt.name {
 			case "empty buffer":
-				baseErr = print.ErrEmptyText
+				baseErr = print.ErrInvalidEmptyText
 			case "buffer overflow":
-				baseErr = print.ErrTextTooLarge
+				baseErr = print.ErrInvalidTextTooLarge
 			default:
 				baseErr = nil
 			}

@@ -107,11 +107,11 @@ func TestBuildCharacterSize(t *testing.T) {
 			if tt.wantErr && err != nil {
 				if !errors.Is(err, baseErr) {
 					t.Errorf("BuildCharacterSize(%d, %d) error = %v, want %v",
-						tt.width, tt.height, err, character.ErrInvalidCharacterWidth)
+						tt.width, tt.height, err, baseErr)
 				}
 				if !errors.Is(err, baseErr) {
 					t.Errorf("BuildCharacterSize(%d, %d) error = %v, want %v",
-						tt.width, tt.height, err, character.ErrInvalidCharacterHeight)
+						tt.width, tt.height, err, baseErr)
 				}
 				return
 			}

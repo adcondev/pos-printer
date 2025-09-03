@@ -315,7 +315,10 @@ func (f *FakeCapability) SetSmoothingMode(n byte) []byte {
 	return cmd
 }
 
-// Helper methods
+// ============================================================================
+// Helper Methods
+// ===========================================================================
+
 func (f *FakeCapability) GetBuffer() []byte {
 	return f.buffer
 }
@@ -328,11 +331,11 @@ func (f *FakeCapability) GetCurrentSize() byte {
 	return f.currentSize
 }
 
-func (f *FakeCapability) IsEmphasized() bool {
+func (f *FakeCapability) GetIsEmphasized() bool {
 	return f.isEmphasized
 }
 
-func (f *FakeCapability) IsUnderlined() bool {
+func (f *FakeCapability) GetIsUnderlined() bool {
 	return f.isUnderlined
 }
 
@@ -387,10 +390,10 @@ func TestFakeCapability_StateTracking(t *testing.T) {
 
 		fake.SelectPrintModes(0x88) // Emphasized + Underline
 
-		if !fake.IsEmphasized() {
+		if !fake.GetIsEmphasized() {
 			t.Error("Should be emphasized")
 		}
-		if !fake.IsUnderlined() {
+		if !fake.GetIsUnderlined() {
 			t.Error("Should be underlined")
 		}
 		if fake.GetLastCommand() != "SelectPrintModes" {
@@ -442,13 +445,13 @@ func TestFakeCapability_StateTracking(t *testing.T) {
 		fake.Reset()
 
 		// Verify all state is cleared
-		if fake.IsEmphasized() {
+		if fake.GetIsEmphasized() {
 			t.Error("Should not be emphasized after reset")
 		}
 		if fake.GetCurrentFont() != 0 {
 			t.Errorf("Font = %d, want 0 after reset", fake.GetCurrentFont())
 		}
-		if fake.IsUnderlined() {
+		if fake.GetIsUnderlined() {
 			t.Error("Should not be underlined after reset")
 		}
 		if fake.GetCurrentSize() != 0x00 {
@@ -518,10 +521,10 @@ func TestFakeCapability_CompleteWorkflow(t *testing.T) {
 		fake.SelectCharacterSize(0x11)
 
 		// Verify partial state
-		if !fake.IsEmphasized() {
+		if !fake.GetIsEmphasized() {
 			t.Error("Should still be emphasized")
 		}
-		if fake.IsUnderlined() {
+		if fake.GetIsUnderlined() {
 			t.Error("Should not be underlined (error occurred)")
 		}
 		if fake.GetCurrentSize() != 0x11 {
