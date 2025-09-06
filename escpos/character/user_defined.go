@@ -1,6 +1,10 @@
 package character
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/adcondev/pos-printer/escpos/common"
+)
 
 // ============================================================================
 // Constant and Var Definitions
@@ -95,7 +99,7 @@ type UserDefinedChar struct {
 //
 //	ESC % n -> 0x1B, 0x25, n
 func (udc *UserDefinedCommands) SelectUserDefinedCharacterSet(n byte) []byte {
-	return []byte{0x1B, 0x25, n}
+	return []byte{0x1B, '%', n}
 }
 
 // DefineUserDefinedCharacters defines user-defined glyph patterns for character codes.
@@ -145,7 +149,7 @@ func (udc *UserDefinedCommands) DefineUserDefinedCharacters(y, c1, c2 byte, defi
 	}
 
 	// Build command
-	seq := []byte{0x1B, 0x26, y, c1, c2}
+	seq := []byte{common.ESC, '&', y, c1, c2}
 	bytesPerCol := int(y)
 
 	for idx, def := range definitions {
@@ -201,5 +205,5 @@ func (udc *UserDefinedCommands) CancelUserDefinedCharacter(n byte) ([]byte, erro
 	if n < 32 || n > 126 {
 		return nil, ErrInvalidCharacterCode
 	}
-	return []byte{0x1B, 0x3F, n}, nil
+	return []byte{common.ESC, '?', n}, nil
 }

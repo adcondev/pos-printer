@@ -284,7 +284,7 @@ func TestIntegration_Print_EdgeCases(t *testing.T) {
 		// Setup
 		maxText := strings.Repeat("A", 1024)
 
-		// TODO: Correct the test from max/min values perspective. Check values defined in Print package.
+		// TODO: Correct the utils from max/min values perspective. Check values defined in Print package.
 		// Execute
 		result, err := cmd.Text(maxText)
 		if err != nil {
@@ -302,7 +302,7 @@ func TestIntegration_Print_EdgeCases(t *testing.T) {
 		if err == nil {
 			// If no error, verify it processed
 			t.Log("Large text accepted")
-		} else if !errors.Is(err, print.ErrInvalidTextTooLarge) {
+		} else if !errors.Is(err, print.ErrTextTooLarge) {
 			t.Errorf("Unexpected error: %v", err)
 		}
 	})
@@ -314,22 +314,22 @@ func TestIntegration_Print_ErrorConditions(t *testing.T) {
 	t.Run("invalid parameters", func(t *testing.T) {
 		// Empty text
 		_, err := cmd.Text("")
-		if !errors.Is(err, print.ErrInvalidEmptyText) {
-			t.Errorf("Text('') error = %v, want %v", err, print.ErrInvalidEmptyText)
+		if !errors.Is(err, print.ErrEmptyText) {
+			t.Errorf("Text('') error = %v, want %v", err, print.ErrEmptyText)
 		}
 
 		// Reverse feed beyond limit
 		_, err = cmd.PrintAndReverseFeed(print.MaxReverseMotionUnits + 1)
-		if !errors.Is(err, print.ErrInvalidReverseUnits) {
+		if !errors.Is(err, print.ErrReverseUnits) {
 			t.Errorf("PrintAndReverseFeed overflow error = %v, want %v",
-				err, print.ErrInvalidReverseUnits)
+				err, print.ErrReverseUnits)
 		}
 
 		// Reverse lines beyond limit
 		_, err = cmd.PrintAndReverseFeedLines(print.MaxReverseFeedLines + 1)
-		if !errors.Is(err, print.ErrInvalidReverseLines) {
+		if !errors.Is(err, print.ErrReverseLines) {
 			t.Errorf("PrintAndReverseFeedLines overflow error = %v, want %v",
-				err, print.ErrInvalidReverseLines)
+				err, print.ErrReverseLines)
 		}
 	})
 

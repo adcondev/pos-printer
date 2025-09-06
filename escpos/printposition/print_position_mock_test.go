@@ -16,7 +16,7 @@ var _ printposition.Capability = (*MockCapability)(nil)
 // Mock Implementation
 // ============================================================================
 
-// MockCapability provides a test double for printposition.Capability interface
+// MockCapability provides a utils double for printposition.Capability interface
 type MockCapability struct {
 	// SetAbsolutePrintPosition tracking
 	SetAbsolutePrintPositionCalled bool

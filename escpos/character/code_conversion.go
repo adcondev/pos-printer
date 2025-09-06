@@ -10,22 +10,30 @@ import (
 // Constant and Var Definitions
 // ============================================================================
 
+type EncodeSystem byte
+
 const (
-	Encoding1Byte      byte = 1   // legacy 1-byte encoding
-	EncodingUTF8       byte = 2   // UTF-8 encoding
-	Encoding1ByteASCII byte = '1' // (ASCII form)
-	EncodingUTF8ASCII  byte = '2' // (ASCII form)
+	OneByte      EncodeSystem = 1   // legacy 1-byte encoding
+	UTF8         EncodeSystem = 2   // UTF-8 encoding
+	OneByteAscii EncodeSystem = '1' // (ASCII form)
+	UTF8Ascii    EncodeSystem = '2' // (ASCII form)
+)
 
-	DefaultEncoding byte = Encoding1Byte
+type FontPriority byte
 
-	FontPriorityFirst  byte = 0 // m = 0 (1st priority)
-	FontPrioritySecond byte = 1 // m = 1 (2nd priority)
+const (
+	First  FontPriority = 0 // m = 0 (1st priority)
+	Second FontPriority = 1 // m = 1 (2nd priority)
+)
 
-	FontANK                byte = 0  // ANK font (Sans serif)
-	FontJapaneseGothic     byte = 11 // Japanese font (Gothic)
-	FontSimplifiedChinese  byte = 20 // Simplified Chinese (Mincho)
-	FontTraditionalChinese byte = 30 // Traditional Chinese (Mincho)
-	FontKoreanGothic       byte = 41 // Korean font (Gothic)
+type FontFunction byte
+
+const (
+	AnkSansSerif             FontFunction = 0  // AnkSansSerif font (Sans serif)
+	JapaneseGothic           FontFunction = 11 // Japanese font (Gothic)
+	SimplifiedChineseMincho  FontFunction = 20 // Simplified Chinese (Mincho)
+	TraditionalChineseMincho FontFunction = 30 // Traditional Chinese (Mincho)
+	KoreanGothic             FontFunction = 41 // Korean font (Gothic)
 )
 
 // ============================================================================
@@ -33,9 +41,9 @@ const (
 // ============================================================================
 
 var (
-	ErrInvalidEncoding     = fmt.Errorf("invalid encoding method(1-2 or '1'..'2')")
-	ErrInvalidFontPriority = fmt.Errorf("invalid font priority(0-1)")
-	ErrInvalidFontType     = fmt.Errorf("invalid font type(0,11,20,30,41)")
+	ErrEncoding     = fmt.Errorf("invalid encoding method(1-2 or '1'..'2')")
+	ErrFontPriority = fmt.Errorf("invalid font priority(0-1)")
+	ErrFontType     = fmt.Errorf("invalid font type(0,11,20,30,41)")
 )
 
 // ============================================================================
@@ -47,8 +55,8 @@ var _ CodeConversionCapability = (*CodeConversionCommands)(nil)
 
 // CodeConversionCapability defines encoding and font priority operations
 type CodeConversionCapability interface {
-	SelectCharacterEncodeSystem(encoding byte) ([]byte, error)
-	SetFontPriority(priority byte, fontType byte) ([]byte, error)
+	SelectCharacterEncodeSystem(encoding EncodeSystem) ([]byte, error)
+	SetFontPriority(priority FontPriority, fontFunction FontFunction) ([]byte, error)
 }
 
 // ============================================================================
@@ -93,15 +101,15 @@ func NewCodeConversionCommands() *CodeConversionCommands {
 // Byte sequence:
 //
 //	FS ( C 02 00 30 m -> 0x1C, 0x28, 0x43, 0x02, 0x00, 0x30, m
-func (c *CodeConversionCommands) SelectCharacterEncodeSystem(m byte) ([]byte, error) {
+func (c *CodeConversionCommands) SelectCharacterEncodeSystem(m EncodeSystem) ([]byte, error) {
 	// Validate allowed values
 	switch m {
 	case 1, 2, '1', '2':
 		// Valid values
 	default:
-		return nil, ErrInvalidEncoding
+		return nil, ErrEncoding
 	}
-	return []byte{common.FS, '(', 'C', 0x02, 0x00, 0x30, m}, nil
+	return []byte{common.FS, '(', 'C', 0x02, 0x00, 0x30, byte(m)}, nil
 }
 
 // SetFontPriority sets the font priority.
@@ -127,7 +135,7 @@ func (c *CodeConversionCommands) SelectCharacterEncodeSystem(m byte) ([]byte, er
 //	Sets font priority where:
 //	  - m: Priority rank (0 = 1st priority, 1 = 2nd priority)
 //	  - a: Font type
-//	      0  -> ANK font (Sans serif)
+//	      0  -> AnkSansSerif font (Sans serif)
 //	      11 -> Japanese font (Gothic)
 //	      20 -> Simplified Chinese font (Mincho)
 //	      30 -> Traditional Chinese font (Mincho)
@@ -143,17 +151,17 @@ func (c *CodeConversionCommands) SelectCharacterEncodeSystem(m byte) ([]byte, er
 // Byte sequence:
 //
 //	FS ( C 03 00 3C m a -> 0x1C, 0x28, 0x43, 0x03, 0x00, 0x3C, m, a
-func (c *CodeConversionCommands) SetFontPriority(m byte, a byte) ([]byte, error) {
+func (c *CodeConversionCommands) SetFontPriority(m FontPriority, a FontFunction) ([]byte, error) {
 	// Validate allowed values
 	if m > 1 {
-		return nil, ErrInvalidFontPriority
+		return nil, ErrFontPriority
 	}
 	switch a {
 	case 0, 11, 20, 30, 41:
 		// Valid font types
 	default:
-		return nil, ErrInvalidFontType
+		return nil, ErrFontType
 	}
 
-	return []byte{common.FS, '(', 'C', 0x03, 0x00, 0x3C, m, a}, nil
+	return []byte{common.FS, '(', 'C', 0x03, 0x00, 0x3C, byte(m), byte(a)}, nil
 }

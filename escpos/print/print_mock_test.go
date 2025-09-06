@@ -16,7 +16,7 @@ var _ print.Capability = (*MockCapability)(nil)
 // Mock Implementation
 // ============================================================================
 
-// MockCapability provides a test double for print.Capability interface
+// MockCapability provides a utils double for print.Capability interface
 type MockCapability struct {
 	// Text tracking
 	TextCalled bool
@@ -154,7 +154,7 @@ func (m *MockCapability) PrintAndReverseFeed(units byte) ([]byte, error) {
 		return m.PrintAndReverseFeedReturn, nil
 	}
 	if units > print.MaxReverseMotionUnits {
-		return nil, print.ErrInvalidReverseUnits
+		return nil, print.ErrReverseUnits
 	}
 	return []byte{common.ESC, 'K', units}, nil
 }
@@ -171,7 +171,7 @@ func (m *MockCapability) PrintAndReverseFeedLines(lines byte) ([]byte, error) {
 		return m.PrintAndReverseFeedLinesReturn, nil
 	}
 	if lines > print.MaxReverseFeedLines {
-		return nil, print.ErrInvalidReverseUnits
+		return nil, print.ErrReverseUnits
 	}
 	return []byte{common.ESC, 'K', lines}, nil
 }
@@ -216,13 +216,13 @@ func TestMockCapability_BehaviorTracking(t *testing.T) {
 		mock := NewMockCapability()
 		mock.TextReturn = []byte{0xFF, 0xFE, 0xFD}
 
-		result, err := mock.Text("test input")
+		result, err := mock.Text("utils input")
 
 		if !mock.TextCalled {
 			t.Error("Text() should be marked as called")
 		}
-		if mock.TextInput != "test input" {
-			t.Errorf("Text() input = %q, want %q", mock.TextInput, "test input")
+		if mock.TextInput != "utils input" {
+			t.Errorf("Text() input = %q, want %q", mock.TextInput, "utils input")
 		}
 		if err != nil {
 			t.Errorf("Text() unexpected error: %v", err)

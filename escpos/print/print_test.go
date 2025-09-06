@@ -107,7 +107,7 @@ func TestCommands_Text(t *testing.T) {
 		},
 		{
 			name: "buffer overflow",
-			// FIXME: change anonymous func to test helpers
+			// FIXME: change anonymous func to utils helpers
 			text: func() string {
 				overflow := make([]byte, common.MaxBuf+1)
 				return string(overflow)
@@ -130,9 +130,9 @@ func TestCommands_Text(t *testing.T) {
 			var baseErr error
 			switch tt.name {
 			case "empty buffer":
-				baseErr = print.ErrInvalidEmptyText
+				baseErr = print.ErrEmptyText
 			case "buffer overflow":
-				baseErr = print.ErrInvalidTextTooLarge
+				baseErr = print.ErrTextTooLarge
 			default:
 				baseErr = nil
 			}
@@ -292,9 +292,9 @@ func TestCommands_PrintAndReverseFeed(t *testing.T) {
 
 			// Check specific error type if expecting error
 			if tt.wantErr && err != nil {
-				if !errors.Is(err, print.ErrInvalidReverseUnits) {
+				if !errors.Is(err, print.ErrReverseUnits) {
 					t.Errorf("PrintAndReverseFeed(%v) error = %v, want %v",
-						tt.reverse, err, print.ErrInvalidReverseUnits)
+						tt.reverse, err, print.ErrReverseUnits)
 				}
 				return
 			}
@@ -354,9 +354,9 @@ func TestCommands_PrintAndReverseFeedLines(t *testing.T) {
 
 			// Check specific error type if expecting error
 			if tt.wantErr && err != nil {
-				if !errors.Is(err, print.ErrInvalidReverseLines) {
+				if !errors.Is(err, print.ErrReverseLines) {
 					t.Errorf("PrintAndReverseFeedLines(%v) error = %v, want %v",
-						tt.lines, err, print.ErrInvalidReverseLines)
+						tt.lines, err, print.ErrReverseLines)
 				}
 				return
 			}

@@ -26,7 +26,7 @@ func TestIntegration_Character_StandardWorkflow(t *testing.T) {
 
 		buffer = append(buffer, cmd.SetEmphasizedMode(1)...)
 
-		underlineCmd, err := cmd.SetUnderlineMode(character.UnderlineMode1Dot)
+		underlineCmd, err := cmd.SetUnderlineMode(character.OneDot)
 		if err != nil {
 			t.Fatalf("SetUnderlineMode: %v", err)
 		}
@@ -38,13 +38,13 @@ func TestIntegration_Character_StandardWorkflow(t *testing.T) {
 		}
 		buffer = append(buffer, cmd.SelectCharacterSize(sizeConfig)...)
 
-		charsetCmd, err := cmd.SelectInternationalCharacterSet(character.CharsetUSA)
+		charsetCmd, err := cmd.SelectInternationalCharacterSet(character.USA)
 		if err != nil {
 			t.Fatalf("SelectInternationalCharacterSet: %v", err)
 		}
 		buffer = append(buffer, charsetCmd...)
 
-		codeTableCmd, err := cmd.SelectCharacterCodeTable(character.CodeTablePage0)
+		codeTableCmd, err := cmd.SelectCharacterCodeTable(character.PC437)
 		if err != nil {
 			t.Fatalf("SelectCharacterCodeTable: %v", err)
 		}
@@ -65,17 +65,17 @@ func TestIntegration_Character_StandardWorkflow(t *testing.T) {
 		var buffer []byte
 		modes := []struct {
 			name string
-			bits byte
+			bits character.PrintMode
 		}{
 			{"normal", 0x00},
-			{"emphasized", character.PrintModeEmphasizedOn},
-			{"double height", character.PrintModeDoubleHeightOn},
-			{"double width", character.PrintModeDoubleWidthOn},
-			{"underline", character.PrintModeUnderlineOn},
-			{"all effects", character.PrintModeEmphasizedOn |
-				character.PrintModeDoubleHeightOn |
-				character.PrintModeDoubleWidthOn |
-				character.PrintModeUnderlineOn},
+			{"emphasized", character.EmphasizedOnPm},
+			{"double height", character.DoubleHeightOnPm},
+			{"double width", character.DoubleWidthOnPm},
+			{"underline", character.UnderlineOnPm},
+			{"all effects", character.EmphasizedOnPm |
+				character.DoubleHeightOnPm |
+				character.DoubleWidthOnPm |
+				character.UnderlineOnPm},
 		}
 
 		// Execute
@@ -96,17 +96,17 @@ func TestIntegration_Character_StandardWorkflow(t *testing.T) {
 		var buffer []byte
 
 		// Execute
-		rotationCmd, err := cmd.Set90DegreeClockwiseRotationMode(character.Rotation90On1Dot)
+		rotationCmd, err := cmd.Set90DegreeClockwiseRotationMode(character.On90Dot1)
 		if err != nil {
 			t.Fatalf("Set90DegreeClockwiseRotationMode: %v", err)
 		}
 		buffer = append(buffer, rotationCmd...)
 
-		buffer = append(buffer, cmd.SetUpsideDownMode(character.UpsideDownOn)...)
+		buffer = append(buffer, cmd.SetUpsideDownMode(character.OnUdm)...)
 
-		buffer = append(buffer, cmd.SetWhiteBlackReverseMode(character.WhiteBlackReverseOn)...)
+		buffer = append(buffer, cmd.SetWhiteBlackReverseMode(character.OnRm)...)
 
-		buffer = append(buffer, cmd.SetSmoothingMode(character.SmoothingOn)...)
+		buffer = append(buffer, cmd.SetSmoothingMode(character.OnSm)...)
 
 		// Verify
 		if len(buffer) < 4*3 {
@@ -210,26 +210,26 @@ func TestIntegration_Character_CodeConversionWorkflow(t *testing.T) {
 		var buffer []byte
 
 		// Execute
-		utf8Cmd, err := cmd.CodeConversion.SelectCharacterEncodeSystem(character.EncodingUTF8)
+		utf8Cmd, err := cmd.CodeConversion.SelectCharacterEncodeSystem(character.UTF8)
 		if err != nil {
 			t.Fatalf("SelectCharacterEncodeSystem(UTF8): %v", err)
 		}
 		buffer = append(buffer, utf8Cmd...)
 
-		oneByteCmd, err := cmd.CodeConversion.SelectCharacterEncodeSystem(character.Encoding1Byte)
+		oneByteCmd, err := cmd.CodeConversion.SelectCharacterEncodeSystem(character.OneByte)
 		if err != nil {
 			t.Fatalf("SelectCharacterEncodeSystem(1Byte): %v", err)
 		}
 		buffer = append(buffer, oneByteCmd...)
 
-		utf8ASCIICmd, err := cmd.CodeConversion.SelectCharacterEncodeSystem(character.EncodingUTF8ASCII)
+		utf8ASCIICmd, err := cmd.CodeConversion.SelectCharacterEncodeSystem(character.UTF8Ascii)
 		if err != nil {
 			t.Fatalf("SelectCharacterEncodeSystem(UTF8 ASCII): %v", err)
 		}
 		buffer = append(buffer, utf8ASCIICmd...)
 
 		// Verify
-		expectedUTF8 := []byte{common.FS, '(', 'C', 0x02, 0x00, 0x30, character.EncodingUTF8}
+		expectedUTF8 := []byte{common.FS, '(', 'C', 0x02, 0x00, 0x30, 2}
 		if !bytes.Contains(buffer, expectedUTF8) {
 			t.Error("Buffer should contain UTF-8 encoding command")
 		}
@@ -239,25 +239,25 @@ func TestIntegration_Character_CodeConversionWorkflow(t *testing.T) {
 		// Setup
 		priorities := []struct {
 			name     string
-			priority byte
-			font     byte
+			priority character.FontPriority
+			function character.FontFunction
 		}{
-			{"ANK first", character.FontPriorityFirst, character.FontANK},
-			{"Japanese second", character.FontPrioritySecond, character.FontJapaneseGothic},
-			{"Chinese first", character.FontPriorityFirst, character.FontSimplifiedChinese},
-			{"Korean second", character.FontPrioritySecond, character.FontKoreanGothic},
+			{"AnkSansSerif first", character.First, character.AnkSansSerif},
+			{"Japanese second", character.Second, character.JapaneseGothic},
+			{"Chinese first", character.First, character.SimplifiedChineseMincho},
+			{"Korean second", character.Second, character.KoreanGothic},
 		}
 
 		for _, p := range priorities {
 			t.Run(p.name, func(t *testing.T) {
 				// Execute
-				cmd, err := cmd.CodeConversion.SetFontPriority(p.priority, p.font)
+				cmd, err := cmd.CodeConversion.SetFontPriority(p.priority, p.function)
 				if err != nil {
 					t.Fatalf("SetFontPriority(%s): %v", p.name, err)
 				}
 
 				// Verify
-				expected := []byte{common.FS, '(', 'C', 0x03, 0x00, 0x3C, p.priority, p.font}
+				expected := []byte{common.FS, '(', 'C', 0x03, 0x00, 0x3C, byte(p.priority), byte(p.function)}
 				if !bytes.Equal(cmd, expected) {
 					t.Errorf("Command = %#v, want %#v", cmd, expected)
 				}
@@ -385,14 +385,14 @@ func TestIntegration_Character_EdgeCases(t *testing.T) {
 		// Setup
 		modes := []struct {
 			name string
-			mode byte
+			mode character.UnderlineMode
 		}{
-			{"off", character.UnderlineModeOff},
-			{"1 dot", character.UnderlineMode1Dot},
-			{"2 dot", character.UnderlineMode2Dot},
-			{"off ASCII", character.UnderlineModeOffASCII},
-			{"1 dot ASCII", character.UnderlineMode1DotASCII},
-			{"2 dot ASCII", character.UnderlineMode2DotASCII},
+			{"off", character.NoDot},
+			{"1 dot", character.OneDot},
+			{"2 dot", character.TwoDot},
+			{"off ASCII", character.NoDotAscii},
+			{"1 dot ASCII", character.OneDotAscii},
+			{"2 dot ASCII", character.TwoDotAscii},
 		}
 
 		for _, m := range modes {
@@ -404,7 +404,7 @@ func TestIntegration_Character_EdgeCases(t *testing.T) {
 				}
 
 				// Verify
-				expected := []byte{common.ESC, '-', m.mode}
+				expected := []byte{common.ESC, '-', byte(m.mode)}
 				if !bytes.Equal(cmd, expected) {
 					t.Errorf("Command = %#v, want %#v", cmd, expected)
 				}
@@ -499,7 +499,7 @@ func TestIntegration_Character_ErrorConditions(t *testing.T) {
 		}
 
 		// Invalid font priority
-		_, err = cmd.CodeConversion.SetFontPriority(2, character.FontANK)
+		_, err = cmd.CodeConversion.SetFontPriority(2, character.AnkSansSerif)
 		if err == nil {
 			t.Error("SetFontPriority(2) should return error")
 		}
@@ -531,8 +531,8 @@ func TestIntegration_Character_ErrorConditions(t *testing.T) {
 		}
 
 		// Mismatched definition count
-		defs := []character.UserDefinedChar{{Width: 8, Data: []byte{0xFF}}}
-		_, err = cmd.UserDefined.DefineUserDefinedCharacters(1, 32, 34, defs)
+		def := []character.UserDefinedChar{{Width: 8, Data: []byte{0xFF}}}
+		_, err = cmd.UserDefined.DefineUserDefinedCharacters(1, 32, 34, def)
 		if err == nil {
 			t.Error("DefineUserDefinedCharacters with wrong count should return error")
 		}
@@ -555,11 +555,11 @@ func TestIntegration_Character_RealWorldScenarios(t *testing.T) {
 		normalSize, _ := character.BuildCharacterSize(1, 1)
 		buffer = append(buffer, cmd.SelectCharacterSize(normalSize)...)
 		buffer = append(buffer, cmd.SetEmphasizedMode(0)...)
-		underlineCmd, _ := cmd.SetUnderlineMode(character.UnderlineMode1Dot)
+		underlineCmd, _ := cmd.SetUnderlineMode(character.OneDot)
 		buffer = append(buffer, underlineCmd...)
 		// ... print subtitle ...
 
-		resetUnderline, _ := cmd.SetUnderlineMode(character.UnderlineModeOff)
+		resetUnderline, _ := cmd.SetUnderlineMode(character.NoDot)
 		buffer = append(buffer, resetUnderline...)
 
 		// Verify
@@ -573,19 +573,19 @@ func TestIntegration_Character_RealWorldScenarios(t *testing.T) {
 		var buffer []byte
 
 		// Execute
-		utf8Cmd, _ := cmd.CodeConversion.SelectCharacterEncodeSystem(character.EncodingUTF8)
+		utf8Cmd, _ := cmd.CodeConversion.SelectCharacterEncodeSystem(character.UTF8)
 		buffer = append(buffer, utf8Cmd...)
 
 		chinesePriority, _ := cmd.CodeConversion.SetFontPriority(
-			character.FontPriorityFirst,
-			character.FontSimplifiedChinese,
+			character.First,
+			character.SimplifiedChineseMincho,
 		)
 		buffer = append(buffer, chinesePriority...)
 
-		chinaCharset, _ := cmd.SelectInternationalCharacterSet(character.CharsetChina)
+		chinaCharset, _ := cmd.SelectInternationalCharacterSet(character.China)
 		buffer = append(buffer, chinaCharset...)
 
-		codeTable, _ := cmd.SelectCharacterCodeTable(character.CodeTablePage0)
+		codeTable, _ := cmd.SelectCharacterCodeTable(character.PC437)
 		buffer = append(buffer, codeTable...)
 
 		// Verify
@@ -611,12 +611,12 @@ func TestIntegration_Character_RealWorldScenarios(t *testing.T) {
 		)
 		buffer = append(buffer, shadow...)
 
-		buffer = append(buffer, cmd.SetWhiteBlackReverseMode(character.WhiteBlackReverseOn)...)
+		buffer = append(buffer, cmd.SetWhiteBlackReverseMode(character.OnRm)...)
 
 		promoSize, _ := character.BuildCharacterSize(3, 2)
 		buffer = append(buffer, cmd.SelectCharacterSize(promoSize)...)
 
-		buffer = append(buffer, cmd.SetWhiteBlackReverseMode(character.WhiteBlackReverseOff)...)
+		buffer = append(buffer, cmd.SetWhiteBlackReverseMode(character.OffRm)...)
 		shadowOff, _ := cmd.Effects.SetCharacterShadowMode(
 			character.ShadowModeOffByte,
 			character.ShadowColorNone,

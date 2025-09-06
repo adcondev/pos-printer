@@ -360,7 +360,7 @@ func TestIntegration_PrintPosition_MixedModeTransitions(t *testing.T) {
 		}
 		buffer = append(buffer, printCmd...)
 
-		// Also test ASCII variants
+		// Also utils ASCII variants
 		eraseASCIICmd, err := cmd.SetPrintPositionBeginningLine(printposition.BeginLineEraseASCII)
 		if err != nil {
 			t.Fatalf("SetPrintPositionBeginningLine(erase ASCII): %v", err)

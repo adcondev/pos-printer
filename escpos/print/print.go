@@ -36,14 +36,14 @@ var (
 // ============================================================================
 
 var (
-	// ErrInvalidEmptyText indicates that the provided text is empty
-	ErrInvalidEmptyText = common.ErrEmptyBuffer
-	// ErrInvalidTextTooLarge indicates that the provided text exceeds buffer limits
-	ErrInvalidTextTooLarge = common.ErrBufferOverflow
-	// ErrInvalidReverseUnits invalid number of motion units for reverse print
-	ErrInvalidReverseUnits = fmt.Errorf("invalid reverse feed units (try 0-%d)", MaxReverseMotionUnits)
-	// ErrInvalidReverseLines invalid number of lines for reverse print
-	ErrInvalidReverseLines = fmt.Errorf("invalid reverse feed lines (try 0-%d)", MaxReverseFeedLines)
+	// ErrEmptyText indicates that the provided text is empty
+	ErrEmptyText = common.ErrEmptyBuffer
+	// ErrTextTooLarge indicates that the provided text exceeds buffer limits
+	ErrTextTooLarge = common.ErrBufferOverflow
+	// ErrReverseUnits invalid number of motion units for reverse print
+	ErrReverseUnits = fmt.Errorf("invalid reverse feed units (try 0-%d)", MaxReverseMotionUnits)
+	// ErrReverseLines invalid number of lines for reverse print
+	ErrReverseLines = fmt.Errorf("invalid reverse feed lines (try 0-%d)", MaxReverseFeedLines)
 )
 
 // ============================================================================
@@ -118,9 +118,9 @@ func (c *Commands) Text(n string) ([]byte, error) {
 	if err := common.IsBufLenOk([]byte(n)); err != nil {
 		switch {
 		case errors.Is(err, common.ErrEmptyBuffer):
-			return nil, ErrInvalidEmptyText
+			return nil, ErrEmptyText
 		case errors.Is(err, common.ErrBufferOverflow):
-			return nil, ErrInvalidTextTooLarge
+			return nil, ErrTextTooLarge
 		default:
 			return nil, err
 		}
@@ -319,7 +319,7 @@ func (c *Commands) PrintAndFeedLines(n byte) []byte {
 //	ESC K n -> 0x1B, 0x4B, n
 func (c *Commands) PrintAndReverseFeed(n byte) ([]byte, error) {
 	if n > MaxReverseMotionUnits {
-		return nil, ErrInvalidReverseUnits
+		return nil, ErrReverseUnits
 	}
 	return []byte{common.ESC, 'K', n}, nil
 }
@@ -355,7 +355,7 @@ func (c *Commands) PrintAndReverseFeed(n byte) ([]byte, error) {
 //	ESC e n -> 0x1B, 0x65, n
 func (c *Commands) PrintAndReverseFeedLines(n byte) ([]byte, error) {
 	if n > MaxReverseFeedLines {
-		return nil, ErrInvalidReverseLines
+		return nil, ErrReverseLines
 	}
 	return []byte{common.ESC, 'e', n}, nil
 }

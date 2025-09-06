@@ -18,9 +18,9 @@ var _ character.Capability = (*FakeCapability)(nil)
 // FakeCapability simulates character formatting with state tracking
 type FakeCapability struct {
 	buffer             []byte
-	currentSpacing     byte
+	currentSpacing     character.Spacing
 	currentFont        byte
-	currentSize        byte
+	currentSize        character.Size
 	isEmphasized       bool
 	isUnderlined       bool
 	underlineThickness byte
@@ -30,8 +30,8 @@ type FakeCapability struct {
 	isSmoothing        bool
 	rotation           byte
 	printColor         byte
-	codeTable          byte
-	internationalSet   byte
+	codeTable          character.CodeTable
+	internationalSet   character.InternationalSet
 	lastCommand        string
 	commandsCount      map[string]int
 }
@@ -48,270 +48,250 @@ func NewFakeCapability() *FakeCapability {
 }
 
 // Add these methods to FakeCapability
-func (f *FakeCapability) GetCommandsHistory() []string {
+func (fc *FakeCapability) GetCommandsHistory() []string {
 	history := make([]string, 0)
-	for cmd := range f.commandsCount {
-		for i := 0; i < f.commandsCount[cmd]; i++ {
+	for cmd := range fc.commandsCount {
+		for i := 0; i < fc.commandsCount[cmd]; i++ {
 			history = append(history, cmd)
 		}
 	}
 	return history
 }
 
-func (f *FakeCapability) GetTotalCommands() int {
+func (fc *FakeCapability) GetTotalCommands() int {
 	total := 0
-	for _, count := range f.commandsCount {
+	for _, count := range fc.commandsCount {
 		total += count
 	}
 	return total
 }
 
 // Standardize state getters
-func (f *FakeCapability) GetState() map[string]interface{} {
+func (fc *FakeCapability) GetState() map[string]interface{} {
 	return map[string]interface{}{
-		"spacing":       f.currentSpacing,
-		"font":          f.currentFont,
-		"size":          f.currentSize,
-		"emphasized":    f.isEmphasized,
-		"underlined":    f.isUnderlined,
-		"doubleStrike":  f.isDoubleStrike,
-		"upsideDown":    f.isUpsideDown,
-		"reversed":      f.isReversed,
-		"smoothing":     f.isSmoothing,
-		"rotation":      f.rotation,
-		"printColor":    f.printColor,
-		"codeTable":     f.codeTable,
-		"international": f.internationalSet,
+		"spacing":       fc.currentSpacing,
+		"font":          fc.currentFont,
+		"size":          fc.currentSize,
+		"emphasized":    fc.isEmphasized,
+		"underlined":    fc.isUnderlined,
+		"doubleStrike":  fc.isDoubleStrike,
+		"upsideDown":    fc.isUpsideDown,
+		"reversed":      fc.isReversed,
+		"smoothing":     fc.isSmoothing,
+		"rotation":      fc.rotation,
+		"printColor":    fc.printColor,
+		"codeTable":     fc.codeTable,
+		"international": fc.internationalSet,
 	}
 }
 
-func (f *FakeCapability) SetRightSideCharacterSpacing(n byte) []byte {
-	cmd := []byte{common.ESC, common.SP, n}
-	f.buffer = append(f.buffer, cmd...)
-	f.currentSpacing = n
-	f.lastCommand = "SetRightSideCharacterSpacing"
-	f.commandsCount[f.lastCommand]++
+func (fc *FakeCapability) SetRightSideCharacterSpacing(n character.Spacing) []byte {
+	cmd := []byte{common.ESC, common.SP, byte(n)}
+	fc.buffer = append(fc.buffer, cmd...)
+	fc.currentSpacing = n
+	fc.lastCommand = "SetRightSideCharacterSpacing"
+	fc.commandsCount[fc.lastCommand]++
 	return cmd
 }
 
-func (f *FakeCapability) SelectPrintModes(n byte) []byte {
-	cmd := []byte{common.ESC, '!', n}
-	f.buffer = append(f.buffer, cmd...)
+func (fc *FakeCapability) SelectPrintModes(n character.PrintMode) []byte {
+	cmd := []byte{common.ESC, '!', byte(n)}
+	fc.buffer = append(fc.buffer, cmd...)
 
 	// Parse mode bits
 	if n&0x01 != 0 {
-		f.currentFont = 1
+		fc.currentFont = 1
 	} else {
-		f.currentFont = 0
+		fc.currentFont = 0
 	}
-	f.isEmphasized = n&0x08 != 0
-	f.isUnderlined = n&0x80 != 0
+	fc.isEmphasized = n&0x08 != 0
+	fc.isUnderlined = n&0x80 != 0
 
 	// Double height/width
 	switch {
 	case n&0x10 != 0 && n&0x20 != 0:
-		f.currentSize = 0x11 // Double both
+		fc.currentSize = 0x11 // Double both
 	case n&0x10 != 0:
-		f.currentSize = 0x01 // Double height
+		fc.currentSize = 0x01 // Double height
 	case n&0x20 != 0:
-		f.currentSize = 0x10 // Double width
+		fc.currentSize = 0x10 // Double width
 	default:
-		f.currentSize = 0x00 // Normal
+		fc.currentSize = 0x00 // Normal
 	}
 
-	f.lastCommand = "SelectPrintModes"
-	f.commandsCount[f.lastCommand]++
+	fc.lastCommand = "SelectPrintModes"
+	fc.commandsCount[fc.lastCommand]++
 	return cmd
 }
 
-func (f *FakeCapability) SetUnderlineMode(n byte) ([]byte, error) {
+func (fc *FakeCapability) SetUnderlineMode(n character.UnderlineMode) ([]byte, error) {
 	// Validate
 	switch n {
-	case 0, 1, 2, '0', '1', '2':
-		// Valid
-	default:
-		return nil, character.ErrInvalidUnderlineMode
-	}
-
-	cmd := []byte{common.ESC, '-', n}
-	f.buffer = append(f.buffer, cmd...)
-
-	switch n {
 	case 0, '0':
-		f.isUnderlined = false
-		f.underlineThickness = 0
+		fc.isUnderlined = false
+		fc.underlineThickness = 0
 	case 1, '1':
-		f.isUnderlined = true
-		f.underlineThickness = 1
+		fc.isUnderlined = true
+		fc.underlineThickness = 1
 	case 2, '2':
-		f.isUnderlined = true
-		f.underlineThickness = 2
+		fc.isUnderlined = true
+		fc.underlineThickness = 2
+	default:
+		return nil, character.ErrUnderlineMode
 	}
 
-	f.lastCommand = "SetUnderlineMode"
-	f.commandsCount[f.lastCommand]++
+	cmd := []byte{common.ESC, '-', byte(n)}
+	fc.buffer = append(fc.buffer, cmd...)
+
+	fc.lastCommand = "SetUnderlineMode"
+	fc.commandsCount[fc.lastCommand]++
 	return cmd, nil
 }
 
-func (f *FakeCapability) SetEmphasizedMode(n byte) []byte {
-	cmd := []byte{common.ESC, 'E', n}
-	f.buffer = append(f.buffer, cmd...)
-	f.isEmphasized = n&0x01 != 0
-	f.lastCommand = "SetEmphasizedMode"
-	f.commandsCount[f.lastCommand]++
+func (fc *FakeCapability) SetEmphasizedMode(n character.EmphasizedMode) []byte {
+	cmd := []byte{common.ESC, 'E', byte(n)}
+	fc.buffer = append(fc.buffer, cmd...)
+	fc.isEmphasized = n&0x01 != 0
+	fc.lastCommand = "SetEmphasizedMode"
+	fc.commandsCount[fc.lastCommand]++
 	return cmd
 }
 
-func (f *FakeCapability) SetDoubleStrikeMode(n byte) []byte {
-	cmd := []byte{common.ESC, 'G', n}
-	f.buffer = append(f.buffer, cmd...)
-	f.isDoubleStrike = n&0x01 != 0
-	f.lastCommand = "SetDoubleStrikeMode"
-	f.commandsCount[f.lastCommand]++
+func (fc *FakeCapability) SetDoubleStrikeMode(n character.DoubleStrikeMode) []byte {
+	cmd := []byte{common.ESC, 'G', byte(n)}
+	fc.buffer = append(fc.buffer, cmd...)
+	fc.isDoubleStrike = n&0x01 != 0
+	fc.lastCommand = "SetDoubleStrikeMode"
+	fc.commandsCount[fc.lastCommand]++
 	return cmd
 }
 
-func (f *FakeCapability) SelectCharacterFont(n byte) ([]byte, error) {
+func (fc *FakeCapability) SelectCharacterFont(n character.FontType) ([]byte, error) {
 	// Validate
 	switch n {
-	case 0, 1, 2, 3, 4, '0', '1', '2', '3', '4', 97, 98:
-		// Valid
-	default:
-		return nil, character.ErrInvalidCharacterFont
-	}
-
-	cmd := []byte{common.ESC, 'M', n}
-	f.buffer = append(f.buffer, cmd...)
-
-	switch n {
 	case 0, '0':
-		f.currentFont = 0
+		fc.currentFont = 0
 	case 1, '1':
-		f.currentFont = 1
+		fc.currentFont = 1
 	case 2, '2':
-		f.currentFont = 2
+		fc.currentFont = 2
 	case 3, '3':
-		f.currentFont = 3
+		fc.currentFont = 3
 	case 4, '4':
-		f.currentFont = 4
+		fc.currentFont = 4
 	case 97:
-		f.currentFont = 97
+		fc.currentFont = 97
 	case 98:
-		f.currentFont = 98
+		fc.currentFont = 98
+	default:
+		return nil, character.ErrCharacterFont
 	}
 
-	f.lastCommand = "SelectCharacterFont"
-	f.commandsCount[f.lastCommand]++
+	cmd := []byte{common.ESC, 'M', byte(n)}
+	fc.buffer = append(fc.buffer, cmd...)
+
+	fc.lastCommand = "SelectCharacterFont"
+	fc.commandsCount[fc.lastCommand]++
 	return cmd, nil
 }
 
-func (f *FakeCapability) SelectInternationalCharacterSet(n byte) ([]byte, error) {
+func (fc *FakeCapability) SelectInternationalCharacterSet(n character.InternationalSet) ([]byte, error) {
 	// Basic validation (simplified)
 	if n > 17 && (n < 66 || n > 75) && n != 82 {
-		return nil, character.ErrInvalidCharacterSet
+		return nil, character.ErrCharacterSet
 	}
 
-	cmd := []byte{common.ESC, 'R', n}
-	f.buffer = append(f.buffer, cmd...)
-	f.internationalSet = n
-	f.lastCommand = "SelectInternationalCharacterSet"
-	f.commandsCount[f.lastCommand]++
+	cmd := []byte{common.ESC, 'R', byte(n)}
+	fc.buffer = append(fc.buffer, cmd...)
+	fc.internationalSet = n
+	fc.lastCommand = "SelectInternationalCharacterSet"
+	fc.commandsCount[fc.lastCommand]++
 	return cmd, nil
 }
 
-func (f *FakeCapability) Set90DegreeClockwiseRotationMode(n byte) ([]byte, error) {
+func (fc *FakeCapability) Set90DegreeClockwiseRotationMode(n character.RotationMode) ([]byte, error) {
 	// Validate
 	switch n {
-	case 0, 1, 2, '0', '1', '2':
-		// Valid
-	default:
-		return nil, character.ErrInvalidRotationMode
-	}
-
-	cmd := []byte{common.ESC, 'V', n}
-	f.buffer = append(f.buffer, cmd...)
-
-	switch n {
 	case 0, '0':
-		f.rotation = 0
+		fc.rotation = 0
 	case 1, '1':
-		f.rotation = 1
+		fc.rotation = 1
 	case 2, '2':
-		f.rotation = 2
+		fc.rotation = 2
+	default:
+		return nil, character.ErrRotationMode
 	}
 
-	f.lastCommand = "Set90DegreeClockwiseRotationMode"
-	f.commandsCount[f.lastCommand]++
+	cmd := []byte{common.ESC, 'V', byte(n)}
+	fc.buffer = append(fc.buffer, cmd...)
+
+	fc.lastCommand = "Set90DegreeClockwiseRotationMode"
+	fc.commandsCount[fc.lastCommand]++
 	return cmd, nil
 }
 
-func (f *FakeCapability) SelectPrintColor(n byte) ([]byte, error) {
+func (fc *FakeCapability) SelectPrintColor(n character.PrintColor) ([]byte, error) {
 	// Validate
 	switch n {
-	case 0, 1, '0', '1':
-		// Valid
-	default:
-		return nil, character.ErrInvalidPrintColor
-	}
-
-	cmd := []byte{common.ESC, 'r', n}
-	f.buffer = append(f.buffer, cmd...)
-
-	switch n {
 	case 0, '0':
-		f.printColor = 0
+		fc.printColor = 0
 	case 1, '1':
-		f.printColor = 1
+		fc.printColor = 1
+	default:
+		return nil, character.ErrPrintColor
 	}
 
-	f.lastCommand = "SelectPrintColor"
-	f.commandsCount[f.lastCommand]++
+	cmd := []byte{common.ESC, 'r', byte(n)}
+	fc.buffer = append(fc.buffer, cmd...)
+
+	fc.lastCommand = "SelectPrintColor"
+	fc.commandsCount[fc.lastCommand]++
 	return cmd, nil
 }
 
-func (f *FakeCapability) SelectCharacterCodeTable(n byte) ([]byte, error) {
+func (fc *FakeCapability) SelectCharacterCodeTable(n character.CodeTable) ([]byte, error) {
 	// Basic validation (simplified)
-	cmd := []byte{common.ESC, 't', n}
-	f.buffer = append(f.buffer, cmd...)
-	f.codeTable = n
-	f.lastCommand = "SelectCharacterCodeTable"
-	f.commandsCount[f.lastCommand]++
+	cmd := []byte{common.ESC, 't', byte(n)}
+	fc.buffer = append(fc.buffer, cmd...)
+	fc.codeTable = n
+	fc.lastCommand = "SelectCharacterCodeTable"
+	fc.commandsCount[fc.lastCommand]++
 	return cmd, nil
 }
 
-func (f *FakeCapability) SetUpsideDownMode(n byte) []byte {
-	cmd := []byte{common.ESC, '{', n}
-	f.buffer = append(f.buffer, cmd...)
-	f.isUpsideDown = n&0x01 != 0
-	f.lastCommand = "SetUpsideDownMode"
-	f.commandsCount[f.lastCommand]++
+func (fc *FakeCapability) SetUpsideDownMode(n character.UpsideDownMode) []byte {
+	cmd := []byte{common.ESC, '{', byte(n)}
+	fc.buffer = append(fc.buffer, cmd...)
+	fc.isUpsideDown = n&0x01 != 0
+	fc.lastCommand = "SetUpsideDownMode"
+	fc.commandsCount[fc.lastCommand]++
 	return cmd
 }
 
-func (f *FakeCapability) SelectCharacterSize(n byte) []byte {
-	cmd := []byte{common.GS, '!', n}
-	f.buffer = append(f.buffer, cmd...)
-	f.currentSize = n
-	f.lastCommand = "SelectCharacterSize"
-	f.commandsCount[f.lastCommand]++
+func (fc *FakeCapability) SelectCharacterSize(n character.Size) []byte {
+	cmd := []byte{common.GS, '!', byte(n)}
+	fc.buffer = append(fc.buffer, cmd...)
+	fc.currentSize = n
+	fc.lastCommand = "SelectCharacterSize"
+	fc.commandsCount[fc.lastCommand]++
 	return cmd
 }
 
-func (f *FakeCapability) SetWhiteBlackReverseMode(n byte) []byte {
-	cmd := []byte{common.GS, 'B', n}
-	f.buffer = append(f.buffer, cmd...)
-	f.isReversed = n&0x01 != 0
-	f.lastCommand = "SetWhiteBlackReverseMode"
-	f.commandsCount[f.lastCommand]++
+func (fc *FakeCapability) SetWhiteBlackReverseMode(n character.ReverseMode) []byte {
+	cmd := []byte{common.GS, 'B', byte(n)}
+	fc.buffer = append(fc.buffer, cmd...)
+	fc.isReversed = n&0x01 != 0
+	fc.lastCommand = "SetWhiteBlackReverseMode"
+	fc.commandsCount[fc.lastCommand]++
 	return cmd
 }
 
-func (f *FakeCapability) SetSmoothingMode(n byte) []byte {
-	cmd := []byte{common.GS, 'b', n}
-	f.buffer = append(f.buffer, cmd...)
-	f.isSmoothing = n&0x01 != 0
-	f.lastCommand = "SetSmoothingMode"
-	f.commandsCount[f.lastCommand]++
+func (fc *FakeCapability) SetSmoothingMode(n character.SmoothingMode) []byte {
+	cmd := []byte{common.GS, 'b', byte(n)}
+	fc.buffer = append(fc.buffer, cmd...)
+	fc.isSmoothing = n&0x01 != 0
+	fc.lastCommand = "SetSmoothingMode"
+	fc.commandsCount[fc.lastCommand]++
 	return cmd
 }
 
@@ -319,52 +299,52 @@ func (f *FakeCapability) SetSmoothingMode(n byte) []byte {
 // Helper Methods
 // ===========================================================================
 
-func (f *FakeCapability) GetBuffer() []byte {
-	return f.buffer
+func (fc *FakeCapability) GetBuffer() []byte {
+	return fc.buffer
 }
 
-func (f *FakeCapability) GetCurrentFont() byte {
-	return f.currentFont
+func (fc *FakeCapability) GetCurrentFont() byte {
+	return fc.currentFont
 }
 
-func (f *FakeCapability) GetCurrentSize() byte {
-	return f.currentSize
+func (fc *FakeCapability) GetCurrentSize() byte {
+	return byte(fc.currentSize)
 }
 
-func (f *FakeCapability) GetIsEmphasized() bool {
-	return f.isEmphasized
+func (fc *FakeCapability) GetIsEmphasized() bool {
+	return fc.isEmphasized
 }
 
-func (f *FakeCapability) GetIsUnderlined() bool {
-	return f.isUnderlined
+func (fc *FakeCapability) GetIsUnderlined() bool {
+	return fc.isUnderlined
 }
 
-func (f *FakeCapability) GetCommandCount(cmd string) int {
-	return f.commandsCount[cmd]
+func (fc *FakeCapability) GetCommandCount(cmd string) int {
+	return fc.commandsCount[cmd]
 }
 
-func (f *FakeCapability) GetLastCommand() string {
-	return f.lastCommand
+func (fc *FakeCapability) GetLastCommand() string {
+	return fc.lastCommand
 }
 
-func (f *FakeCapability) Reset() {
-	f.buffer = make([]byte, 0)
-	f.commandsCount = make(map[string]int)
-	f.currentSpacing = 0
-	f.currentFont = 0
-	f.currentSize = 0x00
-	f.isEmphasized = false
-	f.isUnderlined = false
-	f.underlineThickness = 0
-	f.isDoubleStrike = false
-	f.isUpsideDown = false
-	f.isReversed = false
-	f.isSmoothing = false
-	f.rotation = 0
-	f.printColor = 0
-	f.codeTable = 0
-	f.internationalSet = 0
-	f.lastCommand = ""
+func (fc *FakeCapability) Reset() {
+	fc.buffer = make([]byte, 0)
+	fc.commandsCount = make(map[string]int)
+	fc.currentSpacing = 0
+	fc.currentFont = 0
+	fc.currentSize = 0x00
+	fc.isEmphasized = false
+	fc.isUnderlined = false
+	fc.underlineThickness = 0
+	fc.isDoubleStrike = false
+	fc.isUpsideDown = false
+	fc.isReversed = false
+	fc.isSmoothing = false
+	fc.rotation = 0
+	fc.printColor = 0
+	fc.codeTable = 0
+	fc.internationalSet = 0
+	fc.lastCommand = ""
 }
 
 // ============================================================================
@@ -480,7 +460,7 @@ func TestFakeCapability_CompleteWorkflow(t *testing.T) {
 
 		// Verify state
 		state := fake.GetState()
-		if state["spacing"].(byte) != 10 {
+		if state["spacing"].(character.Spacing) != 10 {
 			t.Errorf("Spacing = %d, want 10", state["spacing"])
 		}
 		if state["font"].(byte) != 1 {
@@ -492,7 +472,7 @@ func TestFakeCapability_CompleteWorkflow(t *testing.T) {
 		if !state["underlined"].(bool) {
 			t.Error("Should be underlined")
 		}
-		if state["size"].(byte) != 0x11 {
+		if state["size"].(character.Size) != 0x11 {
 			t.Errorf("Size = %#x, want 0x11", state["size"])
 		}
 		if !state["smoothing"].(bool) {

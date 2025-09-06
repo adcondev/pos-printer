@@ -1,122 +1,108 @@
 package character_test
 
 import (
-	"bytes"
-	"errors"
 	"testing"
 
 	"github.com/adcondev/pos-printer/escpos/character"
 	"github.com/adcondev/pos-printer/escpos/common"
+	"github.com/adcondev/pos-printer/utils/test"
 )
 
 // ============================================================================
 // Utility Functions Tests
 // ============================================================================
 
-func TestBuildCharacterSize(t *testing.T) {
+// Test_BuildCharacterSize tests the BuildCharacterSize utility function which is used for SelectCharacterSize
+func Test_BuildCharacterSize(t *testing.T) {
+	// Setup
 	tests := []struct {
 		name    string
 		width   byte
 		height  byte
-		want    byte
-		wantErr bool
+		want    character.Size
+		wantErr error
 	}{
 		{
 			name:    "normal size",
 			width:   1,
 			height:  1,
-			want:    0x00,
-			wantErr: false,
+			want:    character.Size1x1,
+			wantErr: nil,
 		},
 		{
 			name:    "double width",
 			width:   2,
 			height:  1,
-			want:    0x10,
-			wantErr: false,
+			want:    character.Size2x1,
+			wantErr: nil,
 		},
 		{
 			name:    "double height",
 			width:   1,
 			height:  2,
-			want:    0x01,
-			wantErr: false,
+			want:    character.Size1x2,
+			wantErr: nil,
 		},
 		{
 			name:    "double size",
 			width:   2,
 			height:  2,
-			want:    0x11,
-			wantErr: false,
+			want:    character.Size2x2,
+			wantErr: nil,
 		},
 		{
 			name:    "maximum size",
 			width:   8,
 			height:  8,
 			want:    0x77,
-			wantErr: false,
+			wantErr: nil,
 		},
 		{
 			name:    "invalid width",
 			width:   9,
 			height:  1,
 			want:    0,
-			wantErr: true,
+			wantErr: character.ErrCharacterWidth,
 		},
 		{
 			name:    "invalid height",
 			width:   1,
 			height:  9,
 			want:    0,
-			wantErr: true,
+			wantErr: character.ErrCharacterHeight,
 		},
 		{
 			name:    "zero width",
 			width:   0,
 			height:  1,
 			want:    0,
-			wantErr: true,
+			wantErr: character.ErrCharacterWidth,
 		},
 		{
 			name:    "zero height",
 			width:   1,
 			height:  0,
 			want:    0,
-			wantErr: true,
+			wantErr: character.ErrCharacterHeight,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			// Execute
 			got, err := character.BuildCharacterSize(tt.width, tt.height)
 
-			if (err != nil) != tt.wantErr {
-				t.Errorf("BuildCharacterSize(%d, %d) error = %v, wantErr %v",
-					tt.width, tt.height, err, tt.wantErr)
+			// Verify
+			if !test.AssertErrorOccurred(t, err, tt.wantErr != nil, "BuildCharacterSize") {
+				return
+			}
+			if tt.wantErr != nil {
+				test.AssertError(t, err, tt.wantErr)
 				return
 			}
 
-			var baseErr error
-			switch tt.name {
-			case "invalid width", "zero width":
-				baseErr = character.ErrInvalidCharacterWidth
-			case "invalid height", "zero height":
-				baseErr = character.ErrInvalidCharacterHeight
-			}
-
-			if tt.wantErr && err != nil {
-				if !errors.Is(err, baseErr) {
-					t.Errorf("BuildCharacterSize(%d, %d) error = %v, want %v",
-						tt.width, tt.height, err, baseErr)
-				}
-				if !errors.Is(err, baseErr) {
-					t.Errorf("BuildCharacterSize(%d, %d) error = %v, want %v",
-						tt.width, tt.height, err, baseErr)
-				}
-				return
-			}
-
-			if !tt.wantErr && got != tt.want {
+			// Verify
+			if got != tt.want {
 				t.Errorf("BuildCharacterSize(%d, %d) = %v, want %v",
 					tt.width, tt.height, got, tt.want)
 			}
@@ -129,344 +115,787 @@ func TestBuildCharacterSize(t *testing.T) {
 // ============================================================================
 
 func TestCommands_SetRightSideCharacterSpacing(t *testing.T) {
+	// Setup
 	cmd := character.NewCommands()
+	prefix := test.BuildCommand(common.ESC, common.SP)
 
 	tests := []struct {
 		name    string
-		spacing byte
+		spacing character.Spacing
 		want    []byte
 	}{
 		{
 			name:    "no spacing",
 			spacing: 0,
-			want:    []byte{common.ESC, common.SP, 0},
+			want:    append(prefix, 0),
 		},
 		{
 			name:    "normal spacing",
 			spacing: 5,
-			want:    []byte{common.ESC, common.SP, 5},
+			want:    append(prefix, 5),
 		},
 		{
 			name:    "maximum spacing",
 			spacing: 255,
-			want:    []byte{common.ESC, common.SP, 255},
+			want:    append(prefix, 255),
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			// Execute
 			got := cmd.SetRightSideCharacterSpacing(tt.spacing)
-			if !bytes.Equal(got, tt.want) {
-				t.Errorf("SetRightSideCharacterSpacing(%d) = %#v, want %#v",
-					tt.spacing, got, tt.want)
-			}
+
+			// Verify
+			test.AssertBytes(t, got, tt.want, "SetRightSideCharacterSpacing(%d)", tt.spacing)
 		})
 	}
 }
 
 func TestCommands_SelectPrintModes(t *testing.T) {
+	// Setup
 	cmd := character.NewCommands()
+	prefix := test.BuildCommand(common.ESC, '!')
 
 	tests := []struct {
 		name string
-		mode byte
+		mode character.PrintMode
 		want []byte
 	}{
 		{
 			name: "normal mode",
-			mode: 0,
-			want: []byte{common.ESC, '!', 0},
+			mode: character.FontAPm | character.EmphasizedOffPm | character.DoubleHeightOffPm | character.DoubleWidthOffPm | character.UnderlineOffPm,
+			want: append(prefix, 0),
 		},
 		{
 			name: "font B",
-			mode: 0x01,
-			want: []byte{common.ESC, '!', 0x01},
+			mode: character.FontBPm,
+			want: append(prefix, 0x01),
 		},
 		{
 			name: "emphasized",
-			mode: 0x08,
-			want: []byte{common.ESC, '!', 0x08},
+			mode: character.EmphasizedOnPm,
+			want: append(prefix, 0x08),
 		},
 		{
 			name: "double height",
-			mode: 0x10,
-			want: []byte{common.ESC, '!', 0x10},
+			mode: character.DoubleHeightOnPm,
+			want: append(prefix, 0x10),
 		},
 		{
 			name: "double width",
-			mode: 0x20,
-			want: []byte{common.ESC, '!', 0x20},
+			mode: character.DoubleWidthOnPm,
+			want: append(prefix, 0x20),
 		},
 		{
 			name: "underline",
-			mode: 0x80,
-			want: []byte{common.ESC, '!', 0x80},
+			mode: character.UnderlineOnPm,
+			want: append(prefix, 0x80),
 		},
 		{
 			name: "combined modes",
-			mode: 0x88, // emphasized + underline
-			want: []byte{common.ESC, '!', 0x88},
+			mode: character.FontBPm | character.EmphasizedOnPm | character.DoubleHeightOnPm | character.DoubleWidthOnPm | character.UnderlineOnPm,
+			want: append(prefix, 0xB9),
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			// Execute
 			got := cmd.SelectPrintModes(tt.mode)
-			if !bytes.Equal(got, tt.want) {
-				t.Errorf("SelectPrintModes(%#x) = %#v, want %#v",
-					tt.mode, got, tt.want)
-			}
+
+			// Verify
+			test.AssertBytes(t, got, tt.want, "SelectPrintModes(%#x)", tt.mode)
 		})
 	}
 }
 
 func TestCommands_SetUnderlineMode(t *testing.T) {
+	// Setup
 	cmd := character.NewCommands()
+	prefix := test.BuildCommand(common.ESC, '-')
 
 	tests := []struct {
 		name    string
-		mode    byte
+		mode    character.UnderlineMode
 		want    []byte
-		wantErr bool
+		wantErr error
 	}{
 		{
 			name:    "underline off",
-			mode:    0,
-			want:    []byte{common.ESC, '-', 0},
-			wantErr: false,
+			mode:    character.NoDot,
+			want:    append(prefix, 0x00),
+			wantErr: nil,
 		},
 		{
 			name:    "underline 1 dot",
-			mode:    1,
-			want:    []byte{common.ESC, '-', 1},
-			wantErr: false,
+			mode:    character.OneDot,
+			want:    append(prefix, 0x01),
+			wantErr: nil,
 		},
 		{
 			name:    "underline 2 dots",
-			mode:    2,
-			want:    []byte{common.ESC, '-', 2},
-			wantErr: false,
+			mode:    character.TwoDot,
+			want:    append(prefix, 0x02),
+			wantErr: nil,
 		},
 		{
 			name:    "underline off ASCII",
-			mode:    '0',
-			want:    []byte{common.ESC, '-', '0'},
-			wantErr: false,
+			mode:    character.NoDotAscii,
+			want:    append(prefix, '0'),
+			wantErr: nil,
 		},
 		{
 			name:    "underline 1 dot ASCII",
-			mode:    '1',
-			want:    []byte{common.ESC, '-', '1'},
-			wantErr: false,
+			mode:    character.OneDotAscii,
+			want:    append(prefix, '1'),
+			wantErr: nil,
 		},
 		{
 			name:    "underline 2 dots ASCII",
-			mode:    '2',
-			want:    []byte{common.ESC, '-', '2'},
-			wantErr: false,
+			mode:    character.TwoDotAscii,
+			want:    append(prefix, '2'),
+			wantErr: nil,
 		},
 		{
 			name:    "invalid mode",
 			mode:    3,
 			want:    nil,
-			wantErr: true,
+			wantErr: character.ErrUnderlineMode,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			// Execute
 			got, err := cmd.SetUnderlineMode(tt.mode)
 
-			// Standardized error checking
-			if (err != nil) != tt.wantErr {
-				t.Errorf("SetUnderlineMode(%v) error = %v, wantErr %v",
-					tt.mode, err, tt.wantErr)
+			// Verify error
+			if !test.AssertErrorOccurred(t, err, tt.wantErr != nil, "SetUnderlineMode") {
+				return
+			}
+			if tt.wantErr != nil {
+				test.AssertError(t, err, tt.wantErr)
 				return
 			}
 
-			// Check specific error type if expecting error
-			if tt.wantErr && err != nil {
-				if !errors.Is(err, character.ErrInvalidUnderlineMode) {
-					t.Errorf("SetUnderlineMode(%v) error = %v, want %v",
-						tt.mode, err, character.ErrInvalidUnderlineMode)
-				}
-				return
-			}
-
-			// Check result if no error expected
-			if !tt.wantErr && !bytes.Equal(got, tt.want) {
-				t.Errorf("SetUnderlineMode(%v) = %#v, want %#v",
-					tt.mode, got, tt.want)
-			}
+			// Verify result
+			test.AssertBytes(t, got, tt.want, "SetUnderlineMode(%v)", tt.mode)
 		})
 	}
 }
 
 func TestCommands_SetEmphasizedMode(t *testing.T) {
+	// Setup
 	cmd := character.NewCommands()
+	prefix := test.BuildCommand(common.ESC, 'E')
 
 	tests := []struct {
 		name string
-		mode byte
+		mode character.EmphasizedMode
 		want []byte
 	}{
 		{
 			name: "emphasized off",
-			mode: 0,
-			want: []byte{common.ESC, 'E', 0},
+			mode: character.OffEm,
+			want: append(prefix, 0x00),
 		},
 		{
 			name: "emphasized on",
-			mode: 1,
-			want: []byte{common.ESC, 'E', 1},
+			mode: character.OnEm,
+			want: append(prefix, 0x01),
 		},
 		{
 			name: "any even number (LSB=0)",
 			mode: 0xFE,
-			want: []byte{common.ESC, 'E', 0xFE},
+			want: append(prefix, 0xFE),
 		},
 		{
 			name: "any odd number (LSB=1)",
 			mode: 0xFF,
-			want: []byte{common.ESC, 'E', 0xFF},
+			want: append(prefix, 0xFF),
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			// Execute
 			got := cmd.SetEmphasizedMode(tt.mode)
-			if !bytes.Equal(got, tt.want) {
-				t.Errorf("SetEmphasizedMode(%d) = %#v, want %#v",
-					tt.mode, got, tt.want)
-			}
+
+			// Verify
+			test.AssertBytes(t, got, tt.want, "SetEmphasizedMode(%d)", tt.mode)
+		})
+	}
+}
+
+func TestCommands_SetDoubleStrikeMode(t *testing.T) {
+	// Setup
+	cmd := character.NewCommands()
+	prefix := test.BuildCommand(common.ESC, 'G')
+
+	tests := []struct {
+		name string
+		mode character.DoubleStrikeMode
+		want []byte
+	}{
+		{
+			name: "double-strike off",
+			mode: character.OffDsm,
+			want: append(prefix, 0x00),
+		},
+		{
+			name: "double-strike on",
+			mode: character.OnDsm,
+			want: append(prefix, 0x01),
+		},
+		{
+			name: "any even number (LSB=0)",
+			mode: 0xFE,
+			want: append(prefix, 0xFE),
+		},
+		{
+			name: "any odd number (LSB=1)",
+			mode: 0xFF,
+			want: append(prefix, 0xFF),
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Execute
+			got := cmd.SetDoubleStrikeMode(tt.mode)
+
+			// Verify
+			test.AssertBytes(t, got, tt.want, "SetDoubleStrikeMode(%d)", tt.mode)
 		})
 	}
 }
 
 func TestCommands_SelectCharacterFont(t *testing.T) {
+	// Setup
 	cmd := character.NewCommands()
+	prefix := test.BuildCommand(common.ESC, 'M')
 
 	tests := []struct {
 		name    string
-		font    byte
+		font    character.FontType
 		want    []byte
-		wantErr bool
+		wantErr error
 	}{
 		{
 			name:    "font A",
-			font:    0,
-			want:    []byte{common.ESC, 'M', 0},
-			wantErr: false,
+			font:    character.FontA,
+			want:    append(prefix, 0x00),
+			wantErr: nil,
 		},
 		{
 			name:    "font B",
-			font:    1,
-			want:    []byte{common.ESC, 'M', 1},
-			wantErr: false,
+			font:    character.FontB,
+			want:    append(prefix, 0x01),
+			wantErr: nil,
 		},
 		{
 			name:    "font C",
-			font:    2,
-			want:    []byte{common.ESC, 'M', 2},
-			wantErr: false,
+			font:    character.FontC,
+			want:    append(prefix, 0x02),
+			wantErr: nil,
 		},
 		{
 			name:    "font A ASCII",
-			font:    '0',
-			want:    []byte{common.ESC, 'M', '0'},
-			wantErr: false,
+			font:    character.FontAAscii,
+			want:    append(prefix, '0'),
+			wantErr: nil,
 		},
 		{
 			name:    "special font A",
-			font:    97,
-			want:    []byte{common.ESC, 'M', 97},
-			wantErr: false,
+			font:    character.SpecialFontA,
+			want:    append(prefix, 0x61),
+			wantErr: nil,
 		},
 		{
 			name:    "special font B",
-			font:    98,
-			want:    []byte{common.ESC, 'M', 98},
-			wantErr: false,
+			font:    character.SpecialFontB,
+			want:    append(prefix, 0x62),
+			wantErr: nil,
 		},
 		{
 			name:    "invalid font",
 			font:    99,
 			want:    nil,
-			wantErr: true,
+			wantErr: character.ErrCharacterFont,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			// Execute
 			got, err := cmd.SelectCharacterFont(tt.font)
 
-			// Standardized error checking
-			if (err != nil) != tt.wantErr {
-				t.Errorf("SelectCharacterFont(%v) error = %v, wantErr %v",
-					tt.font, err, tt.wantErr)
+			// Verify error
+			if !test.AssertErrorOccurred(t, err, tt.wantErr != nil, "SelectCharacterFont") {
+				return
+			}
+			if tt.wantErr != nil {
+				test.AssertError(t, err, tt.wantErr)
 				return
 			}
 
-			// Check specific error type if expecting error
-			if tt.wantErr && err != nil {
-				if !errors.Is(err, character.ErrInvalidCharacterFont) {
-					t.Errorf("SelectCharacterFont(%v) error = %v, want %v",
-						tt.font, err, character.ErrInvalidCharacterFont)
-				}
+			// Verify result
+			test.AssertBytes(t, got, tt.want, "SelectCharacterFont(%v)", tt.font)
+		})
+	}
+}
+
+func TestCommands_SelectInternationalCharacterSet(t *testing.T) {
+	// Setup
+	cmd := character.NewCommands()
+	prefix := test.BuildCommand(common.ESC, 'R')
+
+	tests := []struct {
+		name    string
+		charset character.InternationalSet
+		want    []byte
+		wantErr error
+	}{
+		{
+			name:    "USA",
+			charset: character.USA,
+			want:    append(prefix, 0x00),
+			wantErr: nil,
+		},
+		{
+			name:    "Japan",
+			charset: character.Japan,
+			want:    append(prefix, 0x08),
+			wantErr: nil,
+		},
+		{
+			name:    "India Devanagari",
+			charset: character.IndiaDevanagari,
+			want:    append(prefix, 0x42),
+			wantErr: nil,
+		},
+		{
+			name:    "India Marathi",
+			charset: character.IndiaMarathi,
+			want:    append(prefix, 0x52),
+			wantErr: nil,
+		},
+		{
+			name:    "invalid charset",
+			charset: 200,
+			want:    nil,
+			wantErr: character.ErrCharacterSet,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Execute
+			got, err := cmd.SelectInternationalCharacterSet(tt.charset)
+
+			// Verify error
+			if !test.AssertErrorOccurred(t, err, tt.wantErr != nil, "SelectInternationalCharacterSet") {
+				return
+			}
+			if tt.wantErr != nil {
+				test.AssertError(t, err, tt.wantErr)
 				return
 			}
 
-			// Check result if no error expected
-			if !tt.wantErr && !bytes.Equal(got, tt.want) {
-				t.Errorf("SelectCharacterFont(%v) = %#v, want %#v",
-					tt.font, got, tt.want)
+			// Verify result
+			test.AssertBytes(t, got, tt.want, "SelectInternationalCharacterSet(%v)", tt.charset)
+		})
+	}
+}
+
+func TestCommands_Set90DegreeClockwiseRotationMode(t *testing.T) {
+	// Setup
+	cmd := character.NewCommands()
+	prefix := test.BuildCommand(common.ESC, 'V')
+
+	tests := []struct {
+		name    string
+		mode    character.RotationMode
+		want    []byte
+		wantErr error
+	}{
+		{
+			name:    "no rotation",
+			mode:    character.NoRotation,
+			want:    append(prefix, 0x00),
+			wantErr: nil,
+		},
+		{
+			name:    "90 degree 1 dot spacing",
+			mode:    character.On90Dot1,
+			want:    append(prefix, 0x01),
+			wantErr: nil,
+		},
+		{
+			name:    "90 degree 1.5 dot spacing",
+			mode:    character.On90Dot15,
+			want:    append(prefix, 0x02),
+			wantErr: nil,
+		},
+		{
+			name:    "no rotation ASCII",
+			mode:    character.NoRotationAscii,
+			want:    append(prefix, '0'),
+			wantErr: nil,
+		},
+		{
+			name:    "invalid rotation",
+			mode:    99,
+			want:    nil,
+			wantErr: character.ErrRotationMode,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Execute
+			got, err := cmd.Set90DegreeClockwiseRotationMode(tt.mode)
+
+			// Verify error
+			if !test.AssertErrorOccurred(t, err, tt.wantErr != nil, "Set90DegreeClockwiseRotationMode") {
+				return
 			}
+			if tt.wantErr != nil {
+				test.AssertError(t, err, tt.wantErr)
+				return
+			}
+
+			// Verify result
+			test.AssertBytes(t, got, tt.want, "Set90DegreeClockwiseRotationMode(%v)", tt.mode)
+		})
+	}
+}
+
+func TestCommands_SelectPrintColor(t *testing.T) {
+	// Setup
+	cmd := character.NewCommands()
+	prefix := test.BuildCommand(common.ESC, 'r')
+
+	tests := []struct {
+		name    string
+		color   character.PrintColor
+		want    []byte
+		wantErr error
+	}{
+		{
+			name:    "black",
+			color:   character.Black,
+			want:    append(prefix, 0x00),
+			wantErr: nil,
+		},
+		{
+			name:    "red",
+			color:   character.Red,
+			want:    append(prefix, 0x01),
+			wantErr: nil,
+		},
+		{
+			name:    "black ASCII",
+			color:   character.BlackASCII,
+			want:    append(prefix, '0'),
+			wantErr: nil,
+		},
+		{
+			name:    "red ASCII",
+			color:   character.RedASCII,
+			want:    append(prefix, '1'),
+			wantErr: nil,
+		},
+		{
+			name:    "invalid color",
+			color:   99,
+			want:    nil,
+			wantErr: character.ErrPrintColor,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Execute
+			got, err := cmd.SelectPrintColor(tt.color)
+
+			// Verify error
+			if !test.AssertErrorOccurred(t, err, tt.wantErr != nil, "SelectPrintColor") {
+				return
+			}
+			if tt.wantErr != nil {
+				test.AssertError(t, err, tt.wantErr)
+				return
+			}
+
+			// Verify result
+			test.AssertBytes(t, got, tt.want, "SelectPrintColor(%v)", tt.color)
+		})
+	}
+}
+
+func TestCommands_SelectCharacterCodeTable(t *testing.T) {
+	// Setup
+	cmd := character.NewCommands()
+	prefix := test.BuildCommand(common.ESC, 't')
+
+	tests := []struct {
+		name    string
+		page    character.CodeTable
+		want    []byte
+		wantErr error
+	}{
+		{
+			name:    "PC437",
+			page:    character.PC437,
+			want:    append(prefix, 0x00),
+			wantErr: nil,
+		},
+		{
+			name:    "Katakana",
+			page:    character.Katakana,
+			want:    append(prefix, 0x01),
+			wantErr: nil,
+		},
+		{
+			name:    "Devanagari",
+			page:    character.Devanagari,
+			want:    append(prefix, 0x42),
+			wantErr: nil,
+		},
+		{
+			name:    "Special254",
+			page:    character.Special254,
+			want:    append(prefix, 0xFE),
+			wantErr: nil,
+		},
+		{
+			name:    "invalid page",
+			page:    100,
+			want:    nil,
+			wantErr: character.ErrCodeTablePage,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Execute
+			got, err := cmd.SelectCharacterCodeTable(tt.page)
+
+			// Verify error
+			if !test.AssertErrorOccurred(t, err, tt.wantErr != nil, "SelectCharacterCodeTable") {
+				return
+			}
+			if tt.wantErr != nil {
+				test.AssertError(t, err, tt.wantErr)
+				return
+			}
+
+			// Verify result
+			test.AssertBytes(t, got, tt.want, "SelectCharacterCodeTable(%v)", tt.page)
+		})
+	}
+}
+
+func TestCommands_SetUpsideDownMode(t *testing.T) {
+	// Setup
+	cmd := character.NewCommands()
+	prefix := test.BuildCommand(common.ESC, '{')
+
+	tests := []struct {
+		name string
+		mode character.UpsideDownMode
+		want []byte
+	}{
+		{
+			name: "upside-down off",
+			mode: character.OffUdm,
+			want: append(prefix, 0x00),
+		},
+		{
+			name: "upside-down on",
+			mode: character.OnUdm,
+			want: append(prefix, 0x01),
+		},
+		{
+			name: "any even number (LSB=0)",
+			mode: 0xFE,
+			want: append(prefix, 0xFE),
+		},
+		{
+			name: "any odd number (LSB=1)",
+			mode: 0xFF,
+			want: append(prefix, 0xFF),
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Execute
+			got := cmd.SetUpsideDownMode(tt.mode)
+
+			// Verify
+			test.AssertBytes(t, got, tt.want, "SetUpsideDownMode(%d)", tt.mode)
 		})
 	}
 }
 
 func TestCommands_SelectCharacterSize(t *testing.T) {
+	// Setup
 	cmd := character.NewCommands()
+	prefix := test.BuildCommand(common.GS, '!')
 
 	tests := []struct {
 		name string
-		size byte
+		size character.Size
 		want []byte
 	}{
 		{
 			name: "normal size (1x1)",
-			size: 0x00,
-			want: []byte{common.GS, '!', 0x00},
+			size: character.Size1x1,
+			want: append(prefix, 0x00),
 		},
 		{
 			name: "double width (2x1)",
-			size: 0x10,
-			want: []byte{common.GS, '!', 0x10},
+			size: character.Size2x1,
+			want: append(prefix, 0x10),
 		},
 		{
 			name: "double height (1x2)",
-			size: 0x01,
-			want: []byte{common.GS, '!', 0x01},
+			size: character.Size1x2,
+			want: append(prefix, 0x01),
 		},
 		{
 			name: "double size (2x2)",
-			size: 0x11,
-			want: []byte{common.GS, '!', 0x11},
+			size: character.Size2x2,
+			want: append(prefix, 0x11),
+		},
+		{
+			name: "quadruple width (4x1)",
+			size: character.Size4x1,
+			want: append(prefix, 0x30),
 		},
 		{
 			name: "maximum size (8x8)",
 			size: 0x77,
-			want: []byte{common.GS, '!', 0x77},
+			want: append(prefix, 0x77),
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			// Execute
 			got := cmd.SelectCharacterSize(tt.size)
-			if !bytes.Equal(got, tt.want) {
-				t.Errorf("SelectCharacterSize(%#x) = %#v, want %#v",
-					tt.size, got, tt.want)
-			}
+
+			// Verify
+			test.AssertBytes(t, got, tt.want, "SelectCharacterSize(%#x)", tt.size)
+		})
+	}
+}
+
+func TestCommands_SetWhiteBlackReverseMode(t *testing.T) {
+	// Setup
+	cmd := character.NewCommands()
+	prefix := test.BuildCommand(common.GS, 'B')
+
+	tests := []struct {
+		name string
+		mode character.ReverseMode
+		want []byte
+	}{
+		{
+			name: "reverse off",
+			mode: character.OffRm,
+			want: append(prefix, 0x00),
+		},
+		{
+			name: "reverse on",
+			mode: character.OnRm,
+			want: append(prefix, 0x01),
+		},
+		{
+			name: "reverse off ASCII",
+			mode: character.OffRmAscii,
+			want: append(prefix, '0'),
+		},
+		{
+			name: "reverse on ASCII",
+			mode: character.OnRmAscii,
+			want: append(prefix, '1'),
+		},
+		{
+			name: "any even number (LSB=0)",
+			mode: 0xFE,
+			want: append(prefix, 0xFE),
+		},
+		{
+			name: "any odd number (LSB=1)",
+			mode: 0xFF,
+			want: append(prefix, 0xFF),
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Execute
+			got := cmd.SetWhiteBlackReverseMode(tt.mode)
+
+			// Verify
+			test.AssertBytes(t, got, tt.want, "SetWhiteBlackReverseMode(%d)", tt.mode)
+		})
+	}
+}
+
+func TestCommands_SetSmoothingMode(t *testing.T) {
+	// Setup
+	cmd := character.NewCommands()
+	prefix := test.BuildCommand(common.GS, 'b')
+
+	tests := []struct {
+		name string
+		mode character.SmoothingMode
+		want []byte
+	}{
+		{
+			name: "smoothing off",
+			mode: character.OffSm,
+			want: append(prefix, 0x00),
+		},
+		{
+			name: "smoothing on",
+			mode: character.OnSm,
+			want: append(prefix, 0x01),
+		},
+		{
+			name: "smoothing off ASCII",
+			mode: character.OffSmAscii,
+			want: append(prefix, '0'),
+		},
+		{
+			name: "smoothing on ASCII",
+			mode: character.OnSmAscii,
+			want: append(prefix, '1'),
+		},
+		{
+			name: "any even number (LSB=0)",
+			mode: 0xFE,
+			want: append(prefix, 0xFE),
+		},
+		{
+			name: "any odd number (LSB=1)",
+			mode: 0xFF,
+			want: append(prefix, 0xFF),
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Execute
+			got := cmd.SetSmoothingMode(tt.mode)
+
+			// Verify
+			test.AssertBytes(t, got, tt.want, "SetSmoothingMode(%d)", tt.mode)
 		})
 	}
 }
