@@ -18,8 +18,8 @@ var _ linespacing.Capability = (*FakeCapability)(nil)
 // FakeCapability simulates line spacing with state tracking
 type FakeCapability struct {
 	buffer         []byte
-	currentSpacing byte
-	defaultSpacing byte
+	currentSpacing linespacing.Spacing
+	defaultSpacing linespacing.Spacing
 	timesChanged   int
 	lastCommand    string
 	commandHistory []string
@@ -47,8 +47,8 @@ func NewFakeCapability() *FakeCapability {
 	}
 }
 
-func (f *FakeCapability) SetLineSpacing(n byte) []byte {
-	cmd := []byte{common.ESC, '3', n}
+func (f *FakeCapability) SetLineSpacing(n linespacing.Spacing) []byte {
+	cmd := []byte{common.ESC, '3', byte(n)}
 	f.buffer = append(f.buffer, cmd...)
 	f.currentSpacing = n
 	f.timesChanged++
@@ -68,7 +68,7 @@ func (f *FakeCapability) SelectDefaultLineSpacing() []byte {
 }
 
 // Helper methods
-func (f *FakeCapability) GetCurrentSpacing() byte {
+func (f *FakeCapability) GetCurrentSpacing() linespacing.Spacing {
 	return f.currentSpacing
 }
 

@@ -101,7 +101,7 @@ func CreateGP58N() *Escpos {
 		encoding.Latvian,
 	}
 
-	p.DefaultCharSet = 19 // CP858 para español
+	p.DefaultCharSet = 0 // CP858 para español
 	return p
 }
 

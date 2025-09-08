@@ -89,7 +89,7 @@ func useESCPOS(conn connector.Connector) {
 	if err != nil {
 		return
 	}
-	err = printer.Print("Fin del test de imágenes")
+	err = printer.Print("Fin del utils de imágenes")
 	if err != nil {
 		return
 	}

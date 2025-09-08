@@ -49,13 +49,13 @@ func TestIntegration_CompleteReceiptFlow(t *testing.T) {
 	// Build a complete receipt flow
 	commands := []struct {
 		name string
-		// FIXME: change anonymous func to test helpers
+		// FIXME: change anonymous func to utils helpers
 		action func() ([]byte, error)
 		verify func([]byte) error
 	}{
 		{
 			name: "set line spacing",
-			// FIXME: change anonymous func to test helpers
+			// FIXME: change anonymous func to utils helpers
 			action: func() ([]byte, error) {
 				return cmd.LineSpace.SetLineSpacing(40), nil
 			},
@@ -69,7 +69,7 @@ func TestIntegration_CompleteReceiptFlow(t *testing.T) {
 		},
 		{
 			name: "print header",
-			// FIXME: change anonymous func to test helpers
+			// FIXME: change anonymous func to utils helpers
 			action: func() ([]byte, error) {
 				return cmd.Print.Text("RECEIPT")
 			},
@@ -82,7 +82,7 @@ func TestIntegration_CompleteReceiptFlow(t *testing.T) {
 		},
 		{
 			name: "line feed",
-			// FIXME: change anonymous func to test helpers
+			// FIXME: change anonymous func to utils helpers
 			action: func() ([]byte, error) {
 				return cmd.Print.PrintAndLineFeed(), nil
 			},
@@ -95,7 +95,7 @@ func TestIntegration_CompleteReceiptFlow(t *testing.T) {
 		},
 		{
 			name: "print item",
-			// FIXME: change anonymous func to test helpers
+			// FIXME: change anonymous func to utils helpers
 			action: func() ([]byte, error) {
 				return cmd.Print.Text("Item 1: $10.00")
 			},
@@ -108,7 +108,7 @@ func TestIntegration_CompleteReceiptFlow(t *testing.T) {
 		},
 		{
 			name: "form feed",
-			// FIXME: change anonymous func to test helpers
+			// FIXME: change anonymous func to utils helpers
 			action: func() ([]byte, error) {
 				return cmd.Print.FormFeed(), nil
 			},

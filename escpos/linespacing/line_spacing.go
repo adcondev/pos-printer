@@ -8,12 +8,14 @@ import (
 // Constant and Var Definitions
 // ============================================================================
 
+// Spacing represents the line spacing spacing in motion units
+type Spacing byte
+
 // Line spacing limits and defaults
 const (
-	MinLineSpacing     = 0    // Minimum line spacing value
-	MaxLineSpacing     = 255  // Maximum line spacing value
-	DefaultLineSpacing = 30   // Default line spacing (model dependent, typically 30-80 dots)
-	MaxLineSpacingMM   = 1016 // Maximum line spacing in mm (40 inches)
+	MinSpacing    Spacing = 0   // Minimum line spacing spacing
+	MaxSpacing    Spacing = 255 // Maximum line spacing spacing
+	NormalSpacing Spacing = 30  // Default line spacing (model dependent, typically 30-80 dots)
 )
 
 // ============================================================================
@@ -31,7 +33,7 @@ var _ Capability = (*Commands)(nil)
 
 // Capability defines the interface for line spacing commands in ESC/POS printers.
 type Capability interface {
-	SetLineSpacing(lines byte) []byte
+	SetLineSpacing(lines Spacing) []byte
 	SelectDefaultLineSpacing() []byte
 }
 
@@ -46,40 +48,40 @@ func NewCommands() *Commands {
 	return &Commands{}
 }
 
-// SetLineSpacing sets the line spacing to n × (vertical or horizontal motion unit).
+// SetLineSpacing sets the line spacing to spacing × (vertical or horizontal motion unit).
 //
 // Format:
 //
-//	ASCII: ESC 3 n
-//	Hex:   0x1B 0x33 n
-//	Decimal: 27 51 n
+//	ASCII: ESC 3 spacing
+//	Hex:   0x1B 0x33 spacing
+//	Decimal: 27 51 spacing
 //
 // Range:
 //
-//	n = 0–255
+//	spacing = 0–255
 //
 // Default:
 //
 //	The amount of line spacing corresponding to the "default line spacing"
-//	(equivalent to a value between 30 and 80 dots).
+//	(equivalent to a spacing between 30 and 80 dots).
 //
 // Description:
 //
-//	Sets the line spacing to n × (vertical or horizontal motion unit).
+//	Sets the line spacing to spacing × (vertical or horizontal motion unit).
 //
 // Notes:
 //   - Maximum line spacing is 1016 mm (40 inches); if exceeded, printer uses maximum.
 //   - In Standard mode the vertical motion unit is used.
 //   - In Page mode the motion unit depends on ESC T setting.
 //   - Line spacing can be set independently in Standard and Page modes.
-//   - Motion unit changes after setting don't affect the numeric value.
+//   - Motion unit changes after setting don't affect the numeric spacing.
 //   - Remains in effect until ESC 2, ESC @, reset, or power off.
 //
 // Byte sequence:
 //
-//	ESC 3 n -> 0x1B, 0x33, n
-func (lsc *Commands) SetLineSpacing(n byte) []byte {
-	return []byte{common.ESC, '3', n}
+//	ESC 3 spacing -> 0x1B, 0x33, spacing
+func (lsc *Commands) SetLineSpacing(n Spacing) []byte {
+	return []byte{common.ESC, '3', byte(n)}
 }
 
 // SelectDefaultLineSpacing sets the line spacing to the printer's default.
@@ -92,7 +94,7 @@ func (lsc *Commands) SetLineSpacing(n byte) []byte {
 //
 // Description:
 //
-//	Sets the line spacing to the default line spacing value.
+//	Sets the line spacing to the default line spacing spacing.
 //
 // Notes:
 //   - Line spacing can be set independently in Standard and Page modes.

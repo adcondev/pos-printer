@@ -15,10 +15,10 @@ var _ linespacing.Capability = (*MockCapability)(nil)
 // Mock Implementation
 // ============================================================================
 
-// MockCapability provides a test double for linespacing.Capability interface
+// MockCapability provides a utils double for linespacing.Capability interface
 type MockCapability struct {
 	SetLineSpacingCalled bool
-	SetLineSpacingInput  byte
+	SetLineSpacingInput  linespacing.Spacing
 	SetLineSpacingReturn []byte
 
 	SelectDefaultCalled bool
@@ -45,7 +45,7 @@ func (m *MockCapability) GetCallCount(method string) int {
 	return m.CallCount[method]
 }
 
-func (m *MockCapability) SetLineSpacing(n byte) []byte {
+func (m *MockCapability) SetLineSpacing(n linespacing.Spacing) []byte {
 	m.SetLineSpacingCalled = true
 	m.SetLineSpacingInput = n
 	m.CallCount["SetLineSpacing"]++
@@ -53,7 +53,7 @@ func (m *MockCapability) SetLineSpacing(n byte) []byte {
 	if m.SetLineSpacingReturn != nil {
 		return m.SetLineSpacingReturn
 	}
-	return []byte{common.ESC, '3', n}
+	return []byte{common.ESC, '3', byte(n)}
 }
 
 func (m *MockCapability) SelectDefaultLineSpacing() []byte {

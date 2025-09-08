@@ -44,7 +44,7 @@ func TestIntegration_LineSpacing_StandardWorkflow(t *testing.T) {
 	t.Run("progressive spacing changes", func(t *testing.T) {
 		// Setup
 		var buffer []byte
-		spacings := []byte{10, 20, 30, 40, 50, 60, 70, 80, 90, 100}
+		spacings := []linespacing.Spacing{10, 20, 30, 40, 50, 60, 70, 80, 90, 100}
 
 		// Execute
 		for _, spacing := range spacings {
@@ -55,7 +55,7 @@ func TestIntegration_LineSpacing_StandardWorkflow(t *testing.T) {
 		// Verify
 		for i, spacing := range spacings {
 			offset := i * 3
-			expected := []byte{common.ESC, '3', spacing}
+			expected := []byte{common.ESC, '3', byte(spacing)}
 			actual := buffer[offset : offset+3]
 			if !bytes.Equal(actual, expected) {
 				t.Errorf("Command %d = %#v, want %#v", i, actual, expected)
@@ -69,7 +69,7 @@ func TestIntegration_LineSpacing_StandardWorkflow(t *testing.T) {
 		patterns := []struct {
 			name      string
 			isDefault bool
-			value     byte
+			spacing   linespacing.Spacing
 		}{
 			{"default", true, 0},
 			{"tight", false, 20},
@@ -85,7 +85,7 @@ func TestIntegration_LineSpacing_StandardWorkflow(t *testing.T) {
 			if p.isDefault {
 				buffer = append(buffer, cmd.SelectDefaultLineSpacing()...)
 			} else {
-				buffer = append(buffer, cmd.SetLineSpacing(p.value)...)
+				buffer = append(buffer, cmd.SetLineSpacing(p.spacing)...)
 			}
 		}
 
@@ -109,13 +109,13 @@ func TestIntegration_LineSpacing_EdgeCases(t *testing.T) {
 		var buffer []byte
 
 		// Execute
-		minCmd := cmd.SetLineSpacing(linespacing.MinLineSpacing)
+		minCmd := cmd.SetLineSpacing(linespacing.MinSpacing)
 		buffer = append(buffer, minCmd...)
 
-		maxCmd := cmd.SetLineSpacing(linespacing.MaxLineSpacing)
+		maxCmd := cmd.SetLineSpacing(linespacing.MaxSpacing)
 		buffer = append(buffer, maxCmd...)
 
-		defaultCmd := cmd.SetLineSpacing(linespacing.DefaultLineSpacing)
+		defaultCmd := cmd.SetLineSpacing(linespacing.NormalSpacing)
 		buffer = append(buffer, defaultCmd...)
 
 		// Verify
@@ -138,7 +138,7 @@ func TestIntegration_LineSpacing_EdgeCases(t *testing.T) {
 
 		// Execute
 		for i := 0; i < 50; i++ {
-			spacing := byte(i % 256)
+			spacing := linespacing.Spacing(i % 256)
 			cmd := cmd.SetLineSpacing(spacing)
 			buffer = append(buffer, cmd...)
 		}
@@ -156,7 +156,7 @@ func TestIntegration_LineSpacing_EdgeCases(t *testing.T) {
 
 	t.Run("all possible values", func(t *testing.T) {
 		// Setup
-		testValues := []byte{
+		testValues := []linespacing.Spacing{
 			0, 1, 2, 5, 10, 15, 20, 25, 30, // Low values
 			40, 50, 60, 70, 80, 90, 100, // Medium values
 			120, 140, 160, 180, 200, // High values
@@ -166,7 +166,7 @@ func TestIntegration_LineSpacing_EdgeCases(t *testing.T) {
 		// Execute
 		for _, value := range testValues {
 			cmd := cmd.SetLineSpacing(value)
-			expected := []byte{common.ESC, '3', value}
+			expected := []byte{common.ESC, '3', byte(value)}
 			// Verify
 			if !bytes.Equal(cmd, expected) {
 				t.Errorf("SetLineSpacing(%d) = %#v, want %#v", value, cmd, expected)
@@ -194,7 +194,7 @@ func TestIntegration_LineSpacing_ModeTransitions(t *testing.T) {
 
 		// Verify
 		if !bytes.Equal(standardSpacing, returnSpacing) {
-			t.Error("Same spacing value should produce same command")
+			t.Error("Same spacing spacing should produce same command")
 		}
 		if bytes.Equal(standardSpacing, pageModeSpacing) {
 			t.Error("Different spacing values should produce different commands")
@@ -206,7 +206,7 @@ func TestIntegration_LineSpacing_ModeTransitions(t *testing.T) {
 
 	t.Run("motion unit independence", func(t *testing.T) {
 		// Setup
-		spacing := byte(100)
+		spacing := linespacing.Spacing(100)
 
 		// Execute
 		cmd1 := cmd.SetLineSpacing(spacing)
@@ -214,10 +214,10 @@ func TestIntegration_LineSpacing_ModeTransitions(t *testing.T) {
 
 		// Verify
 		if !bytes.Equal(cmd1, cmd2) {
-			t.Error("Same spacing value should be consistent")
+			t.Error("Same spacing spacing should be consistent")
 		}
-		if cmd1[2] != spacing {
-			t.Errorf("Spacing value = %d, want %d", cmd1[2], spacing)
+		if cmd1[2] != byte(spacing) {
+			t.Errorf("Spacing spacing = %d, want %d", cmd1[2], spacing)
 		}
 	})
 }
@@ -261,7 +261,7 @@ func TestIntegration_LineSpacing_RealWorldScenarios(t *testing.T) {
 		var buffer []byte
 
 		// Execute
-		tableSpacing := byte(35)
+		tableSpacing := linespacing.Spacing(35)
 		buffer = append(buffer, cmd.SetLineSpacing(tableSpacing)...)
 
 		// Simulate printing 10 rows
@@ -273,7 +273,7 @@ func TestIntegration_LineSpacing_RealWorldScenarios(t *testing.T) {
 		buffer = append(buffer, cmd.SelectDefaultLineSpacing()...)
 
 		// Verify
-		expectedSpacing := []byte{common.ESC, '3', tableSpacing}
+		expectedSpacing := []byte{common.ESC, '3', byte(tableSpacing)}
 		if !bytes.Equal(buffer[:3], expectedSpacing) {
 			t.Error("Table should use consistent spacing")
 		}
@@ -284,7 +284,7 @@ func TestIntegration_LineSpacing_RealWorldScenarios(t *testing.T) {
 		var buffer []byte
 		sections := []struct {
 			name    string
-			spacing byte
+			spacing linespacing.Spacing
 		}{
 			{"title", 70},
 			{"subtitle", 50},
@@ -302,7 +302,7 @@ func TestIntegration_LineSpacing_RealWorldScenarios(t *testing.T) {
 		// Verify
 		for i, section := range sections {
 			offset := i * 3
-			if buffer[offset+2] != section.spacing {
+			if buffer[offset+2] != byte(section.spacing) {
 				t.Errorf("Section %s spacing = %d, want %d",
 					section.name, buffer[offset+2], section.spacing)
 			}
@@ -314,7 +314,7 @@ func TestIntegration_LineSpacing_RealWorldScenarios(t *testing.T) {
 		var buffer []byte
 
 		// Execute
-		buffer = append(buffer, cmd.SetLineSpacing(linespacing.MinLineSpacing)...)
+		buffer = append(buffer, cmd.SetLineSpacing(linespacing.MinSpacing)...)
 
 		// Simulate printing many lines
 		// ...
@@ -333,7 +333,7 @@ func TestIntegration_LineSpacing_CompatibilityPatterns(t *testing.T) {
 
 	t.Run("model-specific default values", func(t *testing.T) {
 		// Setup
-		modelDefaults := []byte{30, 40, 50, 60, 70, 80}
+		modelDefaults := []linespacing.Spacing{30, 40, 50, 60, 70, 80}
 
 		for _, defaultVal := range modelDefaults {
 			t.Run(fmt.Sprintf("default_%d", defaultVal), func(t *testing.T) {
