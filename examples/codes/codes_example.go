@@ -1,4 +1,4 @@
-// Package main demonstrates how to test different character encodings
+// Package main demonstrates how to utils different character encodings
 package main
 
 import (
@@ -12,7 +12,7 @@ import (
 	"github.com/adcondev/pos-printer/profile"
 )
 
-// PrinterConfig holds configuration for a printer to test
+// PrinterConfig holds configuration for a printer to utils
 type PrinterConfig struct {
 	Name     string
 	CharSets []encoding.CharacterSet
@@ -69,7 +69,7 @@ func main() {
 	}
 }
 
-// testPrinter tests a single printer with the provided test texts
+// testPrinter tests a single printer with the provided utils texts
 func testPrinter(printer PrinterConfig, testTexts []string) {
 	fmt.Printf("\n=== Probando %s ===\n", printer.Name)
 

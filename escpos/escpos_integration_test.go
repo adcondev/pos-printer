@@ -15,7 +15,7 @@ import (
 // ============================================================================
 
 func TestIntegration_PrintWithLineSpacing_RealImplementations(t *testing.T) {
-	cmd := escpos.NewEscposCommands()
+	cmd := escpos.NewEscposProtocol()
 
 	// Set custom line spacing
 	spacingCmd := cmd.LineSpace.SetLineSpacing(50)
@@ -44,16 +44,18 @@ func TestIntegration_PrintWithLineSpacing_RealImplementations(t *testing.T) {
 }
 
 func TestIntegration_CompleteReceiptFlow(t *testing.T) {
-	cmd := escpos.NewEscposCommands()
+	cmd := escpos.NewEscposProtocol()
 
 	// Build a complete receipt flow
 	commands := []struct {
-		name   string
+		name string
+		// FIXME: change anonymous func to utils helpers
 		action func() ([]byte, error)
 		verify func([]byte) error
 	}{
 		{
 			name: "set line spacing",
+			// FIXME: change anonymous func to utils helpers
 			action: func() ([]byte, error) {
 				return cmd.LineSpace.SetLineSpacing(40), nil
 			},
@@ -67,6 +69,7 @@ func TestIntegration_CompleteReceiptFlow(t *testing.T) {
 		},
 		{
 			name: "print header",
+			// FIXME: change anonymous func to utils helpers
 			action: func() ([]byte, error) {
 				return cmd.Print.Text("RECEIPT")
 			},
@@ -79,6 +82,7 @@ func TestIntegration_CompleteReceiptFlow(t *testing.T) {
 		},
 		{
 			name: "line feed",
+			// FIXME: change anonymous func to utils helpers
 			action: func() ([]byte, error) {
 				return cmd.Print.PrintAndLineFeed(), nil
 			},
@@ -91,6 +95,7 @@ func TestIntegration_CompleteReceiptFlow(t *testing.T) {
 		},
 		{
 			name: "print item",
+			// FIXME: change anonymous func to utils helpers
 			action: func() ([]byte, error) {
 				return cmd.Print.Text("Item 1: $10.00")
 			},
@@ -103,6 +108,7 @@ func TestIntegration_CompleteReceiptFlow(t *testing.T) {
 		},
 		{
 			name: "form feed",
+			// FIXME: change anonymous func to utils helpers
 			action: func() ([]byte, error) {
 				return cmd.Print.FormFeed(), nil
 			},
@@ -133,7 +139,7 @@ func TestIntegration_CompleteReceiptFlow(t *testing.T) {
 func TestIntegration_CustomCapabilities(t *testing.T) {
 	// Create a custom Commands with specific implementations
 	customCmd := &escpos.Protocol{
-		Print:     &print.Commands{Page: &print.PagePrint{}},
+		Print:     &print.Commands{},
 		LineSpace: &linespacing.Commands{},
 	}
 

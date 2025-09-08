@@ -118,7 +118,7 @@ func main() {
 	if err = printer.Feed(1); err != nil {
 		log.Printf("Error: %v", err)
 	}
-	if err = printer.TextLn("Fin del test de imágenes"); err != nil {
+	if err = printer.TextLn("Fin del utils de imágenes"); err != nil {
 		log.Printf("Error: %v", err)
 	}
 	if err = printer.Feed(3); err != nil {

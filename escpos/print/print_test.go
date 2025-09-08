@@ -107,6 +107,7 @@ func TestCommands_Text(t *testing.T) {
 		},
 		{
 			name: "buffer overflow",
+			// FIXME: change anonymous func to utils helpers
 			text: func() string {
 				overflow := make([]byte, common.MaxBuf+1)
 				return string(overflow)
@@ -129,9 +130,9 @@ func TestCommands_Text(t *testing.T) {
 			var baseErr error
 			switch tt.name {
 			case "empty buffer":
-				baseErr = common.ErrEmptyBuffer
+				baseErr = print.ErrEmptyText
 			case "buffer overflow":
-				baseErr = common.ErrBufferOverflow
+				baseErr = print.ErrTextTooLarge
 			default:
 				baseErr = nil
 			}
@@ -224,8 +225,8 @@ func TestCommands_PrintAndLineFeed(t *testing.T) {
 // PagePrint Tests
 // ============================================================================
 
-func TestPagePrint_PrintDataInPageMode(t *testing.T) {
-	pp := &print.PagePrint{}
+func TestCommands_PrintDataInPageMode(t *testing.T) {
+	pp := print.NewCommands()
 	got := pp.PrintDataInPageMode()
 	want := []byte{common.ESC, print.FF}
 
@@ -234,8 +235,8 @@ func TestPagePrint_PrintDataInPageMode(t *testing.T) {
 	}
 }
 
-func TestPagePrint_CancelData(t *testing.T) {
-	pp := &print.PagePrint{}
+func TestCommands_CancelData(t *testing.T) {
+	pp := print.NewCommands()
 	got := pp.CancelData()
 	want := []byte{print.CAN}
 
@@ -244,8 +245,8 @@ func TestPagePrint_CancelData(t *testing.T) {
 	}
 }
 
-func TestPagePrint_PrintAndReverseFeed(t *testing.T) {
-	pp := &print.PagePrint{}
+func TestCommands_PrintAndReverseFeed(t *testing.T) {
+	pp := print.NewCommands()
 
 	tests := []struct {
 		name    string
@@ -291,9 +292,9 @@ func TestPagePrint_PrintAndReverseFeed(t *testing.T) {
 
 			// Check specific error type if expecting error
 			if tt.wantErr && err != nil {
-				if !errors.Is(err, print.ErrPrintReverseFeed) {
+				if !errors.Is(err, print.ErrReverseUnits) {
 					t.Errorf("PrintAndReverseFeed(%v) error = %v, want %v",
-						tt.reverse, err, print.ErrPrintReverseFeed)
+						tt.reverse, err, print.ErrReverseUnits)
 				}
 				return
 			}
@@ -306,8 +307,8 @@ func TestPagePrint_PrintAndReverseFeed(t *testing.T) {
 	}
 }
 
-func TestPagePrint_PrintAndReverseFeedLines(t *testing.T) {
-	pp := &print.PagePrint{}
+func TestCommands_PrintAndReverseFeedLines(t *testing.T) {
+	pp := print.NewCommands()
 
 	tests := []struct {
 		name    string
@@ -353,9 +354,9 @@ func TestPagePrint_PrintAndReverseFeedLines(t *testing.T) {
 
 			// Check specific error type if expecting error
 			if tt.wantErr && err != nil {
-				if !errors.Is(err, print.ErrPrintReverseFeedLines) {
+				if !errors.Is(err, print.ErrReverseLines) {
 					t.Errorf("PrintAndReverseFeedLines(%v) error = %v, want %v",
-						tt.lines, err, print.ErrPrintReverseFeedLines)
+						tt.lines, err, print.ErrReverseLines)
 				}
 				return
 			}
@@ -369,7 +370,7 @@ func TestPagePrint_PrintAndReverseFeedLines(t *testing.T) {
 }
 
 func TestPagePrint_PrintAndFeedLines(t *testing.T) {
-	pp := &print.PagePrint{}
+	pp := print.NewCommands()
 
 	tests := []struct {
 		name    string

@@ -16,82 +16,82 @@ var _ character.Capability = (*MockCapability)(nil)
 // Mock Implementation
 // ============================================================================
 
-// MockCapability provides a test double for character.Capability interface
+// MockCapability provides a utils double for character.Capability interface
 type MockCapability struct {
 	// SetRightSideCharacterSpacing tracking
 	SetRightSideCharacterSpacingCalled bool
-	SetRightSideCharacterSpacingInput  byte
+	SetRightSideCharacterSpacingInput  character.Spacing
 	SetRightSideCharacterSpacingReturn []byte
 
 	// SelectPrintModes tracking
 	SelectPrintModesCalled bool
-	SelectPrintModesInput  byte
+	SelectPrintModesInput  character.PrintMode
 	SelectPrintModesReturn []byte
 
 	// SetUnderlineMode tracking
 	SetUnderlineModeCalled bool
-	SetUnderlineModeInput  byte
+	SetUnderlineModeInput  character.UnderlineMode
 	SetUnderlineModeReturn []byte
 	SetUnderlineModeError  error
 
 	// SetEmphasizedMode tracking
 	SetEmphasizedModeCalled bool
-	SetEmphasizedModeInput  byte
+	SetEmphasizedModeInput  character.EmphasizedMode
 	SetEmphasizedModeReturn []byte
 
 	// SetDoubleStrikeMode tracking
 	SetDoubleStrikeModeCalled bool
-	SetDoubleStrikeModeInput  byte
+	SetDoubleStrikeModeInput  character.DoubleStrikeMode
 	SetDoubleStrikeModeReturn []byte
 
 	// SelectCharacterFont tracking
 	SelectCharacterFontCalled bool
-	SelectCharacterFontInput  byte
+	SelectCharacterFontInput  character.FontType
 	SelectCharacterFontReturn []byte
 	SelectCharacterFontError  error
 
 	// SelectInternationalCharacterSet tracking
 	SelectInternationalCharacterSetCalled bool
-	SelectInternationalCharacterSetInput  byte
+	SelectInternationalCharacterSetInput  character.InternationalSet
 	SelectInternationalCharacterSetReturn []byte
 	SelectInternationalCharacterSetError  error
 
 	// Set90DegreeClockwiseRotationMode tracking
 	Set90DegreeClockwiseRotationModeCalled bool
-	Set90DegreeClockwiseRotationModeInput  byte
+	Set90DegreeClockwiseRotationModeInput  character.RotationMode
 	Set90DegreeClockwiseRotationModeReturn []byte
 	Set90DegreeClockwiseRotationModeError  error
 
 	// SelectPrintColor tracking
 	SelectPrintColorCalled bool
-	SelectPrintColorInput  byte
+	SelectPrintColorInput  character.PrintColor
 	SelectPrintColorReturn []byte
 	SelectPrintColorError  error
 
 	// SelectCharacterCodeTable tracking
 	SelectCharacterCodeTableCalled bool
-	SelectCharacterCodeTableInput  byte
+	SelectCharacterCodeTableInput  character.CodeTable
 	SelectCharacterCodeTableReturn []byte
 	SelectCharacterCodeTableError  error
 
 	// SetUpsideDownMode tracking
 	SetUpsideDownModeCalled bool
-	SetUpsideDownModeInput  byte
+	SetUpsideDownModeInput  character.UpsideDownMode
 	SetUpsideDownModeReturn []byte
 
 	// SelectCharacterSize tracking
 	SelectCharacterSizeCalled bool
-	SelectCharacterSizeInput  byte
+	SelectCharacterSizeInput  character.Size
 	SelectCharacterSizeReturn []byte
 
 	// SetWhiteBlackReverseMode tracking
 	SetWhiteBlackReverseModeCalled bool
-	SetWhiteBlackReverseModeInput  byte
+	SetWhiteBlackReverseModeInput  character.ReverseMode
 	SetWhiteBlackReverseModeReturn []byte
 
 	// SetSmoothingMode tracking
 	SetSmoothingModeCalled bool
-	SetSmoothingModeInput  byte
+	SetSmoothingModeInput  character.SmoothingMode
 	SetSmoothingModeReturn []byte
 
 	// Add call counting
@@ -115,7 +115,7 @@ func (m *MockCapability) GetCallCount(method string) int {
 	return m.CallCount[method]
 }
 
-func (m *MockCapability) SetRightSideCharacterSpacing(n byte) []byte {
+func (m *MockCapability) SetRightSideCharacterSpacing(n character.Spacing) []byte {
 	m.SetRightSideCharacterSpacingCalled = true
 	m.SetRightSideCharacterSpacingInput = n
 	m.CallCount["SetRightSideCharacterSpacing"]++
@@ -123,10 +123,10 @@ func (m *MockCapability) SetRightSideCharacterSpacing(n byte) []byte {
 	if m.SetRightSideCharacterSpacingReturn != nil {
 		return m.SetRightSideCharacterSpacingReturn
 	}
-	return []byte{common.ESC, common.SP, n}
+	return []byte{common.ESC, common.SP, byte(n)}
 }
 
-func (m *MockCapability) SelectPrintModes(n byte) []byte {
+func (m *MockCapability) SelectPrintModes(n character.PrintMode) []byte {
 	m.SelectPrintModesCalled = true
 	m.SelectPrintModesInput = n
 	m.CallCount["SelectPrintModes"]++
@@ -134,10 +134,10 @@ func (m *MockCapability) SelectPrintModes(n byte) []byte {
 	if m.SelectPrintModesReturn != nil {
 		return m.SelectPrintModesReturn
 	}
-	return []byte{common.ESC, '!', n}
+	return []byte{common.ESC, '!', byte(n)}
 }
 
-func (m *MockCapability) SetUnderlineMode(n byte) ([]byte, error) {
+func (m *MockCapability) SetUnderlineMode(n character.UnderlineMode) ([]byte, error) {
 	m.SetUnderlineModeCalled = true
 	m.SetUnderlineModeInput = n
 	m.CallCount["SetUnderlineMode"]++
@@ -148,10 +148,10 @@ func (m *MockCapability) SetUnderlineMode(n byte) ([]byte, error) {
 	if m.SetUnderlineModeReturn != nil {
 		return m.SetUnderlineModeReturn, nil
 	}
-	return []byte{common.ESC, '-', n}, nil
+	return []byte{common.ESC, '-', byte(n)}, nil
 }
 
-func (m *MockCapability) SetEmphasizedMode(n byte) []byte {
+func (m *MockCapability) SetEmphasizedMode(n character.EmphasizedMode) []byte {
 	m.SetEmphasizedModeCalled = true
 	m.SetEmphasizedModeInput = n
 	m.CallCount["SetEmphasizedMode"]++
@@ -159,10 +159,10 @@ func (m *MockCapability) SetEmphasizedMode(n byte) []byte {
 	if m.SetEmphasizedModeReturn != nil {
 		return m.SetEmphasizedModeReturn
 	}
-	return []byte{common.ESC, 'E', n}
+	return []byte{common.ESC, 'E', byte(n)}
 }
 
-func (m *MockCapability) SetDoubleStrikeMode(n byte) []byte {
+func (m *MockCapability) SetDoubleStrikeMode(n character.DoubleStrikeMode) []byte {
 	m.SetDoubleStrikeModeCalled = true
 	m.SetDoubleStrikeModeInput = n
 	m.CallCount["SetDoubleStrikeMode"]++
@@ -170,10 +170,10 @@ func (m *MockCapability) SetDoubleStrikeMode(n byte) []byte {
 	if m.SetDoubleStrikeModeReturn != nil {
 		return m.SetDoubleStrikeModeReturn
 	}
-	return []byte{common.ESC, 'G', n}
+	return []byte{common.ESC, 'G', byte(n)}
 }
 
-func (m *MockCapability) SelectCharacterFont(n byte) ([]byte, error) {
+func (m *MockCapability) SelectCharacterFont(n character.FontType) ([]byte, error) {
 	m.SelectCharacterFontCalled = true
 	m.SelectCharacterFontInput = n
 	m.CallCount["SelectCharacterFont"]++
@@ -184,10 +184,10 @@ func (m *MockCapability) SelectCharacterFont(n byte) ([]byte, error) {
 	if m.SelectCharacterFontReturn != nil {
 		return m.SelectCharacterFontReturn, nil
 	}
-	return []byte{common.ESC, 'M', n}, nil
+	return []byte{common.ESC, 'M', byte(n)}, nil
 }
 
-func (m *MockCapability) SelectInternationalCharacterSet(n byte) ([]byte, error) {
+func (m *MockCapability) SelectInternationalCharacterSet(n character.InternationalSet) ([]byte, error) {
 	m.SelectInternationalCharacterSetCalled = true
 	m.SelectInternationalCharacterSetInput = n
 	m.CallCount["SelectInternationalCharacterSet"]++
@@ -198,10 +198,10 @@ func (m *MockCapability) SelectInternationalCharacterSet(n byte) ([]byte, error)
 	if m.SelectInternationalCharacterSetReturn != nil {
 		return m.SelectInternationalCharacterSetReturn, nil
 	}
-	return []byte{common.ESC, 'R', n}, nil
+	return []byte{common.ESC, 'R', byte(n)}, nil
 }
 
-func (m *MockCapability) Set90DegreeClockwiseRotationMode(n byte) ([]byte, error) {
+func (m *MockCapability) Set90DegreeClockwiseRotationMode(n character.RotationMode) ([]byte, error) {
 	m.Set90DegreeClockwiseRotationModeCalled = true
 	m.Set90DegreeClockwiseRotationModeInput = n
 	m.CallCount["Set90DegreeClockwiseRotationMode"]++
@@ -212,10 +212,10 @@ func (m *MockCapability) Set90DegreeClockwiseRotationMode(n byte) ([]byte, error
 	if m.Set90DegreeClockwiseRotationModeReturn != nil {
 		return m.Set90DegreeClockwiseRotationModeReturn, nil
 	}
-	return []byte{common.ESC, 'V', n}, nil
+	return []byte{common.ESC, 'V', byte(n)}, nil
 }
 
-func (m *MockCapability) SelectPrintColor(n byte) ([]byte, error) {
+func (m *MockCapability) SelectPrintColor(n character.PrintColor) ([]byte, error) {
 	m.SelectPrintColorCalled = true
 	m.SelectPrintColorInput = n
 	m.CallCount["SelectPrintColor"]++
@@ -226,10 +226,10 @@ func (m *MockCapability) SelectPrintColor(n byte) ([]byte, error) {
 	if m.SelectPrintColorReturn != nil {
 		return m.SelectPrintColorReturn, nil
 	}
-	return []byte{common.ESC, 'r', n}, nil
+	return []byte{common.ESC, 'r', byte(n)}, nil
 }
 
-func (m *MockCapability) SelectCharacterCodeTable(n byte) ([]byte, error) {
+func (m *MockCapability) SelectCharacterCodeTable(n character.CodeTable) ([]byte, error) {
 	m.SelectCharacterCodeTableCalled = true
 	m.SelectCharacterCodeTableInput = n
 	m.CallCount["SelectCharacterCodeTable"]++
@@ -240,10 +240,10 @@ func (m *MockCapability) SelectCharacterCodeTable(n byte) ([]byte, error) {
 	if m.SelectCharacterCodeTableReturn != nil {
 		return m.SelectCharacterCodeTableReturn, nil
 	}
-	return []byte{common.ESC, 't', n}, nil
+	return []byte{common.ESC, 't', byte(n)}, nil
 }
 
-func (m *MockCapability) SetUpsideDownMode(n byte) []byte {
+func (m *MockCapability) SetUpsideDownMode(n character.UpsideDownMode) []byte {
 	m.SetUpsideDownModeCalled = true
 	m.SetUpsideDownModeInput = n
 	m.CallCount["SetUpsideDownMode"]++
@@ -251,10 +251,10 @@ func (m *MockCapability) SetUpsideDownMode(n byte) []byte {
 	if m.SetUpsideDownModeReturn != nil {
 		return m.SetUpsideDownModeReturn
 	}
-	return []byte{common.ESC, '{', n}
+	return []byte{common.ESC, '{', byte(n)}
 }
 
-func (m *MockCapability) SelectCharacterSize(n byte) []byte {
+func (m *MockCapability) SelectCharacterSize(n character.Size) []byte {
 	m.SelectCharacterSizeCalled = true
 	m.SelectCharacterSizeInput = n
 	m.CallCount["SelectCharacterSize"]++
@@ -262,10 +262,10 @@ func (m *MockCapability) SelectCharacterSize(n byte) []byte {
 	if m.SelectCharacterSizeReturn != nil {
 		return m.SelectCharacterSizeReturn
 	}
-	return []byte{common.GS, '!', n}
+	return []byte{common.GS, '!', byte(n)}
 }
 
-func (m *MockCapability) SetWhiteBlackReverseMode(n byte) []byte {
+func (m *MockCapability) SetWhiteBlackReverseMode(n character.ReverseMode) []byte {
 	m.SetWhiteBlackReverseModeCalled = true
 	m.SetWhiteBlackReverseModeInput = n
 	m.CallCount["SetWhiteBlackReverseMode"]++
@@ -273,10 +273,10 @@ func (m *MockCapability) SetWhiteBlackReverseMode(n byte) []byte {
 	if m.SetWhiteBlackReverseModeReturn != nil {
 		return m.SetWhiteBlackReverseModeReturn
 	}
-	return []byte{common.GS, 'B', n}
+	return []byte{common.GS, 'B', byte(n)}
 }
 
-func (m *MockCapability) SetSmoothingMode(n byte) []byte {
+func (m *MockCapability) SetSmoothingMode(n character.SmoothingMode) []byte {
 	m.SetSmoothingModeCalled = true
 	m.SetSmoothingModeInput = n
 	m.CallCount["SetSmoothingMode"]++
@@ -284,7 +284,7 @@ func (m *MockCapability) SetSmoothingMode(n byte) []byte {
 	if m.SetSmoothingModeReturn != nil {
 		return m.SetSmoothingModeReturn
 	}
-	return []byte{common.GS, 'b', n}
+	return []byte{common.GS, 'b', byte(n)}
 }
 
 // ============================================================================
@@ -330,16 +330,16 @@ func TestMockCapability_BehaviorTracking(t *testing.T) {
 
 	t.Run("simulates SetUnderlineMode error", func(t *testing.T) {
 		mock := NewMockCapability()
-		mock.SetUnderlineModeError = character.ErrInvalidUnderlineMode
+		mock.SetUnderlineModeError = character.ErrUnderlineMode
 
 		_, err := mock.SetUnderlineMode(99)
 
 		if !mock.SetUnderlineModeCalled {
 			t.Error("SetUnderlineMode() should be marked as called")
 		}
-		if !errors.Is(err, character.ErrInvalidUnderlineMode) {
+		if !errors.Is(err, character.ErrUnderlineMode) {
 			t.Errorf("SetUnderlineMode() error = %v, want %v",
-				err, character.ErrInvalidUnderlineMode)
+				err, character.ErrUnderlineMode)
 		}
 	})
 

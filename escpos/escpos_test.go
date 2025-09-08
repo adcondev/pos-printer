@@ -7,7 +7,6 @@ import (
 
 	"github.com/adcondev/pos-printer/escpos"
 	"github.com/adcondev/pos-printer/escpos/common"
-	"github.com/adcondev/pos-printer/escpos/linespacing"
 	"github.com/adcondev/pos-printer/escpos/print"
 )
 
@@ -16,7 +15,7 @@ import (
 // ============================================================================
 
 func TestCommands_Raw_EmptyBuffer(t *testing.T) {
-	cmd := escpos.NewEscposCommands()
+	cmd := escpos.NewEscposProtocol()
 
 	_, err := cmd.Raw([]byte(""))
 
@@ -26,7 +25,7 @@ func TestCommands_Raw_EmptyBuffer(t *testing.T) {
 }
 
 func TestCommands_Raw_ValidInput(t *testing.T) {
-	cmd := escpos.NewEscposCommands()
+	cmd := escpos.NewEscposProtocol()
 
 	tests := []struct {
 		name  string
@@ -65,48 +64,27 @@ func TestCommands_Raw_ValidInput(t *testing.T) {
 }
 
 func TestNewEscposProtocol_Initialization(t *testing.T) {
-	cmd := escpos.NewEscposCommands()
+	cmd := escpos.NewEscposProtocol()
 
 	// Verify Commands struct is created
 	if cmd == nil {
-		t.Fatal("NewEscposCommands() returned nil")
+		t.Fatal("NewEscposProtocol() returned nil")
 	}
 
 	// Verify Print capability is initialized
 	if cmd.Print == nil {
-		t.Fatal("NewEscposCommands() Print capability should not be nil")
+		t.Fatal("NewEscposProtocol() Print capability should not be nil")
 	}
 
 	// Verify LineSpace capability is initialized
 	if cmd.LineSpace == nil {
-		t.Fatal("NewEscposCommands() LineSpace capability should not be nil")
+		t.Fatal("NewEscposProtocol() LineSpace capability should not be nil")
 	}
 
-	// Verify Print has correct type and Page capability
-	pc, ok := cmd.Print.(*print.Commands)
-	if !ok {
-		t.Fatal("NewEscposCommands() Print should be of type *PrintCommands")
-	}
-
-	if pc.Page == nil {
-		t.Fatal("NewEscposCommands() PrintCommands.Page should not be nil")
-	}
-
-	// Verify Page has correct type
-	_, ok = pc.Page.(*print.PagePrint)
-	if !ok {
-		t.Error("NewEscposCommands() Page should be of type *PagePrint")
-	}
-
-	// Verify LineSpace has correct type
-	_, ok = cmd.LineSpace.(*linespacing.Commands)
-	if !ok {
-		t.Error("NewEscposCommands() LineSpace should be of type *LineSpacingCommands")
-	}
 }
 
 func TestCommands_Integration_PrintWithLineSpacing(t *testing.T) {
-	cmd := escpos.NewEscposCommands()
+	cmd := escpos.NewEscposProtocol()
 
 	// Set line spacing
 	spacingResult := cmd.LineSpace.SetLineSpacing(40)

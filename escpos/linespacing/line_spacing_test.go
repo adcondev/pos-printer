@@ -13,9 +13,9 @@ import (
 func TestLineSpacingCommands_SetLineSpacing(t *testing.T) {
 	lsc := linespacing.NewCommands()
 	tests := []struct {
-		name string
-		n    byte
-		want []byte
+		name    string
+		spacing linespacing.Spacing
+		want    []byte
 	}{
 		{
 			"minimum spacing (0 dots)",
@@ -36,9 +36,9 @@ func TestLineSpacingCommands_SetLineSpacing(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := lsc.SetLineSpacing(tt.n)
+			got := lsc.SetLineSpacing(tt.spacing)
 			if !bytes.Equal(got, tt.want) {
-				t.Errorf("SetLineSpacing(%d) = %#v; want %#v", tt.n, got, tt.want)
+				t.Errorf("SetLineSpacing(%d) = %#v; want %#v", tt.spacing, got, tt.want)
 			}
 		})
 	}
