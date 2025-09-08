@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.2.0](https://github.com/AdConDev/pos-daemon/compare/v1.1.0...v1.2.0) (2025-09-08)
+
+
+### ✨ Features
+
+* **printposition:** add print position management commands ([bc25641](https://github.com/AdConDev/pos-daemon/commit/bc256411ee830abdfd4757097942acb5c68dcabb))
+
+
+### ✅ Tests
+
+* **printposition:** update tests for print position functionality ([ab7705f](https://github.com/AdConDev/pos-daemon/commit/ab7705f279c4af5845b0145ac81463baa460fe5a))
+* **print:** update error messages and assertions in tests ([3932bc0](https://github.com/AdConDev/pos-daemon/commit/3932bc0b14cc08b0b99fc3a2bb52052bed0b0b4a))
+* **print:** update tests for print command integration ([74d8e58](https://github.com/AdConDev/pos-daemon/commit/74d8e5835311ce7d3b61843f2f5bc6df365249ce))
+* **test:** add assertion helpers for testing utilities ([e382f4f](https://github.com/AdConDev/pos-daemon/commit/e382f4f36446f4d602de02499c14857fbc68f3e7))
+
 ## [1.1.0](https://github.com/AdConDev/pos-daemon/compare/v1.0.1...v1.1.0) (2025-09-02)
 
 
