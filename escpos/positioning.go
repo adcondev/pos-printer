@@ -38,24 +38,3 @@ func (c *Protocol) SetJustification(justification Alignment) ([]byte, error) {
 	// ESC a n
 	return []byte{common.ESC, 'a', alignment}, nil
 }
-
-// SetHorizontalTabPositions establece las posiciones de tabulación horizontal
-func SetHorizontalTabPositions(n TabColumnNumber, k TabTotalPosition) ([]byte, error) {
-	if k > 32 {
-		return nil, fmt.Errorf("k fuera de rango (0-32): %d", k)
-	}
-	if len(n) != int(k) {
-		return nil, fmt.Errorf("la longitud de n (%d) no coincide con k (%d)", len(n), k)
-	}
-	for i := 0; i < len(n)-1; i++ {
-		if n[i] >= n[i+1] {
-			return nil, fmt.Errorf("las posiciones de tabulación deben ser estrictamente ascendentes: %d no es menor que %d", n[i], n[i+1])
-		}
-	}
-
-	cmd := []byte{common.ESC, 'D'}
-	cmd = append(cmd, n...)
-	cmd = append(cmd, common.NUL) // NUL al final
-
-	return cmd, nil
-}

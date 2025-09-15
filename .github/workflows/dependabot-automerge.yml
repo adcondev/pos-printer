@@ -1,9 +1,9 @@
 name: Dependabot Enhanced Auto-merge
 on:
   pull_request:
-    types: [opened, synchronize, reopened]
+    types: [ opened, synchronize, reopened ]
   pull_request_target:
-    types: [opened, synchronize, reopened]
+    types: [ opened, synchronize, reopened ]
 
 permissions:
   contents: write
@@ -18,7 +18,7 @@ jobs:
     if: github.actor == 'dependabot[bot]'
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
@@ -35,7 +35,7 @@ jobs:
             local name=$1
             local color=$2
             local description=$3
-            
+          
             if ! gh label list --repo ${{ github.repository }} | grep -q "^$name"; then
               echo "Creating label: $name"
               gh api repos/${{ github.repository }}/labels \
@@ -75,7 +75,7 @@ jobs:
 
       - name: Wait for checks
         if: steps.check-update.outputs.is_major == 'false'
-        uses: lewagon/wait-on-check-action@v1.3.1
+        uses: lewagon/wait-on-check-action@v1.4.0
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           check-regexp: '.*'
