@@ -1,0 +1,47 @@
+name: PR Status Dashboard
+on:
+  schedule:
+    - cron: '0 9 * * 1'  # Lunes a las 9 AM
+  workflow_dispatch:
+
+jobs:
+  check-prs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check Dependabot PRs
+        run: |
+          echo "## 📊 Dependabot PRs Status Report"
+          echo "Generated: $(date)"
+          echo ""
+          
+          echo "### Open PRs from Dependabot:"
+          gh pr list --author "app/dependabot" --json number,title,labels,createdAt \
+            --jq '.[] | "- PR #\(.number): \(.title) - Labels: \(.labels[].name // "none") - Created: \(.createdAt)"'
+          
+          echo ""
+          echo "### PRs needing review:"
+          gh pr list --label "needs-review" --json number,title,author \
+            --jq '.[] | "- PR #\(.number): \(.title) by \(.author.login)"'
+          
+          echo ""
+          echo "### Auto-merge enabled PRs:"
+          gh pr list --label "auto-merge" --json number,title,mergeable \
+            --jq '.[] | "- PR #\(.number): \(.title) - Mergeable: \(.mergeable)"'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create issue if needed
+        run: |
+          NEEDS_REVIEW_COUNT=$(gh pr list --label "needs-review" --json number --jq '. | length')
+          
+          if [ "$NEEDS_REVIEW_COUNT" -gt 0 ]; then
+            gh issue create \
+              --title "⚠️ $NEEDS_REVIEW_COUNT PRs need manual review" \
+              --body "There are $NEEDS_REVIEW_COUNT pull requests waiting for manual review. Please check PRs with the 'needs-review' label." \
+              --label "maintenance" || echo "Issue might already exist"
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
