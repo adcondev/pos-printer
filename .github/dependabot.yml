@@ -7,7 +7,7 @@ updates:
       interval: "weekly"
       day: "monday"
       time: "09:00"
-    open-pull-requests-limit: 3  # Límite bajo para no saturar
+    open-pull-requests-limit: 5  # Límite bajo para no saturar
     labels:
       - "dependencies"
       - "automerge"  # Para auto-merge de patches
@@ -23,12 +23,36 @@ updates:
           - "minor"
           - "patch"
 
+  # Dependencias de npm
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 5
+    groups:
+      # Agrupar actualizaciones menores y patches
+      minor-and-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+    labels:
+      - "dependencies"
+      - "javascript"
+    commit-message:
+      prefix: "deps"
+      prefix-development: "deps-dev"
+      include: "scope"
+
   # GitHub Actions - mensual es suficiente
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "monthly"
-    open-pull-requests-limit: 2
+    open-pull-requests-limit: 5
     labels:
       - "ci"
       - "automerge"

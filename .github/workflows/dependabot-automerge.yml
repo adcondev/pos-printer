@@ -1,42 +1,135 @@
-name: Dependabot Auto-merge
-
+name: Dependabot Enhanced Auto-merge
 on:
   pull_request:
+    types: [ opened, synchronize, reopened ]
+  pull_request_target:
+    types: [ opened, synchronize, reopened ]
 
 permissions:
   contents: write
   pull-requests: write
+  issues: write
+  actions: write
+  checks: read
 
 jobs:
-  automerge:
+  auto-merge:
     runs-on: ubuntu-latest
     if: github.actor == 'dependabot[bot]'
-
     steps:
-      - name: Fetch metadata
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get Dependabot metadata
         id: metadata
         uses: dependabot/fetch-metadata@v2
+        with:
+          github-token: "${{ secrets.GITHUB_TOKEN }}"
 
-      # Auto-merge solo patches, el resto requiere revisión
-      - name: Auto-merge patches
-        if: steps.metadata.outputs.update-type == 'version-update:semver-patch'
+      - name: Setup labels
         run: |
-          gh pr review --approve "${{ github.event.pull_request.html_url }}"
-          gh pr merge --auto --squash "${{ github.event.pull_request.html_url }}"
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      # Crear etiqueta si no existe y luego añadir al PR
-      - name: Label non-patch updates
-        if: steps.metadata.outputs.update-type != 'version-update:semver-patch'
-        run: |
-          # Verificar si la etiqueta existe, si no, crearla
-          if ! gh label list | grep -q "needs-review"; then
-            echo "Creando etiqueta 'needs-review'"
-            gh label create "needs-review" --color "ededed" --description "Requiere revisión manual"
-          fi
+          # Función para crear label si no existe
+          create_label_if_not_exists() {
+            local name=$1
+            local color=$2
+            local description=$3
           
-          # Añadir la etiqueta al PR
-          gh pr edit "${{ github.event.pull_request.html_url }}" --add-label "needs-review"
+            if ! gh label list --repo ${{ github.repository }} | grep -q "^$name"; then
+              echo "Creating label: $name"
+              gh api repos/${{ github.repository }}/labels \
+                -f name="$name" \
+                -f color="$color" \
+                -f description="$description" || echo "Label might already exist"
+            fi
+          }
+          
+          # Crear labels necesarios
+          create_label_if_not_exists "dependencies" "0366d6" "Pull requests that update a dependency file"
+          create_label_if_not_exists "needs-review" "ededed" "Requires manual review"
+          create_label_if_not_exists "auto-merge" "22863a" "Auto-merge enabled"
+          create_label_if_not_exists "major-update" "b60205" "Major version update"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check update type and set labels
+        id: check-update
+        run: |
+          UPDATE_TYPE="${{ steps.metadata.outputs.update-type }}"
+          PR_NUMBER="${{ github.event.pull_request.number }}"
+          
+          # Añadir label de dependencies siempre
+          gh pr edit $PR_NUMBER --add-label "dependencies"
+          
+          if [[ "$UPDATE_TYPE" == "version-update:semver-major" ]]; then
+            echo "is_major=true" >> $GITHUB_OUTPUT
+            gh pr edit $PR_NUMBER --add-label "major-update,needs-review"
+            echo "::warning::Major version update detected - manual review required"
+          else
+            echo "is_major=false" >> $GITHUB_OUTPUT
+            gh pr edit $PR_NUMBER --add-label "auto-merge"
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Wait for checks
+        if: steps.check-update.outputs.is_major == 'false'
+        uses: lewagon/wait-on-check-action@v1.3.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          check-regexp: '.*'
+          wait-interval: 10
+          running-workflow-name: 'Dependabot Enhanced Auto-merge'
+
+      - name: Auto-approve and merge
+        if: steps.check-update.outputs.is_major == 'false'
+        run: |
+          PR_NUMBER="${{ github.event.pull_request.number }}"
+          
+          echo "Approving PR #$PR_NUMBER"
+          gh pr review $PR_NUMBER --approve
+          
+          echo "Enabling auto-merge for PR #$PR_NUMBER"
+          gh pr merge $PR_NUMBER --auto --squash --delete-branch
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Comment on major updates
+        if: steps.check-update.outputs.is_major == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const metadata = {
+              updateType: "${{ steps.metadata.outputs.update-type }}",
+              dependencyNames: "${{ steps.metadata.outputs.dependency-names }}",
+              previousVersion: "${{ steps.metadata.outputs.previous-version }}",
+              newVersion: "${{ steps.metadata.outputs.new-version }}"
+            };
+            
+            const comment = `## ⚠️ Major Version Update Detected
+            
+            This Dependabot PR contains a major version update that requires manual review.
+            
+            ### Update Details
+            - **Dependency**: ${metadata.dependencyNames}
+            - **Previous Version**: ${metadata.previousVersion}
+            - **New Version**: ${metadata.newVersion}
+            - **Update Type**: ${metadata.updateType}
+            
+            ### Action Required
+            1. Review the [release notes](https://github.com/search?q=repo:${metadata.dependencyNames}+${metadata.newVersion}&type=releases)
+            2. Check for breaking changes
+            3. Update code if necessary
+            4. Manually approve and merge when ready
+            
+            ### Resources
+            - [Dependency changelog](https://github.com/${metadata.dependencyNames}/releases)
+            - [Security advisories](https://github.com/${metadata.dependencyNames}/security/advisories)`;
+            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: comment
+            });
