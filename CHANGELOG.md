@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.3.1](https://github.com/AdConDev/pos-daemon/compare/v1.3.0...v1.3.1) (2025-09-15)
+
+
+### 🤖 Continuous Integration
+
+* bump actions/checkout from 4 to 5 ([1e9499f](https://github.com/AdConDev/pos-daemon/commit/1e9499f554f7e4ff92a4b530e59607b54efb79bd))
+* bump actions/github-script from 7 to 8 ([71bad7d](https://github.com/AdConDev/pos-daemon/commit/71bad7dd4ce67078fff9c54b17a178db0f71a023))
+* bump actions/labeler from 5 to 6 ([e965a54](https://github.com/AdConDev/pos-daemon/commit/e965a5492638a9a97927630e38b83675e6916a18))
+* bump actions/setup-go from 5 to 6 ([e62e0e0](https://github.com/AdConDev/pos-daemon/commit/e62e0e00eba21e2af109e7016bed19e2776d998a))
+* bump actions/setup-node from 4 to 5 ([07802e7](https://github.com/AdConDev/pos-daemon/commit/07802e78c30ba8e3f66006d9fb2328ce76e2c771))
+* bump lewagon/wait-on-check-action from 1.3.1 to 1.4.0 ([b39aad5](https://github.com/AdConDev/pos-daemon/commit/b39aad5ad15bb25245b36d7e55f993581d8644f0))
+
+
+### 📦 Dependencies
+
+* **deps:** bump golang.org/x/image from 0.30.0 to 0.31.0 in the golang-x group ([#22](https://github.com/adcondev/pos-printer/issues/22)) ([3c7131d](https://github.com/AdConDev/pos-daemon/commit/3c7131d6b5f338f248aaa9b19b1b6559f8698ddb))
+
 ## [1.3.0](https://github.com/AdConDev/pos-daemon/compare/v1.2.1...v1.3.0) (2025-09-15)
 
 
