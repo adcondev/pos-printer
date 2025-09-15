@@ -4,15 +4,15 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### [1.2.1](https://github.com/AdConDev/pos-daemon/compare/v1.2.0...v1.2.1) (2025-09-15)
 
-
 ### 📦 Dependencies
 
-* **deps:** bump golang.org/x/text in the golang-x group ([cc79970](https://github.com/AdConDev/pos-daemon/commit/cc79970113218c838146bc75c0bac88c8a624c05))
-
+* **deps:** bump golang.org/x/text in the golang-x
+  group ([cc79970](https://github.com/AdConDev/pos-daemon/commit/cc79970113218c838146bc75c0bac88c8a624c05))
 
 ### 🤖 Continuous Integration
 
-* **dependabot:** enhance auto-merge workflow and add PR status dashboard ([1add7a1](https://github.com/AdConDev/pos-daemon/commit/1add7a13707c7835ad0b0ba5616daee9003d527a))
+* **dependabot:** enhance auto-merge workflow and add PR status
+  dashboard ([1add7a1](https://github.com/AdConDev/pos-daemon/commit/1add7a13707c7835ad0b0ba5616daee9003d527a))
 
 ## [1.2.0](https://github.com/AdConDev/pos-daemon/compare/v1.1.0...v1.2.0) (2025-09-08)
 

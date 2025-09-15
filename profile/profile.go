@@ -71,9 +71,9 @@ func CreatePt210() *Escpos {
 		encoding.CP858,
 	}
 
-	p.DefaultCharSet = 0 // CP858 para español
-	p.QRMaxVersion = 19  // Máxima versión QR soportada
-	p.SupportsQR = true  // Soporta QR nativo
+	p.DefaultCharSet = encoding.CP858 // CP858 para español
+	p.QRMaxVersion = 19               // Máxima versión QR soportada
+	p.SupportsQR = true               // Soporta QR nativo
 	return p
 }
 
