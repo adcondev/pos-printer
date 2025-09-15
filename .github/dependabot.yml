@@ -1,20 +1,19 @@
 version: 2
 updates:
-  # Go - chequeo semanal para no ser invasivo
+  # Go dependencies
   - package-ecosystem: "gomod"
     directory: "/"
     schedule:
       interval: "weekly"
       day: "monday"
       time: "09:00"
-    open-pull-requests-limit: 5  # Límite bajo para no saturar
+    open-pull-requests-limit: 10
     labels:
       - "dependencies"
-      - "automerge"  # Para auto-merge de patches
+      - "auto-merge"  # Consistent with the workflow
     commit-message:
       prefix: "deps"
       include: "scope"
-    # Agrupar updates menores de golang.org/x
     groups:
       golang-x:
         patterns:
@@ -23,16 +22,15 @@ updates:
           - "minor"
           - "patch"
 
-  # Dependencias de npm
+  # npm dependencies
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
       interval: "weekly"
       day: "monday"
       time: "09:00"
-    open-pull-requests-limit: 5
+    open-pull-requests-limit: 10
     groups:
-      # Agrupar actualizaciones menores y patches
       minor-and-patch:
         patterns:
           - "*"
@@ -42,19 +40,21 @@ updates:
     labels:
       - "dependencies"
       - "javascript"
+      - "auto-merge"  # Added for consistency
     commit-message:
       prefix: "deps"
       prefix-development: "deps-dev"
       include: "scope"
 
-  # GitHub Actions - mensual es suficiente
+  # GitHub Actions
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "monthly"
-    open-pull-requests-limit: 5
+    open-pull-requests-limit: 10
     labels:
-      - "ci"
-      - "automerge"
+      - "dependencies"
+      - "github-actions"
+      - "auto-merge"  # Changed from "ci" for consistency
     commit-message:
       prefix: "ci"
