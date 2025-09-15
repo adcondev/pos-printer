@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.3.0](https://github.com/AdConDev/pos-daemon/compare/v1.2.1...v1.3.0) (2025-09-15)
+
+
+### ✨ Features
+
+* **udchars:** add user-defined character test example ([f1e53cc](https://github.com/AdConDev/pos-daemon/commit/f1e53cc2799228917bfb476a96443794ddb78f81))
+
 ### [1.2.1](https://github.com/AdConDev/pos-daemon/compare/v1.2.0...v1.2.1) (2025-09-15)
 
 ### 📦 Dependencies
