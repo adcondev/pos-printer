@@ -82,30 +82,3 @@ func (c *Protocol) CancelKanjiMode() []byte {
 func (c *Protocol) SelectKanjiMode() []byte {
 	return []byte{common.FS, '&'}
 }
-
-// FIXME: Hacer trabajo similar al de las codepages.
-
-// SelectInternationalCharacterSet define los conjuntos de caracteres internacionales
-func SelectInternationalCharacterSet(n byte) []byte {
-	cmd := []byte{common.ESC, 'R', n}
-	return cmd
-}
-
-// CancelUserDefinedCharacters cancela la definición de un carácter definido por el usuario
-func CancelUserDefinedCharacters(n UserDefinedChar) ([]byte, error) {
-	if n < 32 || n > 126 {
-		return nil, fmt.Errorf("n debe estar en el rango de 32 a 126, recibido: %d", n)
-	}
-	defChar := byte(n)
-	cmd := []byte{common.ESC, '?', defChar}
-	return cmd, nil
-}
-
-// DefineUserDefinedCharacters define uno o más caracteres definidos por el usuario
-func DefineUserDefinedCharacters(y, c1, c2 byte, data ...[]byte) []byte {
-	cmd := []byte{common.ESC, '&', y, c1, c2}
-	for _, d := range data {
-		cmd = append(cmd, d...)
-	}
-	return cmd
-}

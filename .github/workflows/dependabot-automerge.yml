@@ -1,9 +1,9 @@
 name: Dependabot Enhanced Auto-merge
 on:
   pull_request:
-    types: [opened, synchronize, reopened]
+    types: [ opened, synchronize, reopened ]
   pull_request_target:
-    types: [opened, synchronize, reopened]
+    types: [ opened, synchronize, reopened ]
 
 permissions:
   contents: write
@@ -35,7 +35,7 @@ jobs:
             local name=$1
             local color=$2
             local description=$3
-            
+          
             if ! gh label list --repo ${{ github.repository }} | grep -q "^$name"; then
               echo "Creating label: $name"
               gh api repos/${{ github.repository }}/labels \
