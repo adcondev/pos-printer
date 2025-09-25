@@ -32,9 +32,9 @@ func TestIntegration_Character_StandardWorkflow(t *testing.T) {
 		}
 		buffer = append(buffer, underlineCmd...)
 
-		sizeConfig, err := character.BuildCharacterSize(2, 2) // Double width and height
+		sizeConfig, err := character.NewSize(2, 2) // Double width and height
 		if err != nil {
-			t.Fatalf("BuildCharacterSize: %v", err)
+			t.Fatalf("NewSize: %v", err)
 		}
 		buffer = append(buffer, cmd.SelectCharacterSize(sizeConfig)...)
 
@@ -338,9 +338,9 @@ func TestIntegration_Character_EdgeCases(t *testing.T) {
 		// Execute
 		buffer = append(buffer, cmd.SetRightSideCharacterSpacing(255)...)
 
-		maxSize, err := character.BuildCharacterSize(8, 8)
+		maxSize, err := character.NewSize(8, 8)
 		if err != nil {
-			t.Fatalf("BuildCharacterSize(8,8): %v", err)
+			t.Fatalf("NewSize(8,8): %v", err)
 		}
 		buffer = append(buffer, cmd.SelectCharacterSize(maxSize)...)
 
@@ -363,9 +363,9 @@ func TestIntegration_Character_EdgeCases(t *testing.T) {
 		// Execute
 		buffer = append(buffer, cmd.SetRightSideCharacterSpacing(0)...)
 
-		minSize, err := character.BuildCharacterSize(1, 1)
+		minSize, err := character.NewSize(1, 1)
 		if err != nil {
-			t.Fatalf("BuildCharacterSize(1,1): %v", err)
+			t.Fatalf("NewSize(1,1): %v", err)
 		}
 		buffer = append(buffer, cmd.SelectCharacterSize(minSize)...)
 
@@ -454,14 +454,14 @@ func TestIntegration_Character_ErrorConditions(t *testing.T) {
 		}
 
 		// Invalid character size
-		_, err = character.BuildCharacterSize(0, 1)
+		_, err = character.NewSize(0, 1)
 		if err == nil {
-			t.Error("BuildCharacterSize(0,1) should return error")
+			t.Error("NewSize(0,1) should return error")
 		}
 
-		_, err = character.BuildCharacterSize(1, 9)
+		_, err = character.NewSize(1, 9)
 		if err == nil {
-			t.Error("BuildCharacterSize(1,9) should return error")
+			t.Error("NewSize(1,9) should return error")
 		}
 	})
 
@@ -547,12 +547,12 @@ func TestIntegration_Character_RealWorldScenarios(t *testing.T) {
 		var buffer []byte
 
 		// Execute
-		titleSize, _ := character.BuildCharacterSize(2, 3)
+		titleSize, _ := character.NewSize(2, 3)
 		buffer = append(buffer, cmd.SelectCharacterSize(titleSize)...)
 		buffer = append(buffer, cmd.SetEmphasizedMode(1)...)
 		// ... print title ...
 
-		normalSize, _ := character.BuildCharacterSize(1, 1)
+		normalSize, _ := character.NewSize(1, 1)
 		buffer = append(buffer, cmd.SelectCharacterSize(normalSize)...)
 		buffer = append(buffer, cmd.SetEmphasizedMode(0)...)
 		underlineCmd, _ := cmd.SetUnderlineMode(character.OneDot)
@@ -613,7 +613,7 @@ func TestIntegration_Character_RealWorldScenarios(t *testing.T) {
 
 		buffer = append(buffer, cmd.SetWhiteBlackReverseMode(character.OnRm)...)
 
-		promoSize, _ := character.BuildCharacterSize(3, 2)
+		promoSize, _ := character.NewSize(3, 2)
 		buffer = append(buffer, cmd.SelectCharacterSize(promoSize)...)
 
 		buffer = append(buffer, cmd.SetWhiteBlackReverseMode(character.OffRm)...)
