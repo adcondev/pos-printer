@@ -118,10 +118,10 @@ func (fc *FakeCapability) SetHorizontalTabPositions(positions []byte) ([]byte, e
 	prevPos := byte(0)
 	for _, pos := range positions {
 		if pos == 0 || pos > printposition.MaxTabValue {
-			return nil, printposition.ErrInvalidTabPosition
+			return nil, printposition.ErrTabPosition
 		}
 		if pos <= prevPos {
-			return nil, printposition.ErrInvalidTabPosition
+			return nil, printposition.ErrTabPosition
 		}
 		prevPos = pos
 	}
@@ -149,7 +149,7 @@ func (fc *FakeCapability) SelectJustification(mode byte) ([]byte, error) {
 	case 0, 1, 2, '0', '1', '2':
 		// Valid
 	default:
-		return nil, printposition.ErrInvalidJustification
+		return nil, printposition.ErrJustification
 	}
 
 	cmd := []byte{common.ESC, 'a', mode}
@@ -191,7 +191,7 @@ func (fc *FakeCapability) SetPrintPositionBeginningLine(mode byte) ([]byte, erro
 	case 0, 1, '0', '1':
 		// Valid
 	default:
-		return nil, printposition.ErrInvalidBeginLineMode
+		return nil, printposition.ErrBeginLineMode
 	}
 
 	cmd := []byte{common.GS, 'T', mode}
@@ -212,7 +212,7 @@ func (fc *FakeCapability) SelectPrintDirectionPageMode(direction byte) ([]byte, 
 	case 0, 1, 2, 3, '0', '1', '2', '3':
 		// Valid
 	default:
-		return nil, printposition.ErrInvalidPrintDirection
+		return nil, printposition.ErrPrintDirection
 	}
 
 	cmd := []byte{common.ESC, 'T', direction}
@@ -227,9 +227,9 @@ func (fc *FakeCapability) SelectPrintDirectionPageMode(direction byte) ([]byte, 
 func (fc *FakeCapability) SetPrintAreaPageMode(x, y, width, height uint16) ([]byte, error) {
 	switch {
 	case width == 0:
-		return nil, printposition.ErrInvalidPrintAreaWidthSize
+		return nil, printposition.ErrPrintAreaWidthSize
 	case height == 0:
-		return nil, printposition.ErrInvalidPrintAreaHeightSize
+		return nil, printposition.ErrPrintAreaHeightSize
 	}
 
 	xL := byte(x & 0xFF)

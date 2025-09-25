@@ -324,16 +324,16 @@ func TestMockCapability_BehaviorTracking(t *testing.T) {
 
 	t.Run("simulates SelectJustification error", func(t *testing.T) {
 		mock := NewMockCapability()
-		mock.SelectJustificationError = printposition.ErrInvalidJustification
+		mock.SelectJustificationError = printposition.ErrJustification
 
 		_, err := mock.SelectJustification(99)
 
 		if !mock.SelectJustificationCalled {
 			t.Error("SelectJustification() should be marked as called")
 		}
-		if !errors.Is(err, printposition.ErrInvalidJustification) {
+		if !errors.Is(err, printposition.ErrJustification) {
 			t.Errorf("SelectJustification() error = %v, want %v",
-				err, printposition.ErrInvalidJustification)
+				err, printposition.ErrJustification)
 		}
 	})
 
@@ -359,16 +359,16 @@ func TestMockCapability_BehaviorTracking(t *testing.T) {
 
 	t.Run("simulates SetPrintAreaPageMode width error", func(t *testing.T) {
 		mock := NewMockCapability()
-		mock.SetPrintAreaPageModeError = printposition.ErrInvalidPrintAreaWidthSize
+		mock.SetPrintAreaPageModeError = printposition.ErrPrintAreaWidthSize
 
 		_, err := mock.SetPrintAreaPageMode(10, 20, 0, 200)
 
 		if !mock.SetPrintAreaPageModeCalled {
 			t.Error("SetPrintAreaPageMode() should be marked as called")
 		}
-		if !errors.Is(err, printposition.ErrInvalidPrintAreaWidthSize) {
+		if !errors.Is(err, printposition.ErrPrintAreaWidthSize) {
 			t.Errorf("SetPrintAreaPageMode() error = %v, want %v",
-				err, printposition.ErrInvalidPrintAreaWidthSize)
+				err, printposition.ErrPrintAreaWidthSize)
 		}
 	})
 }

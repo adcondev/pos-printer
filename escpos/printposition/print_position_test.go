@@ -210,7 +210,7 @@ func TestCommands_SetHorizontalTabPositions(t *testing.T) {
 				case "too many tabs":
 					baseErr = printposition.ErrTooManyTabPositions
 				case "invalid tab (zero)", "not ascending order", "duplicate position":
-					baseErr = printposition.ErrInvalidTabPosition
+					baseErr = printposition.ErrTabPosition
 				default:
 					baseErr = nil
 				}
@@ -296,9 +296,9 @@ func TestCommands_SelectJustification(t *testing.T) {
 
 			// Check specific error type if expecting error
 			if tt.wantErr && err != nil {
-				if !errors.Is(err, printposition.ErrInvalidJustification) {
+				if !errors.Is(err, printposition.ErrJustification) {
 					t.Errorf("SelectJustification(%v) error = %v, want %v",
-						tt.mode, err, printposition.ErrInvalidJustification)
+						tt.mode, err, printposition.ErrJustification)
 				}
 				return
 			}
@@ -448,9 +448,9 @@ func TestCommands_SetPrintPositionBeginningLine(t *testing.T) {
 
 			// Check specific error type if expecting error
 			if tt.wantErr && err != nil {
-				if !errors.Is(err, printposition.ErrInvalidBeginLineMode) {
+				if !errors.Is(err, printposition.ErrBeginLineMode) {
 					t.Errorf("SetPrintPositionBeginningLine(%v) error = %v, want %v",
-						tt.mode, err, printposition.ErrInvalidBeginLineMode)
+						tt.mode, err, printposition.ErrBeginLineMode)
 				}
 				return
 			}
@@ -546,9 +546,9 @@ func TestCommands_SelectPrintDirectionPageMode(t *testing.T) {
 
 			// Check specific error type if expecting error
 			if tt.wantErr && err != nil {
-				if !errors.Is(err, printposition.ErrInvalidPrintDirection) {
+				if !errors.Is(err, printposition.ErrPrintDirection) {
 					t.Errorf("SelectPrintDirectionPageMode(%v) error = %v, want %v",
-						tt.direction, err, printposition.ErrInvalidPrintDirection)
+						tt.direction, err, printposition.ErrPrintDirection)
 				}
 				return
 			}
@@ -643,9 +643,9 @@ func TestCommands_SetPrintAreaPageMode(t *testing.T) {
 			var baseErr error
 			switch tt.name {
 			case "zero width":
-				baseErr = printposition.ErrInvalidPrintAreaWidthSize
+				baseErr = printposition.ErrPrintAreaWidthSize
 			case "zero height":
-				baseErr = printposition.ErrInvalidPrintAreaHeightSize
+				baseErr = printposition.ErrPrintAreaHeightSize
 			default:
 				baseErr = nil
 			}

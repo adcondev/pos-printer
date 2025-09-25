@@ -60,13 +60,13 @@ const (
 // ============================================================================
 
 var (
-	ErrInvalidJustification       = errors.New("invalid justification mode (try 0-2 or '0'..'2')")
-	ErrInvalidPrintDirection      = errors.New("invalid print direction (try 0-3 or '0'..'3')")
-	ErrInvalidBeginLineMode       = errors.New("invalid begin line mode (try 0-1 or '0'..'1')")
-	ErrTooManyTabPositions        = fmt.Errorf("too many tab positions (max %d)", MaxTabPositions)
-	ErrInvalidTabPosition         = errors.New("invalid tab position (must be 1-255 in ascending order)")
-	ErrInvalidPrintAreaWidthSize  = errors.New("invalid print area size (width must be >= 1)")
-	ErrInvalidPrintAreaHeightSize = errors.New("invalid print area size (height must be >= 1)")
+	ErrJustification       = errors.New("invalid justification mode (try 0-2 or '0'..'2')")
+	ErrPrintDirection      = errors.New("invalid print direction (try 0-3 or '0'..'3')")
+	ErrBeginLineMode       = errors.New("invalid begin line mode (try 0-1 or '0'..'1')")
+	ErrTooManyTabPositions = fmt.Errorf("too many tab positions (max %d)", MaxTabPositions)
+	ErrTabPosition         = errors.New("invalid tab position (must be 1-255 in ascending order)")
+	ErrPrintAreaWidthSize  = errors.New("invalid print area size (width must be >= 1)")
+	ErrPrintAreaHeightSize = errors.New("invalid print area size (height must be >= 1)")
 )
 
 // ============================================================================
@@ -229,10 +229,10 @@ func (c *Commands) SetHorizontalTabPositions(positions []byte) ([]byte, error) {
 	prevPos := byte(0)
 	for i, pos := range positions {
 		if pos == 0 || pos > MaxTabValue {
-			return nil, fmt.Errorf("%w: position %d at index %d", ErrInvalidTabPosition, pos, i)
+			return nil, fmt.Errorf("%w: position %d at index %d", ErrTabPosition, pos, i)
 		}
 		if pos <= prevPos {
-			return nil, fmt.Errorf("%w: position %d at index %d must be greater than %d", ErrInvalidTabPosition, pos, i, prevPos)
+			return nil, fmt.Errorf("%w: position %d at index %d must be greater than %d", ErrTabPosition, pos, i, prevPos)
 		}
 		prevPos = pos
 	}
@@ -282,7 +282,7 @@ func (c *Commands) SelectPrintDirectionPageMode(direction byte) ([]byte, error) 
 	case 0, 1, 2, 3, '0', '1', '2', '3':
 		// Valid values
 	default:
-		return nil, ErrInvalidPrintDirection
+		return nil, ErrPrintDirection
 	}
 	return []byte{common.ESC, 'T', direction}, nil
 }
@@ -323,9 +323,9 @@ func (c *Commands) SelectPrintDirectionPageMode(direction byte) ([]byte, error) 
 func (c *Commands) SetPrintAreaPageMode(x, y, width, height uint16) ([]byte, error) {
 	switch {
 	case width == 0:
-		return nil, ErrInvalidPrintAreaWidthSize
+		return nil, ErrPrintAreaWidthSize
 	case height == 0:
-		return nil, ErrInvalidPrintAreaHeightSize
+		return nil, ErrPrintAreaHeightSize
 	}
 
 	xL, xH := common.ToLittleEndian(x)
@@ -416,7 +416,7 @@ func (c *Commands) SelectJustification(mode byte) ([]byte, error) {
 	case 0, 1, 2, '0', '1', '2':
 		// Valid values
 	default:
-		return nil, ErrInvalidJustification
+		return nil, ErrJustification
 	}
 	return []byte{common.ESC, 'a', mode}, nil
 }
@@ -541,7 +541,7 @@ func (c *Commands) SetPrintPositionBeginningLine(mode byte) ([]byte, error) {
 	case 0, 1, '0', '1':
 		// Valid values
 	default:
-		return nil, ErrInvalidBeginLineMode
+		return nil, ErrBeginLineMode
 	}
 	return []byte{common.GS, 'T', mode}, nil
 }
