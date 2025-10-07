@@ -2,6 +2,29 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.4.0](https://github.com/AdConDev/pos-daemon/compare/v1.3.1...v1.4.0) (2025-10-07)
+
+
+### 🤖 Continuous Integration
+
+* bump actions/stale from 9 to 10 ([#27](https://github.com/adcondev/pos-printer/issues/27)) ([ee65c43](https://github.com/AdConDev/pos-daemon/commit/ee65c43cf84a99616a0ac5eb1934ec3483107ca3))
+* bump lewagon/wait-on-check-action from 1.4.0 to 1.4.1 ([#30](https://github.com/adcondev/pos-printer/issues/30)) ([45bf780](https://github.com/AdConDev/pos-daemon/commit/45bf780aebbe70d48188b8f324aab391fcbf81f1))
+
+
+### ✅ Tests
+
+* **barcode:** add byte slice validation helpers ([2830158](https://github.com/AdConDev/pos-daemon/commit/283015888a1c1c2812e5b93cd370c2e41dced96b))
+
+
+### ✨ Features
+
+* **barcode:** add barcode commands and integration tests for barcode commands ([464a741](https://github.com/AdConDev/pos-daemon/commit/464a741c730267e5c6de1256b03ffc2cd8da2d0c))
+
+
+### 🐛 Bug Fixes
+
+* **barcode:** update utils/test/validation_helpers.go ([07fa11a](https://github.com/AdConDev/pos-daemon/commit/07fa11a2de8992c8bd929db1d9b21a18148b751d))
+
 ### [1.3.1](https://github.com/AdConDev/pos-daemon/compare/v1.3.0...v1.3.1) (2025-09-15)
 
 
