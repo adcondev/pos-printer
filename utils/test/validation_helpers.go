@@ -134,7 +134,6 @@ func IsAlphanumeric(data []byte) bool {
 		return true // empty is considered valid
 	}
 	for _, b := range data {
-		// Fixed the logic here - was incorrectly checking with AND
 		if !((b >= 'A' && b <= 'Z') || (b >= 'a' && b <= 'z') || (b >= '0' && b <= '9')) {
 			return false
 		}
