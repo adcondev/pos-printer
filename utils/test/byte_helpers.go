@@ -1,6 +1,33 @@
 package test
 
-import "bytes"
+import (
+	"bytes"
+
+	"github.com/adcondev/pos-printer/escpos/common"
+)
+
+// Create a test helper for buffer management
+
+type BufferBuilder struct {
+	buffer []byte
+}
+
+func NewBufferBuilder() *BufferBuilder {
+	return &BufferBuilder{buffer: make([]byte, 0)}
+}
+
+func (b *BufferBuilder) Append(cmd []byte) *BufferBuilder {
+	b.buffer = append(b.buffer, cmd...)
+	return b
+}
+
+func (b *BufferBuilder) GetBuffer() []byte {
+	return b.buffer
+}
+
+// ============================================================================
+// Byte Slice Generators and Manipulators
+// ============================================================================
 
 // RepeatByte creates a byte slice of specified length filled with value
 func RepeatByte(length int, value byte) []byte {
@@ -161,5 +188,76 @@ func MapBytes(data []byte, transform func(byte) byte) []byte {
 	for i, b := range data {
 		result[i] = transform(b)
 	}
+	return result
+}
+
+// ============================================================================
+// Command Builders
+// ============================================================================
+
+// BuildLittleEndianCommand creates a command with little-endian encoded value
+func BuildLittleEndianCommand(prefix []byte, value uint16, suffix ...byte) []byte {
+	nL, nH := common.ToLittleEndian(value)
+	return append(append(prefix, nL, nH), suffix...)
+}
+
+// BuildTabPositions creates a sequence of tab positions for testing
+func BuildTabPositions(count int, spacing int) []byte {
+	tabs := make([]byte, count)
+	for i := range tabs {
+		tabs[i] = byte((i + 1) * spacing)
+	}
+	return tabs
+}
+
+// BuildCommand constructs a command with variable parameters
+func BuildCommand(cmd byte, subcmd byte, params ...byte) []byte {
+	result := []byte{cmd, subcmd}
+	return append(result, params...)
+}
+
+// BuildAlphanumeric creates test data with alphanumeric characters
+func BuildAlphanumeric(size int) []byte {
+	const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+	result := make([]byte, size)
+	for i := range result {
+		result[i] = chars[i%len(chars)]
+	}
+	return result
+}
+
+// BuildNumeric creates test data with numeric characters only
+func BuildNumeric(size int) []byte {
+	result := make([]byte, size)
+	for i := range result {
+		result[i] = '0' + byte(i%10)
+	}
+	return result
+}
+
+// BuildWithTerminator appends a terminator byte to data
+func BuildWithTerminator(data []byte, terminator byte) []byte {
+	result := make([]byte, len(data)+1)
+	copy(result, data)
+	result[len(data)] = terminator
+	return result
+}
+
+// BuildWithLength prepends length byte(s) to data
+func BuildWithLength(data []byte) []byte {
+	result := make([]byte, 1+len(data))
+	result[0] = byte(len(data))
+	copy(result[1:], data)
+	return result
+}
+
+// BuildWithLittleEndianLength prepends little-endian length to data
+func BuildWithLittleEndianLength(data []byte) []byte {
+	length := uint16(len(data))
+	nL, nH := common.ToLittleEndian(length)
+	result := make([]byte, 2+len(data))
+	result[0] = nL
+	result[1] = nH
+	copy(result[2:], data)
 	return result
 }
