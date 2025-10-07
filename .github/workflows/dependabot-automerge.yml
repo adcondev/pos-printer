@@ -1,9 +1,9 @@
-name: Dependabot Enhanced Auto-merge
+name: Dependabot Auto-merge
 on:
   pull_request:
-    types: [opened, synchronize, reopened]
+    types: [ opened, synchronize, reopened ]
   pull_request_target:
-    types: [opened, synchronize, reopened]
+    types: [ opened, synchronize, reopened ]
 
 permissions:
   contents: write
@@ -18,7 +18,7 @@ jobs:
     if: github.actor == 'dependabot[bot]'
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
@@ -36,9 +36,10 @@ jobs:
             local color=$2
             local description=$3
             
-            if ! gh label list --repo ${{ github.repository }} | grep -q "^$name"; then
+            if ! gh api repos/${{ github.repository }}/labels --jq '.[] | .name' | grep -q "^$name$"; then
               echo "Creating label: $name"
               gh api repos/${{ github.repository }}/labels \
+                -X POST \
                 -f name="$name" \
                 -f color="$color" \
                 -f description="$description" || echo "Label might already exist"
@@ -58,24 +59,25 @@ jobs:
         run: |
           UPDATE_TYPE="${{ steps.metadata.outputs.update-type }}"
           PR_NUMBER="${{ github.event.pull_request.number }}"
+          REPO="${{ github.repository }}"
           
           # Añadir label de dependencies siempre
-          gh pr edit $PR_NUMBER --add-label "dependencies"
+          gh pr edit $PR_NUMBER --repo $REPO --add-label "dependencies"
           
           if [[ "$UPDATE_TYPE" == "version-update:semver-major" ]]; then
             echo "is_major=true" >> $GITHUB_OUTPUT
-            gh pr edit $PR_NUMBER --add-label "major-update,needs-review"
+            gh pr edit $PR_NUMBER --repo $REPO --add-label "major-update,needs-review"
             echo "::warning::Major version update detected - manual review required"
           else
             echo "is_major=false" >> $GITHUB_OUTPUT
-            gh pr edit $PR_NUMBER --add-label "auto-merge"
+            gh pr edit $PR_NUMBER --repo $REPO --add-label "auto-merge"
           fi
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Wait for checks
         if: steps.check-update.outputs.is_major == 'false'
-        uses: lewagon/wait-on-check-action@v1.3.1
+        uses: lewagon/wait-on-check-action@v1.4.1
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           check-regexp: '.*'
@@ -86,18 +88,19 @@ jobs:
         if: steps.check-update.outputs.is_major == 'false'
         run: |
           PR_NUMBER="${{ github.event.pull_request.number }}"
+          REPO="${{ github.repository }}"
           
           echo "Approving PR #$PR_NUMBER"
-          gh pr review $PR_NUMBER --approve
+          gh pr review $PR_NUMBER --repo $REPO --approve
           
           echo "Enabling auto-merge for PR #$PR_NUMBER"
-          gh pr merge $PR_NUMBER --auto --squash --delete-branch
+          gh pr merge $PR_NUMBER --repo $REPO --auto --squash --delete-branch
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Comment on major updates
         if: steps.check-update.outputs.is_major == 'true'
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const metadata = {

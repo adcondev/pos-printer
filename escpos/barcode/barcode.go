@@ -439,9 +439,7 @@ func (c *Commands) PrintBarcodeWithCodeSet(symbology Symbology, codeSet Code128S
 // buildFunctionA builds Function A barcode command (NUL-terminated)
 func (c *Commands) buildFunctionA(symbology Symbology, data []byte) ([]byte, error) {
 	// Basic validation for Function A symbologies
-	switch symbology {
-	case ITF:
-		// ITF requires even number of digits
+	if symbology == ITF {
 		if len(data)%2 != 0 {
 			return nil, ErrOddITFLength
 		}
