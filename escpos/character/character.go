@@ -977,8 +977,8 @@ const (
 	WidthShift Size = 4
 )
 
-// BuildCharacterSize Helper functions for building character sizes
-func BuildCharacterSize(width, height byte) (Size, error) {
+// NewSize Helper functions for building character sizes
+func NewSize(width, height byte) (Size, error) {
 	if width < 1 || width > 8 {
 		return 0, ErrCharacterWidth
 	}

@@ -85,7 +85,7 @@ func TestUserDefinedCommands_DefineUserDefinedCharacters(t *testing.T) {
 			startCode: 65,
 			endCode:   65,
 			definitions: []character.UserDefinedChar{
-				{Width: 5, Data: test.BuildTestData(15, 0xFF)}, // 3 height × 5 width
+				{Width: 5, Data: test.RepeatByte(15, 0xFF)}, // 3 height × 5 width
 			},
 			wantPrefix: []byte{0x1B, 0x26, 3, 65, 65},
 			wantErr:    nil,
@@ -163,7 +163,7 @@ func TestUserDefinedCommands_DefineUserDefinedCharacters(t *testing.T) {
 			startCode: 65,
 			endCode:   67, // Range of 3
 			definitions: []character.UserDefinedChar{
-				{Width: 5, Data: test.BuildTestData(15, 0xFF)}, // Only 1 definition
+				{Width: 5, Data: test.RepeatByte(15, 0xFF)}, // Only 1 definition
 			},
 			wantPrefix: nil,
 			wantErr:    character.ErrInvalidDefinition,

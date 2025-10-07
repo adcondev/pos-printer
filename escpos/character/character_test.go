@@ -12,7 +12,7 @@ import (
 // Utility Functions Tests
 // ============================================================================
 
-// Test_BuildCharacterSize tests the BuildCharacterSize utility function which is used for SelectCharacterSize
+// Test_BuildCharacterSize tests the NewSize utility function which is used for SelectCharacterSize
 func Test_BuildCharacterSize(t *testing.T) {
 	// Setup
 	tests := []struct {
@@ -90,10 +90,10 @@ func Test_BuildCharacterSize(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// Execute
-			got, err := character.BuildCharacterSize(tt.width, tt.height)
+			got, err := character.NewSize(tt.width, tt.height)
 
 			// Verify
-			if !test.AssertErrorOccurred(t, err, tt.wantErr != nil, "BuildCharacterSize") {
+			if !test.AssertErrorOccurred(t, err, tt.wantErr != nil, "NewSize") {
 				return
 			}
 			if tt.wantErr != nil {
@@ -103,7 +103,7 @@ func Test_BuildCharacterSize(t *testing.T) {
 
 			// Verify
 			if got != tt.want {
-				t.Errorf("BuildCharacterSize(%d, %d) = %v, want %v",
+				t.Errorf("NewSize(%d, %d) = %v, want %v",
 					tt.width, tt.height, got, tt.want)
 			}
 		})
