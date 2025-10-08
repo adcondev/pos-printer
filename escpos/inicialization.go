@@ -1,11 +1,11 @@
+// ============================================================================
+// Initialization helpers
+// ============================================================================
+// Comandos básicos de inicialización y cambio de modo.
+
 package escpos
 
 import "github.com/adcondev/pos-printer/escpos/common"
-
-// TODO: Comandos para inicialización y configuración básica de la impresora
-// - Configuración de página de códigos
-// - Configuración regional
-// - Reinicio de impresora
 
 // InitializePrinter restores the printer to its default state
 func (c *Protocol) InitializePrinter() []byte {

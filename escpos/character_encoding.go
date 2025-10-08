@@ -7,10 +7,11 @@ import (
 	"github.com/adcondev/pos-printer/escpos/common"
 )
 
-// TODO: Comandos para manejo de codificación de caracteres
-// - Código de página
-// - Caracteres internacionales
-// - Caracteres especiales
+// ============================================================================
+// Code page definitions and mappings
+// ============================================================================
+// Definimos CodePage y un mapa que convierte de nuestro enum a los valores
+// numéricos esperados por ESC/POS.
 
 // CodePage define los conjuntos de caracteres estándar
 type CodePage byte
@@ -54,6 +55,10 @@ var codePageMap = map[CodePage]byte{
 	IranII:     20,
 	Latvian:    21,
 }
+
+// ============================================================================
+// Public API (implementation)
+// ============================================================================
 
 // SelectCharacterTable selecciona el conjunto de caracteres para la impresora
 func (c *Protocol) SelectCharacterTable(table encoding.CharacterSet) ([]byte, error) {

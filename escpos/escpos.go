@@ -1,6 +1,7 @@
 package escpos
 
 import (
+	"github.com/adcondev/pos-printer/escpos/barcode"
 	"github.com/adcondev/pos-printer/escpos/character"
 	"github.com/adcondev/pos-printer/escpos/common"
 	"github.com/adcondev/pos-printer/escpos/linespacing"
@@ -14,6 +15,7 @@ type Protocol struct {
 	LineSpace     linespacing.Capability
 	Character     character.Capability
 	PrintPosition printposition.Capability
+	Barcode       barcode.Capability
 }
 
 // Raw sends raw data without processing
@@ -31,5 +33,6 @@ func NewEscposProtocol() *Protocol {
 		LineSpace:     linespacing.NewCommands(),
 		Character:     character.NewCommands(),
 		PrintPosition: printposition.NewCommands(),
+		Barcode:       barcode.NewCommands(),
 	}
 }

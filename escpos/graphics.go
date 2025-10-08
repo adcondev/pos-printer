@@ -7,9 +7,10 @@ import (
 	"github.com/adcondev/pos-printer/imaging"
 )
 
-// TODO: Comandos para impresión de gráficos e imágenes
-// - Modos de imagen
-// - Compresión de imagen
+// ============================================================================
+// Type / Constant maps and helpers
+// ============================================================================
+// Mapas y helpers para modos de imagen.
 
 var densityMap = map[Density]byte{
 	DensitySingle:    0, // Modo normal (200 DPI vertical y horizontal)
@@ -25,7 +26,7 @@ var bitImageMap = map[BitImageMode]byte{
 	Mode24DotDoubleDen: 33,
 }
 
-// ESCImage ahora es más simple, solo guarda referencia a PrintRasterBitImage
+// ESCImage encapsula una imagen preparada para ESC/POS.
 type ESCImage struct {
 	printImage *imaging.PrintImage
 
@@ -33,7 +34,7 @@ type ESCImage struct {
 	rasterData []byte
 }
 
-// newESCImageFromPrintImage crea una ESCImage desde PrintRasterBitImage
+// newESCImageFromPrintImage crea una ESCImage desde PrintImage
 func newESCImageFromPrintImage(img *imaging.PrintImage) (*ESCImage, error) {
 	if img == nil {
 		return nil, fmt.Errorf("print imaging cannot be nil")
@@ -58,7 +59,7 @@ func (e *ESCImage) GetHeight() int {
 	return e.printImage.Height
 }
 
-// GetWidthBytes devuelve el ancho en bytes
+// GetWidthBytes devuelve el ancho en bytes (cada byte = 8 píxeles)
 func (e *ESCImage) GetWidthBytes() int {
 	return (e.printImage.Width + 7) / 8
 }
@@ -76,6 +77,11 @@ func (e *ESCImage) toRasterFormat() []byte {
 
 	return e.rasterData
 }
+
+// ============================================================================
+// Public API (implementation)
+// ============================================================================
+// Funciones que generan comandos ESC/POS para imágenes y modos de bits.
 
 // PrintRasterBitImage genera los comandos para imprimir una imagen rasterizada
 func (c *Protocol) PrintRasterBitImage(img *imaging.PrintImage, density Density) ([]byte, error) {

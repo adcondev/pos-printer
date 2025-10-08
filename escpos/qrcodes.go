@@ -6,6 +6,11 @@ import (
 	"github.com/adcondev/pos-printer/escpos/common"
 )
 
+// ============================================================================
+// Type and Constant Definitions
+// ============================================================================
+// Mapas y constantes usadas por los comandos QR.
+
 // modelMap mapea los modelos de QR a sus valores ESC/POS
 var modelMap = map[QRModel]byte{
 	Model1: '1', // Modelo 1
@@ -19,6 +24,13 @@ var ecMap = map[QRErrorCorrection]byte{
 	ECHigh:    '2', // 25% de corrección
 	ECHighest: '3', // 30% de corrección
 }
+
+// ============================================================================
+// Public API (implementation)
+// ============================================================================
+// Métodos del protocolo que producen secuencias de bytes ESC/POS para QR.
+// Se conservan los detalles técnicos de los comandos en inglés en los bloques
+// de documentación para mantener la precisión.
 
 // PrintQR implementa el comando ESC Z para imprimir códigos QR
 func (c *Protocol) PrintQR(

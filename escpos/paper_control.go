@@ -6,10 +6,18 @@ import (
 	"github.com/adcondev/pos-printer/escpos/common"
 )
 
+// ============================================================================
+// Maps and constants
+// ============================================================================
+// Map que convierte CutPaper (enum del paquete) a los bytes ESC/POS
 var cutMap = map[CutPaper]byte{
 	FullCut:    '0',
 	PartialCut: '1',
 }
+
+// ============================================================================
+// Public API (implementation)
+// ============================================================================
 
 // Cut genera comando de corte
 func (c *Protocol) Cut(mode CutPaper) ([]byte, error) {

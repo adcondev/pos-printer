@@ -6,6 +6,11 @@ import (
 	"github.com/adcondev/pos-printer/escpos/common"
 )
 
+// ============================================================================
+// Maps and helpers
+// ============================================================================
+// Mapas usados para formateo de texto. Comentarios traducidos para principiantes.
+
 // TODO: Comandos para dar formato al texto
 // - Doble ancho/altura
 // - Rotación de texto
@@ -33,6 +38,11 @@ var fontMap = map[Font]byte{
 	SpecialA: 'a', // 97
 	SpecialB: 'b', // 98
 }
+
+// ============================================================================
+// Public API (implementation)
+// ============================================================================
+// Funciones públicas para cambiar formatos de texto.
 
 // SelectCharacterFont sets the character font
 func (c *Protocol) SelectCharacterFont(n Font) ([]byte, error) {
