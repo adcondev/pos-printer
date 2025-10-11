@@ -7,7 +7,6 @@ import (
 )
 
 // TODO: Comandos para dar formato al texto
-// - Doble ancho/altura
 // - Rotación de texto
 // - Espaciado de caracteres
 
@@ -75,9 +74,18 @@ func (c *Protocol) TurnUnderlineMode(n UnderlineMode) ([]byte, error) {
 	return []byte{common.ESC, '-', mode}, nil
 }
 
-// SetTextSize Implementar
-func (c *Protocol) SetTextSize(_, _ int) []byte {
-	// TODO: Implementar usando GS ! n
-	// Hint: n = (widthMultiplier-1)<<4 | (heightMultiplier-1)
-	return []byte{}
+// SetTextSize sets the text size, width and height multipliers.
+// 0 = 1x (Normal size),
+// 1 = 2x (Double size),
+// 2 = 3x (Triple size),
+// 7 = 8x (Maximum size)
+func (c *Protocol) SetTextSize(widthMultiplier, heightMultiplier int) []byte {
+	if widthMultiplier < 0 || widthMultiplier > 7 {
+		widthMultiplier = 0
+	}
+	if heightMultiplier < 0 || heightMultiplier > 7 {
+		heightMultiplier = 0
+	}
+	fontSizeFormula := uint8((widthMultiplier * 16) + widthMultiplier)
+	return []byte{common.GS, '!', fontSizeFormula}
 }

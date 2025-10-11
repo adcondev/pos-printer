@@ -475,4 +475,15 @@ func (p *EscposPrinter) PrintQR(
 	return err
 }
 
+// SetTextSize sets the text size, width and height multipliers.
+// 0 = 1x (Normal size),
+// 1 = 2x (Double size),
+// 2 = 3x (Triple size),
+// 7 = 8x (Maximum size)
+func (p *EscposPrinter) SetTextSize(widthMultiplier, heightMultiplier int) error {
+	command := p.Escpos.SetTextSize(widthMultiplier, heightMultiplier)
+	_, err := p.Connector.Write(command)
+	return err
+}
+
 // Implementar el resto de métodos que necesites
