@@ -10,8 +10,8 @@ import (
 //
 // Format:
 //
-//	ASCII: ESC % n
-//	Hex:   0x1B 0x25 n
+//	ASCII:   ESC % n
+//	Hex:     0x1B 0x25 n
 //	Decimal: 27 37 n
 //
 // Range:
@@ -22,23 +22,23 @@ import (
 //
 //	n = 0
 //
-// Description:
+// Parameters:
 //
-//	Selects or cancels the user-defined character set. When the least-significant
-//	bit (LSB) of n is 0, the user-defined character set is canceled. When the
-//	LSB of n is 1, the user-defined character set is selected.
+//	n: Controls user-defined character set (LSB is used):
+//	   LSB = 0 -> User-defined character set canceled
+//	   LSB = 1 -> User-defined character set selected
 //
 // Notes:
 //   - When the user-defined character set is canceled the resident (built-in)
-//     character set is automatically selected.
+//     character set is automatically selected
 //   - The setting remains in effect until ESC @ is executed, the printer is
-//     reset, or power is turned off.
+//     reset, or power is turned off
 //   - This command affects alphanumeric, Kana, multilingual, and user-defined
-//     characters as applicable per model.
+//     characters as applicable per model
 //
-// Byte sequence:
+// Errors:
 //
-//	ESC % n -> 0x1B, 0x25, n
+//	This function is safe and does not return errors.
 func (udc *UserDefinedCommands) SelectUserDefinedCharacterSet(n byte) []byte {
 	return []byte{0x1B, '%', n}
 }
@@ -47,32 +47,45 @@ func (udc *UserDefinedCommands) SelectUserDefinedCharacterSet(n byte) []byte {
 //
 // Format:
 //
-//	ASCII: ESC & y c1 c2 [x1 d1...d(y*x1)]...[xk d1...d(y*xk)]
-//	Hex:   0x1B 0x26 y c1 c2 [x1 data...]...
+//	ASCII:   ESC & y c1 c2 [x1 d1...d(y*x1)]...[xk d1...d(y*xk)]
+//	Hex:     0x1B 0x26 y c1 c2 [x1 data...]...
 //	Decimal: 27 38 y c1 c2 [x1 data...]...
+//
+// Range:
+//
+//	y = 1–255 (model-dependent, typically 3 for 12x24 or 9x17 fonts)
+//	c1, c2 = 32–126 (typically, model-dependent)
+//
+// Default:
+//
+//	None
 //
 // Parameters:
 //
-//	y  - Number of bytes in the vertical direction for each column (1 byte).
-//	     Each column is described by y bytes (little-endian vertical bit order).
-//	c1 - First character code to define (inclusive).
-//	c2 - Last character code to define (inclusive).
-//	defs - Slice of per-character definitions in order for codes c1...c2.
-//	       Each definition is encoded as: 1 byte width xi, followed by y*xi bytes
-//	       of column data (column-major).
+//	y: Number of bytes in the vertical direction for each column
+//	c1: First character code to define (inclusive)
+//	c2: Last character code to define (inclusive)
+//	definitions: Slice of per-character definitions in order for codes c1...c2
 //
-// Range / Notes:
-//   - Typical y values are model/font dependent (e.g., 3 for 12x24 or 9x17 fonts).
-//   - c1 and c2 typically in the printable range (32..126) depending on model.
-//   - For each character i between c1 and c2, defs[i - int(c1)] must contain
-//     the width byte and exactly y*width data bytes.
-//   - Existing user-defined characters for the specified codes are replaced.
-//   - Definitions persist until cleared (ESC ?, ESC @), reset, or power-off.
-//   - To use defined glyphs, send ESC % 1 (select user-defined character set).
+// Notes:
+//   - Typical y values are model/font dependent (e.g., 3 for 12x24 or 9x17 fonts)
+//   - c1 and c2 typically in the printable range (32..126) depending on model
+//   - For each character i between c1 and c2, definitions[i - int(c1)] must contain
+//     the width byte and exactly y*width data bytes
+//   - Each definition is encoded as: 1 byte width xi, followed by y*xi bytes
+//     of column data (column-major)
+//   - Each column is described by y bytes (little-endian vertical bit order)
+//   - Existing user-defined characters for the specified codes are replaced
+//   - Definitions persist until cleared (ESC ?, ESC @), reset, or power-off
+//   - To use defined glyphs, send ESC % 1 (select user-defined character set)
 //
-// Byte sequence:
+// Errors:
 //
-//	ESC & y c1 c2 [x1 data...]...[xk data...] -> 0x1B, 0x26, y, c1, c2, ...
+//	Returns ErrYValue if y is 0.
+//	Returns ErrCharacterCode if c1 is outside the valid range.
+//	Returns ErrCodeRange if c2 is less than c1 or outside the valid range.
+//	Returns ErrDefinition if the number of definitions doesn't match the code range.
+//	Returns ErrDataLength if a definition's data length doesn't match y*width.
 func (udc *UserDefinedCommands) DefineUserDefinedCharacters(y, c1, c2 byte, definitions []UserDefinedChar) ([]byte, error) {
 	// Validation
 	if y == 0 {
@@ -116,8 +129,8 @@ func (udc *UserDefinedCommands) DefineUserDefinedCharacters(y, c1, c2 byte, defi
 //
 // Format:
 //
-//	ASCII: ESC ? n
-//	Hex:   0x1B 0x3F n
+//	ASCII:   ESC ? n
+//	Hex:     0x1B 0x3F n
 //	Decimal: 27 63 n
 //
 // Range:
@@ -128,20 +141,21 @@ func (udc *UserDefinedCommands) DefineUserDefinedCharacters(y, c1, c2 byte, defi
 //
 //	None
 //
-// Description:
+// Parameters:
 //
-//	Deletes the user-defined character pattern specified by character code n.
-//	After cancellation, the resident (built-in) character for that code is printed.
+//	n: Character code to delete
 //
 // Notes:
+//   - Deletes the user-defined character pattern specified by character code n
+//   - After cancellation, the resident (built-in) character for that code is printed
 //   - This command can cancel user-defined characters per font. Select the font
-//     with ESC ! or ESC M before issuing this command if needed.
+//     with ESC ! or ESC M before issuing this command if needed
 //   - Settings take effect immediately; the deleted definition remains cleared
-//     until redefined, ESC @ (initialize), power-off, or reset.
+//     until redefined, ESC @ (initialize), power-off, or reset
 //
-// Byte sequence:
+// Errors:
 //
-//	ESC ? n -> 0x1B, 0x3F, n
+//	Returns ErrCharacterCode if n is outside the valid range (32-126).
 func (udc *UserDefinedCommands) CancelUserDefinedCharacter(n byte) ([]byte, error) {
 	if n < UserDefinedMinCode || n > UserDefinedMaxCode {
 		return nil, ErrCharacterCode

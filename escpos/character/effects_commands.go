@@ -8,8 +8,8 @@ import (
 //
 // Format:
 //
-//	ASCII: GS ( N pL pH fn m
-//	Hex:   0x1D 0x28 0x4E 0x02 0x00 0x30 m
+//	ASCII:   GS ( N pL pH fn m
+//	Hex:     0x1D 0x28 0x4E 0x02 0x00 0x30 m
 //	Decimal: 29 40 78 2 0 48 m
 //
 // Range:
@@ -21,25 +21,25 @@ import (
 //
 //	m = 49 (Color 1)
 //
-// Description:
+// Parameters:
 //
-//	Selects the character color:
-//	  m = 48 -> None (non-printing dots)
-//	  m = 49 -> Color 1 (default)
-//	  m = 50 -> Color 2
-//	  m = 51 -> Color 3
+//	m: Selects the character color:
+//	   48 -> None (non-printing dots)
+//	   49 -> Color 1 (default)
+//	   50 -> Color 2
+//	   51 -> Color 3
 //
 // Notes:
 //   - Applies to alphanumeric, Katakana, multilingual, user-defined, and
 //     user-defined Kanji characters; does not affect graphics, bit images,
-//     barcodes, or 2D codes.
-//   - m = 48 treats glyph dots as non-printing (useful with background/shadow).
-//   - Underline prints in the selected character color.
-//   - Setting persists until ESC @, printer reset, or power-off.
+//     barcodes, or 2D codes
+//   - m = 48 treats glyph dots as non-printing (useful with background/shadow)
+//   - Underline prints in the selected character color
+//   - Setting persists until ESC @, printer reset, or power-off
 //
-// Byte sequence:
+// Errors:
 //
-//	GS ( N 02 00 30 m -> 0x1D, 0x28, 0x4E, 0x02, 0x00, 0x30, m
+//	Returns ErrInvalidCharacterColor if m is not a valid color value (48-51).
 func (ef *EffectsCommands) SelectCharacterColor(m byte) ([]byte, error) {
 	// Validate allowed values
 	switch m {
@@ -55,8 +55,8 @@ func (ef *EffectsCommands) SelectCharacterColor(m byte) ([]byte, error) {
 //
 // Format:
 //
-//	ASCII: GS ( N pL pH fn m
-//	Hex:   0x1D 0x28 0x4E 0x02 0x00 0x31 m
+//	ASCII:   GS ( N pL pH fn m
+//	Hex:     0x1D 0x28 0x4E 0x02 0x00 0x31 m
 //	Decimal: 29 40 78 2 0 49 m
 //
 // Range:
@@ -68,23 +68,23 @@ func (ef *EffectsCommands) SelectCharacterColor(m byte) ([]byte, error) {
 //
 //	m = 48 (None)
 //
-// Description:
+// Parameters:
 //
-//	Selects the background color:
-//	  m = 48 -> None (no background dots printed)
-//	  m = 49 -> Color 1
-//	  m = 50 -> Color 2
-//	  m = 51 -> Color 3
+//	m: Selects the background color:
+//	   48 -> None (no background dots printed)
+//	   49 -> Color 1
+//	   50 -> Color 2
+//	   51 -> Color 3
 //
 // Notes:
 //   - Background color does not affect spaces skipped by HT, ESC $, ESC \,
-//     line spacing, or reverse print background.
-//   - Inter-character spacing (ESC SP, FS S) prints in this background color.
-//   - Settings persist until ESC @, printer reset, or power-off.
+//     line spacing, or reverse print background
+//   - Inter-character spacing (ESC SP, FS S) prints in this background color
+//   - Settings persist until ESC @, printer reset, or power-off
 //
-// Byte sequence:
+// Errors:
 //
-//	GS ( N 02 00 31 m -> 0x1D, 0x28, 0x4E, 0x02, 0x00, 0x31, m
+//	Returns ErrInvalidBackgroundColor if m is not a valid color value (48-51).
 func (ef *EffectsCommands) SelectBackgroundColor(m byte) ([]byte, error) {
 	// Validate allowed values
 	switch m {
@@ -100,8 +100,8 @@ func (ef *EffectsCommands) SelectBackgroundColor(m byte) ([]byte, error) {
 //
 // Format:
 //
-//	ASCII: GS ( N pL pH fn m a
-//	Hex:   0x1D 0x28 0x4E pL pH 0x32 m a
+//	ASCII:   GS ( N pL pH fn m a
+//	Hex:     0x1D 0x28 0x4E pL pH 0x32 m a
 //	Decimal: 29 40 78 pL pH 50 m a
 //
 // Range:
@@ -114,26 +114,26 @@ func (ef *EffectsCommands) SelectBackgroundColor(m byte) ([]byte, error) {
 //
 //	m = 0, a = 48
 //
-// Description:
+// Parameters:
 //
-//	Turns shadow mode on or off and sets shadow color:
-//	  m: Shadow mode (0 or 48 = OFF, 1 or 49 = ON)
-//	  a: Shadow color:
-//	     48 -> None (not printed)
-//	     49 -> Color 1
-//	     50 -> Color 2
-//	     51 -> Color 3
+//	m: Shadow mode (0 or 48 = OFF, 1 or 49 = ON)
+//	a: Shadow color:
+//	   48 -> None (not printed)
+//	   49 -> Color 1
+//	   50 -> Color 2
+//	   51 -> Color 3
 //
 // Notes:
-//   - Parameter a (shadowColor) MUST be supplied even when shadow mode is OFF.
-//   - Shadow mode prints a shadow in the specified shadow color.
-//   - Underline shadow is not printed.
-//   - Reverse print does not alter shadow color.
-//   - Settings persist until ESC @, printer reset, or power-off.
+//   - Parameter a (shadowColor) MUST be supplied even when shadow mode is OFF
+//   - Shadow mode prints a shadow in the specified shadow color
+//   - Underline shadow is not printed
+//   - Reverse print does not alter shadow color
+//   - Settings persist until ESC @, printer reset, or power-off
 //
-// Byte sequence:
+// Errors:
 //
-//	GS ( N 03 00 32 m a -> 0x1D, 0x28, 0x4E, 0x03, 0x00, 0x32, m, a
+//	Returns ErrInvalidShadowMode if m is not a valid mode value (0, 1, 48, 49).
+//	Returns ErrInvalidShadowColor if a is not a valid color value (48-51).
 func (ef *EffectsCommands) SetCharacterShadowMode(m byte, a byte) ([]byte, error) {
 	// Validate allowed values
 	switch m {

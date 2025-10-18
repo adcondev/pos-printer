@@ -7,15 +7,15 @@ import (
 )
 
 // ============================================================================
-// Implementación principal
+// Comandos ESCPOS para Códigos de Barras
 // ============================================================================
 
 // SelectHRICharacterPosition selects the print position of HRI (Human Readable Interpretation) characters.
 //
 // Format:
 //
-//	ASCII: GS H n
-//	Hex:   0x1D 0x48 n
+//	ASCII:   GS H n
+//	Hex:     0x1D 0x48 n
 //	Decimal: 29 72 n
 //
 // Range:
@@ -26,21 +26,21 @@ import (
 //
 //	n = 0 (Not printed)
 //
-// Description:
+// Parameters:
 //
-//	Selects the print position of HRI characters when printing a barcode:
-//	  0 or 48 -> Not printed
-//	  1 or 49 -> Above the barcode
-//	  2 or 50 -> Below the barcode
-//	  3 or 51 -> Both above and below the barcode
+//	n: Selects the print position of HRI characters when printing a barcode:
+//	   0 or 48 -> Not printed
+//	   1 or 49 -> Above the barcode
+//	   2 or 50 -> Below the barcode
+//	   3 or 51 -> Both above and below the barcode
 //
 // Notes:
-//   - HRI characters are printed using the font specified by GS f.
-//   - The setting persists until ESC @ (initialize), printer reset, or power-off.
+//   - HRI characters are printed using the font specified by GS f
+//   - The setting persists until ESC @ (initialize), printer reset, or power-off
 //
-// Byte sequence:
+// Errors:
 //
-//	GS H n -> 0x1D, 0x48, n
+//	Returns ErrHRIPosition if n is outside the valid range (0-3, 48-51).
 func (c *Commands) SelectHRICharacterPosition(n HRIPosition) ([]byte, error) {
 	// Validar valores permitidos
 	switch n {
@@ -56,38 +56,37 @@ func (c *Commands) SelectHRICharacterPosition(n HRIPosition) ([]byte, error) {
 //
 // Format:
 //
-//	ASCII: GS f n
-//	Hex:   0x1D 0x66 n
+//	ASCII:   GS f n
+//	Hex:     0x1D 0x66 n
 //	Decimal: 29 102 n
 //
 // Range:
 //
-//	n: model-dependent. Common supported values:
-//	  0–4, 48–52, 97, 98
+//	n = 0–4, 48–52, 97, 98 (model-dependent)
 //
 // Default:
 //
 //	n = 0
 //
-// Description:
+// Parameters:
 //
-//	Selects the font for HRI characters printed with barcodes:
-//	  0 or 48  -> Font A
-//	  1 or 49  -> Font B
-//	  2 or 50  -> Font C
-//	  3 or 51  -> Font D
-//	  4 or 52  -> Font E
-//	  97       -> Special font A (model dependent)
-//	  98       -> Special font B (model dependent)
+//	n: Selects the font for HRI characters printed with barcodes:
+//	   0 or 48  -> Font A
+//	   1 or 49  -> Font B
+//	   2 or 50  -> Font C
+//	   3 or 51  -> Font D
+//	   4 or 52  -> Font E
+//	   97       -> Special font A (model dependent)
+//	   98       -> Special font B (model dependent)
 //
 // Notes:
-//   - The chosen font applies only to HRI characters.
-//   - HRI characters are printed at the position set by GS H.
-//   - Built-in font availability and metrics vary by model.
+//   - The chosen font applies only to HRI characters
+//   - HRI characters are printed at the position set by GS H
+//   - Built-in font availability and metrics vary by model
 //
-// Byte sequence:
+// Errors:
 //
-//	GS f n -> 0x1D, 0x66, n
+//	Returns ErrHRIFont if n is not a valid font selector value.
 func (c *Commands) SelectFontForHRI(n HRIFont) ([]byte, error) {
 	// Validar valores permitidos
 	switch n {
@@ -103,8 +102,8 @@ func (c *Commands) SelectFontForHRI(n HRIFont) ([]byte, error) {
 //
 // Format:
 //
-//	ASCII: GS h n
-//	Hex:   0x1D 0x68 n
+//	ASCII:   GS h n
+//	Hex:     0x1D 0x68 n
 //	Decimal: 29 104 n
 //
 // Range:
@@ -113,19 +112,19 @@ func (c *Commands) SelectFontForHRI(n HRIFont) ([]byte, error) {
 //
 // Default:
 //
-//	n: model dependent (example default: 162)
+//	n = model dependent (example: 162)
 //
-// Description:
+// Parameters:
 //
-//	Sets the height of a barcode to n dots.
+//	n: Sets the height of a barcode to n dots
 //
 // Notes:
-//   - The units for n depend on the printer model.
-//   - This setting remains effective until ESC @ (initialize), printer reset, or power-off.
+//   - The units for n depend on the printer model
+//   - This setting remains effective until ESC @ (initialize), printer reset, or power-off
 //
-// Byte sequence:
+// Errors:
 //
-//	GS h n -> 0x1D, 0x68, n
+//	Returns an error if height is outside the valid range (MinHeight to MaxHeight).
 func (c *Commands) SetBarcodeHeight(height Height) ([]byte, error) {
 	// Validar rango usando constantes
 	if height < MinHeight || height > MaxHeight {
@@ -138,33 +137,34 @@ func (c *Commands) SetBarcodeHeight(height Height) ([]byte, error) {
 //
 // Format:
 //
-//	ASCII: GS w n
-//	Hex:   0x1D 0x77 n
+//	ASCII:   GS w n
+//	Hex:     0x1D 0x77 n
 //	Decimal: 29 119 n
 //
 // Range:
 //
 //	n = 2–6 (typical numeric values)
-//	or model-dependent alternate values 68–76
+//	n = 68–76 (model-dependent alternate values)
 //
 // Default:
 //
 //	n = 3 (model-dependent)
 //
-// Description:
+// Parameters:
 //
-//	Sets the barcode module width (horizontal size). Units and exact effect
-//	depend on the printer model. The setting remains effective until ESC @,
-//	printer reset, or power-off.
+//	n: Sets the barcode module width (horizontal size)
 //
 // Notes:
-//   - This affects the module width for various barcode types (see printer spec).
+//   - Units and exact effect depend on the printer model
+//   - The setting remains effective until ESC @, printer reset, or power-off
+//   - This affects the module width for various barcode types (see printer spec)
 //   - The command does not validate model-specific allowed values; caller must
-//     supply a value supported by the target printer.
+//     supply a value supported by the target printer
 //
-// Byte sequence:
+// Errors:
 //
-//	GS w n -> 0x1D, 0x77, n
+//	Returns an error if width is outside both standard (MinWidth-MaxWidth) and
+//	extended (ExtendedMinWidth-ExtendedMaxWidth) ranges.
 func (c *Commands) SetBarcodeWidth(width Width) ([]byte, error) {
 	// Validar rangos estándar y extendidos
 	if (width >= MinWidth && width <= MaxWidth) ||
@@ -176,58 +176,63 @@ func (c *Commands) SetBarcodeWidth(width Width) ([]byte, error) {
 
 // PrintBarcode builds the GS k command byte sequence to print a barcode.
 //
-// Command summary:
+// Format:
 //
 //	Function A (m = 0–6):
-//	  Format:  GS k m d1...dk NUL
-//	  Data end: NUL (0x00) terminator (length byte NOT sent)
+//	  GS k m d1...dk NUL
 //	Function B (m = 65–79):
-//	  Format:  GS k m n d1...dn
-//	  Data length: single length byte n (1–255), NO terminator
+//	  GS k m n d1...dn
 //
-// Byte sequence prefix:
+// Range:
 //
-//	GS k -> 0x1D 0x6B
+//	Function A: m = 0–6, data terminated with NUL
+//	Function B: m = 65–79, n = 1–255 (data length)
 //
-// Parameter m (symbology selector):
+// Default:
 //
-//	Function A (classic forms):
-//	  0  UPC-A           (k = 11 or 12 digits)  (numeric)
-//	  1  UPC-E           (k = 6–8, 11, 12)      (numeric; k=7/8/11/12 must start with '0')
-//	  2  JAN13 / EAN13   (k = 12 or 13 digits)  (numeric)
-//	  3  JAN8  / EAN8    (k = 7 or 8 digits)    (numeric)
-//	  4  CODE39          (k >= 1)               (0–9 A–Z space $ % * + - . /)  Start/stop '*' auto if omitted
-//	  5  ITF (Interleaved 2 of 5) (k >= 2 even) (numeric; odd final digit ignored)
-//	  6  CODABAR (NW-7)  (k >= 2)               (Start/stop A–D/a–d must be present; not auto-added)
-//	Function B (extended forms):
-//	  65 UPC-A      (n = 11 or 12)
-//	  66 UPC-E      (n = 6–8, 11, 12)
-//	  67 EAN13      (n = 12 or 13)
-//	  68 EAN8       (n = 7 or 8)
-//	  69 CODE39     (1–255)
-//	  70 ITF        (2–254 even)
-//	  71 CODABAR    (2–255)
-//	  72 CODE93     (1–255) (start/stop + 2 check chars auto)
-//	  73 CODE128    (2–255) (d1= '{' (0x7B)=123, d2= 65–67 => Set A/B/C; check digit auto)
-//	  74 GS1-128    (2–255) (FNC1, check digits auto; special SP,(,),* rules)
-//	  75 GS1 DataBar Omnidirectional (n=13 digits; AI(01), check digit auto)
-//	  76 GS1 DataBar Truncated        (n=13)
-//	  77 GS1 DataBar Limited          (n=13; first digit constraint)
-//	  78 GS1 DataBar Expanded         (2–255; uses '{'+code for FNC1 / '(' / ')')
-//	  79 CODE128 Auto                 (1–255; 0–255 byte data)
+//	None
+//
+// Parameters:
+//
+//	symbology: Barcode type selector (m value):
+//	  Function A (classic forms):
+//	    0  UPC-A     (k = 11 or 12 digits, numeric)
+//	    1  UPC-E     (k = 6–8, 11, 12, numeric; k=7/8/11/12 must start with '0')
+//	    2  JAN13/EAN13 (k = 12 or 13 digits, numeric)
+//	    3  JAN8/EAN8   (k = 7 or 8 digits, numeric)
+//	    4  CODE39    (k >= 1, 0–9 A–Z space $ % * + - . /, Start/stop '*' auto if omitted)
+//	    5  ITF       (k >= 2 even, numeric; odd final digit ignored)
+//	    6  CODABAR   (k >= 2, Start/stop A–D/a–d must be present; not auto-added)
+//	  Function B (extended forms):
+//	    65 UPC-A     (n = 11 or 12)
+//	    66 UPC-E     (n = 6–8, 11, 12)
+//	    67 EAN13     (n = 12 or 13)
+//	    68 EAN8      (n = 7 or 8)
+//	    69 CODE39    (1–255)
+//	    70 ITF       (2–254 even)
+//	    71 CODABAR   (2–255)
+//	    72 CODE93    (1–255, start/stop + 2 check chars auto)
+//	    73 CODE128   (2–255, d1= '{' (0x7B), d2= 65–67 => Set A/B/C; check digit auto)
+//	    74 GS1-128   (2–255, FNC1, check digits auto; special SP,(,),* rules)
+//	    75 GS1 DataBar Omnidirectional (n=13 digits; AI(01), check digit auto)
+//	    76 GS1 DataBar Truncated (n=13)
+//	    77 GS1 DataBar Limited (n=13; first digit constraint)
+//	    78 GS1 DataBar Expanded (2–255; uses '{'+code for FNC1 / '(' / ')')
+//	    79 CODE128 Auto (1–255; 0–255 byte data)
+//	data: Barcode data bytes
 //
 // Notes:
 //   - This function DOES NOT validate symbology-specific content or lengths;
-//     caller must supply conforming data.
-//   - After printing, printer returns to "beginning of line" state.
-//   - Not affected by most text print modes (except upside-down).
-//   - In Page mode, data is buffered (rendering per Page mode rules).
-//   - Width exceeding print area is ignored/clipped by device.
+//     caller must supply conforming data
+//   - After printing, printer returns to "beginning of line" state
+//   - Not affected by most text print modes (except upside-down)
+//   - In Page mode, data is buffered (rendering per Page mode rules)
+//   - Width exceeding print area is ignored/clipped by device
 //
-// Byte sequence:
+// Errors:
 //
-//	Function A: GS k m data... NUL -> 0x1D, 0x6B, m, data..., 0x00
-//	Function B: GS k m n data...   -> 0x1D, 0x6B, m, n, data...
+//	Returns ErrDataTooShort if data is empty.
+//	Returns ErrSymbology if symbology is not recognized.
 func (c *Commands) PrintBarcode(symbology Symbology, data []byte) ([]byte, error) {
 	// Validar que existan datos
 	if len(data) == 0 {
@@ -248,20 +253,36 @@ func (c *Commands) PrintBarcode(symbology Symbology, data []byte) ([]byte, error
 
 // PrintBarcodeWithCodeSet prints a CODE128 or GS1-128 barcode with explicit code set.
 //
-// Description:
+// Format:
 //
-//	Specialized method for CODE128 (m=73) and GS1-128 (m=74) that require
-//	code set specification. The first two bytes of the barcode data must be:
-//	  d1 = '{' (0x7B)
-//	  d2 = 65-67 (Code set A/B/C)
+//	GS k m n '{' codeSet data...
+//
+// Range:
+//
+//	m = 73 (CODE128) or 74 (GS1-128)
+//	codeSet = 65–67 (Code set A/B/C)
+//	n = 2–255 (total data length including prefix)
+//
+// Default:
+//
+//	None
+//
+// Parameters:
+//
+//	symbology: Must be CODE128 (m=73) or GS1-128 (m=74)
+//	codeSet: Code set selector (65=A, 66=B, 67=C)
+//	data: Barcode data (without the '{' and code set prefix)
 //
 // Notes:
-//   - Use this method when you need explicit control over CODE128 code sets.
-//   - For automatic code set selection, use PrintBarcode with CODE128Auto (m=79).
+//   - Specialized method for CODE128 and GS1-128 that require code set specification
+//   - The first two bytes of the barcode data must be: d1 = '{' (0x7B), d2 = 65-67
+//   - Use this method when you need explicit control over CODE128 code sets
+//   - For automatic code set selection, use PrintBarcode with CODE128Auto (m=79)
 //
-// Byte sequence:
+// Errors:
 //
-//	GS k m n '{' codeSet data... -> 0x1D, 0x6B, m, n, 0x7B, codeSet, data...
+//	Returns an error if symbology is not CODE128 or GS1-128.
+//	Returns ErrCode128Set if codeSet is invalid.
 func (c *Commands) PrintBarcodeWithCodeSet(symbology Symbology, codeSet Code128Set, data []byte) ([]byte, error) {
 	// Validar que la simbología soporte conjuntos de códigos
 	if symbology != CODE128 && symbology != GS1128 {

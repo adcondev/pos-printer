@@ -314,3 +314,47 @@ func NewCommands() *Commands {
 		UserDefined:    &UserDefinedCommands{},
 	}
 }
+
+// ============================================================================
+// Helper Functions
+// ============================================================================
+
+// NewSize creates a Size value for character width and height magnification.
+//
+// Format:
+//
+//	Not applicable (helper function)
+//
+// Range:
+//
+//	width = 1–8
+//	height = 1–8
+//
+// Default:
+//
+//	Not applicable
+//
+// Parameters:
+//
+//	width: Character width magnification (1-8)
+//	height: Character height magnification (1-8)
+//
+// Notes:
+//   - This is a helper function to build Size values for SelectCharacterSize
+//   - The returned Size encodes both width and height in a single byte
+//
+// Errors:
+//
+//	Returns ErrCharacterWidth if width is outside the range 1-8.
+//	Returns ErrCharacterHeight if height is outside the range 1-8.
+func NewSize(width, height byte) (Size, error) {
+	if width < 1 || width > 8 {
+		return 0, ErrCharacterWidth
+	}
+	if height < 1 || height > 8 {
+		return 0, ErrCharacterHeight
+	}
+	w := (width - 1) << 4
+	h := height - 1
+	return Size(w | h), nil
+}

@@ -92,7 +92,7 @@ func useESCPOS(conn connector.Connector) {
 
 func main() {
 	// ========== Configuración de la impresora ==========
-	printerName := "58mm PT-210"
+	printerName := "80mm RPT004"
 
 	// ========== Crear conector de impresora ==========
 	conn, err := connector.NewWindowsPrintConnector(printerName)

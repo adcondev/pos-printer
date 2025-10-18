@@ -6,6 +6,7 @@ import (
 
 	"github.com/adcondev/pos-printer/connector"
 	"github.com/adcondev/pos-printer/escpos"
+	"github.com/adcondev/pos-printer/escpos/common"
 	"github.com/adcondev/pos-printer/pos"
 	"github.com/adcondev/pos-printer/profile"
 )
@@ -18,7 +19,7 @@ func printHeader(printer *pos.EscposPrinter) error {
 	if err := printer.SetEmphasis(escpos.EmphasizedOn); err != nil {
 		return err
 	}
-	if err := printer.TextLn("PRUEBA RAPIDA DE IMPRESION"); err != nil {
+	if err := printer.TextLn("PRUEBA RÁPIDA DE IMPRESIÓN"); err != nil {
 		return err
 	}
 	if err := printer.SetEmphasis(escpos.EmphasizedOff); err != nil {
@@ -69,15 +70,18 @@ func printAdvantages(printer *pos.EscposPrinter) error {
 
 // finishPrinting alimenta papel y corta
 func finishPrinting(printer *pos.EscposPrinter) error {
-	if err := printer.Feed(3); err != nil {
+	if err := printer.Feed(2); err != nil {
 		return err
 	}
-	return printer.Cut(escpos.PartialCut)
+	if _, err := printer.Connector.Write([]byte{common.GS, 'V', 66, 3}); err != nil {
+		return err
+	}
+	return nil
 }
 
 func main() {
 	// Configuración de la impresora
-	printerName := "58mm PT-210"
+	printerName := "80mm RPT004"
 
 	// Crear conector de impresora
 	log.Printf("Intentando conectar a la impresora: %s", printerName)

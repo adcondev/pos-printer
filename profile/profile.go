@@ -219,7 +219,7 @@ func CreateProfile80mm() *Escpos {
 		},
 
 		// Más juegos de caracteres
-		DefaultCharSet: encoding.CP437, // CP858
+		DefaultCharSet: encoding.CP850, // CP858
 
 		ImageThreshold: 128,
 

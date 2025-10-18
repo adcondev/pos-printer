@@ -97,13 +97,13 @@ func testCharset(p *pos.EscposPrinter, charset encoding.CharacterSet, testTexts 
 
 // finishPrinting alimenta papel y corta
 func finishPrinting(p *pos.EscposPrinter) error {
-	if err := p.Feed(1); err != nil {
+	if err := p.Feed(3); err != nil {
 		return err
 	}
 	if err := p.Cut(escpos.PartialCut); err != nil {
 		return err
 	}
-	return p.Feed(1)
+	return p.Feed(3)
 }
 
 // testPrinter prueba una impresora con los textos proporcionados
@@ -162,11 +162,11 @@ func main() {
 	// ========== Configuración de impresoras para probar ==========
 	printers := []PrinterConfig{
 		{
-			Name:     "80mm EC-PM-80250 x",
-			CharSets: []encoding.CharacterSet{encoding.WCP1252, encoding.CP858},
+			Name:     "80mm RPT004",
+			CharSets: []encoding.CharacterSet{encoding.CP850, encoding.WCP1252, encoding.CP437},
 		},
 		{
-			Name: "58mm PT-210",
+			Name: "x58mm PT-210",
 			CharSets: []encoding.CharacterSet{
 				encoding.CP437,
 				encoding.Katakana,
@@ -197,8 +197,8 @@ func main() {
 		"Acentos: áéíóú ÁÉÍÓÚ",
 		"Eñe: ñ Ñ",
 		"Diéresis: ü Ü",
-		"Moneda: $ ¢",
-		"Símbolos: ¡ ¿",
+		"Moneda: $ ¢ € £ ¥",
+		"Símbolos: ¡ ¿ ? % & * !",
 	}
 
 	// ========== Probar cada impresora ==========
