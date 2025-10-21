@@ -1,7 +1,7 @@
 package print
 
 import (
-	"github.com/adcondev/pos-printer/escpos/common"
+	"github.com/adcondev/pos-printer/escpos/sharedcommands"
 )
 
 // FormFeed executes form feed operation (behavior varies by mode).
@@ -147,7 +147,7 @@ func (c *Commands) PrintAndLineFeed() []byte {
 //
 //	This function is safe and does not return errors.
 func (c *Commands) PrintAndFeedPaper(n byte) []byte {
-	return []byte{common.ESC, 'J', n}
+	return []byte{sharedcommands.ESC, 'J', n}
 }
 
 // PrintAndFeedLines prints the data in the print buffer and feeds n lines.
@@ -181,7 +181,7 @@ func (c *Commands) PrintAndFeedPaper(n byte) []byte {
 //
 //	This function is safe and does not return errors.
 func (c *Commands) PrintAndFeedLines(n byte) []byte {
-	return []byte{common.ESC, 'd', n}
+	return []byte{sharedcommands.ESC, 'd', n}
 }
 
 // PrintAndReverseFeed prints the data in the print buffer and feeds paper in reverse.
@@ -215,10 +215,10 @@ func (c *Commands) PrintAndFeedLines(n byte) []byte {
 //
 //	Returns ErrReverseUnits if n exceeds MaxReverseMotionUnits (48).
 func (c *Commands) PrintAndReverseFeed(n byte) ([]byte, error) {
-	if n > MaxReverseMotionUnits {
-		return nil, ErrReverseUnits
+	if err := ValidateReverseFeedUnits(n); err != nil {
+		return nil, err
 	}
-	return []byte{common.ESC, 'K', n}, nil
+	return []byte{sharedcommands.ESC, 'K', n}, nil
 }
 
 // PrintAndReverseFeedLines prints the data in the print buffer and feeds n lines in reverse.
@@ -252,10 +252,10 @@ func (c *Commands) PrintAndReverseFeed(n byte) ([]byte, error) {
 //
 //	Returns ErrReverseLines if n exceeds MaxReverseFeedLines (2).
 func (c *Commands) PrintAndReverseFeedLines(n byte) ([]byte, error) {
-	if n > MaxReverseFeedLines {
-		return nil, ErrReverseLines
+	if err := ValidateReverseFeedLines(n); err != nil {
+		return nil, err
 	}
-	return []byte{common.ESC, 'e', n}, nil
+	return []byte{sharedcommands.ESC, 'e', n}, nil
 }
 
 // PrintDataInPageMode prints the data in the print buffer collectively in Page mode.
@@ -289,7 +289,7 @@ func (c *Commands) PrintAndReverseFeedLines(n byte) ([]byte, error) {
 //
 //	This function is safe and does not return errors.
 func (c *Commands) PrintDataInPageMode() []byte {
-	return []byte{common.ESC, FF}
+	return []byte{sharedcommands.ESC, FF}
 }
 
 // CancelData deletes all print data in the current print area (Page mode only).

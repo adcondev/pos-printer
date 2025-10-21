@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/adcondev/pos-printer/escpos/character"
-	"github.com/adcondev/pos-printer/escpos/common"
+	"github.com/adcondev/pos-printer/escpos/sharedcommands"
 )
 
 func TestIntegration_Character_BasicFormatting(t *testing.T) {
@@ -40,7 +40,7 @@ func TestIntegration_Character_BasicFormatting(t *testing.T) {
 
 		result := cmd.SelectPrintModes(modes)
 
-		expected := []byte{common.ESC, '!', 0xB8}
+		expected := []byte{sharedcommands.ESC, '!', 0xB8}
 		if !bytes.Equal(result, expected) {
 			t.Errorf("SelectPrintModes = %#v, want %#v", result, expected)
 		}

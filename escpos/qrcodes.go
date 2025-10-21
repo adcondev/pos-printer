@@ -3,7 +3,7 @@ package escpos
 import (
 	"fmt"
 
-	"github.com/adcondev/pos-printer/escpos/common"
+	"github.com/adcondev/pos-printer/escpos/sharedcommands"
 )
 
 // ============================================================================
@@ -89,14 +89,14 @@ func (c *Protocol) SelectQRModel(model QRModel) ([]byte, error) {
 		return nil, fmt.Errorf("modelo de QR inválida(0-1): %d", model)
 	}
 
-	pL, pH := common.ToLittleEndian(4)
+	pL, pH := sharedcommands.ToLittleEndian(4)
 
 	cn, fn := byte('1'), byte('A')
 	n1 := modelMap[model]
 	n2 := byte(0) // Siempre 0, reservado
 
 	cmd := make([]byte, 0, 9)
-	cmd = append(cmd, common.GS, '(', 'k') // Comando QR
+	cmd = append(cmd, sharedcommands.GS, '(', 'k') // Comando QR
 	cmd = append(cmd, pL, pH, cn, fn, n1, n2)
 
 	return cmd, nil
@@ -109,13 +109,13 @@ func (c *Protocol) SelectQRSize(moduleSize QRModuleSize) ([]byte, error) {
 		return nil, fmt.Errorf("tamaño de módulo QR inválido(1-16): %d", moduleSize)
 	}
 
-	pL, pH := common.ToLittleEndian(3)
+	pL, pH := sharedcommands.ToLittleEndian(3)
 
 	cn, fn := byte('1'), byte('C')
 	n := byte(moduleSize)
 
 	cmd := make([]byte, 0, 8)
-	cmd = append(cmd, common.GS, '(', 'k') // Comando QR
+	cmd = append(cmd, sharedcommands.GS, '(', 'k') // Comando QR
 	cmd = append(cmd, pL, pH, cn, fn, n)
 
 	return cmd, nil
@@ -129,12 +129,12 @@ func (c *Protocol) SelectQRErrorCorrection(level QRErrorCorrection) ([]byte, err
 		return nil, fmt.Errorf("nivel de corrección de QR inválido(0-3): %d", level)
 	}
 
-	pL, pH := common.ToLittleEndian(3)
+	pL, pH := sharedcommands.ToLittleEndian(3)
 
 	cn, fn := byte('1'), byte('E')
 
 	cmd := make([]byte, 0, 8)
-	cmd = append(cmd, common.GS, '(', 'k') // Comando QR
+	cmd = append(cmd, sharedcommands.GS, '(', 'k') // Comando QR
 	cmd = append(cmd, pL, pH, cn, fn, ec)
 
 	return cmd, nil
@@ -148,13 +148,13 @@ func (c *Protocol) SetQRData(data string) ([]byte, error) {
 	}
 
 	// Secure, it is validated before.
-	pL, pH := common.ToLittleEndian(uint16(len(data) + 3)) // nolint:gosec
+	pL, pH := sharedcommands.ToLittleEndian(uint16(len(data) + 3)) // nolint:gosec
 
 	cn, fn := byte('1'), byte('P')
 	m := byte('0') // Siempre 0, reservado
 
 	cmd := make([]byte, 0, 7+len(data))
-	cmd = append(cmd, common.GS, '(', 'k') // Comando QR
+	cmd = append(cmd, sharedcommands.GS, '(', 'k') // Comando QR
 	cmd = append(cmd, pL, pH, cn, fn, m)
 	cmd = append(cmd, data...)
 
@@ -164,13 +164,13 @@ func (c *Protocol) SetQRData(data string) ([]byte, error) {
 // PrintQRData genera el comando para imprimir el código QR
 func (c *Protocol) PrintQRData() ([]byte, error) {
 	// Comando para imprimir QR
-	pL, pH := common.ToLittleEndian(3)
+	pL, pH := sharedcommands.ToLittleEndian(3)
 
 	cn, fn := byte('1'), byte('Q')
 	m := byte('0') // Siempre 0 para impresion estandard
 
 	cmd := make([]byte, 0, 8)
-	cmd = append(cmd, common.GS, '(', 'k') // Comando QR
+	cmd = append(cmd, sharedcommands.GS, '(', 'k') // Comando QR
 	cmd = append(cmd, pL, pH, cn, fn, m)
 
 	return cmd, nil

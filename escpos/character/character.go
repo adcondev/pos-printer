@@ -1,17 +1,30 @@
+// Package character implements ESC/POS commands for character formatting and appearance.
+//
+// ESC/POS is the command system used by thermal receipt printers to control
+// character fonts, sizes, styles, effects, international character sets,
+// code pages, and user-defined characters.
 package character
 
 import (
 	"fmt"
 )
 
-// TODO: Verificar si todos los tipos tienen pruebas breves correspondientes
+// ============================================================================
+// Context
+// ============================================================================
+// This package implements ESC/POS commands for character formatting and appearance.
+// ESC/POS is the command system used by thermal receipt printers to control
+// character fonts, sizes, styles, effects, international character sets,
+// code pages, and user-defined characters.
 
 // ============================================================================
 // Constant and Var Definitions
 // ============================================================================
 
+// Spacing represents character spacing in dots
 type Spacing byte
 
+// PrintMode represents the print mode bits for character formatting
 type PrintMode byte
 
 const (
@@ -35,9 +48,9 @@ const (
 	NoDot       UnderlineMode = 0x00
 	OneDot      UnderlineMode = 0x01
 	TwoDot      UnderlineMode = 0x02
-	NoDotAscii  UnderlineMode = '0'
-	OneDotAscii UnderlineMode = '1'
-	TwoDotAscii UnderlineMode = '2'
+	NoDotASCII  UnderlineMode = '0'
+	OneDotASCII UnderlineMode = '1'
+	TwoDotASCII UnderlineMode = '2'
 )
 
 type EmphasizedMode byte
@@ -114,29 +127,37 @@ const (
 type RotationMode byte
 
 const (
-	// Rotation modes
-	NoRotation      RotationMode = 0x00 // n = 0
-	On90Dot1        RotationMode = 0x01 // n = 1 (1-dot spacing)
-	On90Dot15       RotationMode = 0x02 // n = 2 (1.5-dot spacing)
-	NoRotationAscii RotationMode = '0'
-	On90Dot1Ascii   RotationMode = '1'
-	On90Dot15Ascii  RotationMode = '2'
+	// NoRotation represents no rotation mode
+	NoRotation RotationMode = 0x00
+	// On90Dot1 represents 90-degree rotation with 1-dot spacing
+	On90Dot1 RotationMode = 0x01
+	// On90Dot15 represents 90-degree rotation with 1.5-dot spacing
+	On90Dot15 RotationMode = 0x02
+	// NoRotationASCII represents no rotation mode (ASCII mode)
+	NoRotationASCII RotationMode = '0'
+	// On90Dot1Ascii represents 90-degree rotation with 1-dot spacing (ASCII mode)
+	On90Dot1Ascii RotationMode = '1'
+	// On90Dot15Ascii represents 90-degree rotation with 1.5-dot spacing (ASCII mode)
+	On90Dot15Ascii RotationMode = '2'
 )
 
 type PrintColor byte
 
 const (
-	// Print Color Modes
-	Black      PrintColor = 0x00 // n = 0
-	Red        PrintColor = 0x01 // n = 1
+	// Black represents black print color
+	Black PrintColor = 0x00
+	// Red represents red print color
+	Red PrintColor = 0x01
+	// BlackASCII represents black print color (ASCII mode)
 	BlackASCII PrintColor = '0'
-	RedASCII   PrintColor = '1'
+	// RedASCII represents red print color (ASCII mode)
+	RedASCII PrintColor = '1'
 )
 
 type CodeTable byte
 
 const (
-	// Character Code Table Pages (common values)
+	// Character Code Table Pages (sharedcommands values)
 	PC437         CodeTable = 0  // PC437: USA, Standard Europe
 	Katakana      CodeTable = 1  // Katakana
 	PC850         CodeTable = 2  // PC850: Multilingual
@@ -240,8 +261,8 @@ const (
 	// White/black reverse modes
 	OffRm      ReverseMode = 0x00 // LSB = 0 -> reverse OFF
 	OnRm       ReverseMode = 0x01 // LSB = 1 -> reverse ON
-	OffRmAscii ReverseMode = '0'
-	OnRmAscii  ReverseMode = '1'
+	OffRmASCII ReverseMode = '0'
+	OnRmASCII  ReverseMode = '1'
 )
 
 type SmoothingMode byte
@@ -250,8 +271,8 @@ const (
 	// Smoothing modes
 	OffSm      SmoothingMode = 0x00 // LSB = 0 -> smoothing OFF
 	OnSm       SmoothingMode = 0x01 // LSB = 1 -> smoothing ON
-	OffSmAscii SmoothingMode = '0'
-	OnSmAscii  SmoothingMode = '1'
+	OffSmASCII SmoothingMode = '0'
+	OnSmASCII  SmoothingMode = '1'
 )
 
 // ============================================================================
@@ -273,7 +294,7 @@ var (
 // Interface Definitions
 // ============================================================================
 
-// Comprobación de cumplimiento de la interfaz en tiempo de compilación.
+// Compile-time check that Commands implements Capability
 var _ Capability = (*Commands)(nil)
 
 // Capability defines the main interface for character-related commands
@@ -306,8 +327,8 @@ type Commands struct {
 }
 
 func NewCommands() *Commands {
-	// Constructor que inicializa sub-comandos; devuelve puntero para evitar
-	// copias al pasar la estructura.
+	// Constructor that initializes sub-commands; returns pointer to avoid
+	// copies when passing the structure.
 	return &Commands{
 		Effects:        &EffectsCommands{},
 		CodeConversion: &CodeConversionCommands{},
@@ -357,4 +378,105 @@ func NewSize(width, height byte) (Size, error) {
 	w := (width - 1) << 4
 	h := height - 1
 	return Size(w | h), nil
+}
+
+// ============================================================================
+// Validation Functions
+// ============================================================================
+
+// ValidateUnderlineMode validates if underline mode is valid
+func ValidateUnderlineMode(mode UnderlineMode) error {
+	switch mode {
+	case NoDot, OneDot, TwoDot, NoDotASCII, OneDotASCII, TwoDotASCII:
+		return nil
+	default:
+		return ErrUnderlineMode
+	}
+}
+
+// ValidateFontType validates if font type is valid
+func ValidateFontType(font FontType) error {
+	switch font {
+	case FontA, FontB, FontC, FontD, FontE,
+		FontAAscii, FontBAscii, FontCAscii, FontDAscii, FontEAscii,
+		SpecialFontA, SpecialFontB:
+		return nil
+	default:
+		return ErrCharacterFont
+	}
+}
+
+// ValidateInternationalSet validates if international character set is valid
+func ValidateInternationalSet(charset InternationalSet) error {
+	// Standard range
+	if charset <= Arabia {
+		return nil
+	}
+	// India-specific range
+	if charset >= IndiaDevanagari && charset <= IndiaPunjabi {
+		return nil
+	}
+	// Marathi
+	if charset == IndiaMarathi {
+		return nil
+	}
+	return ErrCharacterSet
+}
+
+// ValidateRotationMode validates if rotation mode is valid
+func ValidateRotationMode(mode RotationMode) error {
+	switch mode {
+	case NoRotation, On90Dot1, On90Dot15,
+		NoRotationASCII, On90Dot1Ascii, On90Dot15Ascii:
+		return nil
+	default:
+		return ErrRotationMode
+	}
+}
+
+// ValidatePrintColor validates if print color is valid
+func ValidatePrintColor(color PrintColor) error {
+	switch color {
+	case Black, Red, BlackASCII, RedASCII:
+		return nil
+	default:
+		return ErrPrintColor
+	}
+}
+
+// ValidateCodeTable validates if code table page is valid
+func ValidateCodeTable(page CodeTable) error {
+	// Common pages 0-8
+	if page <= OnePassKanji2 {
+		return nil
+	}
+	// Pages 11-19
+	if page >= PC851 && page <= PC858 {
+		return nil
+	}
+	// Thai codes 20-26
+	if page >= ThaiCode42 && page <= ThaiCode18 {
+		return nil
+	}
+	// Vietnamese 30-31
+	if page >= TCVN31 && page <= TCVN32 {
+		return nil
+	}
+	// Pages 32-53
+	if page >= PC720 && page <= KZ1048 {
+		return nil
+	}
+	// India-specific pages 66-75
+	if page >= Devanagari && page <= Punjabi {
+		return nil
+	}
+	// Marathi
+	if page == Marathi {
+		return nil
+	}
+	// Special pages
+	if page == Special254 || page == Special255 {
+		return nil
+	}
+	return ErrCodeTablePage
 }

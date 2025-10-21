@@ -5,19 +5,31 @@ import (
 )
 
 // ============================================================================
+// Context
+// ============================================================================
+// This sub-module implements ESC/POS commands for user-defined characters.
+// ESC/POS is the command system used by thermal receipt printers to control
+// custom glyph definitions, allowing creation of custom dot-matrix patterns
+// for special characters not available in standard character sets.
+
+// ============================================================================
 // Constant and Var Definitions
 // ============================================================================
 
 const (
-	UserDefinedOff byte = 0x00 // LSB = 0 -> user-defined OFF
-	UserDefinedOn  byte = 0x01 // LSB = 1 -> user-defined ON
+	// UserDefinedOff represents user-defined character mode off (LSB = 0)
+	UserDefinedOff byte = 0x00
+	// UserDefinedOn represents user-defined character mode on (LSB = 1)
+	UserDefinedOn byte = 0x01
 
-	// ASCII-digit variants sometimes accepted by implementations
-
+	// UserDefinedOffASCII represents user-defined character mode off (ASCII variant)
 	UserDefinedOffASCII byte = '0'
-	UserDefinedOnASCII  byte = '1'
+	// UserDefinedOnASCII represents user-defined character mode on (ASCII variant)
+	UserDefinedOnASCII byte = '1'
 
+	// UserDefinedMinCode represents minimum character code for user-defined characters
 	UserDefinedMinCode byte = 32
+	// UserDefinedMaxCode represents maximum character code for user-defined characters
 	UserDefinedMaxCode byte = 126
 )
 
@@ -25,6 +37,7 @@ const (
 // Error Definitions
 // ============================================================================
 
+// ErrCharacterCode represents an invalid character code error
 var (
 	ErrCharacterCode = fmt.Errorf("invalid character code(try %d-%d)", UserDefinedMinCode, UserDefinedMaxCode)
 	ErrYValue        = fmt.Errorf("invalid y value(try y >= 1)")
@@ -58,4 +71,27 @@ type UserDefinedCommands struct{}
 type UserDefinedChar struct {
 	Width byte   // Width in dots (xi)
 	Data  []byte // Raw column data, length must equal y * Width
+}
+
+// ============================================================================
+// Validation Functions
+// ============================================================================
+
+// ValidateCharacterCode validates if character code is within valid range
+func ValidateCharacterCode(code byte) error {
+	if code < UserDefinedMinCode || code > UserDefinedMaxCode {
+		return ErrCharacterCode
+	}
+	return nil
+}
+
+// ValidateCodeRange validates if code range is valid
+func ValidateCodeRange(c1, c2 byte) error {
+	if err := ValidateCharacterCode(c1); err != nil {
+		return err
+	}
+	if c2 < c1 || c2 > UserDefinedMaxCode {
+		return ErrCodeRange
+	}
+	return nil
 }

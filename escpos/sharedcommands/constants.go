@@ -1,4 +1,4 @@
-package common
+package sharedcommands
 
 const (
 	// DLE represent the byte de "Data Link Escape" en ESC/POS.
@@ -13,12 +13,10 @@ const (
 	SP byte = 0x20 // Espacio (carácter de espacio en blanco)
 	// FS represent the byte de "File Separator" en ESC/POS.
 	FS byte = 0x1C
-	// GS represents the byte de "Group Separator" en ESC/POS.
-	GS byte = 0x1D
 	// NUL represents the byte de "Null" en ESC/POS.
 	NUL byte = 0x00
 	// ESC represents the byte de "Escape" en ESC/POS.
 	ESC byte = 0x1B
-	// HT represents the byte de "Horizontal Tab" en ESC/POS.
-	HT byte = 0x09
+	// GS represents the byte de "Group Separator" en ESC/POS.
+	GS byte = 0x1D
 )

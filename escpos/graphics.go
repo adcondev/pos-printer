@@ -3,7 +3,7 @@ package escpos
 import (
 	"fmt"
 
-	"github.com/adcondev/pos-printer/escpos/common"
+	"github.com/adcondev/pos-printer/escpos/sharedcommands"
 	"github.com/adcondev/pos-printer/imaging"
 )
 
@@ -100,7 +100,7 @@ func (c *Protocol) PrintRasterBitImage(img *imaging.PrintImage, density Density)
 	}
 
 	// Construir comando GS v 0
-	cmd := []byte{common.GS, 'v', '0', mode}
+	cmd := []byte{sharedcommands.GS, 'v', '0', mode}
 
 	// Agregar dimensiones
 	var widthBytes uint16
@@ -113,7 +113,7 @@ func (c *Protocol) PrintRasterBitImage(img *imaging.PrintImage, density Density)
 		// Secure, it has been validated
 		widthBytes = uint16(escImg.GetWidthBytes()) // nolint:gosec
 	}
-	wL, wH := common.ToLittleEndian(widthBytes)
+	wL, wH := sharedcommands.ToLittleEndian(widthBytes)
 
 	var heightBytes uint16
 	switch {
@@ -125,7 +125,7 @@ func (c *Protocol) PrintRasterBitImage(img *imaging.PrintImage, density Density)
 		// Secure, it has been validated
 		heightBytes = uint16(escImg.GetHeight()) // nolint:gosec
 	}
-	hL, hH := common.ToLittleEndian(heightBytes)
+	hL, hH := sharedcommands.ToLittleEndian(heightBytes)
 
 	cmd = append(cmd, wL, wH) // Ancho en bytes
 	cmd = append(cmd, hL, hH) // Alto en píxeles
@@ -155,6 +155,6 @@ func SelectBitImageMode(m BitImageMode, nL, nH byte, data []byte) ([]byte, error
 	if !ok {
 		return nil, fmt.Errorf("invalid bit image mode: %v", m)
 	}
-	cmd := []byte{common.ESC, '*', mode, nL, nH}
+	cmd := []byte{sharedcommands.ESC, '*', mode, nL, nH}
 	return append(cmd, data...), nil
 }

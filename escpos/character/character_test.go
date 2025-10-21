@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/adcondev/pos-printer/escpos/character"
-	"github.com/adcondev/pos-printer/escpos/common"
+	"github.com/adcondev/pos-printer/escpos/sharedcommands"
 	"github.com/adcondev/pos-printer/utils/test"
 )
 
@@ -117,7 +117,7 @@ func Test_BuildCharacterSize(t *testing.T) {
 func TestCommands_SetRightSideCharacterSpacing(t *testing.T) {
 	// Setup
 	cmd := character.NewCommands()
-	prefix := test.BuildCommand(common.ESC, common.SP)
+	prefix := test.BuildCommand(sharedcommands.ESC, sharedcommands.SP)
 
 	tests := []struct {
 		name    string
@@ -155,7 +155,7 @@ func TestCommands_SetRightSideCharacterSpacing(t *testing.T) {
 func TestCommands_SelectPrintModes(t *testing.T) {
 	// Setup
 	cmd := character.NewCommands()
-	prefix := test.BuildCommand(common.ESC, '!')
+	prefix := test.BuildCommand(sharedcommands.ESC, '!')
 
 	tests := []struct {
 		name string
@@ -213,7 +213,7 @@ func TestCommands_SelectPrintModes(t *testing.T) {
 func TestCommands_SetUnderlineMode(t *testing.T) {
 	// Setup
 	cmd := character.NewCommands()
-	prefix := test.BuildCommand(common.ESC, '-')
+	prefix := test.BuildCommand(sharedcommands.ESC, '-')
 
 	tests := []struct {
 		name    string
@@ -241,19 +241,19 @@ func TestCommands_SetUnderlineMode(t *testing.T) {
 		},
 		{
 			name:    "underline off ASCII",
-			mode:    character.NoDotAscii,
+			mode:    character.NoDotASCII,
 			want:    append(prefix, '0'),
 			wantErr: nil,
 		},
 		{
 			name:    "underline 1 dot ASCII",
-			mode:    character.OneDotAscii,
+			mode:    character.OneDotASCII,
 			want:    append(prefix, '1'),
 			wantErr: nil,
 		},
 		{
 			name:    "underline 2 dots ASCII",
-			mode:    character.TwoDotAscii,
+			mode:    character.TwoDotASCII,
 			want:    append(prefix, '2'),
 			wantErr: nil,
 		},
@@ -288,7 +288,7 @@ func TestCommands_SetUnderlineMode(t *testing.T) {
 func TestCommands_SetEmphasizedMode(t *testing.T) {
 	// Setup
 	cmd := character.NewCommands()
-	prefix := test.BuildCommand(common.ESC, 'E')
+	prefix := test.BuildCommand(sharedcommands.ESC, 'E')
 
 	tests := []struct {
 		name string
@@ -331,7 +331,7 @@ func TestCommands_SetEmphasizedMode(t *testing.T) {
 func TestCommands_SetDoubleStrikeMode(t *testing.T) {
 	// Setup
 	cmd := character.NewCommands()
-	prefix := test.BuildCommand(common.ESC, 'G')
+	prefix := test.BuildCommand(sharedcommands.ESC, 'G')
 
 	tests := []struct {
 		name string
@@ -374,7 +374,7 @@ func TestCommands_SetDoubleStrikeMode(t *testing.T) {
 func TestCommands_SelectCharacterFont(t *testing.T) {
 	// Setup
 	cmd := character.NewCommands()
-	prefix := test.BuildCommand(common.ESC, 'M')
+	prefix := test.BuildCommand(sharedcommands.ESC, 'M')
 
 	tests := []struct {
 		name    string
@@ -449,7 +449,7 @@ func TestCommands_SelectCharacterFont(t *testing.T) {
 func TestCommands_SelectInternationalCharacterSet(t *testing.T) {
 	// Setup
 	cmd := character.NewCommands()
-	prefix := test.BuildCommand(common.ESC, 'R')
+	prefix := test.BuildCommand(sharedcommands.ESC, 'R')
 
 	tests := []struct {
 		name    string
@@ -512,7 +512,7 @@ func TestCommands_SelectInternationalCharacterSet(t *testing.T) {
 func TestCommands_Set90DegreeClockwiseRotationMode(t *testing.T) {
 	// Setup
 	cmd := character.NewCommands()
-	prefix := test.BuildCommand(common.ESC, 'V')
+	prefix := test.BuildCommand(sharedcommands.ESC, 'V')
 
 	tests := []struct {
 		name    string
@@ -540,7 +540,7 @@ func TestCommands_Set90DegreeClockwiseRotationMode(t *testing.T) {
 		},
 		{
 			name:    "no rotation ASCII",
-			mode:    character.NoRotationAscii,
+			mode:    character.NoRotationASCII,
 			want:    append(prefix, '0'),
 			wantErr: nil,
 		},
@@ -575,7 +575,7 @@ func TestCommands_Set90DegreeClockwiseRotationMode(t *testing.T) {
 func TestCommands_SelectPrintColor(t *testing.T) {
 	// Setup
 	cmd := character.NewCommands()
-	prefix := test.BuildCommand(common.ESC, 'r')
+	prefix := test.BuildCommand(sharedcommands.ESC, 'r')
 
 	tests := []struct {
 		name    string
@@ -638,7 +638,7 @@ func TestCommands_SelectPrintColor(t *testing.T) {
 func TestCommands_SelectCharacterCodeTable(t *testing.T) {
 	// Setup
 	cmd := character.NewCommands()
-	prefix := test.BuildCommand(common.ESC, 't')
+	prefix := test.BuildCommand(sharedcommands.ESC, 't')
 
 	tests := []struct {
 		name    string
@@ -701,7 +701,7 @@ func TestCommands_SelectCharacterCodeTable(t *testing.T) {
 func TestCommands_SetUpsideDownMode(t *testing.T) {
 	// Setup
 	cmd := character.NewCommands()
-	prefix := test.BuildCommand(common.ESC, '{')
+	prefix := test.BuildCommand(sharedcommands.ESC, '{')
 
 	tests := []struct {
 		name string
@@ -744,7 +744,7 @@ func TestCommands_SetUpsideDownMode(t *testing.T) {
 func TestCommands_SelectCharacterSize(t *testing.T) {
 	// Setup
 	cmd := character.NewCommands()
-	prefix := test.BuildCommand(common.GS, '!')
+	prefix := test.BuildCommand(sharedcommands.GS, '!')
 
 	tests := []struct {
 		name string
@@ -797,7 +797,7 @@ func TestCommands_SelectCharacterSize(t *testing.T) {
 func TestCommands_SetWhiteBlackReverseMode(t *testing.T) {
 	// Setup
 	cmd := character.NewCommands()
-	prefix := test.BuildCommand(common.GS, 'B')
+	prefix := test.BuildCommand(sharedcommands.GS, 'B')
 
 	tests := []struct {
 		name string
@@ -816,12 +816,12 @@ func TestCommands_SetWhiteBlackReverseMode(t *testing.T) {
 		},
 		{
 			name: "reverse off ASCII",
-			mode: character.OffRmAscii,
+			mode: character.OffRmASCII,
 			want: append(prefix, '0'),
 		},
 		{
 			name: "reverse on ASCII",
-			mode: character.OnRmAscii,
+			mode: character.OnRmASCII,
 			want: append(prefix, '1'),
 		},
 		{
@@ -850,7 +850,7 @@ func TestCommands_SetWhiteBlackReverseMode(t *testing.T) {
 func TestCommands_SetSmoothingMode(t *testing.T) {
 	// Setup
 	cmd := character.NewCommands()
-	prefix := test.BuildCommand(common.GS, 'b')
+	prefix := test.BuildCommand(sharedcommands.GS, 'b')
 
 	tests := []struct {
 		name string
@@ -869,12 +869,12 @@ func TestCommands_SetSmoothingMode(t *testing.T) {
 		},
 		{
 			name: "smoothing off ASCII",
-			mode: character.OffSmAscii,
+			mode: character.OffSmASCII,
 			want: append(prefix, '0'),
 		},
 		{
 			name: "smoothing on ASCII",
-			mode: character.OnSmAscii,
+			mode: character.OnSmASCII,
 			want: append(prefix, '1'),
 		},
 		{

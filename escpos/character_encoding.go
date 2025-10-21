@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/adcondev/pos-printer/encoding"
-	"github.com/adcondev/pos-printer/escpos/common"
+	"github.com/adcondev/pos-printer/escpos/sharedcommands"
 )
 
 // ============================================================================
@@ -73,17 +73,17 @@ func (c *Protocol) SelectCharacterTable(table encoding.CharacterSet) ([]byte, er
 		return nil, fmt.Errorf("error: código de página %s no soportado por protocolo", encoder.Name)
 	}
 	// ESC t n - Select character code table
-	cmd := []byte{common.ESC, 't', charSet}
+	cmd := []byte{sharedcommands.ESC, 't', charSet}
 
 	return cmd, nil
 }
 
 // CancelKanjiMode deactivates Kanji mode
 func (c *Protocol) CancelKanjiMode() []byte {
-	return []byte{common.FS, '.'}
+	return []byte{sharedcommands.FS, '.'}
 }
 
 // SelectKanjiMode activates Kanji mode
 func (c *Protocol) SelectKanjiMode() []byte {
-	return []byte{common.FS, '&'}
+	return []byte{sharedcommands.FS, '&'}
 }

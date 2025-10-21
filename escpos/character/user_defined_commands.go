@@ -3,7 +3,7 @@ package character
 import (
 	"fmt"
 
-	"github.com/adcondev/pos-printer/escpos/common"
+	"github.com/adcondev/pos-printer/escpos/sharedcommands"
 )
 
 // SelectUserDefinedCharacterSet selects or cancels the user-defined character set.
@@ -91,11 +91,8 @@ func (udc *UserDefinedCommands) DefineUserDefinedCharacters(y, c1, c2 byte, defi
 	if y == 0 {
 		return nil, ErrYValue
 	}
-	if c1 < UserDefinedMinCode || c1 > UserDefinedMaxCode {
-		return nil, fmt.Errorf("%w: c1=%d", ErrCharacterCode, c1)
-	}
-	if c2 < c1 || c2 > UserDefinedMaxCode {
-		return nil, fmt.Errorf("%w: c2=%d", ErrCodeRange, c2)
+	if err := ValidateCodeRange(c1, c2); err != nil {
+		return nil, err
 	}
 	expected := int(c2 - c1 + 1)
 	if len(definitions) != expected {
@@ -103,7 +100,7 @@ func (udc *UserDefinedCommands) DefineUserDefinedCharacters(y, c1, c2 byte, defi
 	}
 
 	// Build command
-	seq := []byte{common.ESC, '&', y, c1, c2}
+	seq := []byte{sharedcommands.ESC, '&', y, c1, c2}
 	bytesPerCol := int(y)
 
 	for idx, def := range definitions {
@@ -157,8 +154,8 @@ func (udc *UserDefinedCommands) DefineUserDefinedCharacters(y, c1, c2 byte, defi
 //
 //	Returns ErrCharacterCode if n is outside the valid range (32-126).
 func (udc *UserDefinedCommands) CancelUserDefinedCharacter(n byte) ([]byte, error) {
-	if n < UserDefinedMinCode || n > UserDefinedMaxCode {
-		return nil, ErrCharacterCode
+	if err := ValidateCharacterCode(n); err != nil {
+		return nil, err
 	}
-	return []byte{common.ESC, '?', n}, nil
+	return []byte{sharedcommands.ESC, '?', n}, nil
 }

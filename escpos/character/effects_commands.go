@@ -1,9 +1,5 @@
 package character
 
-import (
-	"github.com/adcondev/pos-printer/escpos/common"
-)
-
 // SelectCharacterColor selects the character color.
 //
 // Format:
@@ -42,13 +38,10 @@ import (
 //	Returns ErrInvalidCharacterColor if m is not a valid color value (48-51).
 func (ef *EffectsCommands) SelectCharacterColor(m byte) ([]byte, error) {
 	// Validate allowed values
-	switch m {
-	case '0', '1', '2', '3':
-		// Valid values
-	default:
-		return nil, ErrInvalidCharacterColor
+	if err := ValidateCharacterColor(m); err != nil {
+		return nil, err
 	}
-	return []byte{0x1D, 0x28, 0x4E, 0x02, 0x00, 0x30, m}, nil
+	return []byte{GS, '(', 'N', 0x02, 0x00, 0x30, m}, nil
 }
 
 // SelectBackgroundColor selects the background color.
@@ -87,13 +80,10 @@ func (ef *EffectsCommands) SelectCharacterColor(m byte) ([]byte, error) {
 //	Returns ErrInvalidBackgroundColor if m is not a valid color value (48-51).
 func (ef *EffectsCommands) SelectBackgroundColor(m byte) ([]byte, error) {
 	// Validate allowed values
-	switch m {
-	case '0', '1', '2', '3':
-		// Valid values
-	default:
-		return nil, ErrInvalidBackgroundColor
+	if err := ValidateBackgroundColor(m); err != nil {
+		return nil, err
 	}
-	return []byte{0x1D, 0x28, 0x4E, 0x02, 0x00, 0x31, m}, nil
+	return []byte{GS, '(', 'N', 0x02, 0x00, 0x31, m}, nil
 }
 
 // SetCharacterShadowMode turns shading (shadow) mode on or off.
@@ -136,17 +126,11 @@ func (ef *EffectsCommands) SelectBackgroundColor(m byte) ([]byte, error) {
 //	Returns ErrInvalidShadowColor if a is not a valid color value (48-51).
 func (ef *EffectsCommands) SetCharacterShadowMode(m byte, a byte) ([]byte, error) {
 	// Validate allowed values
-	switch m {
-	case 0, 1, '0', '1':
-		// Valid values
-	default:
-		return nil, ErrInvalidShadowMode
+	if err := ValidateShadowMode(m); err != nil {
+		return nil, err
 	}
-	switch a {
-	case '0', '1', '2', '3':
-		// Valid values
-	default:
-		return nil, ErrInvalidShadowColor
+	if err := ValidateShadowColor(a); err != nil {
+		return nil, err
 	}
-	return []byte{common.GS, '(', 'N', 0x03, 0x00, 0x32, m, a}, nil
+	return []byte{GS, '(', 'N', 0x03, 0x00, 0x32, m, a}, nil
 }

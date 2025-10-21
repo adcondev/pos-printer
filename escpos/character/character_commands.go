@@ -1,7 +1,7 @@
 package character
 
 import (
-	"github.com/adcondev/pos-printer/escpos/common"
+	"github.com/adcondev/pos-printer/escpos/sharedcommands"
 )
 
 // SetRightSideCharacterSpacing sets the right-side character spacing.
@@ -47,7 +47,7 @@ import (
 //
 //	This function is safe and does not return errors.
 func (c *Commands) SetRightSideCharacterSpacing(n Spacing) []byte {
-	return []byte{common.ESC, common.SP, byte(n)}
+	return []byte{sharedcommands.ESC, sharedcommands.SP, byte(n)}
 }
 
 // SelectPrintModes selects character font and style bits (emphasized, double-height, double-width, underline) together.
@@ -105,7 +105,7 @@ func (c *Commands) SetRightSideCharacterSpacing(n Spacing) []byte {
 //
 //	This function is safe and does not return errors.
 func (c *Commands) SelectPrintModes(n PrintMode) []byte {
-	return []byte{common.ESC, '!', byte(n)}
+	return []byte{sharedcommands.ESC, '!', byte(n)}
 }
 
 // SetUnderlineMode sets underline mode on or off and selects underline thickness.
@@ -149,13 +149,10 @@ func (c *Commands) SelectPrintModes(n PrintMode) []byte {
 //	Returns ErrUnderlineMode if n is not a valid underline mode value (0, 1, 2, 48, 49, 50).
 func (c *Commands) SetUnderlineMode(n UnderlineMode) ([]byte, error) {
 	// Validate allowed values
-	switch n {
-	case 0, 1, 2, '0', '1', '2':
-		// Valid values
-	default:
-		return nil, ErrUnderlineMode
+	if err := ValidateUnderlineMode(n); err != nil {
+		return nil, err
 	}
-	return []byte{common.ESC, '-', byte(n)}, nil
+	return []byte{sharedcommands.ESC, '-', byte(n)}, nil
 }
 
 // SetEmphasizedMode turns emphasized (bold) mode on or off.
@@ -189,7 +186,7 @@ func (c *Commands) SetUnderlineMode(n UnderlineMode) ([]byte, error) {
 //
 //	This function is safe and does not return errors.
 func (c *Commands) SetEmphasizedMode(n EmphasizedMode) []byte {
-	return []byte{common.ESC, 'E', byte(n)}
+	return []byte{sharedcommands.ESC, 'E', byte(n)}
 }
 
 // SetDoubleStrikeMode turns double-strike mode on or off.
@@ -223,7 +220,7 @@ func (c *Commands) SetEmphasizedMode(n EmphasizedMode) []byte {
 //
 //	This function is safe and does not return errors.
 func (c *Commands) SetDoubleStrikeMode(n DoubleStrikeMode) []byte {
-	return []byte{common.ESC, 'G', byte(n)}
+	return []byte{sharedcommands.ESC, 'G', byte(n)}
 }
 
 // SelectCharacterFont selects a character font.
@@ -267,17 +264,10 @@ func (c *Commands) SetDoubleStrikeMode(n DoubleStrikeMode) []byte {
 //	Returns ErrCharacterFont if n is not a valid font selector value.
 func (c *Commands) SelectCharacterFont(n FontType) ([]byte, error) {
 	// Validate allowed values
-	switch n {
-	case 0, 1, 2, 3, 4:
-		// Numeric values
-	case '0', '1', '2', '3', '4':
-		// ASCII values
-	case 97, 98:
-		// Special fonts
-	default:
-		return nil, ErrCharacterFont
+	if err := ValidateFontType(n); err != nil {
+		return nil, err
 	}
-	return []byte{common.ESC, 'M', byte(n)}, nil
+	return []byte{sharedcommands.ESC, 'M', byte(n)}, nil
 }
 
 // SelectInternationalCharacterSet selects an international character set.
@@ -290,7 +280,7 @@ func (c *Commands) SelectCharacterFont(n FontType) ([]byte, error) {
 //
 // Range:
 //
-//	n = 0–17 (common)
+//	n = 0–17 (sharedcommands)
 //	n = 66–75, 82 (India-specific on some models)
 //
 // Default:
@@ -343,19 +333,10 @@ func (c *Commands) SelectCharacterFont(n FontType) ([]byte, error) {
 //
 //	Returns ErrCharacterSet if n is not a valid character set value.
 func (c *Commands) SelectInternationalCharacterSet(n InternationalSet) ([]byte, error) {
-	// Standard range
-	if n <= 17 {
-		return []byte{common.ESC, 'R', byte(n)}, nil
+	if err := ValidateInternationalSet(n); err != nil {
+		return nil, err
 	}
-	// India-specific range
-	if n >= 66 && n <= 75 {
-		return []byte{common.ESC, 'R', byte(n)}, nil
-	}
-	// Marathi
-	if n == 82 {
-		return []byte{common.ESC, 'R', byte(n)}, nil
-	}
-	return nil, ErrCharacterSet
+	return []byte{sharedcommands.ESC, 'R', byte(n)}, nil
 }
 
 // Set90DegreeClockwiseRotationMode turns 90° clockwise rotation mode on or off.
@@ -398,13 +379,10 @@ func (c *Commands) SelectInternationalCharacterSet(n InternationalSet) ([]byte, 
 //	Returns ErrRotationMode if n is not a valid rotation mode value (0-2, 48-50).
 func (c *Commands) Set90DegreeClockwiseRotationMode(n RotationMode) ([]byte, error) {
 	// Validate allowed values
-	switch n {
-	case 0, 1, 2, '0', '1', '2':
-		// Valid values
-	default:
-		return nil, ErrRotationMode
+	if err := ValidateRotationMode(n); err != nil {
+		return nil, err
 	}
-	return []byte{common.ESC, 'V', byte(n)}, nil
+	return []byte{sharedcommands.ESC, 'V', byte(n)}, nil
 }
 
 // SelectPrintColor selects the print color.
@@ -446,13 +424,10 @@ func (c *Commands) Set90DegreeClockwiseRotationMode(n RotationMode) ([]byte, err
 //	Returns ErrPrintColor if n is not a valid color value (0, 1, 48, 49).
 func (c *Commands) SelectPrintColor(n PrintColor) ([]byte, error) {
 	// Validate allowed values
-	switch n {
-	case 0, 1, '0', '1':
-		// Valid values
-	default:
-		return nil, ErrPrintColor
+	if err := ValidatePrintColor(n); err != nil {
+		return nil, err
 	}
-	return []byte{common.ESC, 'r', byte(n)}, nil
+	return []byte{sharedcommands.ESC, 'r', byte(n)}, nil
 }
 
 // SelectCharacterCodeTable selects a character code table page.
@@ -511,23 +486,10 @@ func (c *Commands) SelectPrintColor(n PrintColor) ([]byte, error) {
 //
 //	Returns ErrCodeTablePage if n is not a valid code table page number.
 func (c *Commands) SelectCharacterCodeTable(n CodeTable) ([]byte, error) {
-	// Common pages
-	validPages := map[CodeTable]bool{
-		0: true, 1: true, 2: true, 3: true, 4: true, 5: true, 6: true, 7: true, 8: true,
-		11: true, 12: true, 13: true, 14: true, 15: true, 16: true, 17: true, 18: true, 19: true,
-		20: true, 21: true, 22: true, 23: true, 24: true, 25: true, 26: true,
-		30: true, 31: true, 32: true, 33: true, 34: true, 35: true, 36: true, 37: true, 38: true, 39: true,
-		40: true, 41: true, 42: true, 43: true, 44: true, 45: true, 46: true, 47: true, 48: true, 49: true,
-		50: true, 51: true, 52: true, 53: true,
-		66: true, 67: true, 68: true, 69: true, 70: true, 71: true, 72: true, 73: true, 74: true, 75: true,
-		82:  true,
-		254: true, 255: true,
+	if err := ValidateCodeTable(n); err != nil {
+		return nil, err
 	}
-
-	if !validPages[n] {
-		return nil, ErrCodeTablePage
-	}
-	return []byte{common.ESC, 't', byte(n)}, nil
+	return []byte{sharedcommands.ESC, 't', byte(n)}, nil
 }
 
 // SetUpsideDownMode turns upside-down (180° rotated) print mode on or off.
@@ -568,11 +530,9 @@ func (c *Commands) SelectCharacterCodeTable(n CodeTable) ([]byte, error) {
 //
 //	This function is safe and does not return errors.
 func (c *Commands) SetUpsideDownMode(n UpsideDownMode) []byte {
-	return []byte{common.ESC, '{', byte(n)}
+	return []byte{sharedcommands.ESC, '{', byte(n)}
 }
 
-// TODO: Check if SelectCharacterSize need extra work with the masks and values.
-// TODO: Check if conditionals are needed too. According to:
 // [Range]
 // n = 0xxx0xxxb (n = 0 – 7, 16 – 23, 32 – 39, 48 – 55, 64 – 71, 80 – 87, 96 – 103, 112 – 119)
 // (Enlargement in vertical direction: 1–8, Enlargement in horizontal direction: 1–8)
@@ -621,7 +581,7 @@ func (c *Commands) SetUpsideDownMode(n UpsideDownMode) []byte {
 //
 //	This function is safe and does not return errors.
 func (c *Commands) SelectCharacterSize(n Size) []byte {
-	return []byte{common.GS, '!', byte(n)}
+	return []byte{sharedcommands.GS, '!', byte(n)}
 }
 
 // SetWhiteBlackReverseMode turns white/black reverse print mode on or off.
@@ -661,7 +621,7 @@ func (c *Commands) SelectCharacterSize(n Size) []byte {
 //
 //	This function is safe and does not return errors.
 func (c *Commands) SetWhiteBlackReverseMode(n ReverseMode) []byte {
-	return []byte{common.GS, 'B', byte(n)}
+	return []byte{sharedcommands.GS, 'B', byte(n)}
 }
 
 // SetSmoothingMode turns smoothing mode on or off.
@@ -696,5 +656,5 @@ func (c *Commands) SetWhiteBlackReverseMode(n ReverseMode) []byte {
 //
 //	This function is safe and does not return errors.
 func (c *Commands) SetSmoothingMode(n SmoothingMode) []byte {
-	return []byte{common.GS, 'b', byte(n)}
+	return []byte{sharedcommands.GS, 'b', byte(n)}
 }

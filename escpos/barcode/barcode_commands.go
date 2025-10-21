@@ -3,11 +3,11 @@ package barcode
 import (
 	"fmt"
 
-	"github.com/adcondev/pos-printer/escpos/common"
+	"github.com/adcondev/pos-printer/escpos/sharedcommands"
 )
 
 // ============================================================================
-// Comandos ESCPOS para Códigos de Barras
+// Barcode Command Implementations
 // ============================================================================
 
 // SelectHRICharacterPosition selects the print position of HRI (Human Readable Interpretation) characters.
@@ -42,14 +42,11 @@ import (
 //
 //	Returns ErrHRIPosition if n is outside the valid range (0-3, 48-51).
 func (c *Commands) SelectHRICharacterPosition(n HRIPosition) ([]byte, error) {
-	// Validar valores permitidos
-	switch n {
-	case 0, 1, 2, 3, '0', '1', '2', '3':
-		// válido
-	default:
-		return nil, ErrHRIPosition
+	// Validate allowed values
+	if err := ValidateHRIPosition(n); err != nil {
+		return nil, err
 	}
-	return []byte{common.GS, 'H', byte(n)}, nil
+	return []byte{sharedcommands.GS, 'H', byte(n)}, nil
 }
 
 // SelectFontForHRI selects the font used to print HRI (Human Readable Interpretation) characters.
@@ -88,14 +85,11 @@ func (c *Commands) SelectHRICharacterPosition(n HRIPosition) ([]byte, error) {
 //
 //	Returns ErrHRIFont if n is not a valid font selector value.
 func (c *Commands) SelectFontForHRI(n HRIFont) ([]byte, error) {
-	// Validar valores permitidos
-	switch n {
-	case 0, 1, 2, 3, 4, '0', '1', '2', '3', '4', 97, 98:
-		// válido
-	default:
-		return nil, ErrHRIFont
+	// Validate allowed values
+	if err := ValidateHRIFont(n); err != nil {
+		return nil, err
 	}
-	return []byte{common.GS, 'f', byte(n)}, nil
+	return []byte{sharedcommands.GS, 'f', byte(n)}, nil
 }
 
 // SetBarcodeHeight sets the barcode height.
@@ -126,11 +120,11 @@ func (c *Commands) SelectFontForHRI(n HRIFont) ([]byte, error) {
 //
 //	Returns an error if height is outside the valid range (MinHeight to MaxHeight).
 func (c *Commands) SetBarcodeHeight(height Height) ([]byte, error) {
-	// Validar rango usando constantes
+	// Validate range using constants
 	if height < MinHeight || height > MaxHeight {
 		return nil, fmt.Errorf("%w: %d (allowed %d-%d)", ErrHeight, height, MinHeight, MaxHeight)
 	}
-	return []byte{common.GS, 'h', byte(height)}, nil
+	return []byte{sharedcommands.GS, 'h', byte(height)}, nil
 }
 
 // SetBarcodeWidth sets the horizontal module width for barcodes.
@@ -166,10 +160,10 @@ func (c *Commands) SetBarcodeHeight(height Height) ([]byte, error) {
 //	Returns an error if width is outside both standard (MinWidth-MaxWidth) and
 //	extended (ExtendedMinWidth-ExtendedMaxWidth) ranges.
 func (c *Commands) SetBarcodeWidth(width Width) ([]byte, error) {
-	// Validar rangos estándar y extendidos
+	// Validate standard and extended ranges
 	if (width >= MinWidth && width <= MaxWidth) ||
 		(width >= ExtendedMinWidth && width <= ExtendedMaxWidth) {
-		return []byte{common.GS, 'w', byte(width)}, nil
+		return []byte{sharedcommands.GS, 'w', byte(width)}, nil
 	}
 	return nil, fmt.Errorf("%w: %d (allowed %d-%d or %d-%d)", ErrWidth, width, MinWidth, MaxWidth, ExtendedMinWidth, ExtendedMaxWidth)
 }
@@ -234,17 +228,17 @@ func (c *Commands) SetBarcodeWidth(width Width) ([]byte, error) {
 //	Returns ErrDataTooShort if data is empty.
 //	Returns ErrSymbology if symbology is not recognized.
 func (c *Commands) PrintBarcode(symbology Symbology, data []byte) ([]byte, error) {
-	// Validar que existan datos
+	// Validate that data exists
 	if len(data) == 0 {
 		return nil, ErrDataTooShort
 	}
 
-	// Seleccionar construcción según la simbología
+	// Select construction based on symbology
 	if symbology <= CODABAR {
-		// Function A (terminada en NUL)
+		// Function A (NUL-terminated)
 		return c.buildFunctionA(symbology, data)
 	} else if symbology >= UPCAB && symbology <= CODE128Auto {
-		// Function B (prefijo de longitud)
+		// Function B (length-prefixed)
 		return c.buildFunctionB(symbology, data)
 	}
 
@@ -284,17 +278,17 @@ func (c *Commands) PrintBarcode(symbology Symbology, data []byte) ([]byte, error
 //	Returns an error if symbology is not CODE128 or GS1-128.
 //	Returns ErrCode128Set if codeSet is invalid.
 func (c *Commands) PrintBarcodeWithCodeSet(symbology Symbology, codeSet Code128Set, data []byte) ([]byte, error) {
-	// Validar que la simbología soporte conjuntos de códigos
+	// Validate that symbology supports code sets
 	if symbology != CODE128 && symbology != GS1128 {
 		return nil, fmt.Errorf("%w: symbology %d does not support code sets", ErrSymbology, symbology)
 	}
 
-	// Validar conjunto de códigos
+	// Validate code set
 	if codeSet < Code128SetA || codeSet > Code128SetC {
 		return nil, ErrCode128Set
 	}
 
-	// Construir datos con prefijo de conjunto
+	// Build data with code set prefix
 	prefixedData := make([]byte, 0, len(data)+2)
 	prefixedData = append(prefixedData, '{', byte(codeSet))
 	prefixedData = append(prefixedData, data...)

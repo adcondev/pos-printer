@@ -6,8 +6,8 @@ import (
 	"testing"
 
 	"github.com/adcondev/pos-printer/escpos"
-	"github.com/adcondev/pos-printer/escpos/common"
 	"github.com/adcondev/pos-printer/escpos/print"
+	"github.com/adcondev/pos-printer/escpos/sharedcommands"
 )
 
 // ============================================================================
@@ -19,8 +19,8 @@ func TestCommands_Raw_EmptyBuffer(t *testing.T) {
 
 	_, err := cmd.Raw([]byte(""))
 
-	if !errors.Is(err, common.ErrEmptyBuffer) {
-		t.Errorf("Commands.Raw(\"\") error = %v, want %v", err, common.ErrEmptyBuffer)
+	if !errors.Is(err, sharedcommands.ErrEmptyBuffer) {
+		t.Errorf("Commands.Raw(\"\") error = %v, want %v", err, sharedcommands.ErrEmptyBuffer)
 	}
 }
 
@@ -88,7 +88,7 @@ func TestCommands_Integration_PrintWithLineSpacing(t *testing.T) {
 
 	// Set line spacing
 	spacingResult := cmd.LineSpace.SetLineSpacing(40)
-	expectedSpacing := []byte{common.ESC, '3', 40}
+	expectedSpacing := []byte{sharedcommands.ESC, '3', 40}
 
 	if !bytes.Equal(spacingResult, expectedSpacing) {
 		t.Errorf("Commands.LineSpace.SetLineSpacing(40) = %#v, want %#v",

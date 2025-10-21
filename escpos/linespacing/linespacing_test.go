@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"testing"
 
-	"github.com/adcondev/pos-printer/escpos/common"
 	"github.com/adcondev/pos-printer/escpos/linespacing"
+	"github.com/adcondev/pos-printer/escpos/sharedcommands"
 )
 
 // Naming Convention: Test{Struct}_{Method}_{Scenario}
@@ -20,17 +20,17 @@ func TestLineSpacingCommands_SetLineSpacing(t *testing.T) {
 		{
 			"minimum spacing (0 dots)",
 			0,
-			[]byte{common.ESC, '3', 0},
+			[]byte{sharedcommands.ESC, '3', 0},
 		},
 		{
 			"typical spacing (30 dots)",
 			30,
-			[]byte{common.ESC, '3', 30},
+			[]byte{sharedcommands.ESC, '3', 30},
 		},
 		{
 			"maximum spacing (255 dots)",
 			255,
-			[]byte{common.ESC, '3', 255},
+			[]byte{sharedcommands.ESC, '3', 255},
 		},
 	}
 
@@ -47,7 +47,7 @@ func TestLineSpacingCommands_SetLineSpacing(t *testing.T) {
 func TestLineSpacingCommands_SelectDefaultLineSpacing(t *testing.T) {
 	lsc := linespacing.NewCommands()
 	got := lsc.SelectDefaultLineSpacing()
-	want := []byte{common.ESC, '2'}
+	want := []byte{sharedcommands.ESC, '2'}
 	if !bytes.Equal(got, want) {
 		t.Errorf("SelectDefaultLineSpacing() = %#v; want %#v", got, want)
 	}

@@ -1,11 +1,25 @@
+// Package print implements ESC/POS commands for basic printing operations.
+//
+// ESC/POS is the command system used by thermal receipt printers to control
+// text printing, paper feeding, line feeds, and print buffer management
+// in both Standard and Page modes.
 package print
 
 import (
 	"errors"
 	"fmt"
 
-	"github.com/adcondev/pos-printer/escpos/common"
+	"github.com/adcondev/pos-printer/escpos/printposition"
+	"github.com/adcondev/pos-printer/escpos/sharedcommands"
 )
+
+// ============================================================================
+// Context
+// ============================================================================
+// This package implements ESC/POS commands for basic printing operations.
+// ESC/POS is the command system used by thermal receipt printers to control
+// text printing, paper feeding, line feeds, and print buffer management
+// in both Standard and Page modes.
 
 // ============================================================================
 // Constant and Var Definitions
@@ -14,13 +28,13 @@ import (
 // Control characters used in printing commands
 const (
 	// LF (Line Feed)
-	LF byte = 0x0A // Hex: 0x0A, Decimal: 10
+	LF byte = 0x0A
 	// CR (Carriage Return)
-	CR byte = 0x0D // Hex: 0x0D, Decimal: 13
+	CR byte = 0x0D
 	// FF (Form Feed)
-	FF byte = 0x0C // Hex: 0x0C, Decimal: 12
+	FF byte = 0x0C
 	// CAN (Cancel)
-	CAN byte = 0x18 // Hex: 0x18, Decimal: 24
+	CAN byte = 0x18
 )
 
 // Reverse motion units and lines
@@ -37,9 +51,9 @@ var (
 
 var (
 	// ErrEmptyText indicates that the provided text is empty
-	ErrEmptyText = common.ErrEmptyBuffer
+	ErrEmptyText = sharedcommands.ErrEmptyBuffer
 	// ErrTextTooLarge indicates that the provided text exceeds buffer limits
-	ErrTextTooLarge = common.ErrBufferOverflow
+	ErrTextTooLarge = sharedcommands.ErrBufferOverflow
 	// ErrReverseUnits invalid number of motion units for reverse print
 	ErrReverseUnits = fmt.Errorf("invalid reverse feed units (try 0-%d)", MaxReverseMotionUnits)
 	// ErrReverseLines invalid number of lines for reverse print
@@ -81,26 +95,9 @@ type Capability interface {
 // Commands implements the Capability interface for print commands
 type Commands struct{}
 
+// NewCommands creates a new instance of print Commands
 func NewCommands() *Commands {
 	return &Commands{}
-}
-
-// Formatting replaces specific characters in the byte slice with their ESC/POS equivalents.
-func Formatting(data []byte) []byte {
-	formatted := make([]byte, len(data))
-	copy(formatted, data)
-
-	for i := range formatted {
-		switch formatted[i] {
-		case '\n':
-			formatted[i] = LF
-		case '\r':
-			formatted[i] = CR
-		case '\t':
-			formatted[i] = common.HT
-		}
-	}
-	return formatted
 }
 
 // Text formats and sends a string for printing.
@@ -115,11 +112,11 @@ func Formatting(data []byte) []byte {
 //   - Replaces '\t' with HT (0x09)
 //   - Validates buffer size according to printer limitations
 func (c *Commands) Text(n string) ([]byte, error) {
-	if err := common.IsBufLenOk([]byte(n)); err != nil {
+	if err := sharedcommands.IsBufLenOk([]byte(n)); err != nil {
 		switch {
-		case errors.Is(err, common.ErrEmptyBuffer):
+		case errors.Is(err, sharedcommands.ErrEmptyBuffer):
 			return nil, ErrEmptyText
-		case errors.Is(err, common.ErrBufferOverflow):
+		case errors.Is(err, sharedcommands.ErrBufferOverflow):
 			return nil, ErrTextTooLarge
 		default:
 			return nil, err
@@ -127,4 +124,46 @@ func (c *Commands) Text(n string) ([]byte, error) {
 	}
 
 	return Formatting([]byte(n)), nil
+}
+
+// ============================================================================
+// Helper Functions
+// ============================================================================
+
+// Formatting replaces specific characters in the byte slice with their ESC/POS equivalents.
+func Formatting(data []byte) []byte {
+	formatted := make([]byte, len(data))
+	copy(formatted, data)
+
+	for i := range formatted {
+		switch formatted[i] {
+		case '\n':
+			formatted[i] = LF
+		case '\r':
+			formatted[i] = CR
+		case '\t':
+			formatted[i] = printposition.HT
+		}
+	}
+	return formatted
+}
+
+// ============================================================================
+// Validation Helper Functions
+// ============================================================================
+
+// ValidateReverseFeedUnits validates reverse feed units are within limits.
+func ValidateReverseFeedUnits(units byte) error {
+	if units > MaxReverseMotionUnits {
+		return ErrReverseUnits
+	}
+	return nil
+}
+
+// ValidateReverseFeedLines validates reverse feed lines are within limits.
+func ValidateReverseFeedLines(lines byte) error {
+	if lines > MaxReverseFeedLines {
+		return ErrReverseLines
+	}
+	return nil
 }

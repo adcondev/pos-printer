@@ -3,7 +3,7 @@ package escpos
 import (
 	"fmt"
 
-	"github.com/adcondev/pos-printer/escpos/common"
+	"github.com/adcondev/pos-printer/escpos/sharedcommands"
 )
 
 // ============================================================================
@@ -26,5 +26,5 @@ func (c *Protocol) Cut(mode CutPaper) ([]byte, error) {
 		return nil, fmt.Errorf("invalid cut mode: %v", mode)
 	}
 
-	return []byte{common.GS, 'V', cut}, nil
+	return []byte{sharedcommands.GS, 'V', cut}, nil
 }

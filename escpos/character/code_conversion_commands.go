@@ -1,7 +1,7 @@
 package character
 
 import (
-	"github.com/adcondev/pos-printer/escpos/common"
+	"github.com/adcondev/pos-printer/escpos/sharedcommands"
 )
 
 // SelectCharacterEncodeSystem selects the character encoding system.
@@ -37,13 +37,10 @@ import (
 //	Returns ErrEncoding if m is not a valid encoding system value (1, 2, 49, 50).
 func (c *CodeConversionCommands) SelectCharacterEncodeSystem(m EncodeSystem) ([]byte, error) {
 	// Validate allowed values
-	switch m {
-	case OneByte, UTF8, OneByteAscii, UTF8Ascii:
-		// Valid values
-	default:
-		return nil, ErrEncoding
+	if err := ValidateEncodeSystem(m); err != nil {
+		return nil, err
 	}
-	return []byte{common.FS, '(', 'C', 0x02, 0x00, 0x30, byte(m)}, nil
+	return []byte{sharedcommands.FS, '(', 'C', 0x02, 0x00, 0x30, byte(m)}, nil
 }
 
 // SetFontPriority sets the font priority.
@@ -86,16 +83,12 @@ func (c *CodeConversionCommands) SelectCharacterEncodeSystem(m EncodeSystem) ([]
 //	Returns ErrFontType if a is not a valid font type value.
 func (c *CodeConversionCommands) SetFontPriority(m FontPriority, a FontFunction) ([]byte, error) {
 	// Validate allowed values
-	if m > 1 {
-		return nil, ErrFontPriority
+	if err := ValidateFontPriority(m); err != nil {
+		return nil, err
 	}
-	switch a {
-	case AnkSansSerif, JapaneseGothic, SimplifiedChineseMincho,
-		TraditionalChineseMincho, KoreanGothic:
-		// Valid font types
-	default:
-		return nil, ErrFontType
+	if err := ValidateFontFunction(a); err != nil {
+		return nil, err
 	}
 
-	return []byte{common.FS, '(', 'C', 0x03, 0x00, 0x3C, byte(m), byte(a)}, nil
+	return []byte{sharedcommands.FS, '(', 'C', 0x03, 0x00, 0x3C, byte(m), byte(a)}, nil
 }

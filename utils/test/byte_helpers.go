@@ -3,7 +3,7 @@ package test
 import (
 	"bytes"
 
-	"github.com/adcondev/pos-printer/escpos/common"
+	"github.com/adcondev/pos-printer/escpos/sharedcommands"
 )
 
 // Create a test helper for buffer management
@@ -197,7 +197,7 @@ func MapBytes(data []byte, transform func(byte) byte) []byte {
 
 // BuildLittleEndianCommand creates a command with little-endian encoded value
 func BuildLittleEndianCommand(prefix []byte, value uint16, suffix ...byte) []byte {
-	nL, nH := common.ToLittleEndian(value)
+	nL, nH := sharedcommands.ToLittleEndian(value)
 	return append(append(prefix, nL, nH), suffix...)
 }
 
@@ -254,7 +254,7 @@ func BuildWithLength(data []byte) []byte {
 // BuildWithLittleEndianLength prepends little-endian length to data
 func BuildWithLittleEndianLength(data []byte) []byte {
 	length := uint16(len(data))
-	nL, nH := common.ToLittleEndian(length)
+	nL, nH := sharedcommands.ToLittleEndian(length)
 	result := make([]byte, 2+len(data))
 	result[0] = nL
 	result[1] = nH

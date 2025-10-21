@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/adcondev/pos-printer/escpos/character"
-	"github.com/adcondev/pos-printer/escpos/common"
+	"github.com/adcondev/pos-printer/escpos/sharedcommands"
 )
 
 func TestIntegration_CodeConversion_MultiLanguageSupport(t *testing.T) {
@@ -42,7 +42,7 @@ func TestIntegration_CodeConversion_MultiLanguageSupport(t *testing.T) {
 		buffer = append(buffer, japanesePriority...)
 
 		// Verify commands were generated
-		if !bytes.Contains(buffer, []byte{common.FS, '(', 'C'}) {
+		if !bytes.Contains(buffer, []byte{sharedcommands.FS, '(', 'C'}) {
 			t.Error("Buffer should contain encoding commands")
 		}
 
