@@ -1,3 +1,4 @@
+// Package main implements an example of printing various barcodes using a POS printer.
 package main
 
 import (
