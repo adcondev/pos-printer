@@ -6,7 +6,7 @@ import (
 	"github.com/adcondev/pos-printer/escpos/linespacing"
 	"github.com/adcondev/pos-printer/escpos/print"
 	"github.com/adcondev/pos-printer/escpos/printposition"
-	"github.com/adcondev/pos-printer/escpos/sharedcommands"
+	"github.com/adcondev/pos-printer/escpos/shared"
 )
 
 // Protocol implements the ESCPOS Commands
@@ -20,7 +20,7 @@ type Protocol struct {
 
 // Raw sends raw data without processing
 func (c *Protocol) Raw(data []byte) ([]byte, error) {
-	if err := sharedcommands.IsBufLenOk(data); err != nil {
+	if err := shared.IsBufLenOk(data); err != nil {
 		return nil, err
 	}
 	return data, nil

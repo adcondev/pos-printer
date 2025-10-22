@@ -1,6 +1,6 @@
 package test
 
-// FakeCapabilityBase provides fake functionality for sharedcommands
+// FakeCapabilityBase provides fake functionality for shared
 type FakeCapabilityBase struct {
 	Buffer   []byte
 	Tracker  *MockTracker

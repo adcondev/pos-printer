@@ -3,7 +3,7 @@ package escpos
 import (
 	"fmt"
 
-	"github.com/adcondev/pos-printer/escpos/sharedcommands"
+	"github.com/adcondev/pos-printer/escpos/shared"
 )
 
 // ============================================================================
@@ -61,6 +61,6 @@ func GenerateRealTimePulse(m CashDrawerPin, t CashDrawerTimePulse) ([]byte, erro
 		return nil, fmt.Errorf("tiempo de pulso no soportado: %v", t)
 	}
 	// Comando DLE DC4 1 m t
-	cmd := []byte{sharedcommands.DLE, sharedcommands.DC4, 1, drawerPin, pulseTime}
+	cmd := []byte{shared.DLE, shared.DC4, 1, drawerPin, pulseTime}
 	return cmd, nil
 }

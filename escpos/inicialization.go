@@ -5,20 +5,20 @@
 
 package escpos
 
-import "github.com/adcondev/pos-printer/escpos/sharedcommands"
+import "github.com/adcondev/pos-printer/escpos/shared"
 
 // InitializePrinter restores the printer to its default state
 func (c *Protocol) InitializePrinter() []byte {
 	// ESC @ - Reset printer
-	return []byte{sharedcommands.ESC, '@'}
+	return []byte{shared.ESC, '@'}
 }
 
 // SelectStandardMode sets the printer to standard mode
 func SelectStandardMode() []byte {
-	return []byte{sharedcommands.ESC, 'S'}
+	return []byte{shared.ESC, 'S'}
 }
 
 // SelectPageMode sets the printer to page mode
 func SelectPageMode() []byte {
-	return []byte{sharedcommands.ESC, 'L'}
+	return []byte{shared.ESC, 'L'}
 }

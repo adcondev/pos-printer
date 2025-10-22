@@ -1,8 +1,8 @@
-// Package sharedcommands provides shared utilities and constants for ESC/POS command packages.
+// Package shared provides shared utilities and constants for ESC/POS command packages.
 //
-// This package contains sharedcommands buffer validation functions, byte manipulation utilities,
+// This package contains shared buffer validation functions, byte manipulation utilities,
 // and shared constants used across multiple ESC/POS command implementations.
-package sharedcommands
+package shared
 
 import "errors"
 
@@ -11,7 +11,7 @@ import "errors"
 // ============================================================================
 // This package provides shared utilities and constants for ESC/POS command packages.
 // It includes buffer validation functions, little-endian byte conversion utilities,
-// and sharedcommands error definitions used across multiple ESC/POS command implementations.
+// and shared error definitions used across multiple ESC/POS command implementations.
 
 // ============================================================================
 // Constant and Var Definitions

@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/adcondev/pos-printer/escpos/printposition"
-	"github.com/adcondev/pos-printer/escpos/sharedcommands"
+	"github.com/adcondev/pos-printer/escpos/shared"
 )
 
 // ============================================================================
@@ -36,22 +36,22 @@ func TestCommands_SetAbsolutePrintPosition(t *testing.T) {
 		{
 			name:     "zero position",
 			position: 0,
-			want:     []byte{sharedcommands.ESC, '$', 0x00, 0x00},
+			want:     []byte{shared.ESC, '$', 0x00, 0x00},
 		},
 		{
 			name:     "position 100",
 			position: 100,
-			want:     []byte{sharedcommands.ESC, '$', 0x64, 0x00},
+			want:     []byte{shared.ESC, '$', 0x64, 0x00},
 		},
 		{
 			name:     "position 256",
 			position: 256,
-			want:     []byte{sharedcommands.ESC, '$', 0x00, 0x01},
+			want:     []byte{shared.ESC, '$', 0x00, 0x01},
 		},
 		{
 			name:     "maximum position",
 			position: 65535,
-			want:     []byte{sharedcommands.ESC, '$', 0xFF, 0xFF},
+			want:     []byte{shared.ESC, '$', 0xFF, 0xFF},
 		},
 	}
 
@@ -77,27 +77,27 @@ func TestCommands_SetRelativePrintPosition(t *testing.T) {
 		{
 			name:     "zero distance",
 			distance: 0,
-			want:     []byte{sharedcommands.ESC, '\\', 0x00, 0x00},
+			want:     []byte{shared.ESC, '\\', 0x00, 0x00},
 		},
 		{
 			name:     "positive distance",
 			distance: 100,
-			want:     []byte{sharedcommands.ESC, '\\', 0x64, 0x00},
+			want:     []byte{shared.ESC, '\\', 0x64, 0x00},
 		},
 		{
 			name:     "negative distance",
 			distance: -100,
-			want:     []byte{sharedcommands.ESC, '\\', 0x9C, 0xFF}, // Two's complement of -100
+			want:     []byte{shared.ESC, '\\', 0x9C, 0xFF}, // Two's complement of -100
 		},
 		{
 			name:     "maximum positive",
 			distance: 32767,
-			want:     []byte{sharedcommands.ESC, '\\', 0xFF, 0x7F},
+			want:     []byte{shared.ESC, '\\', 0xFF, 0x7F},
 		},
 		{
 			name:     "maximum negative",
 			distance: -32768,
-			want:     []byte{sharedcommands.ESC, '\\', 0x00, 0x80},
+			want:     []byte{shared.ESC, '\\', 0x00, 0x80},
 		},
 	}
 
@@ -124,19 +124,19 @@ func TestCommands_SetHorizontalTabPositions(t *testing.T) {
 		{
 			name:      "single tab",
 			positions: []byte{8},
-			want:      []byte{sharedcommands.ESC, 'D', 8, sharedcommands.NUL},
+			want:      []byte{shared.ESC, 'D', 8, shared.NUL},
 			wantErr:   false,
 		},
 		{
 			name:      "multiple tabs",
 			positions: []byte{8, 16, 24, 32},
-			want:      []byte{sharedcommands.ESC, 'D', 8, 16, 24, 32, sharedcommands.NUL},
+			want:      []byte{shared.ESC, 'D', 8, 16, 24, 32, shared.NUL},
 			wantErr:   false,
 		},
 		{
 			name:      "clear all tabs",
 			positions: []byte{},
-			want:      []byte{sharedcommands.ESC, 'D', sharedcommands.NUL},
+			want:      []byte{shared.ESC, 'D', shared.NUL},
 			wantErr:   false,
 		},
 		{
@@ -150,11 +150,11 @@ func TestCommands_SetHorizontalTabPositions(t *testing.T) {
 			}(),
 			// FIXME: change anonymous func to utils helpers
 			want: func() []byte {
-				cmd := []byte{sharedcommands.ESC, 'D'}
+				cmd := []byte{shared.ESC, 'D'}
 				for i := 1; i <= 32; i++ {
 					cmd = append(cmd, byte(i))
 				}
-				cmd = append(cmd, sharedcommands.NUL)
+				cmd = append(cmd, shared.NUL)
 				return cmd
 			}(),
 			wantErr: false,
@@ -242,37 +242,37 @@ func TestCommands_SelectJustification(t *testing.T) {
 		{
 			name:    "left justification",
 			mode:    0,
-			want:    []byte{sharedcommands.ESC, 'a', 0},
+			want:    []byte{shared.ESC, 'a', 0},
 			wantErr: false,
 		},
 		{
 			name:    "center justification",
 			mode:    1,
-			want:    []byte{sharedcommands.ESC, 'a', 1},
+			want:    []byte{shared.ESC, 'a', 1},
 			wantErr: false,
 		},
 		{
 			name:    "right justification",
 			mode:    2,
-			want:    []byte{sharedcommands.ESC, 'a', 2},
+			want:    []byte{shared.ESC, 'a', 2},
 			wantErr: false,
 		},
 		{
 			name:    "left justification ASCII",
 			mode:    '0',
-			want:    []byte{sharedcommands.ESC, 'a', '0'},
+			want:    []byte{shared.ESC, 'a', '0'},
 			wantErr: false,
 		},
 		{
 			name:    "center justification ASCII",
 			mode:    '1',
-			want:    []byte{sharedcommands.ESC, 'a', '1'},
+			want:    []byte{shared.ESC, 'a', '1'},
 			wantErr: false,
 		},
 		{
 			name:    "right justification ASCII",
 			mode:    '2',
-			want:    []byte{sharedcommands.ESC, 'a', '2'},
+			want:    []byte{shared.ESC, 'a', '2'},
 			wantErr: false,
 		},
 		{
@@ -323,22 +323,22 @@ func TestCommands_SetLeftMargin(t *testing.T) {
 		{
 			name:   "zero margin",
 			margin: 0,
-			want:   []byte{sharedcommands.GS, 'L', 0x00, 0x00},
+			want:   []byte{shared.GS, 'L', 0x00, 0x00},
 		},
 		{
 			name:   "margin 100",
 			margin: 100,
-			want:   []byte{sharedcommands.GS, 'L', 0x64, 0x00},
+			want:   []byte{shared.GS, 'L', 0x64, 0x00},
 		},
 		{
 			name:   "margin 256",
 			margin: 256,
-			want:   []byte{sharedcommands.GS, 'L', 0x00, 0x01},
+			want:   []byte{shared.GS, 'L', 0x00, 0x01},
 		},
 		{
 			name:   "maximum margin",
 			margin: 65535,
-			want:   []byte{sharedcommands.GS, 'L', 0xFF, 0xFF},
+			want:   []byte{shared.GS, 'L', 0xFF, 0xFF},
 		},
 	}
 
@@ -364,22 +364,22 @@ func TestCommands_SetPrintAreaWidth(t *testing.T) {
 		{
 			name:  "minimum width",
 			width: 1,
-			want:  []byte{sharedcommands.GS, 'W', 0x01, 0x00},
+			want:  []byte{shared.GS, 'W', 0x01, 0x00},
 		},
 		{
 			name:  "typical 58mm width",
 			width: 420,
-			want:  []byte{sharedcommands.GS, 'W', 0xA4, 0x01},
+			want:  []byte{shared.GS, 'W', 0xA4, 0x01},
 		},
 		{
 			name:  "typical 80mm width",
 			width: 576,
-			want:  []byte{sharedcommands.GS, 'W', 0x40, 0x02},
+			want:  []byte{shared.GS, 'W', 0x40, 0x02},
 		},
 		{
 			name:  "maximum width",
 			width: 65535,
-			want:  []byte{sharedcommands.GS, 'W', 0xFF, 0xFF},
+			want:  []byte{shared.GS, 'W', 0xFF, 0xFF},
 		},
 	}
 
@@ -406,25 +406,25 @@ func TestCommands_SetPrintPositionBeginningLine(t *testing.T) {
 		{
 			name:    "erase buffer",
 			mode:    0,
-			want:    []byte{sharedcommands.GS, 'T', 0},
+			want:    []byte{shared.GS, 'T', 0},
 			wantErr: false,
 		},
 		{
 			name:    "print buffer",
 			mode:    1,
-			want:    []byte{sharedcommands.GS, 'T', 1},
+			want:    []byte{shared.GS, 'T', 1},
 			wantErr: false,
 		},
 		{
 			name:    "erase buffer ASCII",
 			mode:    '0',
-			want:    []byte{sharedcommands.GS, 'T', '0'},
+			want:    []byte{shared.GS, 'T', '0'},
 			wantErr: false,
 		},
 		{
 			name:    "print buffer ASCII",
 			mode:    '1',
-			want:    []byte{sharedcommands.GS, 'T', '1'},
+			want:    []byte{shared.GS, 'T', '1'},
 			wantErr: false,
 		},
 		{
@@ -480,49 +480,49 @@ func TestCommands_SelectPrintDirectionPageMode(t *testing.T) {
 		{
 			name:      "left to right",
 			direction: 0,
-			want:      []byte{sharedcommands.ESC, 'T', 0},
+			want:      []byte{shared.ESC, 'T', 0},
 			wantErr:   false,
 		},
 		{
 			name:      "bottom to top",
 			direction: 1,
-			want:      []byte{sharedcommands.ESC, 'T', 1},
+			want:      []byte{shared.ESC, 'T', 1},
 			wantErr:   false,
 		},
 		{
 			name:      "right to left",
 			direction: 2,
-			want:      []byte{sharedcommands.ESC, 'T', 2},
+			want:      []byte{shared.ESC, 'T', 2},
 			wantErr:   false,
 		},
 		{
 			name:      "top to bottom",
 			direction: 3,
-			want:      []byte{sharedcommands.ESC, 'T', 3},
+			want:      []byte{shared.ESC, 'T', 3},
 			wantErr:   false,
 		},
 		{
 			name:      "left to right ASCII",
 			direction: '0',
-			want:      []byte{sharedcommands.ESC, 'T', '0'},
+			want:      []byte{shared.ESC, 'T', '0'},
 			wantErr:   false,
 		},
 		{
 			name:      "bottom to top ASCII",
 			direction: '1',
-			want:      []byte{sharedcommands.ESC, 'T', '1'},
+			want:      []byte{shared.ESC, 'T', '1'},
 			wantErr:   false,
 		},
 		{
 			name:      "right to left ASCII",
 			direction: '2',
-			want:      []byte{sharedcommands.ESC, 'T', '2'},
+			want:      []byte{shared.ESC, 'T', '2'},
 			wantErr:   false,
 		},
 		{
 			name:      "top to bottom ASCII",
 			direction: '3',
-			want:      []byte{sharedcommands.ESC, 'T', '3'},
+			want:      []byte{shared.ESC, 'T', '3'},
 			wantErr:   false,
 		},
 		{
@@ -580,7 +580,7 @@ func TestCommands_SetPrintAreaPageMode(t *testing.T) {
 			y:       0,
 			width:   1,
 			height:  1,
-			want:    []byte{sharedcommands.ESC, 'W', 0, 0, 0, 0, 1, 0, 1, 0},
+			want:    []byte{shared.ESC, 'W', 0, 0, 0, 0, 1, 0, 1, 0},
 			wantErr: false,
 		},
 		{
@@ -589,7 +589,7 @@ func TestCommands_SetPrintAreaPageMode(t *testing.T) {
 			y:       20,
 			width:   100,
 			height:  200,
-			want:    []byte{sharedcommands.ESC, 'W', 10, 0, 20, 0, 100, 0, 200, 0},
+			want:    []byte{shared.ESC, 'W', 10, 0, 20, 0, 100, 0, 200, 0},
 			wantErr: false,
 		},
 		{
@@ -598,7 +598,7 @@ func TestCommands_SetPrintAreaPageMode(t *testing.T) {
 			y:       512,
 			width:   1024,
 			height:  2048,
-			want:    []byte{sharedcommands.ESC, 'W', 0, 1, 0, 2, 0, 4, 0, 8},
+			want:    []byte{shared.ESC, 'W', 0, 1, 0, 2, 0, 4, 0, 8},
 			wantErr: false,
 		},
 		{
@@ -607,7 +607,7 @@ func TestCommands_SetPrintAreaPageMode(t *testing.T) {
 			y:       65535,
 			width:   65535,
 			height:  65535,
-			want:    []byte{sharedcommands.ESC, 'W', 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF},
+			want:    []byte{shared.ESC, 'W', 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF},
 			wantErr: false,
 		},
 		{
@@ -681,22 +681,22 @@ func TestCommands_SetAbsoluteVerticalPrintPosition(t *testing.T) {
 		{
 			name:     "zero position",
 			position: 0,
-			want:     []byte{sharedcommands.GS, '$', 0x00, 0x00},
+			want:     []byte{shared.GS, '$', 0x00, 0x00},
 		},
 		{
 			name:     "position 100",
 			position: 100,
-			want:     []byte{sharedcommands.GS, '$', 0x64, 0x00},
+			want:     []byte{shared.GS, '$', 0x64, 0x00},
 		},
 		{
 			name:     "position 256",
 			position: 256,
-			want:     []byte{sharedcommands.GS, '$', 0x00, 0x01},
+			want:     []byte{shared.GS, '$', 0x00, 0x01},
 		},
 		{
 			name:     "maximum position",
 			position: 65535,
-			want:     []byte{sharedcommands.GS, '$', 0xFF, 0xFF},
+			want:     []byte{shared.GS, '$', 0xFF, 0xFF},
 		},
 	}
 
@@ -722,27 +722,27 @@ func TestCommands_SetRelativeVerticalPrintPosition(t *testing.T) {
 		{
 			name:     "zero distance",
 			distance: 0,
-			want:     []byte{sharedcommands.GS, '\\', 0x00, 0x00},
+			want:     []byte{shared.GS, '\\', 0x00, 0x00},
 		},
 		{
 			name:     "positive distance",
 			distance: 100,
-			want:     []byte{sharedcommands.GS, '\\', 0x64, 0x00},
+			want:     []byte{shared.GS, '\\', 0x64, 0x00},
 		},
 		{
 			name:     "negative distance",
 			distance: -100,
-			want:     []byte{sharedcommands.GS, '\\', 0x9C, 0xFF}, // Two's complement of -100
+			want:     []byte{shared.GS, '\\', 0x9C, 0xFF}, // Two's complement of -100
 		},
 		{
 			name:     "maximum positive",
 			distance: 32767,
-			want:     []byte{sharedcommands.GS, '\\', 0xFF, 0x7F},
+			want:     []byte{shared.GS, '\\', 0xFF, 0x7F},
 		},
 		{
 			name:     "maximum negative",
 			distance: -32768,
-			want:     []byte{sharedcommands.GS, '\\', 0x00, 0x80},
+			want:     []byte{shared.GS, '\\', 0x00, 0x80},
 		},
 	}
 

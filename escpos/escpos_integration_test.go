@@ -7,7 +7,7 @@ import (
 	"github.com/adcondev/pos-printer/escpos"
 	"github.com/adcondev/pos-printer/escpos/linespacing"
 	"github.com/adcondev/pos-printer/escpos/print"
-	"github.com/adcondev/pos-printer/escpos/sharedcommands"
+	"github.com/adcondev/pos-printer/escpos/shared"
 )
 
 // ============================================================================
@@ -19,7 +19,7 @@ func TestIntegration_PrintWithLineSpacing_RealImplementations(t *testing.T) {
 
 	// Set custom line spacing
 	spacingCmd := cmd.LineSpace.SetLineSpacing(50)
-	expectedSpacing := []byte{sharedcommands.ESC, '3', 50}
+	expectedSpacing := []byte{shared.ESC, '3', 50}
 
 	if !bytes.Equal(spacingCmd, expectedSpacing) {
 		t.Errorf("SetLineSpacing(50) = %#v, want %#v", spacingCmd, expectedSpacing)
@@ -60,7 +60,7 @@ func TestIntegration_CompleteReceiptFlow(t *testing.T) {
 				return cmd.LineSpace.SetLineSpacing(40), nil
 			},
 			verify: func(result []byte) error {
-				expected := []byte{sharedcommands.ESC, '3', 40}
+				expected := []byte{shared.ESC, '3', 40}
 				if !bytes.Equal(result, expected) {
 					t.Errorf("SetLineSpacing = %#v, want %#v", result, expected)
 				}
@@ -156,7 +156,7 @@ func TestIntegration_CustomCapabilities(t *testing.T) {
 
 	t.Run("custom line spacing capability", func(t *testing.T) {
 		spacing := customCmd.LineSpace.SetLineSpacing(25)
-		expected := []byte{sharedcommands.ESC, '3', 25}
+		expected := []byte{shared.ESC, '3', 25}
 		if !bytes.Equal(spacing, expected) {
 			t.Errorf("SetLineSpacing() = %#v, want %#v", spacing, expected)
 		}

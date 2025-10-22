@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/adcondev/pos-printer/escpos/character"
-	"github.com/adcondev/pos-printer/escpos/sharedcommands"
+	"github.com/adcondev/pos-printer/escpos/shared"
 	"github.com/adcondev/pos-printer/utils/test"
 )
 
@@ -117,7 +117,7 @@ func Test_BuildCharacterSize(t *testing.T) {
 func TestCommands_SetRightSideCharacterSpacing(t *testing.T) {
 	// Setup
 	cmd := character.NewCommands()
-	prefix := test.BuildCommand(sharedcommands.ESC, sharedcommands.SP)
+	prefix := test.BuildCommand(shared.ESC, shared.SP)
 
 	tests := []struct {
 		name    string
@@ -155,7 +155,7 @@ func TestCommands_SetRightSideCharacterSpacing(t *testing.T) {
 func TestCommands_SelectPrintModes(t *testing.T) {
 	// Setup
 	cmd := character.NewCommands()
-	prefix := test.BuildCommand(sharedcommands.ESC, '!')
+	prefix := test.BuildCommand(shared.ESC, '!')
 
 	tests := []struct {
 		name string
@@ -213,7 +213,7 @@ func TestCommands_SelectPrintModes(t *testing.T) {
 func TestCommands_SetUnderlineMode(t *testing.T) {
 	// Setup
 	cmd := character.NewCommands()
-	prefix := test.BuildCommand(sharedcommands.ESC, '-')
+	prefix := test.BuildCommand(shared.ESC, '-')
 
 	tests := []struct {
 		name    string
@@ -288,7 +288,7 @@ func TestCommands_SetUnderlineMode(t *testing.T) {
 func TestCommands_SetEmphasizedMode(t *testing.T) {
 	// Setup
 	cmd := character.NewCommands()
-	prefix := test.BuildCommand(sharedcommands.ESC, 'E')
+	prefix := test.BuildCommand(shared.ESC, 'E')
 
 	tests := []struct {
 		name string
@@ -331,7 +331,7 @@ func TestCommands_SetEmphasizedMode(t *testing.T) {
 func TestCommands_SetDoubleStrikeMode(t *testing.T) {
 	// Setup
 	cmd := character.NewCommands()
-	prefix := test.BuildCommand(sharedcommands.ESC, 'G')
+	prefix := test.BuildCommand(shared.ESC, 'G')
 
 	tests := []struct {
 		name string
@@ -374,7 +374,7 @@ func TestCommands_SetDoubleStrikeMode(t *testing.T) {
 func TestCommands_SelectCharacterFont(t *testing.T) {
 	// Setup
 	cmd := character.NewCommands()
-	prefix := test.BuildCommand(sharedcommands.ESC, 'M')
+	prefix := test.BuildCommand(shared.ESC, 'M')
 
 	tests := []struct {
 		name    string
@@ -449,7 +449,7 @@ func TestCommands_SelectCharacterFont(t *testing.T) {
 func TestCommands_SelectInternationalCharacterSet(t *testing.T) {
 	// Setup
 	cmd := character.NewCommands()
-	prefix := test.BuildCommand(sharedcommands.ESC, 'R')
+	prefix := test.BuildCommand(shared.ESC, 'R')
 
 	tests := []struct {
 		name    string
@@ -512,7 +512,7 @@ func TestCommands_SelectInternationalCharacterSet(t *testing.T) {
 func TestCommands_Set90DegreeClockwiseRotationMode(t *testing.T) {
 	// Setup
 	cmd := character.NewCommands()
-	prefix := test.BuildCommand(sharedcommands.ESC, 'V')
+	prefix := test.BuildCommand(shared.ESC, 'V')
 
 	tests := []struct {
 		name    string
@@ -575,7 +575,7 @@ func TestCommands_Set90DegreeClockwiseRotationMode(t *testing.T) {
 func TestCommands_SelectPrintColor(t *testing.T) {
 	// Setup
 	cmd := character.NewCommands()
-	prefix := test.BuildCommand(sharedcommands.ESC, 'r')
+	prefix := test.BuildCommand(shared.ESC, 'r')
 
 	tests := []struct {
 		name    string
@@ -638,7 +638,7 @@ func TestCommands_SelectPrintColor(t *testing.T) {
 func TestCommands_SelectCharacterCodeTable(t *testing.T) {
 	// Setup
 	cmd := character.NewCommands()
-	prefix := test.BuildCommand(sharedcommands.ESC, 't')
+	prefix := test.BuildCommand(shared.ESC, 't')
 
 	tests := []struct {
 		name    string
@@ -701,7 +701,7 @@ func TestCommands_SelectCharacterCodeTable(t *testing.T) {
 func TestCommands_SetUpsideDownMode(t *testing.T) {
 	// Setup
 	cmd := character.NewCommands()
-	prefix := test.BuildCommand(sharedcommands.ESC, '{')
+	prefix := test.BuildCommand(shared.ESC, '{')
 
 	tests := []struct {
 		name string
@@ -744,7 +744,7 @@ func TestCommands_SetUpsideDownMode(t *testing.T) {
 func TestCommands_SelectCharacterSize(t *testing.T) {
 	// Setup
 	cmd := character.NewCommands()
-	prefix := test.BuildCommand(sharedcommands.GS, '!')
+	prefix := test.BuildCommand(shared.GS, '!')
 
 	tests := []struct {
 		name string
@@ -797,7 +797,7 @@ func TestCommands_SelectCharacterSize(t *testing.T) {
 func TestCommands_SetWhiteBlackReverseMode(t *testing.T) {
 	// Setup
 	cmd := character.NewCommands()
-	prefix := test.BuildCommand(sharedcommands.GS, 'B')
+	prefix := test.BuildCommand(shared.GS, 'B')
 
 	tests := []struct {
 		name string
@@ -850,7 +850,7 @@ func TestCommands_SetWhiteBlackReverseMode(t *testing.T) {
 func TestCommands_SetSmoothingMode(t *testing.T) {
 	// Setup
 	cmd := character.NewCommands()
-	prefix := test.BuildCommand(sharedcommands.GS, 'b')
+	prefix := test.BuildCommand(shared.GS, 'b')
 
 	tests := []struct {
 		name string

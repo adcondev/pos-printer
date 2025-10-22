@@ -7,7 +7,7 @@ import (
 
 	"github.com/adcondev/pos-printer/escpos/print"
 	"github.com/adcondev/pos-printer/escpos/printposition"
-	"github.com/adcondev/pos-printer/escpos/sharedcommands"
+	"github.com/adcondev/pos-printer/escpos/shared"
 )
 
 // ============================================================================
@@ -110,7 +110,7 @@ func TestCommands_Text(t *testing.T) {
 			name: "buffer overflow",
 			// FIXME: change anonymous func to utils helpers
 			text: func() string {
-				overflow := make([]byte, sharedcommands.MaxBuf+1)
+				overflow := make([]byte, shared.MaxBuf+1)
 				return string(overflow)
 			}(),
 			want:    nil,
@@ -168,17 +168,17 @@ func TestCommands_PrintAndFeedPaper(t *testing.T) {
 		{
 			name:  "minimum feed (0 units)",
 			units: 0,
-			want:  []byte{sharedcommands.ESC, 'J', 0},
+			want:  []byte{shared.ESC, 'J', 0},
 		},
 		{
 			name:  "typical feed (30 units)",
 			units: 30,
-			want:  []byte{sharedcommands.ESC, 'J', 30},
+			want:  []byte{shared.ESC, 'J', 30},
 		},
 		{
 			name:  "maximum feed (255 units)",
 			units: 255,
-			want:  []byte{sharedcommands.ESC, 'J', 255},
+			want:  []byte{shared.ESC, 'J', 255},
 		},
 	}
 
@@ -229,7 +229,7 @@ func TestCommands_PrintAndLineFeed(t *testing.T) {
 func TestCommands_PrintDataInPageMode(t *testing.T) {
 	pp := print.NewCommands()
 	got := pp.PrintDataInPageMode()
-	want := []byte{sharedcommands.ESC, print.FF}
+	want := []byte{shared.ESC, print.FF}
 
 	if !bytes.Equal(got, want) {
 		t.Errorf("PrintDataInPageMode() = %#v, want %#v", got, want)
@@ -258,19 +258,19 @@ func TestCommands_PrintAndReverseFeed(t *testing.T) {
 		{
 			name:    "minimum reverse feed (0 units)",
 			reverse: 0,
-			want:    []byte{sharedcommands.ESC, 'K', 0},
+			want:    []byte{shared.ESC, 'K', 0},
 			wantErr: false,
 		},
 		{
 			name:    "typical reverse feed (10 units)",
 			reverse: 10,
-			want:    []byte{sharedcommands.ESC, 'K', 10},
+			want:    []byte{shared.ESC, 'K', 10},
 			wantErr: false,
 		},
 		{
 			name:    "maximum allowed reverse feed",
 			reverse: print.MaxReverseMotionUnits,
-			want:    []byte{sharedcommands.ESC, 'K', print.MaxReverseMotionUnits},
+			want:    []byte{shared.ESC, 'K', print.MaxReverseMotionUnits},
 			wantErr: false,
 		},
 		{
@@ -320,19 +320,19 @@ func TestCommands_PrintAndReverseFeedLines(t *testing.T) {
 		{
 			name:    "minimum lines (0)",
 			lines:   0,
-			want:    []byte{sharedcommands.ESC, 'e', 0},
+			want:    []byte{shared.ESC, 'e', 0},
 			wantErr: false,
 		},
 		{
 			name:    "single line reverse",
 			lines:   1,
-			want:    []byte{sharedcommands.ESC, 'e', 1},
+			want:    []byte{shared.ESC, 'e', 1},
 			wantErr: false,
 		},
 		{
 			name:    "maximum allowed lines",
 			lines:   print.MaxReverseFeedLines,
-			want:    []byte{sharedcommands.ESC, 'e', print.MaxReverseFeedLines},
+			want:    []byte{shared.ESC, 'e', print.MaxReverseFeedLines},
 			wantErr: false,
 		},
 		{
@@ -382,17 +382,17 @@ func TestPagePrint_PrintAndFeedLines(t *testing.T) {
 		{
 			name:  "no feed (0 lines)",
 			lines: 0,
-			want:  []byte{sharedcommands.ESC, 'd', 0},
+			want:  []byte{shared.ESC, 'd', 0},
 		},
 		{
 			name:  "typical feed (5 lines)",
 			lines: 5,
-			want:  []byte{sharedcommands.ESC, 'd', 5},
+			want:  []byte{shared.ESC, 'd', 5},
 		},
 		{
 			name:  "maximum feed (255 lines)",
 			lines: 255,
-			want:  []byte{sharedcommands.ESC, 'd', 255},
+			want:  []byte{shared.ESC, 'd', 255},
 		},
 	}
 

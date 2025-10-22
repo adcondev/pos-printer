@@ -6,7 +6,7 @@ import (
 
 	"github.com/adcondev/pos-printer/connector"
 	"github.com/adcondev/pos-printer/escpos"
-	"github.com/adcondev/pos-printer/escpos/sharedcommands"
+	"github.com/adcondev/pos-printer/escpos/shared"
 	"github.com/adcondev/pos-printer/pos"
 	"github.com/adcondev/pos-printer/profile"
 )
@@ -73,7 +73,7 @@ func finishPrinting(printer *pos.EscposPrinter) error {
 	if err := printer.Feed(2); err != nil {
 		return err
 	}
-	if _, err := printer.Connector.Write([]byte{sharedcommands.GS, 'V', 66, 3}); err != nil {
+	if _, err := printer.Connector.Write([]byte{shared.GS, 'V', 66, 3}); err != nil {
 		return err
 	}
 	return nil

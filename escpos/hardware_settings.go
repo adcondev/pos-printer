@@ -3,7 +3,7 @@ package escpos
 import (
 	"fmt"
 
-	"github.com/adcondev/pos-printer/escpos/sharedcommands"
+	"github.com/adcondev/pos-printer/escpos/shared"
 )
 
 // TODO: Comandos para configuración de hardware específico
@@ -23,6 +23,6 @@ func SetPeripheralDevice(n PrinterEnabled) ([]byte, error) {
 	if !ok {
 		return nil, fmt.Errorf("invalid printer enabled value: %v", n)
 	}
-	cmd := []byte{sharedcommands.ESC, '=', enabled}
+	cmd := []byte{shared.ESC, '=', enabled}
 	return cmd, nil
 }

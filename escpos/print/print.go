@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/adcondev/pos-printer/escpos/printposition"
-	"github.com/adcondev/pos-printer/escpos/sharedcommands"
+	"github.com/adcondev/pos-printer/escpos/shared"
 )
 
 // ============================================================================

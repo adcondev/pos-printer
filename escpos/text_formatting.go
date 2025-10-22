@@ -3,7 +3,7 @@ package escpos
 import (
 	"fmt"
 
-	"github.com/adcondev/pos-printer/escpos/sharedcommands"
+	"github.com/adcondev/pos-printer/escpos/shared"
 )
 
 // ============================================================================
@@ -51,7 +51,7 @@ func (c *Protocol) SelectCharacterFont(n Font) ([]byte, error) {
 	}
 
 	// ESC M n
-	return []byte{sharedcommands.ESC, 'M', font}, nil
+	return []byte{shared.ESC, 'M', font}, nil
 }
 
 // TurnEmphasizedMode enables or disables emphasized mode
@@ -61,7 +61,7 @@ func (c *Protocol) TurnEmphasizedMode(n EmphasizedMode) ([]byte, error) {
 		return nil, fmt.Errorf("no emph mode found")
 	}
 
-	return []byte{sharedcommands.ESC, 'E', emph}, nil
+	return []byte{shared.ESC, 'E', emph}, nil
 }
 
 // SetDoubleStrike activa/desactiva doble golpe
@@ -71,7 +71,7 @@ func (c *Protocol) SetDoubleStrike(on bool) []byte {
 		val = 1
 	}
 	// ESC G n
-	return []byte{sharedcommands.ESC, 'G', val}
+	return []byte{shared.ESC, 'G', val}
 }
 
 // TurnUnderlineMode enables or disables underline mode
@@ -81,5 +81,5 @@ func (c *Protocol) TurnUnderlineMode(n UnderlineMode) ([]byte, error) {
 		return nil, fmt.Errorf("invalid underline mode: %d", n)
 	}
 	// ESC - n
-	return []byte{sharedcommands.ESC, '-', mode}, nil
+	return []byte{shared.ESC, '-', mode}, nil
 }
