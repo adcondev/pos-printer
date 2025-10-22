@@ -523,14 +523,16 @@ func (ep *EscposPrinter) SetBarcodeWidth(width barcode.Width) error {
 		return fmt.Errorf("error al enviar comando de ancho de código de barras a la impresora: %w", err)
 	}
 	return nil
+}
+
 // SetTextSize sets the text size, width and height multipliers.
 // 0 = 1x (Normal size),
 // 1 = 2x (Double size),
 // 2 = 3x (Triple size),
 // 7 = 8x (Maximum size)
 func (p *EscposPrinter) SetTextSize(widthMultiplier, heightMultiplier int) error {
-	command := p.Escpos.SetTextSize(widthMultiplier, heightMultiplier)
-	_, err := p.Connector.Write(command)
+	cmd := p.Escpos.SetTextSize(widthMultiplier, heightMultiplier)
+	_, err := p.Connector.Write(cmd)
 	return err
 }
 

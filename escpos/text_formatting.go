@@ -97,5 +97,5 @@ func (c *Protocol) SetTextSize(widthMultiplier, heightMultiplier int) []byte {
 		heightMultiplier = 0
 	}
 	fontSizeFormula := uint8((widthMultiplier * 16) + widthMultiplier)
-	return []byte{common.GS, '!', fontSizeFormula}
+	return []byte{sharedcommands.GS, '!', fontSizeFormula}
 }
