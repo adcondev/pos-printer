@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.6.0](https://github.com/AdConDev/pos-daemon/compare/v1.5.0...v1.6.0) (2025-10-22)
+
+
+### ✨ Features
+
+* **mechanismcontrol:** add commands for printer control ([#41](https://github.com/adcondev/pos-printer/issues/41)) ([53ef71c](https://github.com/AdConDev/pos-daemon/commit/53ef71c7f59ee935a7763a3d508ccb2ac95dca3c))
+
 ## [1.5.0](https://github.com/AdConDev/pos-daemon/compare/v1.4.0...v1.5.0) (2025-10-12)
 
 

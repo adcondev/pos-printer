@@ -1,6 +1,6 @@
 {
   "name": "@adcondev/pos-printer",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "private": true,
   "devDependencies": {
     "@commitlint/cli": "^19.0.0",
