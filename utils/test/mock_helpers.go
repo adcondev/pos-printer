@@ -1,6 +1,6 @@
 package test
 
-// MockTracker provides sharedcommands mock tracking functionality
+// MockTracker provides mock tracking functionality
 type MockTracker struct {
 	CallCount   map[string]int
 	CallHistory []string
