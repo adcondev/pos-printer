@@ -83,19 +83,3 @@ func (c *Protocol) TurnUnderlineMode(n UnderlineMode) ([]byte, error) {
 	// ESC - n
 	return []byte{sharedcommands.ESC, '-', mode}, nil
 }
-
-// SetTextSize sets the text size, width and height multipliers.
-// 0 = 1x (Normal size),
-// 1 = 2x (Double size),
-// 2 = 3x (Triple size),
-// 7 = 8x (Maximum size)
-func (c *Protocol) SetTextSize(widthMultiplier, heightMultiplier int) []byte {
-	if widthMultiplier < 0 || widthMultiplier > 7 {
-		widthMultiplier = 0
-	}
-	if heightMultiplier < 0 || heightMultiplier > 7 {
-		heightMultiplier = 0
-	}
-	fontSizeFormula := uint8((widthMultiplier * 16) + widthMultiplier)
-	return []byte{sharedcommands.GS, '!', fontSizeFormula}
-}

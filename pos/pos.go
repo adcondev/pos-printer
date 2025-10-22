@@ -10,6 +10,7 @@ import (
 	"github.com/adcondev/pos-printer/encoding"
 	"github.com/adcondev/pos-printer/escpos"
 	"github.com/adcondev/pos-printer/escpos/barcode"
+	"github.com/adcondev/pos-printer/escpos/character"
 	"github.com/adcondev/pos-printer/imaging"
 
 	"github.com/adcondev/pos-printer/connector"
@@ -477,6 +478,7 @@ func (ep *EscposPrinter) PrintQR(
 	return err
 }
 
+// PrintBarcode prints a barcode with given symbology and data
 func (ep *EscposPrinter) PrintBarcode(symbol barcode.Symbology, data string) error {
 	cmd, err := ep.Escpos.Barcode.PrintBarcode(symbol, []byte(data))
 	if err != nil {
@@ -489,6 +491,7 @@ func (ep *EscposPrinter) PrintBarcode(symbol barcode.Symbology, data string) err
 	return nil
 }
 
+// SetBarcodeHRIPosition sets the HRI character position for barcodes
 func (ep *EscposPrinter) SetBarcodeHRIPosition(position barcode.HRIPosition) error {
 	cmd, err := ep.Escpos.Barcode.SelectHRICharacterPosition(position)
 	if err != nil {
@@ -501,6 +504,7 @@ func (ep *EscposPrinter) SetBarcodeHRIPosition(position barcode.HRIPosition) err
 	return nil
 }
 
+// SetBarcodeHeight sets the barcode height
 func (ep *EscposPrinter) SetBarcodeHeight(height barcode.Height) error {
 	cmd, err := ep.Escpos.Barcode.SetBarcodeHeight(height)
 	if err != nil {
@@ -513,6 +517,7 @@ func (ep *EscposPrinter) SetBarcodeHeight(height barcode.Height) error {
 	return nil
 }
 
+// SetBarcodeWidth sets the barcode width
 func (ep *EscposPrinter) SetBarcodeWidth(width barcode.Width) error {
 	cmd, err := ep.Escpos.Barcode.SetBarcodeWidth(width)
 	if err != nil {
@@ -526,13 +531,13 @@ func (ep *EscposPrinter) SetBarcodeWidth(width barcode.Width) error {
 }
 
 // SetTextSize sets the text size, width and height multipliers.
-// 0 = 1x (Normal size),
-// 1 = 2x (Double size),
-// 2 = 3x (Triple size),
-// 7 = 8x (Maximum size)
-func (p *EscposPrinter) SetTextSize(widthMultiplier, heightMultiplier int) error {
-	cmd := p.Escpos.SetTextSize(widthMultiplier, heightMultiplier)
-	_, err := p.Connector.Write(cmd)
+func (ep *EscposPrinter) SetTextSize(widthMult, heightMult byte) error {
+	size, err := character.NewSize(widthMult, heightMult)
+	if err != nil {
+		return fmt.Errorf("invalid text size multipliers: %w", err)
+	}
+	cmd := ep.Escpos.Character.SelectCharacterSize(size)
+	_, err = ep.Connector.Write(cmd)
 	return err
 }
 
