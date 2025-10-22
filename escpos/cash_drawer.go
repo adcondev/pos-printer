@@ -3,12 +3,14 @@ package escpos
 import (
 	"fmt"
 
-	"github.com/adcondev/pos-printer/escpos/common"
+	"github.com/adcondev/pos-printer/escpos/sharedcommands"
 )
 
-// TODO: Comandos para control del cajón de efectivo
-// - Apertura de cajón
-// - Estado de cajón
+// ============================================================================
+// Type / Constant mappings
+// ============================================================================
+// Mapas que relacionan tipos del paquete `types` con valores ESC/POS.
+// Usamos mapas para convertir enums a bytes de comando.
 
 // cashPin mapea el pin del cajón de efectivo a su valor ESC/POS correspondiente.
 var cashPin = map[CashDrawerPin]byte{
@@ -28,6 +30,12 @@ var timeMap = map[CashDrawerTimePulse]byte{
 	Pulse800ms: 8,
 }
 
+// ============================================================================
+// Public API (implementation)
+// ============================================================================
+// Funciones públicas que generan secuencias de bytes para interactuar con el
+// cajón de efectivo.
+
 // Pulse envía un pulso al pin especificado del cajón de efectivo.
 func (c *Protocol) Pulse(_ int, _ int, _ int) []byte {
 	// TODO: Implementar ESC p m t1 t2
@@ -35,15 +43,24 @@ func (c *Protocol) Pulse(_ int, _ int, _ int) []byte {
 }
 
 // GenerateRealTimePulse genera el comando para enviar un pulso al pin especificado del cajón de efectivo.
+//
+// Parámetros:
+//   - m: pin del cajón (Pin2 o Pin5)
+//   - t: duración del pulso (Pulse100ms..Pulse800ms)
+//
+// Devuelve una secuencia DLE DC4 que el printer interpreta como pulso real-time.
 func GenerateRealTimePulse(m CashDrawerPin, t CashDrawerTimePulse) ([]byte, error) {
 	drawerPin, ok := cashPin[m]
 	if !ok {
+		// m no es un pin soportado según el mapa cashPin
 		return nil, fmt.Errorf("pin de cajón de efectivo no soportado: %v", m)
 	}
 	pulseTime, ok := timeMap[t]
 	if !ok {
+		// t no es un tiempo soportado según el mapa timeMap
 		return nil, fmt.Errorf("tiempo de pulso no soportado: %v", t)
 	}
-	cmd := []byte{common.DLE, common.DC4, 1, drawerPin, pulseTime}
+	// Comando DLE DC4 1 m t
+	cmd := []byte{sharedcommands.DLE, sharedcommands.DC4, 1, drawerPin, pulseTime}
 	return cmd, nil
 }

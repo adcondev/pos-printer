@@ -3,11 +3,13 @@ package escpos
 import (
 	"fmt"
 
-	"github.com/adcondev/pos-printer/escpos/common"
+	"github.com/adcondev/pos-printer/escpos/sharedcommands"
 )
 
-// TODO: Comandos para obtener estado de la impresora
-// - Autodiagnóstico
+// ============================================================================
+// Maps and helpers
+// ============================================================================
+// Mapas que definen códigos de estado en tiempo real para ESC/POS.
 
 var realTimeStatusMap = map[RealTimeStatus]byte{
 	PrinterStatus:     1,
@@ -16,12 +18,16 @@ var realTimeStatusMap = map[RealTimeStatus]byte{
 	PaperSensorStatus: 4,
 }
 
-// TransmitRealTimeStatus asks the printer to transmit its real-time status
+// ============================================================================
+// Public API (implementation)
+// ============================================================================
+
+// TransmitRealTimeStatus pide a la impresora transmitir su estado en tiempo real
 func (c *Protocol) TransmitRealTimeStatus(n RealTimeStatus) ([]byte, error) {
 	status, ok := realTimeStatusMap[n]
 	if !ok {
 		return nil, fmt.Errorf("estado en tiempo real inválido: %d", n)
 	}
-	cmd := []byte{common.DLE, common.EOT, status}
+	cmd := []byte{sharedcommands.DLE, sharedcommands.EOT, status}
 	return cmd, nil
 }

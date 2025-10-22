@@ -4,13 +4,14 @@ import (
 	"fmt"
 
 	"github.com/adcondev/pos-printer/encoding"
-	"github.com/adcondev/pos-printer/escpos/common"
+	"github.com/adcondev/pos-printer/escpos/sharedcommands"
 )
 
-// TODO: Comandos para manejo de codificación de caracteres
-// - Código de página
-// - Caracteres internacionales
-// - Caracteres especiales
+// ============================================================================
+// Code page definitions and mappings
+// ============================================================================
+// Definimos CodePage y un mapa que convierte de nuestro enum a los valores
+// numéricos esperados por ESC/POS.
 
 // CodePage define los conjuntos de caracteres estándar
 type CodePage byte
@@ -55,6 +56,10 @@ var codePageMap = map[CodePage]byte{
 	Latvian:    21,
 }
 
+// ============================================================================
+// Public API (implementation)
+// ============================================================================
+
 // SelectCharacterTable selecciona el conjunto de caracteres para la impresora
 func (c *Protocol) SelectCharacterTable(table encoding.CharacterSet) ([]byte, error) {
 	encoder, ok := encoding.Registry[table]
@@ -68,17 +73,17 @@ func (c *Protocol) SelectCharacterTable(table encoding.CharacterSet) ([]byte, er
 		return nil, fmt.Errorf("error: código de página %s no soportado por protocolo", encoder.Name)
 	}
 	// ESC t n - Select character code table
-	cmd := []byte{common.ESC, 't', charSet}
+	cmd := []byte{sharedcommands.ESC, 't', charSet}
 
 	return cmd, nil
 }
 
 // CancelKanjiMode deactivates Kanji mode
 func (c *Protocol) CancelKanjiMode() []byte {
-	return []byte{common.FS, '.'}
+	return []byte{sharedcommands.FS, '.'}
 }
 
 // SelectKanjiMode activates Kanji mode
 func (c *Protocol) SelectKanjiMode() []byte {
-	return []byte{common.FS, '&'}
+	return []byte{sharedcommands.FS, '&'}
 }

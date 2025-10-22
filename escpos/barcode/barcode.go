@@ -1,121 +1,186 @@
+// Package barcode implements ESC/POS commands for barcode printing functionality.
+//
+// ESC/POS is the command system used by thermal receipt printers to control
+// barcode generation, HRI (Human Readable Interpretation) text positioning,
+// and various barcode symbology including UPC, EAN, CODE128, and GS1 DataBar.
 package barcode
 
 import (
 	"errors"
-	"fmt"
 
-	"github.com/adcondev/pos-printer/escpos/common"
+	"github.com/adcondev/pos-printer/escpos/sharedcommands"
 )
+
+// ============================================================================
+// Context
+// ============================================================================
+// This package implements ESC/POS commands for barcode printing functionality.
+// ESC/POS is the command system used by thermal receipt printers to control
+// barcode generation, HRI (Human Readable Interpretation) text positioning,
+// and various barcode symbologies including UPC, EAN, CODE128, and GS1 DataBar
 
 // ============================================================================
 // Constant and Var Definitions
 // ============================================================================
 
-// HRI (Human Readable Interpretation) position modes
+// Type definitions
+
+// HRIPosition represents the print positions for HRI characters
 type HRIPosition byte
 
-const (
-	HRINotPrinted      HRIPosition = 0x00 // n = 0
-	HRIAbove           HRIPosition = 0x01 // n = 1
-	HRIBelow           HRIPosition = 0x02 // n = 2
-	HRIBoth            HRIPosition = 0x03 // n = 3
-	HRINotPrintedASCII HRIPosition = '0'  // n = 48
-	HRIAboveASCII      HRIPosition = '1'  // n = 49
-	HRIBelowASCII      HRIPosition = '2'  // n = 50
-	HRIBothASCII       HRIPosition = '3'  // n = 51
-)
-
-// HRI Font types
+// HRIFont represents the font types for HRI characters
 type HRIFont byte
 
-const (
-	HRIFontA        HRIFont = 0x00 // n = 0
-	HRIFontB        HRIFont = 0x01 // n = 1
-	HRIFontC        HRIFont = 0x02 // n = 2
-	HRIFontD        HRIFont = 0x03 // n = 3
-	HRIFontE        HRIFont = 0x04 // n = 4
-	HRIFontAASCII   HRIFont = '0'  // n = 48
-	HRIFontBASCII   HRIFont = '1'  // n = 49
-	HRIFontCASCII   HRIFont = '2'  // n = 50
-	HRIFontDASCII   HRIFont = '3'  // n = 51
-	HRIFontEASCII   HRIFont = '4'  // n = 52
-	HRISpecialFontA HRIFont = 97   // n = 97
-	HRISpecialFontB HRIFont = 98   // n = 98
-)
-
-// Barcode height range
+// Height represents the barcode height (in dots)
 type Height byte
 
-const (
-	MinHeight     Height = 1
-	MaxHeight     Height = 255
-	DefaultHeight Height = 162 // Model dependent default
-)
-
-// Barcode width/module size
+// Width represents the horizontal module width of the barcode
 type Width byte
 
+// Symbology represents the barcode symbology types
+type Symbology byte
+
+// Code128Set represents the code sets for CODE128 (A/B/C)
+type Code128Set byte
+
+// Constants
+
 const (
-	MinWidth     Width = 2
-	MaxWidth     Width = 6
+	// HRINotPrinted represents HRI not printed (numeric mode)
+	HRINotPrinted HRIPosition = 0x00
+	// HRIAbove represents HRI printed above barcode
+	HRIAbove HRIPosition = 0x01
+	// HRIBelow represents HRI printed below barcode
+	HRIBelow HRIPosition = 0x02
+	// HRIBoth represents HRI printed above and below barcode
+	HRIBoth HRIPosition = 0x03
+
+	// HRINotPrintedASCII represents HRI not printed (ASCII mode)
+	HRINotPrintedASCII HRIPosition = '0'
+	// HRIAboveASCII represents HRI printed above barcode (ASCII mode)
+	HRIAboveASCII HRIPosition = '1'
+	// HRIBelowASCII represents HRI printed below barcode (ASCII mode)
+	HRIBelowASCII HRIPosition = '2'
+	// HRIBothASCII represents HRI printed above and below barcode (ASCII mode)
+	HRIBothASCII HRIPosition = '3'
+)
+
+const (
+	// HRIFontA represents HRI font type A (numeric mode)
+	HRIFontA HRIFont = 0x00
+	// HRIFontB represents HRI font type B
+	HRIFontB HRIFont = 0x01
+	// HRIFontC represents HRI font type C
+	HRIFontC HRIFont = 0x02
+	// HRIFontD represents HRI font type D
+	HRIFontD HRIFont = 0x03
+	// HRIFontE represents HRI font type E
+	HRIFontE HRIFont = 0x04
+
+	// HRIFontAASCII represents HRI font type A (ASCII mode)
+	HRIFontAASCII HRIFont = '0'
+	// HRIFontBASCII represents HRI font type B (ASCII mode)
+	HRIFontBASCII HRIFont = '1'
+	// HRIFontCASCII represents HRI font type C (ASCII mode)
+	HRIFontCASCII HRIFont = '2'
+	// HRIFontDASCII represents HRI font type D (ASCII mode)
+	HRIFontDASCII HRIFont = '3'
+	// HRIFontEASCII represents HRI font type E (ASCII mode)
+	HRIFontEASCII HRIFont = '4'
+
+	// HRISpecialFontA represents special HRI font A
+	HRISpecialFontA HRIFont = 97
+	// HRISpecialFontB represents special HRI font B
+	HRISpecialFontB HRIFont = 98
+)
+
+const (
+	// MinHeight represents minimum barcode height
+	MinHeight Height = 1
+	// MaxHeight represents maximum barcode height
+	MaxHeight Height = 255
+	// DefaultHeight represents default barcode height (model-dependent)
+	DefaultHeight Height = 162
+)
+
+const (
+	// MinWidth represents minimum barcode width
+	MinWidth Width = 2
+	// MaxWidth represents maximum barcode width
+	MaxWidth Width = 6
+	// DefaultWidth represents default barcode width
 	DefaultWidth Width = 3
-	// Extended width values (model dependent)
+
+	// ExtendedMinWidth represents extended minimum width (model-dependent)
 	ExtendedMinWidth Width = 68
+	// ExtendedMaxWidth represents extended maximum width (model-dependent)
 	ExtendedMaxWidth Width = 76
 )
 
-// Barcode symbology types
-type Symbology byte
-
-// Function A symbologies (NUL-terminated)
 const (
-	UPCA    Symbology = 0 // UPC-A (11-12 digits)
-	UPCE    Symbology = 1 // UPC-E (6-8, 11-12 digits)
-	JAN13   Symbology = 2 // JAN13/EAN13 (12-13 digits)
-	JAN8    Symbology = 3 // JAN8/EAN8 (7-8 digits)
-	CODE39  Symbology = 4 // CODE39 (variable length)
-	ITF     Symbology = 5 // Interleaved 2 of 5 (even digits)
-	CODABAR Symbology = 6 // CODABAR/NW-7 (variable length)
+	// UPCA represents UPC-A barcode symbology (11-12 digits)
+	UPCA Symbology = 0
+	// UPCE represents UPC-E barcode symbology (6-8, 11-12 digits)
+	UPCE Symbology = 1
+	// JAN13 represents JAN13/EAN13 barcode symbology (12-13 digits)
+	JAN13 Symbology = 2
+	// JAN8 represents JAN8/EAN8 barcode symbology (7-8 digits)
+	JAN8 Symbology = 3
+	// CODE39 represents CODE39 barcode symbology (variable length)
+	CODE39 Symbology = 4
+	// ITF represents Interleaved 2 of 5 barcode symbology (pairs of digits)
+	ITF Symbology = 5
+	// CODABAR represents CODABAR/NW-7 barcode symbology (variable length)
+	CODABAR Symbology = 6
 )
 
-// Function B symbologies (length-prefixed)
 const (
-	UPCAB           Symbology = 65 // UPC-A (11-12 digits)
-	UPCEB           Symbology = 66 // UPC-E (6-8, 11-12 digits)
-	EAN13           Symbology = 67 // EAN13 (12-13 digits)
-	EAN8            Symbology = 68 // EAN8 (7-8 digits)
-	CODE39B         Symbology = 69 // CODE39 (1-255 chars)
-	ITFB            Symbology = 70 // ITF (2-254 even digits)
-	CODABARB        Symbology = 71 // CODABAR (2-255 chars)
-	CODE93          Symbology = 72 // CODE93 (1-255 chars)
-	CODE128         Symbology = 73 // CODE128 (2-255 bytes)
-	GS1128          Symbology = 74 // GS1-128 (2-255 bytes)
-	GS1DataBarOmni  Symbology = 75 // GS1 DataBar Omnidirectional (13 digits)
-	GS1DataBarTrunc Symbology = 76 // GS1 DataBar Truncated (13 digits)
-	GS1DataBarLim   Symbology = 77 // GS1 DataBar Limited (13 digits)
-	GS1DataBarExp   Symbology = 78 // GS1 DataBar Expanded (2-255 chars)
-	CODE128Auto     Symbology = 79 // CODE128 Auto (1-255 bytes)
+	// UPCAB represents UPC-A barcode symbology (11-12 digits, length-prefixed)
+	UPCAB Symbology = 65
+	// UPCEB represents UPC-E barcode symbology (6-8, 11-12 digits)
+	UPCEB Symbology = 66
+	// EAN13 represents EAN13 barcode symbology (12-13 digits)
+	EAN13 Symbology = 67
+	// EAN8 represents EAN8 barcode symbology (7-8 digits)
+	EAN8 Symbology = 68
+	// CODE39B represents CODE39 barcode symbology (1-255 chars)
+	CODE39B Symbology = 69
+	// ITFB represents ITF barcode symbology (2-254 pairs)
+	ITFB Symbology = 70
+	// CODABARB represents CODABAR barcode symbology (2-255 chars)
+	CODABARB Symbology = 71
+	// CODE93 represents CODE93 barcode symbology (1-255 chars)
+	CODE93 Symbology = 72
+	// CODE128 represents CODE128 barcode symbology (2-255 bytes)
+	CODE128 Symbology = 73
+	// GS1128 represents GS1-128 barcode symbology (2-255 bytes)
+	GS1128 Symbology = 74
+	// GS1DataBarOmni represents GS1 DataBar Omnidirectional (13 digits)
+	GS1DataBarOmni Symbology = 75
+	// GS1DataBarTrunc represents GS1 DataBar Truncated (13 digits)
+	GS1DataBarTrunc Symbology = 76
+	// GS1DataBarLim represents GS1 DataBar Limited (13 digits)
+	GS1DataBarLim Symbology = 77
+	// GS1DataBarExp represents GS1 DataBar Expanded (2-255 chars)
+	GS1DataBarExp Symbology = 78
+	// CODE128Auto represents CODE128 Auto barcode symbology (1-255 bytes)
+	CODE128Auto Symbology = 79
 )
 
-// CODE128 code sets
-type Code128Set byte
-
 const (
-	Code128SetA Code128Set = 65 // Code set A (ASCII 0-95)
-	Code128SetB Code128Set = 66 // Code set B (ASCII 32-127)
-	Code128SetC Code128Set = 67 // Code set C (00-99 numeric pairs)
-)
-
-// Special characters
-const (
-	Code128Prefix byte = '{' // 0x7B - CODE128 prefix
-	DataBarPrefix byte = '{' // 0x7B - GS1 DataBar Expanded prefix
+	// Code128SetA represents CODE128 Set A (ASCII 0-95)
+	Code128SetA Code128Set = 65
+	// Code128SetB represents CODE128 Set B (ASCII 32-127)
+	Code128SetB Code128Set = 66
+	// Code128SetC represents CODE128 Set C (numeric pairs 00-99)
+	Code128SetC Code128Set = 67
 )
 
 // ============================================================================
-// Error Definitions
+// Error Variables
 // ============================================================================
 
+// ErrHRIPosition represents an invalid HRI position error
 var (
 	ErrHRIPosition      = errors.New("invalid HRI position (try 0-3 or '0'..'3')")
 	ErrHRIFont          = errors.New("invalid HRI font (try 0-4, '0'..'4', 97, or 98)")
@@ -130,315 +195,46 @@ var (
 )
 
 // ============================================================================
-// Interface Definitions
-// ============================================================================
-
-// Interface compliance check
-var _ Capability = (*Commands)(nil)
-
-// Capability defines the interface for barcode commands
-type Capability interface {
-	// HRI (Human Readable Interpretation) settings
-	SelectHRICharacterPosition(position HRIPosition) ([]byte, error)
-	SelectFontForHRI(font HRIFont) ([]byte, error)
-
-	// Barcode dimensions
-	SetBarcodeHeight(height Height) ([]byte, error)
-	SetBarcodeWidth(width Width) ([]byte, error)
-
-	// Barcode printing
-	PrintBarcode(symbology Symbology, data []byte) ([]byte, error)
-	PrintBarcodeWithCodeSet(symbology Symbology, codeSet Code128Set, data []byte) ([]byte, error)
-}
-
-// ============================================================================
 // Main Implementation
 // ============================================================================
 
 // Commands implements the Capability interface for barcode commands
 type Commands struct{}
 
+// NewCommands creates a new instance of Commands
 func NewCommands() *Commands {
 	return &Commands{}
 }
 
-// SelectHRICharacterPosition selects the print position of HRI (Human Readable Interpretation) characters.
-//
-// Format:
-//
-//	ASCII: GS H n
-//	Hex:   0x1D 0x48 n
-//	Decimal: 29 72 n
-//
-// Range:
-//
-//	n = 0–3, 48–51
-//
-// Default:
-//
-//	n = 0 (Not printed)
-//
-// Description:
-//
-//	Selects the print position of HRI characters when printing a barcode:
-//	  0 or 48 -> Not printed
-//	  1 or 49 -> Above the barcode
-//	  2 or 50 -> Below the barcode
-//	  3 or 51 -> Both above and below the barcode
-//
-// Notes:
-//   - HRI characters are printed using the font specified by GS f.
-//   - The setting persists until ESC @ (initialize), printer reset, or power-off.
-//
-// Byte sequence:
-//
-//	GS H n -> 0x1D, 0x48, n
-func (c *Commands) SelectHRICharacterPosition(n HRIPosition) ([]byte, error) {
-	// Validate allowed values
-	switch n {
-	case 0, 1, 2, 3, '0', '1', '2', '3':
-		// Valid values
-	default:
-		return nil, ErrHRIPosition
-	}
-	return []byte{common.GS, 'H', byte(n)}, nil
+// ============================================================================
+// Interface Definitions
+// ============================================================================
+
+// Compile-time check that Commands implements Capability
+var _ Capability = (*Commands)(nil)
+
+// Capability groups barcode-related capabilities
+type Capability interface {
+	// HRI settings
+	SelectHRICharacterPosition(position HRIPosition) ([]byte, error)
+	SelectFontForHRI(font HRIFont) ([]byte, error)
+
+	// Dimensions
+	SetBarcodeHeight(height Height) ([]byte, error)
+	SetBarcodeWidth(width Width) ([]byte, error)
+
+	// Printing
+	PrintBarcode(symbology Symbology, data []byte) ([]byte, error)
+	PrintBarcodeWithCodeSet(symbology Symbology, codeSet Code128Set, data []byte) ([]byte, error)
 }
 
-// SelectFontForHRI selects the font used to print HRI (Human Readable Interpretation) characters.
-//
-// Format:
-//
-//	ASCII: GS f n
-//	Hex:   0x1D 0x66 n
-//	Decimal: 29 102 n
-//
-// Range:
-//
-//	n: model-dependent. Common supported values:
-//	  0–4, 48–52, 97, 98
-//
-// Default:
-//
-//	n = 0
-//
-// Description:
-//
-//	Selects the font for HRI characters printed with barcodes:
-//	  0 or 48  -> Font A
-//	  1 or 49  -> Font B
-//	  2 or 50  -> Font C
-//	  3 or 51  -> Font D
-//	  4 or 52  -> Font E
-//	  97       -> Special font A (model dependent)
-//	  98       -> Special font B (model dependent)
-//
-// Notes:
-//   - The chosen font applies only to HRI characters.
-//   - HRI characters are printed at the position set by GS H.
-//   - Built-in font availability and metrics vary by model.
-//
-// Byte sequence:
-//
-//	GS f n -> 0x1D, 0x66, n
-func (c *Commands) SelectFontForHRI(n HRIFont) ([]byte, error) {
-	// Validate allowed values
-	switch n {
-	case 0, 1, 2, 3, 4:
-		// Numeric values
-	case '0', '1', '2', '3', '4':
-		// ASCII values
-	case 97, 98:
-		// Special fonts
-	default:
-		return nil, ErrHRIFont
-	}
-	return []byte{common.GS, 'f', byte(n)}, nil
-}
+// ============================================================================
+// Helper Functions
+// ============================================================================
 
-// SetBarcodeHeight sets the barcode height.
-//
-// Format:
-//
-//	ASCII: GS h n
-//	Hex:   0x1D 0x68 n
-//	Decimal: 29 104 n
-//
-// Range:
-//
-//	n = 1–255
-//
-// Default:
-//
-//	n: model dependent (example default: 162)
-//
-// Description:
-//
-//	Sets the height of a barcode to n dots.
-//
-// Notes:
-//   - The units for n depend on the printer model.
-//   - This setting remains effective until ESC @ (initialize), printer reset, or power-off.
-//
-// Byte sequence:
-//
-//	GS h n -> 0x1D, 0x68, n
-func (c *Commands) SetBarcodeHeight(height Height) ([]byte, error) {
-	if height < MinHeight || height > MaxHeight {
-		return nil, fmt.Errorf("%w: %d", ErrHeight, height)
-	}
-	return []byte{common.GS, 'h', byte(height)}, nil
-}
-
-// SetBarcodeWidth sets the horizontal module width for barcodes.
-//
-// Format:
-//
-//	ASCII: GS w n
-//	Hex:   0x1D 0x77 n
-//	Decimal: 29 119 n
-//
-// Range:
-//
-//	n = 2–6 (typical numeric values)
-//	or model-dependent alternate values 68–76
-//
-// Default:
-//
-//	n = 3 (model-dependent)
-//
-// Description:
-//
-//	Sets the barcode module width (horizontal size). Units and exact effect
-//	depend on the printer model. The setting remains effective until ESC @,
-//	printer reset, or power-off.
-//
-// Notes:
-//   - This affects the module width for various barcode types (see printer spec).
-//   - The command does not validate model-specific allowed values; caller must
-//     supply a value supported by the target printer.
-//
-// Byte sequence:
-//
-//	GS w n -> 0x1D, 0x77, n
-func (c *Commands) SetBarcodeWidth(width Width) ([]byte, error) {
-	// Validate standard and extended ranges
-	if (width >= MinWidth && width <= MaxWidth) ||
-		(width >= ExtendedMinWidth && width <= ExtendedMaxWidth) {
-		return []byte{common.GS, 'w', byte(width)}, nil
-	}
-	return nil, fmt.Errorf("%w: %d", ErrWidth, width)
-}
-
-// PrintBarcode builds the GS k command byte sequence to print a barcode.
-//
-// Command summary:
-//
-//	Function A (m = 0–6):
-//	  Format:  GS k m d1...dk NUL
-//	  Data end: NUL (0x00) terminator (length byte NOT sent)
-//	Function B (m = 65–79):
-//	  Format:  GS k m n d1...dn
-//	  Data length: single length byte n (1–255), NO terminator
-//
-// Byte sequence prefix:
-//
-//	GS k -> 0x1D 0x6B
-//
-// Parameter m (symbology selector):
-//
-//	Function A (classic forms):
-//	  0  UPC-A           (k = 11 or 12 digits)  (numeric)
-//	  1  UPC-E           (k = 6–8, 11, 12)      (numeric; k=7/8/11/12 must start with '0')
-//	  2  JAN13 / EAN13   (k = 12 or 13 digits)  (numeric)
-//	  3  JAN8  / EAN8    (k = 7 or 8 digits)    (numeric)
-//	  4  CODE39          (k >= 1)               (0–9 A–Z space $ % * + - . /)  Start/stop '*' auto if omitted
-//	  5  ITF (Interleaved 2 of 5) (k >= 2 even) (numeric; odd final digit ignored)
-//	  6  CODABAR (NW-7)  (k >= 2)               (Start/stop A–D/a–d must be present; not auto-added)
-//	Function B (extended forms):
-//	  65 UPC-A      (n = 11 or 12)
-//	  66 UPC-E      (n = 6–8, 11, 12)
-//	  67 EAN13      (n = 12 or 13)
-//	  68 EAN8       (n = 7 or 8)
-//	  69 CODE39     (1–255)
-//	  70 ITF        (2–254 even)
-//	  71 CODABAR    (2–255)
-//	  72 CODE93     (1–255) (start/stop + 2 check chars auto)
-//	  73 CODE128    (2–255) (d1= '{' (0x7B)=123, d2= 65–67 => Set A/B/C; check digit auto)
-//	  74 GS1-128    (2–255) (FNC1, check digits auto; special SP,(,),* rules)
-//	  75 GS1 DataBar Omnidirectional (n=13 digits; AI(01), check digit auto)
-//	  76 GS1 DataBar Truncated        (n=13)
-//	  77 GS1 DataBar Limited          (n=13; first digit constraint)
-//	  78 GS1 DataBar Expanded         (2–255; uses '{'+code for FNC1 / '(' / ')')
-//	  79 CODE128 Auto                 (1–255; 0–255 byte data)
-//
-// Notes:
-//   - This function DOES NOT validate symbology-specific content or lengths;
-//     caller must supply conforming data.
-//   - After printing, printer returns to "beginning of line" state.
-//   - Not affected by most text print modes (except upside-down).
-//   - In Page mode, data is buffered (rendering per Page mode rules).
-//   - Width exceeding print area is ignored/clipped by device.
-//
-// Byte sequence:
-//
-//	Function A: GS k m data... NUL -> 0x1D, 0x6B, m, data..., 0x00
-//	Function B: GS k m n data...   -> 0x1D, 0x6B, m, n, data...
-func (c *Commands) PrintBarcode(symbology Symbology, data []byte) ([]byte, error) {
-	// Validate data exists
-	if len(data) == 0 {
-		return nil, ErrDataTooShort
-	}
-
-	// Build command based on symbology type
-	if symbology <= CODABAR {
-		// Function A (NUL-terminated)
-		return c.buildFunctionA(symbology, data)
-	} else if symbology >= UPCAB && symbology <= CODE128Auto {
-		// Function B (length-prefixed)
-		return c.buildFunctionB(symbology, data)
-	}
-
-	return nil, ErrSymbology
-}
-
-// PrintBarcodeWithCodeSet prints a CODE128 or GS1-128 barcode with explicit code set.
-//
-// Description:
-//
-//	Specialized method for CODE128 (m=73) and GS1-128 (m=74) that require
-//	code set specification. The first two bytes of the barcode data must be:
-//	  d1 = '{' (0x7B)
-//	  d2 = 65-67 (Code set A/B/C)
-//
-// Notes:
-//   - Use this method when you need explicit control over CODE128 code sets.
-//   - For automatic code set selection, use PrintBarcode with CODE128Auto (m=79).
-//
-// Byte sequence:
-//
-//	GS k m n '{' codeSet data... -> 0x1D, 0x6B, m, n, 0x7B, codeSet, data...
-func (c *Commands) PrintBarcodeWithCodeSet(symbology Symbology, codeSet Code128Set, data []byte) ([]byte, error) {
-	// Validate symbology supports code sets
-	if symbology != CODE128 && symbology != GS1128 {
-		return nil, fmt.Errorf("%w: symbology %d does not support code sets", ErrSymbology, symbology)
-	}
-
-	// Validate code set
-	if codeSet < Code128SetA || codeSet > Code128SetC {
-		return nil, ErrCode128Set
-	}
-
-	// Build data with code set prefix
-	prefixedData := make([]byte, 0, len(data)+2)
-	prefixedData = append(prefixedData, Code128Prefix, byte(codeSet))
-	prefixedData = append(prefixedData, data...)
-
-	return c.buildFunctionB(symbology, prefixedData)
-}
-
-// buildFunctionA builds Function A barcode command (NUL-terminated)
+// buildFunctionA builds Function A command (NUL-terminated)
 func (c *Commands) buildFunctionA(symbology Symbology, data []byte) ([]byte, error) {
-	// Basic validation for Function A symbologies
+	// Basic validations for Function A symbologies
 	if symbology == ITF {
 		if len(data)%2 != 0 {
 			return nil, ErrOddITFLength
@@ -446,15 +242,15 @@ func (c *Commands) buildFunctionA(symbology Symbology, data []byte) ([]byte, err
 	}
 
 	// Build command: GS k m data... NUL
-	cmd := []byte{common.GS, 'k', byte(symbology)}
+	cmd := []byte{sharedcommands.GS, 'k', byte(symbology)}
 	cmd = append(cmd, data...)
-	cmd = append(cmd, common.NUL)
+	cmd = append(cmd, sharedcommands.NUL)
 	return cmd, nil
 }
 
-// buildFunctionB builds Function B barcode command (length-prefixed)
+// buildFunctionB builds Function B command (length-prefixed)
 func (c *Commands) buildFunctionB(symbology Symbology, data []byte) ([]byte, error) {
-	// Validate data length (max 255 for single byte length)
+	// Validate data length (maximum 255 for one-byte length)
 	if len(data) > 255 {
 		return nil, ErrDataTooLong
 	}
@@ -463,7 +259,7 @@ func (c *Commands) buildFunctionB(symbology Symbology, data []byte) ([]byte, err
 	switch symbology {
 	case CODE128, GS1128:
 		// Check if data has the required code set prefix
-		if len(data) < 2 || data[0] != Code128Prefix ||
+		if len(data) < 2 || data[0] != '{' ||
 			data[1] < byte(Code128SetA) || data[1] > byte(Code128SetC) {
 			return nil, ErrCode128NoCodeSet
 		}
@@ -475,12 +271,37 @@ func (c *Commands) buildFunctionB(symbology Symbology, data []byte) ([]byte, err
 	}
 
 	// Build command: GS k m n data...
-	cmd := []byte{common.GS, 'k', byte(symbology), byte(len(data))}
+	cmd := []byte{sharedcommands.GS, 'k', byte(symbology), byte(len(data))}
 	cmd = append(cmd, data...)
 	return cmd, nil
 }
 
-// Helper functions for common barcode operations
+// ============================================================================
+// Utility Functions for Validation
+// ============================================================================
+
+// ValidateHRIPosition validates if HRI position is valid
+func ValidateHRIPosition(position HRIPosition) error {
+	switch position {
+	case HRINotPrinted, HRIAbove, HRIBelow, HRIBoth,
+		HRINotPrintedASCII, HRIAboveASCII, HRIBelowASCII, HRIBothASCII:
+		return nil
+	default:
+		return ErrHRIPosition
+	}
+}
+
+// ValidateHRIFont validates if HRI font is valid
+func ValidateHRIFont(font HRIFont) error {
+	switch font {
+	case HRIFontA, HRIFontB, HRIFontC, HRIFontD, HRIFontE,
+		HRIFontAASCII, HRIFontBASCII, HRIFontCASCII, HRIFontDASCII, HRIFontEASCII,
+		HRISpecialFontA, HRISpecialFontB:
+		return nil
+	default:
+		return ErrHRIFont
+	}
+}
 
 // ValidateNumericData checks if all bytes are numeric digits
 func ValidateNumericData(data []byte) bool {
@@ -492,7 +313,7 @@ func ValidateNumericData(data []byte) bool {
 	return true
 }
 
-// ValidateCode39Data checks if all bytes are valid CODE39 characters
+// ValidateCode39Data checks if all bytes are valid for CODE39
 func ValidateCode39Data(data []byte) bool {
 	for _, b := range data {
 		switch {
@@ -507,7 +328,7 @@ func ValidateCode39Data(data []byte) bool {
 	return true
 }
 
-// ValidateCodabarData checks if data has valid CODABAR start/stop characters
+// ValidateCodabarData checks if CODABAR data is valid
 func ValidateCodabarData(data []byte) bool {
 	if len(data) < 2 {
 		return false

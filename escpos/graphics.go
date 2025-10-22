@@ -3,13 +3,14 @@ package escpos
 import (
 	"fmt"
 
-	"github.com/adcondev/pos-printer/escpos/common"
+	"github.com/adcondev/pos-printer/escpos/sharedcommands"
 	"github.com/adcondev/pos-printer/imaging"
 )
 
-// TODO: Comandos para impresión de gráficos e imágenes
-// - Modos de imagen
-// - Compresión de imagen
+// ============================================================================
+// Type / Constant maps and helpers
+// ============================================================================
+// Mapas y helpers para modos de imagen.
 
 var densityMap = map[Density]byte{
 	DensitySingle:    0, // Modo normal (200 DPI vertical y horizontal)
@@ -25,7 +26,7 @@ var bitImageMap = map[BitImageMode]byte{
 	Mode24DotDoubleDen: 33,
 }
 
-// ESCImage ahora es más simple, solo guarda referencia a PrintRasterBitImage
+// ESCImage encapsula una imagen preparada para ESC/POS.
 type ESCImage struct {
 	printImage *imaging.PrintImage
 
@@ -33,7 +34,7 @@ type ESCImage struct {
 	rasterData []byte
 }
 
-// newESCImageFromPrintImage crea una ESCImage desde PrintRasterBitImage
+// newESCImageFromPrintImage crea una ESCImage desde PrintImage
 func newESCImageFromPrintImage(img *imaging.PrintImage) (*ESCImage, error) {
 	if img == nil {
 		return nil, fmt.Errorf("print imaging cannot be nil")
@@ -58,7 +59,7 @@ func (e *ESCImage) GetHeight() int {
 	return e.printImage.Height
 }
 
-// GetWidthBytes devuelve el ancho en bytes
+// GetWidthBytes devuelve el ancho en bytes (cada byte = 8 píxeles)
 func (e *ESCImage) GetWidthBytes() int {
 	return (e.printImage.Width + 7) / 8
 }
@@ -77,6 +78,11 @@ func (e *ESCImage) toRasterFormat() []byte {
 	return e.rasterData
 }
 
+// ============================================================================
+// Public API (implementation)
+// ============================================================================
+// Funciones que generan comandos ESC/POS para imágenes y modos de bits.
+
 // PrintRasterBitImage genera los comandos para imprimir una imagen rasterizada
 func (c *Protocol) PrintRasterBitImage(img *imaging.PrintImage, density Density) ([]byte, error) {
 	// Crear ESCImage
@@ -94,7 +100,7 @@ func (c *Protocol) PrintRasterBitImage(img *imaging.PrintImage, density Density)
 	}
 
 	// Construir comando GS v 0
-	cmd := []byte{common.GS, 'v', '0', mode}
+	cmd := []byte{sharedcommands.GS, 'v', '0', mode}
 
 	// Agregar dimensiones
 	var widthBytes uint16
@@ -107,7 +113,7 @@ func (c *Protocol) PrintRasterBitImage(img *imaging.PrintImage, density Density)
 		// Secure, it has been validated
 		widthBytes = uint16(escImg.GetWidthBytes()) // nolint:gosec
 	}
-	wL, wH := common.ToLittleEndian(widthBytes)
+	wL, wH := sharedcommands.ToLittleEndian(widthBytes)
 
 	var heightBytes uint16
 	switch {
@@ -119,7 +125,7 @@ func (c *Protocol) PrintRasterBitImage(img *imaging.PrintImage, density Density)
 		// Secure, it has been validated
 		heightBytes = uint16(escImg.GetHeight()) // nolint:gosec
 	}
-	hL, hH := common.ToLittleEndian(heightBytes)
+	hL, hH := sharedcommands.ToLittleEndian(heightBytes)
 
 	cmd = append(cmd, wL, wH) // Ancho en bytes
 	cmd = append(cmd, hL, hH) // Alto en píxeles
@@ -149,6 +155,6 @@ func SelectBitImageMode(m BitImageMode, nL, nH byte, data []byte) ([]byte, error
 	if !ok {
 		return nil, fmt.Errorf("invalid bit image mode: %v", m)
 	}
-	cmd := []byte{common.ESC, '*', mode, nL, nH}
+	cmd := []byte{sharedcommands.ESC, '*', mode, nL, nH}
 	return append(cmd, data...), nil
 }

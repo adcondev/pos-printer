@@ -3,8 +3,13 @@ package escpos
 import (
 	"fmt"
 
-	"github.com/adcondev/pos-printer/escpos/common"
+	"github.com/adcondev/pos-printer/escpos/sharedcommands"
 )
+
+// ============================================================================
+// Maps and helpers
+// ============================================================================
+// Mapas usados para formateo de texto. Comentarios traducidos para principiantes.
 
 // TODO: Comandos para dar formato al texto
 // - Rotación de texto
@@ -33,6 +38,11 @@ var fontMap = map[Font]byte{
 	SpecialB: 'b', // 98
 }
 
+// ============================================================================
+// Public API (implementation)
+// ============================================================================
+// Funciones públicas para cambiar formatos de texto.
+
 // SelectCharacterFont sets the character font
 func (c *Protocol) SelectCharacterFont(n Font) ([]byte, error) {
 	font, ok := fontMap[n]
@@ -41,7 +51,7 @@ func (c *Protocol) SelectCharacterFont(n Font) ([]byte, error) {
 	}
 
 	// ESC M n
-	return []byte{common.ESC, 'M', font}, nil
+	return []byte{sharedcommands.ESC, 'M', font}, nil
 }
 
 // TurnEmphasizedMode enables or disables emphasized mode
@@ -51,7 +61,7 @@ func (c *Protocol) TurnEmphasizedMode(n EmphasizedMode) ([]byte, error) {
 		return nil, fmt.Errorf("no emph mode found")
 	}
 
-	return []byte{common.ESC, 'E', emph}, nil
+	return []byte{sharedcommands.ESC, 'E', emph}, nil
 }
 
 // SetDoubleStrike activa/desactiva doble golpe
@@ -61,7 +71,7 @@ func (c *Protocol) SetDoubleStrike(on bool) []byte {
 		val = 1
 	}
 	// ESC G n
-	return []byte{common.ESC, 'G', val}
+	return []byte{sharedcommands.ESC, 'G', val}
 }
 
 // TurnUnderlineMode enables or disables underline mode
@@ -71,21 +81,5 @@ func (c *Protocol) TurnUnderlineMode(n UnderlineMode) ([]byte, error) {
 		return nil, fmt.Errorf("invalid underline mode: %d", n)
 	}
 	// ESC - n
-	return []byte{common.ESC, '-', mode}, nil
-}
-
-// SetTextSize sets the text size, width and height multipliers.
-// 0 = 1x (Normal size),
-// 1 = 2x (Double size),
-// 2 = 3x (Triple size),
-// 7 = 8x (Maximum size)
-func (c *Protocol) SetTextSize(widthMultiplier, heightMultiplier int) []byte {
-	if widthMultiplier < 0 || widthMultiplier > 7 {
-		widthMultiplier = 0
-	}
-	if heightMultiplier < 0 || heightMultiplier > 7 {
-		heightMultiplier = 0
-	}
-	fontSizeFormula := uint8((widthMultiplier * 16) + widthMultiplier)
-	return []byte{common.GS, '!', fontSizeFormula}
+	return []byte{sharedcommands.ESC, '-', mode}, nil
 }

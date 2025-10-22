@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/adcondev/pos-printer/escpos/character"
-	"github.com/adcondev/pos-printer/escpos/common"
+	"github.com/adcondev/pos-printer/escpos/sharedcommands"
 	"github.com/adcondev/pos-printer/utils/test"
 )
 
@@ -15,7 +15,7 @@ import (
 func TestEffectsCommands_SelectCharacterColor(t *testing.T) {
 	// Setup
 	ec := character.NewEffectsCommands()
-	prefix := []byte{common.GS, '(', 'N', 0x02, 0x00, 0x30}
+	prefix := []byte{sharedcommands.GS, '(', 'N', 0x02, 0x00, 0x30}
 
 	tests := []struct {
 		name    string
@@ -78,7 +78,7 @@ func TestEffectsCommands_SelectCharacterColor(t *testing.T) {
 func TestEffectsCommands_SelectBackgroundColor(t *testing.T) {
 	// Setup
 	ec := character.NewEffectsCommands()
-	prefix := []byte{common.GS, '(', 'N', 0x02, 0x00, 0x31}
+	prefix := []byte{sharedcommands.GS, '(', 'N', 0x02, 0x00, 0x31}
 
 	tests := []struct {
 		name    string
@@ -141,7 +141,7 @@ func TestEffectsCommands_SelectBackgroundColor(t *testing.T) {
 func TestEffectsCommands_SetCharacterShadowMode(t *testing.T) {
 	// Setup
 	ec := &character.EffectsCommands{}
-	prefix := []byte{common.GS, '(', 'N', 0x03, 0x00, 0x32}
+	prefix := []byte{sharedcommands.GS, '(', 'N', 0x03, 0x00, 0x32}
 
 	tests := []struct {
 		name        string

@@ -1,256 +1,420 @@
+// Package character implements ESC/POS commands for character formatting and appearance.
+//
+// ESC/POS is the command system used by thermal receipt printers to control
+// character fonts, sizes, styles, effects, international character sets,
+// code pages, and user-defined characters.
 package character
 
 import (
 	"fmt"
-
-	"github.com/adcondev/pos-printer/escpos/common"
 )
 
-// TODO: Verify if all types have corresponding brief tests
+// ============================================================================
+// Context
+// ============================================================================
+// This package implements ESC/POS commands for character formatting and appearance.
+// ESC/POS is the command system used by thermal receipt printers to control
+// character fonts, sizes, styles, effects, international character sets,
+// code pages, and user-defined characters.
 
 // ============================================================================
 // Constant and Var Definitions
 // ============================================================================
 
+// Spacing represents character spacing in dots
 type Spacing byte
 
+// PrintMode represents the print mode bits for character formatting
 type PrintMode byte
 
 const (
-	// Print Mode bits
-	FontAPm           PrintMode = 0x00
-	FontBPm           PrintMode = 0x01
-	EmphasizedOffPm   PrintMode = 0x00
-	EmphasizedOnPm    PrintMode = 0x08
+	// FontAPm represents Font A in print mode
+	FontAPm PrintMode = 0x00
+	// FontBPm represents Font B in print mode
+	FontBPm PrintMode = 0x01
+	// EmphasizedOffPm represents emphasized mode off in print mode
+	EmphasizedOffPm PrintMode = 0x00
+	// EmphasizedOnPm represents emphasized mode on in print mode
+	EmphasizedOnPm PrintMode = 0x08
+	// DoubleHeightOffPm represents double height mode off in print mode
 	DoubleHeightOffPm PrintMode = 0x00
-	DoubleHeightOnPm  PrintMode = 0x10
-	DoubleWidthOffPm  PrintMode = 0x00
-	DoubleWidthOnPm   PrintMode = 0x20
-	UnderlineOffPm    PrintMode = 0x00
-	UnderlineOnPm     PrintMode = 0x80
+	// DoubleHeightOnPm represents double height mode on in print mode
+	DoubleHeightOnPm PrintMode = 0x10
+	// DoubleWidthOffPm represents double width mode off in print mode
+	DoubleWidthOffPm PrintMode = 0x00
+	// DoubleWidthOnPm represents double width mode on in print mode
+	DoubleWidthOnPm PrintMode = 0x20
+	// UnderlineOffPm represents underline mode off in print mode
+	UnderlineOffPm PrintMode = 0x00
+	// UnderlineOnPm represents underline mode on in print mode
+	UnderlineOnPm PrintMode = 0x80
 )
 
+// UnderlineMode represents the underline thickness mode
 type UnderlineMode byte
 
 const (
-	// Underline modes
-	NoDot       UnderlineMode = 0x00
-	OneDot      UnderlineMode = 0x01
-	TwoDot      UnderlineMode = 0x02
-	NoDotAscii  UnderlineMode = '0'
-	OneDotAscii UnderlineMode = '1'
-	TwoDotAscii UnderlineMode = '2'
+	// NoDot represents no underline mode
+	NoDot UnderlineMode = 0x00
+	// OneDot represents single dot underline mode
+	OneDot UnderlineMode = 0x01
+	// TwoDot represents two dot underline mode
+	TwoDot UnderlineMode = 0x02
+	// NoDotASCII represents no underline mode (ASCII)
+	NoDotASCII UnderlineMode = '0'
+	// OneDotASCII represents single dot underline mode (ASCII)
+	OneDotASCII UnderlineMode = '1'
+	// TwoDotASCII represents two dot underline mode (ASCII)
+	TwoDotASCII UnderlineMode = '2'
 )
 
+// EmphasizedMode represents the emphasized text mode
 type EmphasizedMode byte
 
 const (
-	// Emphasized modes
-	OffEm EmphasizedMode = 0x00 // LSB = 0 -> emphasized OFF
-	OnEm  EmphasizedMode = 0x01 // LSB = 1 -> emphasized ON
+	// OffEm represents emphasized mode off (LSB = 0)
+	OffEm EmphasizedMode = 0x00
+	// OnEm represents emphasized mode on (LSB = 1)
+	OnEm EmphasizedMode = 0x01
 )
 
+// DoubleStrikeMode represents the double-strike printing mode
 type DoubleStrikeMode byte
 
 const (
-	// Double-strike modes
-	OffDsm DoubleStrikeMode = 0x00 // LSB = 0 -> double-strike OFF
-	OnDsm  DoubleStrikeMode = 0x01 // LSB = 1 -> double-strike ON
+	// OffDsm represents double-strike mode off (LSB = 0)
+	OffDsm DoubleStrikeMode = 0x00
+	// OnDsm represents double-strike mode on (LSB = 1)
+	OnDsm DoubleStrikeMode = 0x01
 )
 
+// FontType represents the character font type
 type FontType byte
 
 const (
-	// Font types
-	FontA        FontType = 0x00
-	FontB        FontType = 0x01
-	FontC        FontType = 0x02
-	FontD        FontType = 0x03
-	FontE        FontType = 0x04
-	FontAAscii   FontType = '0'
-	FontBAscii   FontType = '1'
-	FontCAscii   FontType = '2'
-	FontDAscii   FontType = '3'
-	FontEAscii   FontType = '4'
+	// FontA represents Font A type
+	FontA FontType = 0x00
+	// FontB represents Font B type
+	FontB FontType = 0x01
+	// FontC represents Font C type
+	FontC FontType = 0x02
+	// FontD represents Font D type
+	FontD FontType = 0x03
+	// FontE represents Font E type
+	FontE FontType = 0x04
+	// FontAAscii represents Font A type (ASCII)
+	FontAAscii FontType = '0'
+	// FontBAscii represents Font B type (ASCII)
+	FontBAscii FontType = '1'
+	// FontCAscii represents Font C type (ASCII)
+	FontCAscii FontType = '2'
+	// FontDAscii represents Font D type (ASCII)
+	FontDAscii FontType = '3'
+	// FontEAscii represents Font E type (ASCII)
+	FontEAscii FontType = '4'
+	// SpecialFontA represents Special Font A type
 	SpecialFontA FontType = 97
+	// SpecialFontB represents Special Font B type
 	SpecialFontB FontType = 98
 )
 
+// InternationalSet represents the international character set
 type InternationalSet byte
 
 const (
-	// International character sets
-	USA          InternationalSet = 0
-	France       InternationalSet = 1
-	Germany      InternationalSet = 2
-	UK           InternationalSet = 3
-	DenmarkI     InternationalSet = 4
-	Sweden       InternationalSet = 5
-	Italy        InternationalSet = 6
-	SpainI       InternationalSet = 7
-	Japan        InternationalSet = 8
-	Norway       InternationalSet = 9
-	DenmarkII    InternationalSet = 10
-	SpainII      InternationalSet = 11
+	// USA represents the USA international character set
+	USA InternationalSet = 0
+	// France represents the France international character set
+	France InternationalSet = 1
+	// Germany represents the Germany international character set
+	Germany InternationalSet = 2
+	// UK represents the UK international character set
+	UK InternationalSet = 3
+	// DenmarkI represents the Denmark I international character set
+	DenmarkI InternationalSet = 4
+	// Sweden represents the Sweden international character set
+	Sweden InternationalSet = 5
+	// Italy represents the Italy international character set
+	Italy InternationalSet = 6
+	// SpainI represents the Spain I international character set
+	SpainI InternationalSet = 7
+	// Japan represents the Japan international character set
+	Japan InternationalSet = 8
+	// Norway represents the Norway international character set
+	Norway InternationalSet = 9
+	// DenmarkII represents the Denmark II international character set
+	DenmarkII InternationalSet = 10
+	// SpainII represents the Spain II international character set
+	SpainII InternationalSet = 11
+	// LatinAmerica represents the Latin America international character set
 	LatinAmerica InternationalSet = 12
-	Korea        InternationalSet = 13
-	SloveniaCro  InternationalSet = 14
-	China        InternationalSet = 15
-	Vietnam      InternationalSet = 16
-	Arabia       InternationalSet = 17
+	// Korea represents the Korea international character set
+	Korea InternationalSet = 13
+	// SloveniaCro represents the Slovenia/Croatia international character set
+	SloveniaCro InternationalSet = 14
+	// China represents the China international character set
+	China InternationalSet = 15
+	// Vietnam represents the Vietnam international character set
+	Vietnam InternationalSet = 16
+	// Arabia represents the Arabia international character set
+	Arabia InternationalSet = 17
 
-	// Extended India character sets (model-dependent)
+	// IndiaDevanagari represents the Devanagari character set (model-dependent)
 	IndiaDevanagari InternationalSet = 66
-	IndiaBengali    InternationalSet = 67
-	IndiaTamil      InternationalSet = 68
-	IndiaTelugu     InternationalSet = 69
-	IndiaAssamese   InternationalSet = 70
-	IndiaOriya      InternationalSet = 71
-	IndiaKannada    InternationalSet = 72
-	IndiaMalayalam  InternationalSet = 73
-	IndiaGujarati   InternationalSet = 74
-	IndiaPunjabi    InternationalSet = 75
-	IndiaMarathi    InternationalSet = 82
+	// IndiaBengali represents the Bengali character set (model-dependent)
+	IndiaBengali InternationalSet = 67
+	// IndiaTamil represents the Tamil character set (model-dependent)
+	IndiaTamil InternationalSet = 68
+	// IndiaTelugu represents the Telugu character set (model-dependent)
+	IndiaTelugu InternationalSet = 69
+	// IndiaAssamese represents the Assamese character set (model-dependent)
+	IndiaAssamese InternationalSet = 70
+	// IndiaOriya represents the Oriya character set (model-dependent)
+	IndiaOriya InternationalSet = 71
+	// IndiaKannada represents the Kannada character set (model-dependent)
+	IndiaKannada InternationalSet = 72
+	// IndiaMalayalam represents the Malayalam character set (model-dependent)
+	IndiaMalayalam InternationalSet = 73
+	// IndiaGujarati represents the Gujarati character set (model-dependent)
+	IndiaGujarati InternationalSet = 74
+	// IndiaPunjabi represents the Punjabi character set (model-dependent)
+	IndiaPunjabi InternationalSet = 75
+	// IndiaMarathi represents the Marathi character set (model-dependent)
+	IndiaMarathi InternationalSet = 82
 )
 
+// RotationMode represents the character rotation mode
 type RotationMode byte
 
 const (
-	// Rotation modes
-	NoRotation      RotationMode = 0x00 // n = 0
-	On90Dot1        RotationMode = 0x01 // n = 1 (1-dot spacing)
-	On90Dot15       RotationMode = 0x02 // n = 2 (1.5-dot spacing)
-	NoRotationAscii RotationMode = '0'
-	On90Dot1Ascii   RotationMode = '1'
-	On90Dot15Ascii  RotationMode = '2'
+	// NoRotation represents no rotation mode
+	NoRotation RotationMode = 0x00
+	// On90Dot1 represents 90-degree rotation with 1-dot spacing
+	On90Dot1 RotationMode = 0x01
+	// On90Dot15 represents 90-degree rotation with 1.5-dot spacing
+	On90Dot15 RotationMode = 0x02
+	// NoRotationASCII represents no rotation mode (ASCII mode)
+	NoRotationASCII RotationMode = '0'
+	// On90Dot1Ascii represents 90-degree rotation with 1-dot spacing (ASCII mode)
+	On90Dot1Ascii RotationMode = '1'
+	// On90Dot15Ascii represents 90-degree rotation with 1.5-dot spacing (ASCII mode)
+	On90Dot15Ascii RotationMode = '2'
 )
 
+// PrintColor represents the print color selection
 type PrintColor byte
 
 const (
-	// Print Color Modes
-	Black      PrintColor = 0x00 // n = 0
-	Red        PrintColor = 0x01 // n = 1
+	// Black represents black print color
+	Black PrintColor = 0x00
+	// Red represents red print color
+	Red PrintColor = 0x01
+	// BlackASCII represents black print color (ASCII mode)
 	BlackASCII PrintColor = '0'
-	RedASCII   PrintColor = '1'
+	// RedASCII represents red print color (ASCII mode)
+	RedASCII PrintColor = '1'
 )
 
+// CodeTable represents the character code table page
 type CodeTable byte
 
 const (
-	// Character Code Table Pages (common values)
-	PC437         CodeTable = 0  // PC437: USA, Standard Europe
-	Katakana      CodeTable = 1  // Katakana
-	PC850         CodeTable = 2  // PC850: Multilingual
-	PC860         CodeTable = 3  // PC860: Portuguese
-	PC863         CodeTable = 4  // PC863: Canadian-French
-	PC865         CodeTable = 5  // PC865: Nordic
-	Hiragana      CodeTable = 6  // Hiragana
-	OnePassKanji1 CodeTable = 7  // OnePassKanji1 Type 1
-	OnePassKanji2 CodeTable = 8  // OnePassKanji2 Type 2
-	PC851         CodeTable = 11 // PC851: Greek
-	PC853         CodeTable = 12 // PC853: Turkish
-	PC857         CodeTable = 13 // PC857: Turkish
-	PC737         CodeTable = 14 // PC737: Greek
-	ISO88597      CodeTable = 15 // ISO88597: Greek
-	WPC1252       CodeTable = 16 // WPC1252
-	PC866         CodeTable = 17 // PC866: Cyrillic #2
-	PC852         CodeTable = 18 // PC852: Latin 2
-	PC858         CodeTable = 19 // PC858: Euro
-	ThaiCode42    CodeTable = 20 // ThaiCode42
-	ThaiCode11    CodeTable = 21 // ThaiCode11
-	ThaiCode13    CodeTable = 22 // ThaiCode13
-	ThaiCode14    CodeTable = 23 // ThaiCode14
-	ThaiCode16    CodeTable = 24 // ThaiCode16
-	ThaiCode17    CodeTable = 25 // ThaiCode17
-	ThaiCode18    CodeTable = 26 // ThaiCode18
-	TCVN31        CodeTable = 30 // TCVN31 Type 1: Vietnamese
-	TCVN32        CodeTable = 31 // TCVN32 Type 2: Vietnamese
-	PC720         CodeTable = 32 // PC720: Arabic
-	WPC775        CodeTable = 33 // WPC775: Baltic Rim
-	PC855         CodeTable = 34 // PC855: Cyrillic
-	PC861         CodeTable = 35 // PC861: Icelandic
-	PC862         CodeTable = 36 // PC862: Hebrew
-	PC864         CodeTable = 37 // PC864: Arabic
-	PC869         CodeTable = 38 // PC869: Greek
-	ISO88592      CodeTable = 39 // ISO88592: Latin 2
-	ISO885915     CodeTable = 40 // ISO885915: Latin 9
-	PC1098        CodeTable = 41 // PC1098: Farsi
-	PC1118        CodeTable = 42 // PC1118: Lithuanian
-	PC1119        CodeTable = 43 // PC1119: Lithuanian
-	PC1125        CodeTable = 44 // PC1125: Ukrainian
-	WPC1250       CodeTable = 45 // WPC1250: Latin 2
-	WPC1251       CodeTable = 46 // WPC1251: Cyrillic
-	WPC1253       CodeTable = 47 // WPC1253: Greek
-	WPC1254       CodeTable = 48 // WPC1254: Turkish
-	WPC1255       CodeTable = 49 // WPC1255: Hebrew
-	WPC1256       CodeTable = 50 // WPC1256: Arabic
-	WPC1257       CodeTable = 51 // WPC1257: Baltic Rim
-	WPC1258       CodeTable = 52 // WPC1258: Vietnamese
-	KZ1048        CodeTable = 53 // KZ1048: Kazakhstan
+	// PC437 represents USA, Standard Europe code table
+	PC437 CodeTable = 0
+	// Katakana represents Katakana code table
+	Katakana CodeTable = 1
+	// PC850 represents Multilingual code table
+	PC850 CodeTable = 2
+	// PC860 represents Portuguese code table
+	PC860 CodeTable = 3
+	// PC863 represents Canadian-French code table
+	PC863 CodeTable = 4
+	// PC865 represents Nordic code table
+	PC865 CodeTable = 5
+	// Hiragana represents Hiragana code table
+	Hiragana CodeTable = 6
+	// OnePassKanji1 represents One-Pass Kanji Type 1 code table
+	OnePassKanji1 CodeTable = 7
+	// OnePassKanji2 represents One-Pass Kanji Type 2 code table
+	OnePassKanji2 CodeTable = 8
+	// PC851 represents Greek code table
+	PC851 CodeTable = 11
+	// PC853 represents Turkish code table
+	PC853 CodeTable = 12
+	// PC857 represents Turkish code table
+	PC857 CodeTable = 13
+	// PC737 represents Greek code table
+	PC737 CodeTable = 14
+	// ISO88597 represents Greek code table
+	ISO88597 CodeTable = 15
+	// WPC1252 represents WPC1252 code table
+	WPC1252 CodeTable = 16
+	// PC866 represents Cyrillic #2 code table
+	PC866 CodeTable = 17
+	// PC852 represents Latin 2 code table
+	PC852 CodeTable = 18
+	// PC858 represents Euro code table
+	PC858 CodeTable = 19
+	// ThaiCode42 represents Thai Code 42 code table
+	ThaiCode42 CodeTable = 20
+	// ThaiCode11 represents Thai Code 11 code table
+	ThaiCode11 CodeTable = 21
+	// ThaiCode13 represents Thai Code 13 code table
+	ThaiCode13 CodeTable = 22
+	// ThaiCode14 represents Thai Code 14 code table
+	ThaiCode14 CodeTable = 23
+	// ThaiCode16 represents Thai Code 16 code table
+	ThaiCode16 CodeTable = 24
+	// ThaiCode17 represents Thai Code 17 code table
+	ThaiCode17 CodeTable = 25
+	// ThaiCode18 represents Thai Code 18 code table
+	ThaiCode18 CodeTable = 26
+	// TCVN31 represents TCVN-3 Type 1 Vietnamese code table
+	TCVN31 CodeTable = 30
+	// TCVN32 represents TCVN-3 Type 2 Vietnamese code table
+	TCVN32 CodeTable = 31
+	// PC720 represents Arabic code table
+	PC720 CodeTable = 32
+	// WPC775 represents Baltic Rim code table
+	WPC775 CodeTable = 33
+	// PC855 represents Cyrillic code table
+	PC855 CodeTable = 34
+	// PC861 represents Icelandic code table
+	PC861 CodeTable = 35
+	// PC862 represents Hebrew code table
+	PC862 CodeTable = 36
+	// PC864 represents Arabic code table
+	PC864 CodeTable = 37
+	// PC869 represents Greek code table
+	PC869 CodeTable = 38
+	// ISO88592 represents Latin 2 code table
+	ISO88592 CodeTable = 39
+	// ISO885915 represents Latin 9 code table
+	ISO885915 CodeTable = 40
+	// PC1098 represents Farsi code table
+	PC1098 CodeTable = 41
+	// PC1118 represents Lithuanian code table
+	PC1118 CodeTable = 42
+	// PC1119 represents Lithuanian code table
+	PC1119 CodeTable = 43
+	// PC1125 represents Ukrainian code table
+	PC1125 CodeTable = 44
+	// WPC1250 represents Latin 2 code table
+	WPC1250 CodeTable = 45
+	// WPC1251 represents Cyrillic code table
+	WPC1251 CodeTable = 46
+	// WPC1253 represents Greek code table
+	WPC1253 CodeTable = 47
+	// WPC1254 represents Turkish code table
+	WPC1254 CodeTable = 48
+	// WPC1255 represents Hebrew code table
+	WPC1255 CodeTable = 49
+	// WPC1256 represents Arabic code table
+	WPC1256 CodeTable = 50
+	// WPC1257 represents Baltic Rim code table
+	WPC1257 CodeTable = 51
+	// WPC1258 represents Vietnamese code table
+	WPC1258 CodeTable = 52
+	// KZ1048 represents Kazakhstan code table
+	KZ1048 CodeTable = 53
 
-	// India-related pages (model-dependent)
-	Devanagari CodeTable = 66 // Devanagari
-	Bengali    CodeTable = 67 // Bengali
-	Tamil      CodeTable = 68 // Tamil
-	Telugu     CodeTable = 69 // Telugu
-	Assamese   CodeTable = 70 // Assamese
-	Oriya      CodeTable = 71 // Oriya
-	Kannada    CodeTable = 72 // Kannada
-	Malayalam  CodeTable = 73 // Malayalam
-	Gujarati   CodeTable = 74 // Gujarati
-	Punjabi    CodeTable = 75 // Punjabi
-	Marathi    CodeTable = 82 // Marathi
+	// Devanagari represents Devanagari code table (model-dependent)
+	Devanagari CodeTable = 66
+	// Bengali represents Bengali code table (model-dependent)
+	Bengali CodeTable = 67
+	// Tamil represents Tamil code table (model-dependent)
+	Tamil CodeTable = 68
+	// Telugu represents Telugu code table (model-dependent)
+	Telugu CodeTable = 69
+	// Assamese represents Assamese code table (model-dependent)
+	Assamese CodeTable = 70
+	// Oriya represents Oriya code table (model-dependent)
+	Oriya CodeTable = 71
+	// Kannada represents Kannada code table (model-dependent)
+	Kannada CodeTable = 72
+	// Malayalam represents Malayalam code table (model-dependent)
+	Malayalam CodeTable = 73
+	// Gujarati represents Gujarati code table (model-dependent)
+	Gujarati CodeTable = 74
+	// Punjabi represents Punjabi code table (model-dependent)
+	Punjabi CodeTable = 75
+	// Marathi represents Marathi code table (model-dependent)
+	Marathi CodeTable = 82
 
-	// Reserved / special
-	Special254 CodeTable = 254 // Special254 (model-dependent)
-	Special255 CodeTable = 255 // Special255 (model-dependent)
+	// Special254 represents special code table 254 (model-dependent)
+	Special254 CodeTable = 254
+	// Special255 represents special code table 255 (model-dependent)
+	Special255 CodeTable = 255
 )
 
+// UpsideDownMode represents the upside-down printing mode
 type UpsideDownMode byte
 
 const (
-	// Upside-down modes
-	OffUdm UpsideDownMode = 0x00 // LSB = 0 -> upside-down OFF
-	OnUdm  UpsideDownMode = 0x01 // LSB = 1 -> upside-down ON
+	// OffUdm represents upside-down mode off (LSB = 0)
+	OffUdm UpsideDownMode = 0x00
+	// OnUdm represents upside-down mode on (LSB = 1)
+	OnUdm UpsideDownMode = 0x01
 )
 
+// Size represents the character size configuration
 type Size byte
 
 const (
-	// Character size configurations
-	Size1x1 Size = 0x00 // width=1 height=1 (normal)
-	Size2x1 Size = 0x10 // width=2 height=1
-	Size3x1 Size = 0x20 // width=3 height=1
-	Size4x1 Size = 0x30 // width=4 height=1
-	Size1x2 Size = 0x01 // width=1 height=2
-	Size2x2 Size = 0x11 // width=2 height=2 (double width & height)
+	// Size1x1 represents normal character size (width=1 height=1)
+	Size1x1 Size = 0x00
+	// Size2x1 represents double width character size (width=2 height=1)
+	Size2x1 Size = 0x10
+	// Size3x1 represents triple width character size (width=3 height=1)
+	Size3x1 Size = 0x20
+	// Size4x1 represents quadruple width character size (width=4 height=1)
+	Size4x1 Size = 0x30
+	// Size1x2 represents double height character size (width=1 height=2)
+	Size1x2 Size = 0x01
+	// Size2x2 represents double width and height character size (width=2 height=2)
+	Size2x2 Size = 0x11
+
+	// HeightMask is used to extract height bits from n
+	HeightMask Size = 0x07
+	// WidthMask is used to extract width bits from n
+	WidthMask Size = 0x70
+	// WidthShift is used to shift width bits to LSB position
+	WidthShift Size = 4
 )
 
+// ReverseMode represents the white/black reverse printing mode
 type ReverseMode byte
 
 const (
-	// White/black reverse modes
-	OffRm      ReverseMode = 0x00 // LSB = 0 -> reverse OFF
-	OnRm       ReverseMode = 0x01 // LSB = 1 -> reverse ON
-	OffRmAscii ReverseMode = '0'
-	OnRmAscii  ReverseMode = '1'
+	// OffRm represents white/black reverse mode off (LSB = 0)
+	OffRm ReverseMode = 0x00
+	// OnRm represents white/black reverse mode on (LSB = 1)
+	OnRm ReverseMode = 0x01
+	// OffRmASCII represents white/black reverse mode off (ASCII)
+	OffRmASCII ReverseMode = '0'
+	// OnRmASCII represents white/black reverse mode on (ASCII)
+	OnRmASCII ReverseMode = '1'
 )
 
+// SmoothingMode represents the character smoothing mode
 type SmoothingMode byte
 
 const (
-	// Smoothing modes
-	OffSm      SmoothingMode = 0x00 // LSB = 0 -> smoothing OFF
-	OnSm       SmoothingMode = 0x01 // LSB = 1 -> smoothing ON
-	OffSmAscii SmoothingMode = '0'
-	OnSmAscii  SmoothingMode = '1'
+	// OffSm represents smoothing mode off (LSB = 0)
+	OffSm SmoothingMode = 0x00
+	// OnSm represents smoothing mode on (LSB = 1)
+	OnSm SmoothingMode = 0x01
+	// OffSmASCII represents smoothing mode off (ASCII)
+	OffSmASCII SmoothingMode = '0'
+	// OnSmASCII represents smoothing mode on (ASCII)
+	OnSmASCII SmoothingMode = '1'
 )
 
 // ============================================================================
 // Error Definitions
 // ============================================================================
 
+// ErrUnderlineMode indicates an invalid underline mode
 var (
 	ErrUnderlineMode   = fmt.Errorf("invalid underline mode(try 0-2 or '0'..'2')")
 	ErrRotationMode    = fmt.Errorf("invalid rotation mode(try 0-2 or '0'..'2')")
@@ -266,7 +430,7 @@ var (
 // Interface Definitions
 // ============================================================================
 
-// Interface compliance checks
+// Compile-time check that Commands implements Capability
 var _ Capability = (*Commands)(nil)
 
 // Capability defines the main interface for character-related commands
@@ -298,7 +462,10 @@ type Commands struct {
 	UserDefined    UserDefinedCapability
 }
 
+// NewCommands creates a new Commands instance with initialized sub-commands
 func NewCommands() *Commands {
+	// Constructor that initializes sub-commands; returns pointer to avoid
+	// copies when passing the structure.
 	return &Commands{
 		Effects:        &EffectsCommands{},
 		CodeConversion: &CodeConversionCommands{},
@@ -306,678 +473,38 @@ func NewCommands() *Commands {
 	}
 }
 
-// SetRightSideCharacterSpacing
+// ============================================================================
+// Helper Functions
+// ============================================================================
+
+// NewSize creates a Size value for character width and height magnification.
 //
 // Format:
 //
-//	ASCII: ESC SP n
-//	Hex:   0x1B 0x20 n
-//	Decimal: 27 32 n
+//	Not applicable (helper function)
 //
 // Range:
 //
-//	n = 0–255
+//	width = 1–8
+//	height = 1–8
 //
 // Default:
 //
-//	n = 0
+//	Not applicable
 //
-// Description:
+// Parameters:
 //
-//	Sets the right-side character spacing to n × (horizontal or vertical
-//	motion unit).
-//
-// Notes:
-//   - The character spacing set by this command is effective for alphanumeric,
-//     Kana, and user-defined characters.
-//   - When characters are enlarged, the character spacing becomes n times the
-//     normal value.
-//   - In Standard mode the horizontal motion unit is used.
-//   - In Page mode the vertical or horizontal motion unit is used according
-//     to the print direction set by ESC T.
-//   - When the starting position is set to the upper-left or lower-right of
-//     the print area using ESC T, the horizontal motion unit is used.
-//   - When the starting position is set to the upper-right or lower-left of
-//     the print area using ESC T, the vertical motion unit is used.
-//   - Character spacing can be set independently in Standard mode and in
-//     Page mode; this command affects the spacing for the currently selected
-//     mode.
-//   - If the horizontal or vertical motion unit is changed after this
-//     command is executed, the numeric character spacing value does not
-//     change.
-//   - The setting remains in effect until ESC @ is executed, the printer is
-//     reset, or power is turned off.
-//   - This command is used to change the spacing between characters.
-//
-// Byte sequence:
-//
-//	ESC SP n -> 0x1B, 0x20, n
-func (c *Commands) SetRightSideCharacterSpacing(n Spacing) []byte {
-	return []byte{common.ESC, common.SP, byte(n)}
-}
-
-// SelectPrintModes selects character font and style bits (emphasized,
-// double-height, double-width, underline) together.
-//
-// Format:
-//
-//	ASCII: ESC ! n
-//	Hex:   0x1B 0x21 n
-//	Decimal: 27 33 n
-//
-// Range:
-//
-//	n = 0–255
-//
-// Default:
-//
-//	n = 0
-//
-// Description:
-//
-//	Selects the character font and styles (emphasized, double-height,
-//	double-width, and underline) together by setting bits in the parameter
-//	byte n. The bits have the following meanings:
-//
-//	Bit 0 (0x01) - Font selection
-//	  0: Selects Font 1
-//	  1: Selects Font 2
-//
-//	Bit 3 (0x08) - Emphasized mode
-//	  0: Emphasized OFF
-//	  1: Emphasized ON
-//
-//	Bit 4 (0x10) - Double-height mode
-//	  0: Double-height OFF
-//	  1: Double-height ON
-//
-//	Bit 5 (0x20) - Double-width mode
-//	  0: Double-width OFF
-//	  1: Double-width ON
-//
-//	Bit 7 (0x80) - Underline mode
-//	  0: Underline OFF
-//	  1: Underline ON
+//	width: Character width magnification (1-8)
+//	height: Character height magnification (1-8)
 //
 // Notes:
-//   - Configurations for Font 1 and Font 2 differ by model. If the desired
-//     font type cannot be selected with this command, use ESC M.
-//   - Bits 0, 4, 5 and 7 affect 1-byte code characters. On some models,
-//     bits 4, 5 and 7 also affect Korean characters.
-//   - Emphasized mode (bit 3) is effective for both 1-byte and multi-byte
-//     characters.
-//   - Settings remain in effect until ESC @ is executed, the printer is
-//     reset, power is turned off, or one of these commands is executed:
-//   - Bit 0 (font): ESC M
-//   - Bit 3 (emphasized): ESC E
-//   - Bit 4,5 (size): GS !
-//   - Bit 7 (underline): ESC -
-//   - When some characters in a line are double-height, all characters on
-//     the line are aligned at the baseline.
-//   - Double-width enlarges characters to the right from the left side of
-//     the character. When both double-height and double-width are on,
-//     characters become quadruple size.
-//   - In Standard mode double-height enlarges in the paper-feed direction
-//     and double-width enlarges perpendicular to paper feed. Rotating
-//     characters 90° clockwise swaps the relationship.
-//   - In Page mode double-height and double-width follow the character
-//     orientation.
-//   - Underline thickness is determined by ESC -, regardless of character
-//     size. Underline color matches the printed character color (GS ( N
-//     <Function 48>).
-//   - The following are not underlined:
-//   - 90° clockwise-rotated characters
-//   - white/black reverse characters
-//   - spaces set by HT, ESC $, and ESC \
-//   - On printers with Automatic font replacement (GS ( E <Function 5> with
-//     a = 111,112,113), the replacement font is selected by this command.
+//   - This is a helper function to build Size values for SelectCharacterSize
+//   - The returned Size encodes both width and height in a single byte
 //
-// Byte sequence:
+// Errors:
 //
-//	ESC ! n -> 0x1B, 0x21, n
-func (c *Commands) SelectPrintModes(n PrintMode) []byte {
-	return []byte{common.ESC, '!', byte(n)}
-}
-
-// SetUnderlineMode sets underline mode on or off and selects underline thickness.
-//
-// Format:
-//
-//	ASCII: ESC - n
-//	Hex:   0x1B 0x2D n
-//	Decimal: 27 45 n
-//
-// Range:
-//
-//	n = 0, 1, 2, 48, 49, 50
-//
-// Default:
-//
-//	n = 0
-//
-// Description:
-//
-//	Turns underline mode on or off using n as follows:
-//
-//	  n = 0 or 48 -> Turns off underline mode
-//	  n = 1 or 49 -> Turns on underline mode (1-dot thick)
-//	  n = 2 or 50 -> Turns on underline mode (2-dots thick)
-//
-// Notes:
-//   - The underline mode is effective for alphanumeric, Kana, and user-
-//     defined characters. On some models it is also effective for Korean
-//     characters.
-//   - The underline color matches the printed character color (see
-//     GS ( N <Function 48>).
-//   - Changing the character size does not affect the current underline
-//     thickness.
-//   - When underline mode is turned off the underline thickness value is
-//     retained but no underline is produced.
-//   - The printer does not underline 90° clockwise-rotated characters,
-//     white/black reverse characters, or spaces produced by HT, ESC $, and
-//     ESC \.
-//   - The setting remains in effect until ESC ! is executed, ESC @ is
-//     executed, the printer is reset, or power is turned off.
-//   - Some printer models support the 2-dot thick underline (n = 2 or 50).
-//
-// Byte sequence:
-//
-//	ESC - n -> 0x1B, 0x2D, n
-func (c *Commands) SetUnderlineMode(n UnderlineMode) ([]byte, error) {
-	// Validate allowed values
-	switch n {
-	case 0, 1, 2, '0', '1', '2':
-		// Valid values
-	default:
-		return nil, ErrUnderlineMode
-	}
-	return []byte{common.ESC, '-', byte(n)}, nil
-}
-
-// SetEmphasizedMode turns emphasized (bold) mode on or off.
-//
-// Format:
-//
-//	ASCII: ESC E n
-//	Hex:   0x1B 0x45 n
-//	Decimal: 27 69 n
-//
-// Range:
-//
-//	n = 0–255
-//
-// Default:
-//
-//	n = 0
-//
-// Description:
-//
-//	Turns emphasized mode on or off. When the least-significant bit (LSB)
-//	of n is 0, emphasized mode is turned off. When the LSB of n is 1,
-//	emphasized mode is turned on.
-//
-// Notes:
-//   - This mode is effective for alphanumeric, Kana, multilingual, and
-//     user-defined characters.
-//   - Settings of this command remain in effect until ESC ! is executed,
-//     ESC @ is executed, the printer is reset, or power is turned off.
-//
-// Byte sequence:
-//
-//	ESC E n -> 0x1B, 0x45, n
-func (c *Commands) SetEmphasizedMode(n EmphasizedMode) []byte {
-	return []byte{common.ESC, 'E', byte(n)}
-}
-
-// SetDoubleStrikeMode turns double-strike mode on or off.
-//
-// Format:
-//
-//	ASCII: ESC G n
-//	Hex:   0x1B 0x47 n
-//	Decimal: 27 71 n
-//
-// Range:
-//
-//	n = 0–255
-//
-// Default:
-//
-//	n = 0
-//
-// Description:
-//
-//	Turns double-strike mode on or off. When the least-significant bit (LSB)
-//	of n is 0, double-strike mode is turned off. When the LSB of n is 1,
-//	double-strike mode is turned on.
-//
-// Notes:
-//   - This mode is effective for alphanumeric, Kana, multilingual, and
-//     user-defined characters.
-//   - Settings of this command remain in effect until ESC ! is executed,
-//     ESC @ is executed, the printer is reset, or power is turned off.
-//
-// Byte sequence:
-//
-//	ESC G n -> 0x1B, 0x47, n
-func (c *Commands) SetDoubleStrikeMode(n DoubleStrikeMode) []byte {
-	return []byte{common.ESC, 'G', byte(n)}
-}
-
-// SelectCharacterFont selects a character font.
-//
-// Format:
-//
-//	ASCII: ESC M n
-//	Hex:   0x1B 0x4D n
-//	Decimal: 27 77 n
-//
-// Range:
-//
-//	Depending on the model: 0–4, 48–52, 97, 98
-//
-// Default:
-//
-//	Depending on the model: n = 0 or n = 1
-//
-// Description:
-//
-//	Selects a character font using n as follows:
-//
-//	  n = 0 or 48 -> Font A
-//	  n = 1 or 49 -> Font B
-//	  n = 2 or 50 -> Font C
-//	  n = 3 or 51 -> Font D
-//	  n = 4 or 52 -> Font E
-//	  n = 97      -> Special font A
-//	  n = 98      -> Special font B
-//
-// Notes:
-//   - The selected character font is effective for alphanumeric, Kana, and
-//     user-defined characters.
-//   - Configurations of Font A and Font B depend on the printer model.
-//   - Settings remain in effect until ESC ! is executed, ESC @ is executed,
-//     the printer is reset, or the power is turned off.
-//   - On printers with the Automatic font replacement function, the
-//     replaced font selected by GS ( E <Function 5> (a = 111, 112, 113)
-//     is selected by this command.
-//
-// Byte sequence:
-//
-//	ESC M n -> 0x1B, 0x4D, n
-func (c *Commands) SelectCharacterFont(n FontType) ([]byte, error) {
-	// Validate allowed values
-	switch n {
-	case 0, 1, 2, 3, 4:
-		// Numeric values
-	case '0', '1', '2', '3', '4':
-		// ASCII values
-	case 97, 98:
-		// Special fonts
-	default:
-		return nil, ErrCharacterFont
-	}
-	return []byte{common.ESC, 'M', byte(n)}, nil
-}
-
-// SelectInternationalCharacterSet selects an international character set.
-//
-// Format:
-//
-//	ASCII: ESC R n
-//	Hex:   0x1B 0x52 n
-//	Decimal: 27 82 n
-//
-// Range:
-//
-//	Different depending on the printer model (common: 0–17; some models
-//	support extended India codes such as 66–75, 82).
-//
-// Default:
-//
-//	Depends on the printer model.
-//	  - Other models: n = 0
-//	  - Japanese models: n = 8
-//	  - Korean models: n = 13
-//	  - Simplified Chinese models: n = 15
-//
-// Description:
-//
-//	Selects an international character set using the parameter n. Typical
-//	values map to countries/regions as follows:
-//
-//	  0   U.S.A.
-//	  1   France
-//	  2   Germany
-//	  3   U.K.
-//	  4   Denmark I
-//	  5   Sweden
-//	  6   Italy
-//	  7   Spain I
-//	  8   Japan
-//	  9   Norway
-//	  10  Denmark II
-//	  11  Spain II
-//	  12  Latin America
-//	  13  Korea
-//	  14  Slovenia / Croatia
-//	  15  China
-//	  16  Vietnam
-//	  17  Arabia
-//
-//	Some models support additional India-specific character sets:
-//
-//	  66  India (Devanagari)
-//	  67  India (Bengali)
-//	  68  India (Tamil)
-//	  69  India (Telugu)
-//	  70  India (Assamese)
-//	  71  India (Oriya)
-//	  72  India (Kannada)
-//	  73  India (Malayalam)
-//	  74  India (Gujarati)
-//	  75  India (Punjabi)
-//	  82  India (Marathi)
-//
-// Notes:
-//   - The selected international character set remains in effect until ESC @
-//     is executed, the printer is reset, or power is turned off.
-//   - Refer to the printer's Character Code Tables for model-specific
-//     mappings and supported characters.
-//
-// Byte sequence:
-//
-//	ESC R n -> 0x1B, 0x52, n
-func (c *Commands) SelectInternationalCharacterSet(n InternationalSet) ([]byte, error) {
-	// Standard range
-	if n <= 17 {
-		return []byte{common.ESC, 'R', byte(n)}, nil
-	}
-	// India-specific range
-	if n >= 66 && n <= 75 {
-		return []byte{common.ESC, 'R', byte(n)}, nil
-	}
-	// Marathi
-	if n == 82 {
-		return []byte{common.ESC, 'R', byte(n)}, nil
-	}
-	return nil, ErrCharacterSet
-}
-
-// Set90DegreeClockwiseRotationMode turns 90° clockwise rotation mode on or off.
-//
-// Format:
-//
-//	ASCII: ESC V n
-//	Hex:   0x1B 0x56 n
-//	Decimal: 27 86 n
-//
-// Range:
-//
-//	n = 0–2, 48–50
-//
-// Default:
-//
-//	n = 0
-//
-// Description:
-//
-//	In Standard mode, turns 90° clockwise rotation mode on or off for
-//	characters according to n:
-//
-//	  n = 0 or 48 -> Turns off 90° clockwise rotation mode
-//	  n = 1 or 49 -> Turns on 90° clockwise rotation mode (1-dot character spacing)
-//	  n = 2 or 50 -> Turns on 90° clockwise rotation mode (1.5-dot character spacing)
-//
-// Notes:
-//   - This mode is effective for alphanumeric, Kana, multilingual, and
-//     user-defined characters.
-//   - When underline mode is turned on, the printer does not underline
-//     90° clockwise-rotated characters.
-//   - When character orientation changes in 90° clockwise rotation mode,
-//     the relationship between vertical and horizontal directions is
-//     reversed.
-//   - The 90° clockwise rotation mode has no effect in Page mode.
-//   - Some printer models support n = 2 (1.5-dot spacing); some models have
-//     fonts for which 90° rotation is not effective.
-//   - Settings remain in effect until ESC @ is executed, the printer is
-//     reset, or power is turned off.
-//
-// Byte sequence:
-//
-//	ESC V n -> 0x1B, 0x56, n
-func (c *Commands) Set90DegreeClockwiseRotationMode(n RotationMode) ([]byte, error) {
-	// Validate allowed values
-	switch n {
-	case 0, 1, 2, '0', '1', '2':
-		// Valid values
-	default:
-		return nil, ErrRotationMode
-	}
-	return []byte{common.ESC, 'V', byte(n)}, nil
-}
-
-// SelectPrintColor selects the print color.
-//
-// Format:
-//
-//	ASCII: ESC r n
-//	Hex:   0x1B 0x72 n
-//	Decimal: 27 114 n
-//
-// Range:
-//
-//	n = 0, 1, 48, 49
-//
-// Default:
-//
-//	n = 0
-//
-// Description:
-//
-//	Selects a print color using n as follows:
-//
-//	  n = 0 or 48 -> Black
-//	  n = 1 or 49 -> Red
-//
-// Notes:
-//   - In Standard mode this command is enabled only when processed at the
-//     Beginning of the line.
-//   - In Page mode the color setting is applied to all data collectively
-//     printed by FF (in Page mode) or ESC FF.
-//   - The setting remains in effect until ESC @ is executed, the printer is
-//     reset, or power is turned off.
-//   - For printers that support two-color printing, GS ( N and GS ( L / GS 8 L
-//     are available to define and control character/background/graphics
-//     color layers. Use model-specific GS ( N / GS ( L / GS 8 L commands when
-//     available for more advanced two-color workflows.
-//
-// Byte sequence:
-//
-//	ESC r n -> 0x1B, 0x72, n
-func (c *Commands) SelectPrintColor(n PrintColor) ([]byte, error) {
-	// Validate allowed values
-	switch n {
-	case 0, 1, '0', '1':
-		// Valid values
-	default:
-		return nil, ErrPrintColor
-	}
-	return []byte{common.ESC, 'r', byte(n)}, nil
-}
-
-// SelectCharacterCodeTable selects a character code table page.
-//
-// Format:
-//
-//	ASCII: ESC t n
-//	Hex:   0x1B 0x74 n
-//	Decimal: 27 116 n
-//
-// Range:
-//
-//	Different depending on the printer model (see constants below for common pages).
-//
-// Default:
-//
-//	n = 0
-//
-// Description:
-//
-//	Selects a page n from the character code table. Typical page mappings:
-//
-//	  0   Page 0  [PC437: USA, Standard Europe]
-//	  1   Page 1  [Katakana]
-//	  2   Page 2  [PC850: Multilingual]
-//	  3   Page 3  [PC860: Portuguese]
-//	  4   Page 4  [PC863: Canadian-French]
-//	  5   Page 5  [PC865: Nordic]
-//	  6   Page 6  [Hiragana]
-//	  7   Page 7  [One-pass printing Kanji characters]
-//	  8   Page 8  [One-pass printing Kanji characters]
-//	  11  Page 11 [PC851: Greek]
-//	  12  Page 12 [PC853: Turkish]
-//	  13  Page 13 [PC857: Turkish]
-//	  14  Page 14 [PC737: Greek]
-//	  15  Page 15 [ISO8859-7: Greek]
-//	  16  Page 16 [WPC1252]
-//	  17  Page 17 [PC866: Cyrillic #2]
-//	  18  Page 18 [PC852: Latin 2]
-//	  19  Page 19 [PC858: Euro]
-//	  20  Page 20 [Thai Character Code 42]
-//	  21  Page 21 [Thai Character Code 11]
-//	  22  Page 22 [Thai Character Code 13]
-//	  23  Page 23 [Thai Character Code 14]
-//	  24  Page 24 [Thai Character Code 16]
-//	  25  Page 25 [Thai Character Code 17]
-//	  26  Page 26 [Thai Character Code 18]
-//	  30  Page 30 [TCVN-3: Vietnamese]
-//	  31  Page 31 [TCVN-3: Vietnamese]
-//	  32  Page 32 [PC720: Arabic]
-//	  33  Page 33 [WPC775: Baltic Rim]
-//	  34  Page 34 [PC855: Cyrillic]
-//	  35  Page 35 [PC861: Icelandic]
-//	  36  Page 36 [PC862: Hebrew]
-//	  37  Page 37 [PC864: Arabic]
-//	  38  Page 38 [PC869: Greek]
-//	  39  Page 39 [ISO8859-2: Latin 2]
-//	  40  Page 40 [ISO8859-15: Latin 9]
-//	  41  Page 41 [PC1098: Farsi]
-//	  42  Page 42 [PC1118: Lithuanian]
-//	  43  Page 43 [PC1119: Lithuanian]
-//	  44  Page 44 [PC1125: Ukrainian]
-//	  45  Page 45 [WPC1250: Latin 2]
-//	  46  Page 46 [WPC1251: Cyrillic]
-//	  47  Page 47 [WPC1253: Greek]
-//	  48  Page 48 [WPC1254: Turkish]
-//	  49  Page 49 [WPC1255: Hebrew]
-//	  50  Page 50 [WPC1256: Arabic]
-//	  51  Page 51 [WPC1257: Baltic Rim]
-//	  52  Page 52 [WPC1258: Vietnamese]
-//	  53  Page 53 [KZ-1048: Kazakhstan]
-//	  66  Page 66 [Devanagari]
-//	  67  Page 67 [Bengali]
-//	  68  Page 68 [Tamil]
-//	  69  Page 69 [Telugu]
-//	  70  Page 70 [Assamese]
-//	  71  Page 71 [Oriya]
-//	  72  Page 72 [Kannada]
-//	  73  Page 73 [Malayalam]
-//	  74  Page 74 [Gujarati]
-//	  75  Page 75 [Punjabi]
-//	  82  Page 82 [Marathi]
-//	  254 Page 254
-//	  255 Page 255
-//
-// Notes:
-//   - The alphanumeric range (ASCII 0x20–0x7F / decimal 32–127) is the same
-//     across pages; differences appear in the extended range (0x80–0xFF).
-//   - The selected code table remains in effect until ESC @ is executed, the
-//     printer is reset, or power is turned off.
-//   - Consult your printer's Character Code Tables for exact glyph mappings
-//     per page and model-specific supported pages.
-//
-// Byte sequence:
-//
-//	ESC t n -> 0x1B, 0x74, n
-func (c *Commands) SelectCharacterCodeTable(n CodeTable) ([]byte, error) {
-	// Common pages
-	validPages := map[CodeTable]bool{
-		0: true, 1: true, 2: true, 3: true, 4: true, 5: true, 6: true, 7: true, 8: true,
-		11: true, 12: true, 13: true, 14: true, 15: true, 16: true, 17: true, 18: true, 19: true,
-		20: true, 21: true, 22: true, 23: true, 24: true, 25: true, 26: true,
-		30: true, 31: true, 32: true, 33: true, 34: true, 35: true, 36: true, 37: true, 38: true, 39: true,
-		40: true, 41: true, 42: true, 43: true, 44: true, 45: true, 46: true, 47: true, 48: true, 49: true,
-		50: true, 51: true, 52: true, 53: true,
-		66: true, 67: true, 68: true, 69: true, 70: true, 71: true, 72: true, 73: true, 74: true, 75: true,
-		82:  true,
-		254: true, 255: true,
-	}
-
-	if !validPages[n] {
-		return nil, ErrCodeTablePage
-	}
-	return []byte{common.ESC, 't', byte(n)}, nil
-}
-
-// SetUpsideDownMode turns upside-down (180° rotated) print mode on or off.
-//
-// Format:
-//
-//	ASCII: ESC { n
-//	Hex:   0x1B 0x7B n
-//	Decimal: 27 123 n
-//
-// Range:
-//
-//	n = 0–255
-//
-// Default:
-//
-//	n = 0
-//
-// Description:
-//
-//	In Standard mode, turns upside-down print mode on or off. When the
-//	least-significant bit (LSB) of n is 0, upside-down print mode is turned
-//	off. When the LSB of n is 1, upside-down print mode is turned on.
-//
-// Notes:
-//   - In Standard mode this command is only valid when processed at the
-//     beginning of a line.
-//   - Upside-down mode is effective for all Standard-mode data except certain
-//     graphics and obsolete raster/variable-size image commands (see model
-//     documentation).
-//   - The mode has no effect in Page mode.
-//   - When turned on, characters are printed rotated 180° from right to
-//     left. The line printing order is not reversed, so take care with the
-//     order of transmitted data.
-//   - Settings remain in effect until ESC @ is executed, the printer is
-//     reset, or power is turned off.
-//
-// Byte sequence:
-//
-//	ESC { n -> 0x1B, 0x7B, n
-func (c *Commands) SetUpsideDownMode(n UpsideDownMode) []byte {
-	return []byte{common.ESC, '{', byte(n)}
-}
-
-// TODO: Check if SelectCharacterSize need extra work with the masks and values.
-// TODO: Check if conditionals are needed too. According to:
-// [Range]
-// n = 0xxx0xxxb (n = 0 – 7, 16 – 23, 32 – 39, 48 – 55, 64 – 71, 80 – 87, 96 – 103, 112 – 119)
-// (Enlargement in vertical direction: 1–8, Enlargement in horizontal direction: 1–8)
-
-const (
-	// HeightMask is used to extract height bits from n
-	HeightMask Size = 0x07 // bits 0-2
-	// WidthMask is used to extract width bits from n
-	WidthMask Size = 0x70 // bits 4-6
-	// WidthShift is used to shift width bits to LSB position
-	WidthShift Size = 4
-)
-
-// NewSize Helper functions for building character sizes
+//	Returns ErrCharacterWidth if width is outside the range 1-8.
+//	Returns ErrCharacterHeight if height is outside the range 1-8.
 func NewSize(width, height byte) (Size, error) {
 	if width < 1 || width > 8 {
 		return 0, ErrCharacterWidth
@@ -990,132 +517,103 @@ func NewSize(width, height byte) (Size, error) {
 	return Size(w | h), nil
 }
 
-// SelectCharacterSize selects character size (width and height magnification).
-//
-// Format:
-//
-//	ASCII: GS ! n
-//	Hex:   0x1D 0x21 n
-//	Decimal: 29 33 n
-//
-// Range:
-//
-//	n = 0xxx0xxxb (width and height encoded in a single byte)
-//	Width magnification: 1–8
-//	Height magnification: 1–8
-//	Valid n examples: 0–7, 16–23, 32–39, 48–55, 64–71, 80–87, 96–103, 112–119
-//
-// Default:
-//
-//	n = 0 (normal size)
-//
-// Description:
-//
-//	Selects character size (height and width magnification). Bits in n are
-//	used as follows:
-//
-//	  Bits 0–2: Height magnification (value 0..7 -> x1..x8 where stored value = height-1)
-//	  Bits 4–6: Width magnification  (value 0..7 -> x1..x8 where stored value = width-1)
-//
-//	In other words:
-//	  n = ((width-1) << 4) | (height-1)
-//
-// Notes:
-//   - The character size set by this command is effective for alphanumeric,
-//     Kana, multilingual, and user-defined characters.
-//   - When characters on a line have different heights, they are aligned at
-//     the baseline.
-//   - Width enlargement extends characters to the right from the left side.
-//   - ESC ! can also toggle double-width and double-height modes.
-//   - In Standard mode double-height enlarges in the paper-feed direction
-//     and double-width enlarges perpendicular to the paper feed. In 90°
-//     rotated mode the relationship is reversed. In Page mode the size
-//     follows the character orientation.
-//   - The setting for alphanumeric and Katakana remains until ESC !,
-//     ESC @, reset, or power-off. For Kanji/multilingual chars the setting
-//     remains until FS !, FS W, ESC @, reset, or power-off.
-//
-// Byte sequence:
-//
-//	GS ! n -> 0x1D, 0x21, n
-func (c *Commands) SelectCharacterSize(n Size) []byte {
-	return []byte{common.GS, '!', byte(n)}
+// ============================================================================
+// Validation Functions
+// ============================================================================
+
+// ValidateUnderlineMode validates if underline mode is valid
+func ValidateUnderlineMode(mode UnderlineMode) error {
+	switch mode {
+	case NoDot, OneDot, TwoDot, NoDotASCII, OneDotASCII, TwoDotASCII:
+		return nil
+	default:
+		return ErrUnderlineMode
+	}
 }
 
-// SetWhiteBlackReverseMode turns white/black reverse print mode on or off.
-//
-// Format:
-//
-//	ASCII: GS B n
-//	Hex:   0x1D 0x42 n
-//	Decimal: 29 66 n
-//
-// Range:
-//
-//	n = 0–255
-//
-// Default:
-//
-//	n = 0
-//
-// Description:
-//
-//	Turns white/black reverse print mode on or off. When the least-significant
-//	bit (LSB) of n is 0, reverse mode is turned off. When the LSB of n is 1,
-//	reverse mode is turned on.
-//
-// Notes:
-//   - The white/black reverse print is effective for both single-byte and
-//     multi-byte code characters.
-//   - When reverse mode is turned on, characters are printed in white on a
-//     black background.
-//   - Reverse mode affects right-side character spacing set by ESC SP and
-//     left/right spacing of multi-byte characters set by FS S.
-//   - Reverse mode does not affect line spacing or spaces skipped by HT,
-//     ESC $, or ESC \.
-//   - When underline mode is turned on, the printer does not underline
-//     white/black reversed characters.
-//   - The setting remains in effect until ESC @ is executed, the printer is
-//     reset, or the power is turned off.
-//
-// Byte sequence:
-//
-//	GS B n -> 0x1D, 0x42, n
-func (c *Commands) SetWhiteBlackReverseMode(n ReverseMode) []byte {
-	return []byte{common.GS, 'B', byte(n)}
+// ValidateFontType validates if font type is valid
+func ValidateFontType(font FontType) error {
+	switch font {
+	case FontA, FontB, FontC, FontD, FontE,
+		FontAAscii, FontBAscii, FontCAscii, FontDAscii, FontEAscii,
+		SpecialFontA, SpecialFontB:
+		return nil
+	default:
+		return ErrCharacterFont
+	}
 }
 
-// SetSmoothingMode turns smoothing mode on or off.
-//
-// Format:
-//
-//	ASCII: GS b n
-//	Hex:   0x1D 0x62 n
-//	Decimal: 29 98 n
-//
-// Range:
-//
-//	n = 0–255
-//
-// Default:
-//
-//	n = 0
-//
-// Description:
-//
-//	Turns smoothing mode on or off. When the least-significant bit (LSB) of
-//	n is 0, smoothing mode is turned off. When the LSB of n is 1, smoothing
-//	mode is turned on.
-//
-// Notes:
-//   - The smoothing mode is effective for quadruple-size or larger characters
-//     (alphanumeric, Kana, multilingual, and user-defined characters).
-//   - The setting remains in effect until ESC @ is executed, the printer is
-//     reset, or the power is turned off.
-//
-// Byte sequence:
-//
-//	GS b n -> 0x1D, 0x62, n
-func (c *Commands) SetSmoothingMode(n SmoothingMode) []byte {
-	return []byte{common.GS, 'b', byte(n)}
+// ValidateInternationalSet validates if international character set is valid
+func ValidateInternationalSet(charset InternationalSet) error {
+	// Standard range
+	if charset <= Arabia {
+		return nil
+	}
+	// India-specific range
+	if charset >= IndiaDevanagari && charset <= IndiaPunjabi {
+		return nil
+	}
+	// Marathi
+	if charset == IndiaMarathi {
+		return nil
+	}
+	return ErrCharacterSet
+}
+
+// ValidateRotationMode validates if rotation mode is valid
+func ValidateRotationMode(mode RotationMode) error {
+	switch mode {
+	case NoRotation, On90Dot1, On90Dot15,
+		NoRotationASCII, On90Dot1Ascii, On90Dot15Ascii:
+		return nil
+	default:
+		return ErrRotationMode
+	}
+}
+
+// ValidatePrintColor validates if print color is valid
+func ValidatePrintColor(color PrintColor) error {
+	switch color {
+	case Black, Red, BlackASCII, RedASCII:
+		return nil
+	default:
+		return ErrPrintColor
+	}
+}
+
+// ValidateCodeTable validates if code table page is valid
+func ValidateCodeTable(page CodeTable) error {
+	// Common pages 0-8
+	if page <= OnePassKanji2 {
+		return nil
+	}
+	// Pages 11-19
+	if page >= PC851 && page <= PC858 {
+		return nil
+	}
+	// Thai codes 20-26
+	if page >= ThaiCode42 && page <= ThaiCode18 {
+		return nil
+	}
+	// Vietnamese 30-31
+	if page >= TCVN31 && page <= TCVN32 {
+		return nil
+	}
+	// Pages 32-53
+	if page >= PC720 && page <= KZ1048 {
+		return nil
+	}
+	// India-specific pages 66-75
+	if page >= Devanagari && page <= Punjabi {
+		return nil
+	}
+	// Marathi
+	if page == Marathi {
+		return nil
+	}
+	// Special pages
+	if page == Special254 || page == Special255 {
+		return nil
+	}
+	return ErrCodeTablePage
 }

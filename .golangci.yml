@@ -19,7 +19,7 @@ linters:
     - gocyclo     # Complejidad ciclomática
     - gocritic     # Buenas prácticas
     - unparam    # Parámetros no usados
-
+    - revive     # Código muerto
 issues:
   # Límites razonables
   max-issues-per-linter: 50

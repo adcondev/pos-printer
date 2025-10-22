@@ -133,7 +133,7 @@ func TestUserDefinedCommands_DefineUserDefinedCharacters(t *testing.T) {
 				{Width: 5, Data: []byte{0xFF}},
 			},
 			wantPrefix: nil,
-			wantErr:    character.ErrInvalidYValue,
+			wantErr:    character.ErrYValue,
 		},
 		{
 			name:      "invalid character code",
@@ -144,7 +144,7 @@ func TestUserDefinedCommands_DefineUserDefinedCharacters(t *testing.T) {
 				{Width: 5, Data: []byte{0xFF}},
 			},
 			wantPrefix: nil,
-			wantErr:    character.ErrInvalidCharacterCode,
+			wantErr:    character.ErrCharacterCode,
 		},
 		{
 			name:      "invalid code range",
@@ -155,7 +155,7 @@ func TestUserDefinedCommands_DefineUserDefinedCharacters(t *testing.T) {
 				{Width: 5, Data: []byte{0xFF}},
 			},
 			wantPrefix: nil,
-			wantErr:    character.ErrInvalidCodeRange,
+			wantErr:    character.ErrCodeRange,
 		},
 		{
 			name:      "definition count mismatch",
@@ -166,7 +166,7 @@ func TestUserDefinedCommands_DefineUserDefinedCharacters(t *testing.T) {
 				{Width: 5, Data: test.RepeatByte(15, 0xFF)}, // Only 1 definition
 			},
 			wantPrefix: nil,
-			wantErr:    character.ErrInvalidDefinition,
+			wantErr:    character.ErrDefinition,
 		},
 		{
 			name:      "invalid data length",
@@ -177,7 +177,7 @@ func TestUserDefinedCommands_DefineUserDefinedCharacters(t *testing.T) {
 				{Width: 2, Data: []byte{0xFF}}, // Should be 6 bytes (3*2)
 			},
 			wantPrefix: nil,
-			wantErr:    character.ErrInvalidDataLength,
+			wantErr:    character.ErrDataLength,
 		},
 	}
 
@@ -239,13 +239,13 @@ func TestUserDefined_CancelUserDefinedCharacter(t *testing.T) {
 			name:     "invalid code too low",
 			charCode: 31,
 			want:     nil,
-			wantErr:  character.ErrInvalidCharacterCode,
+			wantErr:  character.ErrCharacterCode,
 		},
 		{
 			name:     "invalid code too high",
 			charCode: 127,
 			want:     nil,
-			wantErr:  character.ErrInvalidCharacterCode,
+			wantErr:  character.ErrCharacterCode,
 		},
 	}
 

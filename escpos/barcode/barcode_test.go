@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/adcondev/pos-printer/escpos/barcode"
-	"github.com/adcondev/pos-printer/escpos/common"
+	"github.com/adcondev/pos-printer/escpos/sharedcommands"
 	"github.com/adcondev/pos-printer/utils/test"
 )
 
@@ -14,7 +14,7 @@ import (
 
 func TestCommands_SelectHRICharacterPosition(t *testing.T) {
 	cmd := barcode.NewCommands()
-	prefix := test.BuildCommand(common.GS, 'H')
+	prefix := test.BuildCommand(sharedcommands.GS, 'H')
 
 	tests := []struct {
 		name     string
@@ -113,7 +113,7 @@ func TestCommands_SelectHRICharacterPosition(t *testing.T) {
 
 func TestCommands_SelectFontForHRI(t *testing.T) {
 	cmd := barcode.NewCommands()
-	prefix := test.BuildCommand(common.GS, 'f')
+	prefix := test.BuildCommand(sharedcommands.GS, 'f')
 
 	tests := []struct {
 		name    string
@@ -236,7 +236,7 @@ func TestCommands_SelectFontForHRI(t *testing.T) {
 
 func TestCommands_SetBarcodeHeight(t *testing.T) {
 	cmd := barcode.NewCommands()
-	prefix := test.BuildCommand(common.GS, 'h')
+	prefix := test.BuildCommand(sharedcommands.GS, 'h')
 
 	tests := []struct {
 		name    string
@@ -295,7 +295,7 @@ func TestCommands_SetBarcodeHeight(t *testing.T) {
 
 func TestCommands_SetBarcodeWidth(t *testing.T) {
 	cmd := barcode.NewCommands()
-	prefix := test.BuildCommand(common.GS, 'w')
+	prefix := test.BuildCommand(sharedcommands.GS, 'w')
 
 	tests := []struct {
 		name    string
@@ -418,98 +418,98 @@ func TestCommands_PrintBarcode_FunctionA(t *testing.T) {
 			name:      "UPC-A 11 digits",
 			symbology: barcode.UPCA,
 			data:      test.UPCA11,
-			want:      append([]byte{common.GS, 'k', 0}, append([]byte("12345678901"), common.NUL)...),
+			want:      append([]byte{sharedcommands.GS, 'k', 0}, append([]byte("12345678901"), sharedcommands.NUL)...),
 			wantErr:   nil,
 		},
 		{
 			name:      "UPC-A 12 digits with check",
 			symbology: barcode.UPCA,
 			data:      test.UPCA12,
-			want:      append([]byte{common.GS, 'k', 0}, append([]byte("123456789012"), common.NUL)...),
+			want:      append([]byte{sharedcommands.GS, 'k', 0}, append([]byte("123456789012"), sharedcommands.NUL)...),
 			wantErr:   nil,
 		},
 		{
 			name:      "UPC-E 6 digits",
 			symbology: barcode.UPCE,
 			data:      test.UPCE6,
-			want:      append([]byte{common.GS, 'k', 1}, append([]byte("123456"), common.NUL)...),
+			want:      append([]byte{sharedcommands.GS, 'k', 1}, append([]byte("123456"), sharedcommands.NUL)...),
 			wantErr:   nil,
 		},
 		{
 			name:      "UPC-E 7 digits",
 			symbology: barcode.UPCE,
 			data:      test.UPCE7,
-			want:      append([]byte{common.GS, 'k', 1}, append([]byte("1234567"), common.NUL)...),
+			want:      append([]byte{sharedcommands.GS, 'k', 1}, append([]byte("1234567"), sharedcommands.NUL)...),
 			wantErr:   nil,
 		},
 		{
 			name:      "UPC-E 8 digits",
 			symbology: barcode.UPCE,
 			data:      test.UPCE8,
-			want:      append([]byte{common.GS, 'k', 1}, append([]byte("12345678"), common.NUL)...),
+			want:      append([]byte{sharedcommands.GS, 'k', 1}, append([]byte("12345678"), sharedcommands.NUL)...),
 			wantErr:   nil,
 		},
 		{
 			name:      "EAN13 12 digits",
 			symbology: barcode.JAN13,
 			data:      test.EAN13_12,
-			want:      append([]byte{common.GS, 'k', 2}, append([]byte("123456789012"), common.NUL)...),
+			want:      append([]byte{sharedcommands.GS, 'k', 2}, append([]byte("123456789012"), sharedcommands.NUL)...),
 			wantErr:   nil,
 		},
 		{
 			name:      "EAN13 13 digits with check",
 			symbology: barcode.JAN13,
 			data:      test.EAN13_13,
-			want:      append([]byte{common.GS, 'k', 2}, append([]byte("1234567890123"), common.NUL)...),
+			want:      append([]byte{sharedcommands.GS, 'k', 2}, append([]byte("1234567890123"), sharedcommands.NUL)...),
 			wantErr:   nil,
 		},
 		{
 			name:      "EAN8 7 digits",
 			symbology: barcode.JAN8,
 			data:      test.EAN8_7,
-			want:      append([]byte{common.GS, 'k', 3}, append([]byte("1234567"), common.NUL)...),
+			want:      append([]byte{sharedcommands.GS, 'k', 3}, append([]byte("1234567"), sharedcommands.NUL)...),
 			wantErr:   nil,
 		},
 		{
 			name:      "EAN8 8 digits with check",
 			symbology: barcode.JAN8,
 			data:      test.EAN8_8,
-			want:      append([]byte{common.GS, 'k', 3}, append([]byte("12345678"), common.NUL)...),
+			want:      append([]byte{sharedcommands.GS, 'k', 3}, append([]byte("12345678"), sharedcommands.NUL)...),
 			wantErr:   nil,
 		},
 		{
 			name:      "EAN8 8 digits with check",
 			symbology: barcode.JAN8,
 			data:      test.EAN8_8,
-			want:      append([]byte{common.GS, 'k', 3}, append([]byte("12345678"), common.NUL)...),
+			want:      append([]byte{sharedcommands.GS, 'k', 3}, append([]byte("12345678"), sharedcommands.NUL)...),
 			wantErr:   nil,
 		},
 		{
 			name:      "CODE39 with start/stop",
 			symbology: barcode.CODE39,
 			data:      test.CODE39_SS,
-			want:      append([]byte{common.GS, 'k', 4}, append([]byte("*ABC-123*"), common.NUL)...),
+			want:      append([]byte{sharedcommands.GS, 'k', 4}, append([]byte("*ABC-123*"), sharedcommands.NUL)...),
 			wantErr:   nil,
 		},
 		{
 			name:      "CODE39 without start/stop",
 			symbology: barcode.CODE39,
 			data:      test.CODE39_NOSS,
-			want:      append([]byte{common.GS, 'k', 4}, append([]byte("ABC-123"), common.NUL)...),
+			want:      append([]byte{sharedcommands.GS, 'k', 4}, append([]byte("ABC-123"), sharedcommands.NUL)...),
 			wantErr:   nil,
 		},
 		{
 			name:      "ITF even digits",
 			symbology: barcode.ITF,
 			data:      test.ITFEven,
-			want:      append([]byte{common.GS, 'k', 5}, append([]byte("123456"), common.NUL)...),
+			want:      append([]byte{sharedcommands.GS, 'k', 5}, append([]byte("123456"), sharedcommands.NUL)...),
 			wantErr:   nil,
 		},
 		{
 			name:      "ITF minimum (2 digits)",
 			symbology: barcode.ITF,
 			data:      test.ITFMin,
-			want:      append([]byte{common.GS, 'k', 5}, append([]byte("12"), common.NUL)...),
+			want:      append([]byte{sharedcommands.GS, 'k', 5}, append([]byte("12"), sharedcommands.NUL)...),
 			wantErr:   nil,
 		},
 		{
@@ -523,21 +523,21 @@ func TestCommands_PrintBarcode_FunctionA(t *testing.T) {
 			name:      "CODABAR with start/stop A-B",
 			symbology: barcode.CODABAR,
 			data:      test.CODABAR_SS_1,
-			want:      append([]byte{common.GS, 'k', 6}, append([]byte("A123456B"), common.NUL)...),
+			want:      append([]byte{sharedcommands.GS, 'k', 6}, append([]byte("A123456B"), sharedcommands.NUL)...),
 			wantErr:   nil,
 		},
 		{
 			name:      "CODABAR with start/stop C-D",
 			symbology: barcode.CODABAR,
 			data:      test.CODABAR_SS_2,
-			want:      append([]byte{common.GS, 'k', 6}, append([]byte("C123456D"), common.NUL)...),
+			want:      append([]byte{sharedcommands.GS, 'k', 6}, append([]byte("C123456D"), sharedcommands.NUL)...),
 			wantErr:   nil,
 		},
 		{
 			name:      "CODABAR lowercase start/stop a-b",
 			symbology: barcode.CODABAR,
 			data:      test.CODABAR_LSS,
-			want:      append([]byte{common.GS, 'k', 6}, append([]byte("a123456d"), common.NUL)...),
+			want:      append([]byte{sharedcommands.GS, 'k', 6}, append([]byte("a123456d"), sharedcommands.NUL)...),
 			wantErr:   nil,
 		},
 		{
@@ -584,56 +584,56 @@ func TestCommands_PrintBarcode_FunctionB(t *testing.T) {
 			name:      "UPC-A B 11 digits",
 			symbology: barcode.UPCAB,
 			data:      []byte("12345678901"),
-			want:      append([]byte{common.GS, 'k', 65, 11}, []byte("12345678901")...),
+			want:      append([]byte{sharedcommands.GS, 'k', 65, 11}, []byte("12345678901")...),
 			wantErr:   nil,
 		},
 		{
 			name:      "UPC-A B 12 digits",
 			symbology: barcode.UPCAB,
 			data:      []byte("123456789012"),
-			want:      append([]byte{common.GS, 'k', 65, 12}, []byte("123456789012")...),
+			want:      append([]byte{sharedcommands.GS, 'k', 65, 12}, []byte("123456789012")...),
 			wantErr:   nil,
 		},
 		{
 			name:      "UPC-E B 6 digits",
 			symbology: barcode.UPCEB,
 			data:      []byte("012345"),
-			want:      append([]byte{common.GS, 'k', 66, 6}, []byte("012345")...),
+			want:      append([]byte{sharedcommands.GS, 'k', 66, 6}, []byte("012345")...),
 			wantErr:   nil,
 		},
 		{
 			name:      "EAN13 B",
 			symbology: barcode.EAN13,
 			data:      []byte("1234567890123"),
-			want:      append([]byte{common.GS, 'k', 67, 13}, []byte("1234567890123")...),
+			want:      append([]byte{sharedcommands.GS, 'k', 67, 13}, []byte("1234567890123")...),
 			wantErr:   nil,
 		},
 		{
 			name:      "EAN8 B",
 			symbology: barcode.EAN8,
 			data:      []byte("12345678"),
-			want:      append([]byte{common.GS, 'k', 68, 8}, []byte("12345678")...),
+			want:      append([]byte{sharedcommands.GS, 'k', 68, 8}, []byte("12345678")...),
 			wantErr:   nil,
 		},
 		{
 			name:      "CODE39 B",
 			symbology: barcode.CODE39B,
 			data:      []byte("CODE39"),
-			want:      append([]byte{common.GS, 'k', 69, 6}, []byte("CODE39")...),
+			want:      append([]byte{sharedcommands.GS, 'k', 69, 6}, []byte("CODE39")...),
 			wantErr:   nil,
 		},
 		{
 			name:      "CODE39 B with special",
 			symbology: barcode.CODE39B,
 			data:      []byte("*ABC-123*"),
-			want:      append([]byte{common.GS, 'k', 69, 9}, []byte("*ABC-123*")...),
+			want:      append([]byte{sharedcommands.GS, 'k', 69, 9}, []byte("*ABC-123*")...),
 			wantErr:   nil,
 		},
 		{
 			name:      "ITF B even",
 			symbology: barcode.ITFB,
 			data:      []byte("123456"),
-			want:      append([]byte{common.GS, 'k', 70, 6}, []byte("123456")...),
+			want:      append([]byte{sharedcommands.GS, 'k', 70, 6}, []byte("123456")...),
 			wantErr:   nil,
 		},
 		{
@@ -647,21 +647,21 @@ func TestCommands_PrintBarcode_FunctionB(t *testing.T) {
 			name:      "CODABAR B",
 			symbology: barcode.CODABARB,
 			data:      []byte("A1234B"),
-			want:      append([]byte{common.GS, 'k', 71, 6}, []byte("A1234B")...),
+			want:      append([]byte{sharedcommands.GS, 'k', 71, 6}, []byte("A1234B")...),
 			wantErr:   nil,
 		},
 		{
 			name:      "CODE93",
 			symbology: barcode.CODE93,
 			data:      []byte("CODE93"),
-			want:      append([]byte{common.GS, 'k', 72, 6}, []byte("CODE93")...),
+			want:      append([]byte{sharedcommands.GS, 'k', 72, 6}, []byte("CODE93")...),
 			wantErr:   nil,
 		},
 		{
 			name:      "CODE128 with code set",
 			symbology: barcode.CODE128,
 			data:      []byte{'{', 'B', 'H', 'e', 'l', 'l', 'o'},
-			want:      append([]byte{common.GS, 'k', 73, 7}, []byte{'{', 'B', 'H', 'e', 'l', 'l', 'o'}...),
+			want:      append([]byte{sharedcommands.GS, 'k', 73, 7}, []byte{'{', 'B', 'H', 'e', 'l', 'l', 'o'}...),
 			wantErr:   nil,
 		},
 		{
@@ -682,7 +682,7 @@ func TestCommands_PrintBarcode_FunctionB(t *testing.T) {
 			name:      "GS1-128 with code set",
 			symbology: barcode.GS1128,
 			data:      []byte{'{', 'C', '0', '1', '2', '3', '4', '5'},
-			want:      append([]byte{common.GS, 'k', 74, 8}, []byte{'{', 'C', '0', '1', '2', '3', '4', '5'}...),
+			want:      append([]byte{sharedcommands.GS, 'k', 74, 8}, []byte{'{', 'C', '0', '1', '2', '3', '4', '5'}...),
 			wantErr:   nil,
 		},
 		{
@@ -696,35 +696,35 @@ func TestCommands_PrintBarcode_FunctionB(t *testing.T) {
 			name:      "CODE128 Auto",
 			symbology: barcode.CODE128Auto,
 			data:      []byte("Hello123"),
-			want:      append([]byte{common.GS, 'k', 79, 8}, []byte("Hello123")...),
+			want:      append([]byte{sharedcommands.GS, 'k', 79, 8}, []byte("Hello123")...),
 			wantErr:   nil,
 		},
 		{
 			name:      "GS1 DataBar Omnidirectional",
 			symbology: barcode.GS1DataBarOmni,
 			data:      []byte("0123456789012"),
-			want:      append([]byte{common.GS, 'k', 75, 13}, []byte("0123456789012")...),
+			want:      append([]byte{sharedcommands.GS, 'k', 75, 13}, []byte("0123456789012")...),
 			wantErr:   nil,
 		},
 		{
 			name:      "GS1 DataBar Truncated",
 			symbology: barcode.GS1DataBarTrunc,
 			data:      []byte("0123456789012"),
-			want:      append([]byte{common.GS, 'k', 76, 13}, []byte("0123456789012")...),
+			want:      append([]byte{sharedcommands.GS, 'k', 76, 13}, []byte("0123456789012")...),
 			wantErr:   nil,
 		},
 		{
 			name:      "GS1 DataBar Limited",
 			symbology: barcode.GS1DataBarLim,
 			data:      []byte("0123456789012"),
-			want:      append([]byte{common.GS, 'k', 77, 13}, []byte("0123456789012")...),
+			want:      append([]byte{sharedcommands.GS, 'k', 77, 13}, []byte("0123456789012")...),
 			wantErr:   nil,
 		},
 		{
 			name:      "GS1 DataBar Expanded",
 			symbology: barcode.GS1DataBarExp,
 			data:      []byte("(01)12345678901234"),
-			want:      append([]byte{common.GS, 'k', 78, 18}, []byte("(01)12345678901234")...),
+			want:      append([]byte{sharedcommands.GS, 'k', 78, 18}, []byte("(01)12345678901234")...),
 			wantErr:   nil,
 		},
 		{
@@ -738,7 +738,7 @@ func TestCommands_PrintBarcode_FunctionB(t *testing.T) {
 			name:      "maximum valid length",
 			symbology: barcode.CODE39B,
 			data:      test.RepeatByte(255, 'B'),
-			want: append([]byte{common.GS, 'k', 69, 255},
+			want: append([]byte{sharedcommands.GS, 'k', 69, 255},
 				test.RepeatByte(255, 'B')...),
 			wantErr: nil,
 		},
@@ -781,7 +781,7 @@ func TestCommands_PrintBarcodeWithCodeSet(t *testing.T) {
 			symbology: barcode.CODE128,
 			codeSet:   barcode.Code128SetA,
 			data:      []byte("HELLO"),
-			want:      append([]byte{common.GS, 'k', 73, 7}, []byte{'{', 'A', 'H', 'E', 'L', 'L', 'O'}...),
+			want:      append([]byte{sharedcommands.GS, 'k', 73, 7}, []byte{'{', 'A', 'H', 'E', 'L', 'L', 'O'}...),
 			wantErr:   nil,
 		},
 		{
@@ -789,7 +789,7 @@ func TestCommands_PrintBarcodeWithCodeSet(t *testing.T) {
 			symbology: barcode.CODE128,
 			codeSet:   barcode.Code128SetA,
 			data:      []byte("ABC\x00DEF"),
-			want:      append([]byte{common.GS, 'k', 73, 9}, []byte{'{', 'A', 'A', 'B', 'C', 0x00, 'D', 'E', 'F'}...),
+			want:      append([]byte{sharedcommands.GS, 'k', 73, 9}, []byte{'{', 'A', 'A', 'B', 'C', 0x00, 'D', 'E', 'F'}...),
 			wantErr:   nil,
 		},
 		{
@@ -797,7 +797,7 @@ func TestCommands_PrintBarcodeWithCodeSet(t *testing.T) {
 			symbology: barcode.CODE128,
 			codeSet:   barcode.Code128SetB,
 			data:      []byte("Hello"),
-			want:      append([]byte{common.GS, 'k', 73, 7}, []byte{'{', 'B', 'H', 'e', 'l', 'l', 'o'}...),
+			want:      append([]byte{sharedcommands.GS, 'k', 73, 7}, []byte{'{', 'B', 'H', 'e', 'l', 'l', 'o'}...),
 			wantErr:   nil,
 		},
 		{
@@ -805,7 +805,7 @@ func TestCommands_PrintBarcodeWithCodeSet(t *testing.T) {
 			symbology: barcode.CODE128,
 			codeSet:   barcode.Code128SetB,
 			data:      []byte("Item123"),
-			want:      append([]byte{common.GS, 'k', 73, 9}, []byte{'{', 'B', 'I', 't', 'e', 'm', '1', '2', '3'}...),
+			want:      append([]byte{sharedcommands.GS, 'k', 73, 9}, []byte{'{', 'B', 'I', 't', 'e', 'm', '1', '2', '3'}...),
 			wantErr:   nil,
 		},
 		{
@@ -813,7 +813,7 @@ func TestCommands_PrintBarcodeWithCodeSet(t *testing.T) {
 			symbology: barcode.CODE128,
 			codeSet:   barcode.Code128SetC,
 			data:      []byte("123456"),
-			want:      append([]byte{common.GS, 'k', 73, 8}, []byte{'{', 'C', '1', '2', '3', '4', '5', '6'}...),
+			want:      append([]byte{sharedcommands.GS, 'k', 73, 8}, []byte{'{', 'C', '1', '2', '3', '4', '5', '6'}...),
 			wantErr:   nil,
 		},
 		{
@@ -821,7 +821,7 @@ func TestCommands_PrintBarcodeWithCodeSet(t *testing.T) {
 			symbology: barcode.CODE128,
 			codeSet:   barcode.Code128SetC,
 			data:      []byte("00112233445566778899"),
-			want: append([]byte{common.GS, 'k', 73, 22},
+			want: append([]byte{sharedcommands.GS, 'k', 73, 22},
 				append([]byte{'{', 'C'}, []byte("00112233445566778899")...)...),
 			wantErr: nil,
 		},
@@ -830,7 +830,7 @@ func TestCommands_PrintBarcodeWithCodeSet(t *testing.T) {
 			symbology: barcode.GS1128,
 			codeSet:   barcode.Code128SetA,
 			data:      []byte("BATCH001"),
-			want:      append([]byte{common.GS, 'k', 74, 10}, []byte{'{', 'A', 'B', 'A', 'T', 'C', 'H', '0', '0', '1'}...),
+			want:      append([]byte{sharedcommands.GS, 'k', 74, 10}, []byte{'{', 'A', 'B', 'A', 'T', 'C', 'H', '0', '0', '1'}...),
 			wantErr:   nil,
 		},
 		{
@@ -838,7 +838,7 @@ func TestCommands_PrintBarcodeWithCodeSet(t *testing.T) {
 			symbology: barcode.GS1128,
 			codeSet:   barcode.Code128SetB,
 			data:      []byte("(01)12345678901231"),
-			want:      append([]byte{common.GS, 'k', 74, 20}, append([]byte{'{', 'B'}, []byte("(01)12345678901231")...)...),
+			want:      append([]byte{sharedcommands.GS, 'k', 74, 20}, append([]byte{'{', 'B'}, []byte("(01)12345678901231")...)...),
 			wantErr:   nil,
 		},
 		{
@@ -846,7 +846,7 @@ func TestCommands_PrintBarcodeWithCodeSet(t *testing.T) {
 			symbology: barcode.GS1128,
 			codeSet:   barcode.Code128SetC,
 			data:      []byte("01234567890123"),
-			want: append([]byte{common.GS, 'k', 74, 16},
+			want: append([]byte{sharedcommands.GS, 'k', 74, 16},
 				append([]byte{'{', 'C'}, []byte("01234567890123")...)...),
 			wantErr: nil,
 		},
@@ -903,7 +903,7 @@ func TestCommands_PrintBarcodeWithCodeSet(t *testing.T) {
 			symbology: barcode.CODE128,
 			codeSet:   barcode.Code128SetB,
 			data:      test.RepeatByte(253, 'X'), // 253 + 2 for prefix = 255
-			want: append([]byte{common.GS, 'k', 73, 255},
+			want: append([]byte{sharedcommands.GS, 'k', 73, 255},
 				append([]byte{'{', 'B'}, test.RepeatByte(253, 'X')...)...),
 			wantErr: nil,
 		},
@@ -912,7 +912,7 @@ func TestCommands_PrintBarcodeWithCodeSet(t *testing.T) {
 			symbology: barcode.CODE128,
 			codeSet:   barcode.Code128SetA,
 			data:      []byte{},
-			want: append([]byte{common.GS, 'k', 73, 2},
+			want: append([]byte{sharedcommands.GS, 'k', 73, 2},
 				[]byte{'{', 'A'}...),
 			wantErr: nil,
 		},

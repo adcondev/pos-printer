@@ -2,54 +2,77 @@ package character
 
 import (
 	"fmt"
-
-	"github.com/adcondev/pos-printer/escpos/common"
 )
+
+// ============================================================================
+// Context
+// ============================================================================
+// This sub-module implements ESC/POS commands for character visual effects.
+// ESC/POS is the command system used by thermal receipt printers to control
+// character colors, background colors, and shadow effects for enhanced
+// visual appearance in multi-color thermal printing.
 
 // ============================================================================
 // Constant and Var Definitions
 // ============================================================================
 
 const (
-	// Character color values (ASCII '0'..'3')
-	CharColorNone byte = '0' // -> None (non-printing dots)
-	CharColor1    byte = '1' // -> Color 1 (default)
-	CharColor2    byte = '2' // -> Color 2
-	CharColor3    byte = '3' // -> Color 3
+	// CharColorNone represents no character color
+	CharColorNone byte = '0'
+	// CharColor1 represents character color 1
+	CharColor1 byte = '1'
+	// CharColor2 represents character color 2
+	CharColor2 byte = '2'
+	// CharColor3 represents character color 3
+	CharColor3 byte = '3'
 
-	// Background color values (ASCII '0'..'3')
-	BackgroundColorNone byte = '0' // -> None (no background dots)
-	BackgroundColor1    byte = '1' // -> Color 1
-	BackgroundColor2    byte = '2' // -> Color 2
-	BackgroundColor3    byte = '3' // -> Color 3
+	// BackgroundColorNone represents no background color
+	BackgroundColorNone byte = '0'
+	// BackgroundColor1 represents background color 1
+	BackgroundColor1 byte = '1'
+	// BackgroundColor2 represents background color 2
+	BackgroundColor2 byte = '2'
+	// BackgroundColor3 represents background color 3
+	BackgroundColor3 byte = '3'
 
-	// Command bytes
-	GSParenN         byte = 0x1D
-	LeftParenN       byte = 0x28
-	LetterN          byte = 0x4E
-	GSParenNFnShadow byte = 0x32 // fn = 50 (0x32)
+	// GS represents the GS command byte for special functions
+	GS byte = 0x1D
+	// LeftParenN represents the left parenthesis byte
+	LeftParenN byte = 0x28
+	// LetterN represents the letter N byte
+	LetterN byte = 0x4E
+	// GSParenNFnShadow represents the shadow function code
+	GSParenNFnShadow byte = 0x32
 
-	// pL/pH for this function (fn + 2 parameters)
-	GSParenNShadow_pL byte = 0x03
-	GSParenNShadow_pH byte = 0x00
+	// GSParenNShadowPL represents the pL parameter for shadow function
+	GSParenNShadowPL byte = 0x03
+	// GSParenNShadowPH represents the pH parameter for shadow function
+	GSParenNShadowPH byte = 0x00
 
-	// Shadow mode values (accepts numeric and ASCII forms)
-	ShadowModeOffByte  byte = 0x00 // numeric 0
-	ShadowModeOnByte   byte = 0x01 // numeric 1
+	// ShadowModeOffByte represents shadow mode off (numeric)
+	ShadowModeOffByte byte = 0x00
+	// ShadowModeOnByte represents shadow mode on (numeric)
+	ShadowModeOnByte byte = 0x01
+	// ShadowModeOffASCII represents shadow mode off (ASCII)
 	ShadowModeOffASCII byte = '0'
-	ShadowModeOnASCII  byte = '1'
+	// ShadowModeOnASCII represents shadow mode on (ASCII)
+	ShadowModeOnASCII byte = '1'
 
-	// Shadow color values (ASCII '0'..'3')
-	ShadowColorNone byte = '0' // -> None (not printed)
-	ShadowColor1    byte = '1' // -> Color 1
-	ShadowColor2    byte = '2' // -> Color 2
-	ShadowColor3    byte = '3' // -> Color 3
+	// ShadowColorNone represents no shadow color
+	ShadowColorNone byte = '0'
+	// ShadowColor1 represents shadow color 1
+	ShadowColor1 byte = '1'
+	// ShadowColor2 represents shadow color 2
+	ShadowColor2 byte = '2'
+	// ShadowColor3 represents shadow color 3
+	ShadowColor3 byte = '3'
 )
 
 // ============================================================================
 // Error Definitions
 // ============================================================================
 
+// ErrInvalidCharacterColor represents an invalid character color error
 var (
 	ErrInvalidCharacterColor  = fmt.Errorf("invalid character color('0'..'3')")
 	ErrInvalidBackgroundColor = fmt.Errorf("invalid background color('0'..'3')")
@@ -78,153 +101,51 @@ type EffectsCapability interface {
 // EffectsCommands implements EffectsCapability
 type EffectsCommands struct{}
 
+// NewEffectsCommands creates a new instance of EffectsCommands
 func NewEffectsCommands() *EffectsCommands {
 	return &EffectsCommands{}
 }
 
-// SelectCharacterColor selects the character color.
-//
-// Format:
-//
-//	ASCII: GS ( N pL pH fn m
-//	Hex:   0x1D 0x28 0x4E 0x02 0x00 0x30 m
-//	Decimal: 29 40 78 2 0 48 m
-//
-// Range:
-//
-//	pL = 0x02, pH = 0x00
-//	m = 48–51 (model-dependent)
-//
-// Default:
-//
-//	m = 49 (Color 1)
-//
-// Description:
-//
-//	Selects the character color:
-//	  m = 48 -> None (non-printing dots)
-//	  m = 49 -> Color 1 (default)
-//	  m = 50 -> Color 2
-//	  m = 51 -> Color 3
-//
-// Notes:
-//   - Applies to alphanumeric, Katakana, multilingual, user-defined, and
-//     user-defined Kanji characters; does not affect graphics, bit images,
-//     barcodes, or 2D codes.
-//   - m = 48 treats glyph dots as non-printing (useful with background/shadow).
-//   - Underline prints in the selected character color.
-//   - Setting persists until ESC @, printer reset, or power-off.
-//
-// Byte sequence:
-//
-//	GS ( N 02 00 30 m -> 0x1D, 0x28, 0x4E, 0x02, 0x00, 0x30, m
-func (ef *EffectsCommands) SelectCharacterColor(m byte) ([]byte, error) {
-	// Validate allowed values
-	switch m {
-	case '0', '1', '2', '3':
-		// Valid values
+// ============================================================================
+// Validation Functions
+// ============================================================================
+
+// ValidateCharacterColor validates if character color is valid
+func ValidateCharacterColor(color byte) error {
+	switch color {
+	case CharColorNone, CharColor1, CharColor2, CharColor3:
+		return nil
 	default:
-		return nil, ErrInvalidCharacterColor
+		return ErrInvalidCharacterColor
 	}
-	return []byte{0x1D, 0x28, 0x4E, 0x02, 0x00, 0x30, m}, nil
 }
 
-// SelectBackgroundColor selects the background color.
-//
-// Format:
-//
-//	ASCII: GS ( N pL pH fn m
-//	Hex:   0x1D 0x28 0x4E 0x02 0x00 0x31 m
-//	Decimal: 29 40 78 2 0 49 m
-//
-// Range:
-//
-//	pL = 0x02, pH = 0x00
-//	m = 48–51 (model-dependent)
-//
-// Default:
-//
-//	m = 48 (None)
-//
-// Description:
-//
-//	Selects the background color:
-//	  m = 48 -> None (no background dots printed)
-//	  m = 49 -> Color 1
-//	  m = 50 -> Color 2
-//	  m = 51 -> Color 3
-//
-// Notes:
-//   - Background color does not affect spaces skipped by HT, ESC $, ESC \,
-//     line spacing, or reverse print background.
-//   - Inter-character spacing (ESC SP, FS S) prints in this background color.
-//   - Settings persist until ESC @, printer reset, or power-off.
-//
-// Byte sequence:
-//
-//	GS ( N 02 00 31 m -> 0x1D, 0x28, 0x4E, 0x02, 0x00, 0x31, m
-func (ef *EffectsCommands) SelectBackgroundColor(m byte) ([]byte, error) {
-	// Validate allowed values
-	switch m {
-	case '0', '1', '2', '3':
-		// Valid values
+// ValidateBackgroundColor validates if background color is valid
+func ValidateBackgroundColor(color byte) error {
+	switch color {
+	case BackgroundColorNone, BackgroundColor1, BackgroundColor2, BackgroundColor3:
+		return nil
 	default:
-		return nil, ErrInvalidBackgroundColor
+		return ErrInvalidBackgroundColor
 	}
-	return []byte{0x1D, 0x28, 0x4E, 0x02, 0x00, 0x31, m}, nil
 }
 
-// SetCharacterShadowMode turns shading (shadow) mode on or off.
-//
-// Format:
-//
-//	ASCII: GS ( N pL pH fn m a
-//	Hex:   0x1D 0x28 0x4E pL pH 0x32 m a
-//	Decimal: 29 40 78 pL pH 50 m a
-//
-// Range:
-//
-//	pL = 0x03, pH = 0x00
-//	m = 0, 1, 48, 49
-//	a = 48–51
-//
-// Default:
-//
-//	m = 0, a = 48
-//
-// Description:
-//
-//	Turns shadow mode on or off and sets shadow color:
-//	  m: Shadow mode (0 or 48 = OFF, 1 or 49 = ON)
-//	  a: Shadow color:
-//	     48 -> None (not printed)
-//	     49 -> Color 1
-//	     50 -> Color 2
-//	     51 -> Color 3
-//
-// Notes:
-//   - Parameter a (shadowColor) MUST be supplied even when shadow mode is OFF.
-//   - Shadow mode prints a shadow in the specified shadow color.
-//   - Underline shadow is not printed.
-//   - Reverse print does not alter shadow color.
-//   - Settings persist until ESC @, printer reset, or power-off.
-//
-// Byte sequence:
-//
-//	GS ( N 03 00 32 m a -> 0x1D, 0x28, 0x4E, 0x03, 0x00, 0x32, m, a
-func (ef *EffectsCommands) SetCharacterShadowMode(m byte, a byte) ([]byte, error) {
-	// Validate allowed values
-	switch m {
-	case 0, 1, '0', '1':
-		// Valid values
+// ValidateShadowMode validates if shadow mode is valid
+func ValidateShadowMode(mode byte) error {
+	switch mode {
+	case ShadowModeOffByte, ShadowModeOnByte, ShadowModeOffASCII, ShadowModeOnASCII:
+		return nil
 	default:
-		return nil, ErrInvalidShadowMode
+		return ErrInvalidShadowMode
 	}
-	switch a {
-	case '0', '1', '2', '3':
-		// Valid values
+}
+
+// ValidateShadowColor validates if shadow color is valid
+func ValidateShadowColor(color byte) error {
+	switch color {
+	case ShadowColorNone, ShadowColor1, ShadowColor2, ShadowColor3:
+		return nil
 	default:
-		return nil, ErrInvalidShadowColor
+		return ErrInvalidShadowColor
 	}
-	return []byte{common.GS, '(', 'N', 0x03, 0x00, 0x32, m, a}, nil
 }

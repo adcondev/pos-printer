@@ -3,8 +3,13 @@ package escpos
 import (
 	"fmt"
 
-	"github.com/adcondev/pos-printer/escpos/common"
+	"github.com/adcondev/pos-printer/escpos/sharedcommands"
 )
+
+// ============================================================================
+// Maps and helpers
+// ============================================================================
+// Mapas para convertir enums genéricos a valores ESC/POS.
 
 // TODO: Comandos para posicionar texto e imágenes
 // - Tabulación
@@ -29,6 +34,11 @@ var alignMap = map[Alignment]byte{
 	AlignRight:  2, // ESC/POS: 2 = right
 }
 
+// ============================================================================
+// Public API (implementation)
+// ============================================================================
+// Funciones que usan los mapas anteriores para generar comandos ESC/POS.
+
 // SetJustification convierte el tipo genérico al específico de ESC/POS
 func (c *Protocol) SetJustification(justification Alignment) ([]byte, error) {
 	alignment, ok := alignMap[justification]
@@ -36,5 +46,5 @@ func (c *Protocol) SetJustification(justification Alignment) ([]byte, error) {
 		return nil, fmt.Errorf("justificación no soportada: %v", justification)
 	}
 	// ESC a n
-	return []byte{common.ESC, 'a', alignment}, nil
+	return []byte{sharedcommands.ESC, 'a', alignment}, nil
 }

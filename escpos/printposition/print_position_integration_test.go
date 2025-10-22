@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"testing"
 
-	"github.com/adcondev/pos-printer/escpos/common"
 	"github.com/adcondev/pos-printer/escpos/printposition"
+	"github.com/adcondev/pos-printer/escpos/sharedcommands"
 )
 
 func TestIntegration_PrintPosition_StandardModeWorkflow(t *testing.T) {
@@ -51,7 +51,7 @@ func TestIntegration_PrintPosition_StandardModeWorkflow(t *testing.T) {
 		}
 
 		// Verify specific command sequences
-		expectedStart := []byte{common.GS, 'L', 50, 0} // SetLeftMargin(50)
+		expectedStart := []byte{sharedcommands.GS, 'L', 50, 0} // SetLeftMargin(50)
 		if !bytes.Equal(buffer[:4], expectedStart) {
 			t.Errorf("Buffer should start with SetLeftMargin command")
 		}
@@ -140,7 +140,7 @@ func TestIntegration_PrintPosition_StandardModeWorkflow(t *testing.T) {
 		}
 
 		// Check first absolute position command
-		expected := []byte{common.ESC, '$', 100, 0}
+		expected := []byte{sharedcommands.ESC, '$', 100, 0}
 		if !bytes.Equal(buffer[:4], expected) {
 			t.Errorf("First command = %#v, want %#v", buffer[:4], expected)
 		}
@@ -181,7 +181,7 @@ func TestIntegration_PrintPosition_PageModeWorkflow(t *testing.T) {
 		}
 
 		// Verify print direction command
-		expectedDir := []byte{common.ESC, 'T', printposition.DirectionLeftToRight}
+		expectedDir := []byte{sharedcommands.ESC, 'T', printposition.DirectionLeftToRight}
 		if !bytes.Equal(buffer[:3], expectedDir) {
 			t.Errorf("First command = %#v, want %#v", buffer[:3], expectedDir)
 		}
@@ -210,7 +210,7 @@ func TestIntegration_PrintPosition_PageModeWorkflow(t *testing.T) {
 					return
 				}
 
-				expected := []byte{common.ESC, 'T', d.direction}
+				expected := []byte{sharedcommands.ESC, 'T', d.direction}
 				if !bytes.Equal(cmd, expected) {
 					t.Errorf("Command = %#v, want %#v", cmd, expected)
 				}
@@ -326,8 +326,8 @@ func TestIntegration_PrintPosition_MixedModeTransitions(t *testing.T) {
 		buffer = append(buffer, cmd.SetAbsoluteVerticalPrintPosition(200)...)
 
 		// Verify mixed commands are present
-		hasStandardCmd := bytes.Contains(buffer, []byte{common.GS, 'L'}) // SetLeftMargin
-		hasPageCmd := bytes.Contains(buffer, []byte{common.ESC, 'T'})    // SelectPrintDirectionPageMode
+		hasStandardCmd := bytes.Contains(buffer, []byte{sharedcommands.GS, 'L'}) // SetLeftMargin
+		hasPageCmd := bytes.Contains(buffer, []byte{sharedcommands.ESC, 'T'})    // SelectPrintDirectionPageMode
 
 		if !hasStandardCmd {
 			t.Error("Buffer should contain standard mode commands")
@@ -374,7 +374,7 @@ func TestIntegration_PrintPosition_MixedModeTransitions(t *testing.T) {
 		buffer = append(buffer, printASCIICmd...)
 
 		// Verify we have the expected commands
-		beginLineCount := bytes.Count(buffer, []byte{common.GS, 'T'})
+		beginLineCount := bytes.Count(buffer, []byte{sharedcommands.GS, 'T'})
 		if beginLineCount != 4 {
 			t.Errorf("Begin line command count = %d, want 4", beginLineCount)
 		}

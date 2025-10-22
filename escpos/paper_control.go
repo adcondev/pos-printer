@@ -3,13 +3,21 @@ package escpos
 import (
 	"fmt"
 
-	"github.com/adcondev/pos-printer/escpos/common"
+	"github.com/adcondev/pos-printer/escpos/sharedcommands"
 )
 
+// ============================================================================
+// Maps and constants
+// ============================================================================
+// Map que convierte CutPaper (enum del paquete) a los bytes ESC/POS
 var cutMap = map[CutPaper]byte{
 	FullCut:    '0',
 	PartialCut: '1',
 }
+
+// ============================================================================
+// Public API (implementation)
+// ============================================================================
 
 // Cut genera comando de corte
 func (c *Protocol) Cut(mode CutPaper) ([]byte, error) {
@@ -18,5 +26,5 @@ func (c *Protocol) Cut(mode CutPaper) ([]byte, error) {
 		return nil, fmt.Errorf("invalid cut mode: %v", mode)
 	}
 
-	return []byte{common.GS, 'V', cut}, nil
+	return []byte{sharedcommands.GS, 'V', cut}, nil
 }
