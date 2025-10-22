@@ -1,8 +1,3 @@
-// Package print implements ESC/POS commands for basic printing operations.
-//
-// ESC/POS is the command system used by thermal receipt printers to control
-// text printing, paper feeding, line feeds, and print buffer management
-// in both Standard and Page modes.
 package print
 
 import (
@@ -51,9 +46,9 @@ var (
 
 var (
 	// ErrEmptyText indicates that the provided text is empty
-	ErrEmptyText = sharedcommands.ErrEmptyBuffer
+	ErrEmptyText = shared.ErrEmptyBuffer
 	// ErrTextTooLarge indicates that the provided text exceeds buffer limits
-	ErrTextTooLarge = sharedcommands.ErrBufferOverflow
+	ErrTextTooLarge = shared.ErrBufferOverflow
 	// ErrReverseUnits invalid number of motion units for reverse print
 	ErrReverseUnits = fmt.Errorf("invalid reverse feed units (try 0-%d)", MaxReverseMotionUnits)
 	// ErrReverseLines invalid number of lines for reverse print
@@ -112,11 +107,11 @@ func NewCommands() *Commands {
 //   - Replaces '\t' with HT (0x09)
 //   - Validates buffer size according to printer limitations
 func (c *Commands) Text(n string) ([]byte, error) {
-	if err := sharedcommands.IsBufLenOk([]byte(n)); err != nil {
+	if err := shared.IsBufLenOk([]byte(n)); err != nil {
 		switch {
-		case errors.Is(err, sharedcommands.ErrEmptyBuffer):
+		case errors.Is(err, shared.ErrEmptyBuffer):
 			return nil, ErrEmptyText
-		case errors.Is(err, sharedcommands.ErrBufferOverflow):
+		case errors.Is(err, shared.ErrBufferOverflow):
 			return nil, ErrTextTooLarge
 		default:
 			return nil, err
