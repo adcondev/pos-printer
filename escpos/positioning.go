@@ -3,7 +3,7 @@ package escpos
 import (
 	"fmt"
 
-	"github.com/adcondev/pos-printer/escpos/sharedcommands"
+	"github.com/adcondev/pos-printer/escpos/shared"
 )
 
 // ============================================================================
@@ -46,5 +46,5 @@ func (c *Protocol) SetJustification(justification Alignment) ([]byte, error) {
 		return nil, fmt.Errorf("justificación no soportada: %v", justification)
 	}
 	// ESC a n
-	return []byte{sharedcommands.ESC, 'a', alignment}, nil
+	return []byte{shared.ESC, 'a', alignment}, nil
 }

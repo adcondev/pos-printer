@@ -1,14 +1,9 @@
-// Package barcode implements ESC/POS commands for barcode printing functionality.
-//
-// ESC/POS is the command system used by thermal receipt printers to control
-// barcode generation, HRI (Human Readable Interpretation) text positioning,
-// and various barcode symbology including UPC, EAN, CODE128, and GS1 DataBar.
 package barcode
 
 import (
 	"errors"
 
-	"github.com/adcondev/pos-printer/escpos/sharedcommands"
+	"github.com/adcondev/pos-printer/escpos/shared"
 )
 
 // ============================================================================
@@ -242,9 +237,9 @@ func (c *Commands) buildFunctionA(symbology Symbology, data []byte) ([]byte, err
 	}
 
 	// Build command: GS k m data... NUL
-	cmd := []byte{sharedcommands.GS, 'k', byte(symbology)}
+	cmd := []byte{shared.GS, 'k', byte(symbology)}
 	cmd = append(cmd, data...)
-	cmd = append(cmd, sharedcommands.NUL)
+	cmd = append(cmd, shared.NUL)
 	return cmd, nil
 }
 
@@ -271,7 +266,7 @@ func (c *Commands) buildFunctionB(symbology Symbology, data []byte) ([]byte, err
 	}
 
 	// Build command: GS k m n data...
-	cmd := []byte{sharedcommands.GS, 'k', byte(symbology), byte(len(data))}
+	cmd := []byte{shared.GS, 'k', byte(symbology), byte(len(data))}
 	cmd = append(cmd, data...)
 	return cmd, nil
 }

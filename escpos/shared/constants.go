@@ -1,4 +1,4 @@
-package sharedcommands
+package shared
 
 const (
 	// DLE represent the byte de "Data Link Escape" en ESC/POS.

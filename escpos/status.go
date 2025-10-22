@@ -3,7 +3,7 @@ package escpos
 import (
 	"fmt"
 
-	"github.com/adcondev/pos-printer/escpos/sharedcommands"
+	"github.com/adcondev/pos-printer/escpos/shared"
 )
 
 // ============================================================================
@@ -28,6 +28,6 @@ func (c *Protocol) TransmitRealTimeStatus(n RealTimeStatus) ([]byte, error) {
 	if !ok {
 		return nil, fmt.Errorf("estado en tiempo real inválido: %d", n)
 	}
-	cmd := []byte{sharedcommands.DLE, sharedcommands.EOT, status}
+	cmd := []byte{shared.DLE, shared.EOT, status}
 	return cmd, nil
 }
