@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.7.0](https://github.com/AdConDev/pos-daemon/compare/v1.6.0...v1.7.0) (2025-10-23)
+
+
+### ✨ Features
+
+* **bitimage:** implement ESC/POS commands for bit images ([#45](https://github.com/adcondev/pos-printer/issues/45)) ([1b98b1f](https://github.com/AdConDev/pos-daemon/commit/1b98b1f9587ee1121961676f516ae946db0fc4e0))
+
 ## [1.6.0](https://github.com/AdConDev/pos-daemon/compare/v1.5.0...v1.6.0) (2025-10-22)
 
 
