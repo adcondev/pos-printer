@@ -56,7 +56,7 @@ func ToLittleEndian(number uint16) (nL, nH byte) {
 	return nL, nH
 }
 
-// ToLittleEndian32 convierte una longitud en cuatro bytes little-endian (dL,dH) para usar en comandos ESCPOS.
+// ToLittleEndian32 convierte una longitud en cuatro bytes little-endian (nL, nH, nHH, nHHH) para usar en comandos ESCPOS.
 func ToLittleEndian32(number uint32) (nL, nH, nHH, nHHH byte) {
 	nL = byte(number & 0xFF)           // byte de menor peso
 	nH = byte((number >> 8) & 0xFF)    // segundo byte
