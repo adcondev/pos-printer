@@ -10,8 +10,6 @@ import (
 // ============================================================================
 // Code page definitions and mappings
 // ============================================================================
-// Definimos CodePage y un mapa que convierte de nuestro enum a los valores
-// numéricos esperados por ESC/POS.
 
 // CodePage define los conjuntos de caracteres estándar
 type CodePage byte
@@ -36,6 +34,7 @@ const (
 	Latvian                    // Latvian (Windows-1257)
 )
 
+// codePageMap mapea CodePage a los valores ESC/POS correspondientes.
 var codePageMap = map[CodePage]byte{
 	CP437:      0,
 	Katakana:   1,
@@ -81,9 +80,4 @@ func (c *Protocol) SelectCharacterTable(table encoding.CharacterSet) ([]byte, er
 // CancelKanjiMode deactivates Kanji mode
 func (c *Protocol) CancelKanjiMode() []byte {
 	return []byte{shared.FS, '.'}
-}
-
-// SelectKanjiMode activates Kanji mode
-func (c *Protocol) SelectKanjiMode() []byte {
-	return []byte{shared.FS, '&'}
 }

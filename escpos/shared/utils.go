@@ -26,8 +26,6 @@ var (
 )
 
 var (
-	// ErrLengthOutOfRange length is out of range (0-65535)
-	ErrLengthOutOfRange = errors.New("length is out of range (0-65535)")
 	// ErrBufferOverflow buffer is too large
 	ErrBufferOverflow = errors.New("can't print overflowed buffer (protocol max 64KB; model may be lower)")
 	// ErrEmptyBuffer buffer is empty

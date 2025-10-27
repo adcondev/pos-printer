@@ -76,9 +76,9 @@ func TestNewEscposProtocol_Initialization(t *testing.T) {
 		t.Fatal("NewEscposProtocol() Print capability should not be nil")
 	}
 
-	// Verify LineSpace capability is initialized
-	if cmd.LineSpace == nil {
-		t.Fatal("NewEscposProtocol() LineSpace capability should not be nil")
+	// Verify LineSpacing capability is initialized
+	if cmd.LineSpacing == nil {
+		t.Fatal("NewEscposProtocol() LineSpacing capability should not be nil")
 	}
 
 }
@@ -87,11 +87,11 @@ func TestCommands_Integration_PrintWithLineSpacing(t *testing.T) {
 	cmd := escpos.NewEscposProtocol()
 
 	// Set line spacing
-	spacingResult := cmd.LineSpace.SetLineSpacing(40)
+	spacingResult := cmd.LineSpacing.SetLineSpacing(40)
 	expectedSpacing := []byte{shared.ESC, '3', 40}
 
 	if !bytes.Equal(spacingResult, expectedSpacing) {
-		t.Errorf("Commands.LineSpace.SetLineSpacing(40) = %#v, want %#v",
+		t.Errorf("Commands.LineSpacing.SetLineSpacing(40) = %#v, want %#v",
 			spacingResult, expectedSpacing)
 	}
 

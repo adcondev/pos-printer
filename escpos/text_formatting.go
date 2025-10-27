@@ -9,11 +9,6 @@ import (
 // ============================================================================
 // Maps and helpers
 // ============================================================================
-// Mapas usados para formateo de texto. Comentarios traducidos para principiantes.
-
-// TODO: Comandos para dar formato al texto
-// - Rotación de texto
-// - Espaciado de caracteres
 
 // emphMap mapea el modo enfatizado a su valor ESC/POS correspondiente.
 var emphMap = map[EmphasizedMode]byte{
@@ -28,6 +23,7 @@ var ulModeMap = map[UnderlineMode]byte{
 	UnderDouble: 2,
 }
 
+// fontMap mapea las fuentes de caracteres a sus valores ESC/POS correspondientes.
 var fontMap = map[Font]byte{
 	FontA:    0,
 	FontB:    1,

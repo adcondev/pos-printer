@@ -2,8 +2,10 @@ package escpos
 
 import (
 	"github.com/adcondev/pos-printer/escpos/barcode"
+	"github.com/adcondev/pos-printer/escpos/bitimage"
 	"github.com/adcondev/pos-printer/escpos/character"
 	"github.com/adcondev/pos-printer/escpos/linespacing"
+	"github.com/adcondev/pos-printer/escpos/mechanismcontrol"
 	"github.com/adcondev/pos-printer/escpos/print"
 	"github.com/adcondev/pos-printer/escpos/printposition"
 	"github.com/adcondev/pos-printer/escpos/shared"
@@ -11,11 +13,13 @@ import (
 
 // Protocol implements the ESCPOS Commands
 type Protocol struct {
-	Print         print.Capability
-	LineSpace     linespacing.Capability
-	Character     character.Capability
-	PrintPosition printposition.Capability
-	Barcode       barcode.Capability
+	Barcode          barcode.Capability
+	Bitimage         bitimage.Capability
+	Character        character.Capability
+	LineSpacing      linespacing.Capability
+	MechanismControl mechanismcontrol.Capability
+	Print            print.Capability
+	PrintPosition    printposition.Capability
 }
 
 // Raw sends raw data without processing
@@ -29,10 +33,12 @@ func (c *Protocol) Raw(data []byte) ([]byte, error) {
 // NewEscposProtocol creates a new instance of the ESC/POS protocol
 func NewEscposProtocol() *Protocol {
 	return &Protocol{
-		Print:         print.NewCommands(),
-		LineSpace:     linespacing.NewCommands(),
-		Character:     character.NewCommands(),
-		PrintPosition: printposition.NewCommands(),
-		Barcode:       barcode.NewCommands(),
+		Barcode:          barcode.NewCommands(),
+		Bitimage:         bitimage.NewCommands(),
+		Character:        character.NewCommands(),
+		LineSpacing:      linespacing.NewCommands(),
+		MechanismControl: mechanismcontrol.NewCommands(),
+		Print:            print.NewCommands(),
+		PrintPosition:    printposition.NewCommands(),
 	}
 }
