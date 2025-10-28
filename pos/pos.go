@@ -24,10 +24,6 @@ type Protocol byte
 const (
 	// EscposProto defines the Escpos protocol
 	EscposProto Protocol = iota
-	// ZplProto defines the ZPL protocol
-	ZplProto
-	// PdfProto defines the PDF generation protocol
-	PdfProto
 )
 
 // EscposPrinter implementa Printer usando Profile y Connector
@@ -35,9 +31,7 @@ type EscposPrinter struct {
 	// Componentes obligatorios
 	Connector connector.Connector
 	Profile   *profile.Escpos
-
-	// Commands
-	Escpos *escpos.Protocol
+	Escpos    *escpos.Commands
 
 	// Command Types
 	// PrintDataInPageMode *escpos.TextCommands
@@ -87,7 +81,7 @@ func NewPrinter(proto Protocol, conn connector.Connector, prof *profile.Escpos) 
 
 	switch protoMap[proto] {
 	case "Escpos":
-		printer.Escpos = escpos.NewEscposProtocol()
+		printer.Escpos = escpos.NewEscposCommands()
 	case "ZPL":
 		// printer.zpl = zpl.NewZPLProtocol()
 		return nil, fmt.Errorf("protocol %s not released yet", protoType)
@@ -121,7 +115,7 @@ func (ep *EscposPrinter) hasProtocol() bool {
 // GetProtocolName devuelve el nombre del protocolo activo
 func (ep *EscposPrinter) GetProtocolName() string {
 	if !ep.hasProtocol() {
-		return "Unknown Protocol"
+		return "Unknown Commands"
 	}
 	return protoMap[ep.protocolType]
 }
@@ -133,7 +127,7 @@ func (ep *EscposPrinter) Initialize() error {
 	var cmd []byte
 	switch protoMap[ep.protocolType] {
 	case "Escpos":
-		cmd = ep.Escpos.InitializePrinter()
+		cmd = ep.Escpos.Initialize()
 	case "ZPL":
 		// cmd := p.ZPL.InitializePrinter()
 	case "PDF":
@@ -337,7 +331,7 @@ func (ep *EscposPrinter) TextLn(str string) error {
 
 // Cut corta el papel
 func (ep *EscposPrinter) Cut(mode escpos.CutPaper) error {
-	cmd, err := ep.Escpos.Cut(mode) // 0 lines feed antes del corte
+	cmd, err := ep.Escpos.Cut(mode == 0) // 0 lines feed antes del corte
 	if err != nil {
 		return fmt.Errorf("error al generar comando de corte: %w", err)
 	}

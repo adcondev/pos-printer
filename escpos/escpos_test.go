@@ -15,7 +15,7 @@ import (
 // ============================================================================
 
 func TestCommands_Raw_EmptyBuffer(t *testing.T) {
-	cmd := escpos.NewEscposProtocol()
+	cmd := escpos.NewEscposCommands()
 
 	_, err := cmd.Raw([]byte(""))
 
@@ -25,7 +25,7 @@ func TestCommands_Raw_EmptyBuffer(t *testing.T) {
 }
 
 func TestCommands_Raw_ValidInput(t *testing.T) {
-	cmd := escpos.NewEscposProtocol()
+	cmd := escpos.NewEscposCommands()
 
 	tests := []struct {
 		name  string
@@ -64,27 +64,27 @@ func TestCommands_Raw_ValidInput(t *testing.T) {
 }
 
 func TestNewEscposProtocol_Initialization(t *testing.T) {
-	cmd := escpos.NewEscposProtocol()
+	cmd := escpos.NewEscposCommands()
 
 	// Verify Commands struct is created
 	if cmd == nil {
-		t.Fatal("NewEscposProtocol() returned nil")
+		t.Fatal("NewEscposCommands() returned nil")
 	}
 
 	// Verify Print capability is initialized
 	if cmd.Print == nil {
-		t.Fatal("NewEscposProtocol() Print capability should not be nil")
+		t.Fatal("NewEscposCommands() Print capability should not be nil")
 	}
 
 	// Verify LineSpacing capability is initialized
 	if cmd.LineSpacing == nil {
-		t.Fatal("NewEscposProtocol() LineSpacing capability should not be nil")
+		t.Fatal("NewEscposCommands() LineSpacing capability should not be nil")
 	}
 
 }
 
 func TestCommands_Integration_PrintWithLineSpacing(t *testing.T) {
-	cmd := escpos.NewEscposProtocol()
+	cmd := escpos.NewEscposCommands()
 
 	// Set line spacing
 	spacingResult := cmd.LineSpacing.SetLineSpacing(40)

@@ -5,78 +5,55 @@ import (
 	"log"
 
 	"github.com/adcondev/pos-printer/connector"
+	"github.com/adcondev/pos-printer/devices"
 	"github.com/adcondev/pos-printer/escpos"
-	"github.com/adcondev/pos-printer/escpos/shared"
-	"github.com/adcondev/pos-printer/pos"
 	"github.com/adcondev/pos-printer/profile"
 )
 
 // printHeader imprime el encabezado del documento de prueba
-func printHeader(printer *pos.EscposPrinter) error {
-	if err := printer.SetJustification(escpos.AlignCenter); err != nil {
+func printHeader(printer *devices.Printer) error {
+	// Título centrado y en negrita
+	if err := printer.PrintTitle("PRUEBA RÁPIDA DE IMPRESIÓN"); err != nil {
 		return err
 	}
-	if err := printer.SetEmphasis(escpos.EmphasizedOn); err != nil {
-		return err
-	}
-	if err := printer.TextLn("PRUEBA RÁPIDA DE IMPRESIÓN"); err != nil {
-		return err
-	}
-	if err := printer.SetEmphasis(escpos.EmphasizedOff); err != nil {
-		return err
-	}
-	if err := printer.TextLn("================================"); err != nil {
-		return err
-	}
-	return printer.SetJustification(escpos.AlignLeft)
+
+	// Separador
+	return printer.PrintSeparator("=", 32)
 }
 
 // printMainContent imprime el contenido principal del documento
-func printMainContent(printer *pos.EscposPrinter) error {
-	if err := printer.TextLn("Esta es una prueba básica de la impresora completamente desacoplada."); err != nil {
+func printMainContent(printer *devices.Printer) error {
+	if err := printer.PrintLine("Esta es una prueba básica de la impresora completamente desacoplada."); err != nil {
 		return err
 	}
-	return printer.TextLn("")
+	return printer.NewLine()
 }
 
 // printAdvantages imprime la lista de ventajas de la nueva arquitectura
-func printAdvantages(printer *pos.EscposPrinter) error {
-	if err := printer.SetEmphasis(escpos.EmphasizedOn); err != nil {
-		return err
-	}
-	if err := printer.TextLn("Ventajas de la nueva arquitectura:"); err != nil {
-		return err
-	}
-	if err := printer.SetEmphasis(escpos.EmphasizedOff); err != nil {
+func printAdvantages(printer *devices.Printer) error {
+	// Encabezado en negrita
+	if err := printer.PrintHeader("Ventajas de la nueva arquitectura:"); err != nil {
 		return err
 	}
 
 	// Lista de ventajas
 	advantages := []string{
-		"- Protocolos intercambiables",
+		"- Comandos ESCPOS completos",
 		"- Conectores independientes",
 		"- Perfiles intercambiables",
 		"- Plantillas de ticket",
 		"- Procesamiento de imágenes mejorado",
 	}
 
-	for _, advantage := range advantages {
-		if err := printer.TextLn(advantage); err != nil {
-			return err
-		}
-	}
-	return nil
+	return printer.PrintLines(advantages)
 }
 
 // finishPrinting alimenta papel y corta
-func finishPrinting(printer *pos.EscposPrinter) error {
-	if err := printer.Feed(2); err != nil {
+func finishPrinting(printer *devices.Printer) error {
+	if err := printer.Feed(3); err != nil {
 		return err
 	}
-	if _, err := printer.Connector.Write([]byte{shared.GS, 'V', 66, 3}); err != nil {
-		return err
-	}
-	return nil
+	return printer.PartialCut()
 }
 
 func main() {
@@ -89,31 +66,32 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error al crear el conector: %v", err)
 	}
-	defer func(conn *connector.WindowsPrintConnector) {
-		err := conn.Close()
-		if err != nil {
+	defer func() {
+		if err := conn.Close(); err != nil {
 			log.Printf("Error al cerrar el conector: %v", err)
 		}
-	}(conn)
+	}()
 
 	// Crear perfil de impresora
 	prof := profile.CreateProfile80mm()
 
-	// Crear instancia de impresora genérica
-	printer, err := pos.NewPrinter(pos.EscposProto, conn, prof)
+	// Crear protocolo ESCPOS
+	proto := escpos.NewEscposCommands()
+
+	// Crear instancia de impresora
+	printer, err := devices.NewPrinter(proto, prof, conn)
 	if err != nil {
-		log.Printf("Error al crear la impresora: %v", err)
+		log.Panicf("Error al crear la impresora: %v", err)
 	}
-	defer func(printer *pos.EscposPrinter) {
-		err := printer.Close()
-		if err != nil {
+	defer func() {
+		if err := printer.Close(); err != nil {
 			log.Printf("Error al cerrar la impresora: %v", err)
 		}
-	}(printer)
+	}()
 
 	// Inicializar impresora
 	log.Println("Enviando comandos de prueba...")
-	if err = printer.Initialize(); err != nil {
+	if err := printer.Initialize(); err != nil {
 		log.Printf("Error al inicializar: %v", err)
 	}
 
