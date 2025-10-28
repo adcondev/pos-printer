@@ -1,0 +1,13 @@
+# https://taskfile.dev
+
+version: '3'
+
+tasks:
+  test:
+    cmds:
+      - echo "Running escpos tests..."
+      - go test
+  lint:
+    cmds:
+      - echo "Running escpos linters..."
+      - golangci-lint run

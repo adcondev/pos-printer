@@ -9,25 +9,8 @@ import (
 // ============================================================================
 // Maps and helpers
 // ============================================================================
-// Mapas para convertir enums genéricos a valores ESC/POS.
 
-// TODO: Comandos para posicionar texto e imágenes
-// - Tabulación
-// - Posicionamiento absoluto
-// - Posicionamiento relativo
-
-// SetPrintLeftMargin sets the left margin for printing
-func (c *Protocol) SetPrintLeftMargin(_ byte) []byte {
-	// TODO: Implementar usando GS L nL nH
-	return []byte{}
-}
-
-// SetPrintWidth establece el ancho de impresión
-func (c *Protocol) SetPrintWidth(_ byte) []byte {
-	// TODO: Implementar usando GS W nL nH
-	return []byte{}
-}
-
+// alignMap mapea las alineaciones genéricas a sus valores ESC/POS correspondientes.
 var alignMap = map[Alignment]byte{
 	AlignLeft:   0, // ESC/POS: 0 = left
 	AlignCenter: 1, // ESC/POS: 1 = center

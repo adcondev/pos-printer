@@ -18,7 +18,7 @@ func TestIntegration_PrintWithLineSpacing_RealImplementations(t *testing.T) {
 	cmd := escpos.NewEscposProtocol()
 
 	// Set custom line spacing
-	spacingCmd := cmd.LineSpace.SetLineSpacing(50)
+	spacingCmd := cmd.LineSpacing.SetLineSpacing(50)
 	expectedSpacing := []byte{shared.ESC, '3', 50}
 
 	if !bytes.Equal(spacingCmd, expectedSpacing) {
@@ -57,7 +57,7 @@ func TestIntegration_CompleteReceiptFlow(t *testing.T) {
 			name: "set line spacing",
 			// FIXME: change anonymous func to utils helpers
 			action: func() ([]byte, error) {
-				return cmd.LineSpace.SetLineSpacing(40), nil
+				return cmd.LineSpacing.SetLineSpacing(40), nil
 			},
 			verify: func(result []byte) error {
 				expected := []byte{shared.ESC, '3', 40}
@@ -139,8 +139,8 @@ func TestIntegration_CompleteReceiptFlow(t *testing.T) {
 func TestIntegration_CustomCapabilities(t *testing.T) {
 	// Create a custom Commands with specific implementations
 	customCmd := &escpos.Protocol{
-		Print:     &print.Commands{},
-		LineSpace: &linespacing.Commands{},
+		Print:       &print.Commands{},
+		LineSpacing: &linespacing.Commands{},
 	}
 
 	// Test that custom configuration works
@@ -155,7 +155,7 @@ func TestIntegration_CustomCapabilities(t *testing.T) {
 	})
 
 	t.Run("custom line spacing capability", func(t *testing.T) {
-		spacing := customCmd.LineSpace.SetLineSpacing(25)
+		spacing := customCmd.LineSpacing.SetLineSpacing(25)
 		expected := []byte{shared.ESC, '3', 25}
 		if !bytes.Equal(spacing, expected) {
 			t.Errorf("SetLineSpacing() = %#v, want %#v", spacing, expected)

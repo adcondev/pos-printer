@@ -9,7 +9,8 @@ import (
 // ============================================================================
 // Maps and constants
 // ============================================================================
-// Map que convierte CutPaper (enum del paquete) a los bytes ESC/POS
+
+// cutMap mapea los modos de corte a sus valores ESC/POS correspondientes.
 var cutMap = map[CutPaper]byte{
 	FullCut:    '0',
 	PartialCut: '1',

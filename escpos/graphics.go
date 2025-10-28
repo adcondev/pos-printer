@@ -10,20 +10,13 @@ import (
 // ============================================================================
 // Type / Constant maps and helpers
 // ============================================================================
-// Mapas y helpers para modos de imagen.
 
+// densityMap mapea las densidades de impresión a sus valores ESC/POS correspondientes.
 var densityMap = map[Density]byte{
 	DensitySingle:    0, // Modo normal (200 DPI vertical y horizontal)
 	DensityDouble:    1, // Modo de doble ancho (200 DPI vertical y 100 DPI horizontal)
 	DensityTriple:    2, // Modo de doble altura (100 DPI vertical y 200 DPI horizontal)
 	DensityQuadruple: 3, // Modo cuádruple (100 DPI vertical y horizontal)
-}
-
-var bitImageMap = map[BitImageMode]byte{
-	Mode8DotSingleDen:  0,
-	Mode8DotDoubleDen:  1,
-	Mode24DotSingleDen: 32,
-	Mode24DotDoubleDen: 33,
 }
 
 // ESCImage encapsula una imagen preparada para ESC/POS.
@@ -47,11 +40,6 @@ func newESCImageFromPrintImage(img *imaging.PrintImage) (*ESCImage, error) {
 	return &ESCImage{
 		printImage: img,
 	}, nil
-}
-
-// GetWidth devuelve el ancho en píxeles
-func (e *ESCImage) GetWidth() int {
-	return e.printImage.Width
 }
 
 // GetHeight devuelve el alto en píxeles
@@ -132,29 +120,4 @@ func (c *Protocol) PrintRasterBitImage(img *imaging.PrintImage, density Density)
 	cmd = append(cmd, rasterData...)
 
 	return cmd, nil
-}
-
-// GetMaxImageWidth devuelve el ancho máximo de imagen que soporta la impresora
-func (c *Protocol) GetMaxImageWidth(paperWidth, dpi int) int {
-	// Cálculo basado en el ancho del papel y resolución
-	// Formula: (ancho_papel_mm / 25.4) * dpi
-	if paperWidth > 0 && dpi > 0 {
-		return int((float64(paperWidth) / 25.4) * float64(dpi))
-	}
-
-	// Valores predeterminados si no hay configuración
-	if paperWidth >= 80 {
-		return 576 // Para papel de 80mm a 203dpi
-	}
-	return 384 // Para papel de 58mm a 203dpi
-}
-
-// SelectBitImageMode selecciona el modo de imagen de bits y prepara los datos para impresión
-func SelectBitImageMode(m BitImageMode, nL, nH byte, data []byte) ([]byte, error) {
-	mode, ok := bitImageMap[m]
-	if !ok {
-		return nil, fmt.Errorf("invalid bit image mode: %v", m)
-	}
-	cmd := []byte{shared.ESC, '*', mode, nL, nH}
-	return append(cmd, data...), nil
 }

@@ -1,0 +1,90 @@
+# https://taskfile.dev
+
+version: '3'
+
+vars:
+  GP_TEST_FLAGS: -v
+  LINT_FLAGS: --timeout=5m
+  BANNER: |
+    ╔══════════════════════════════════════════════════════════╗
+    ║                                                          ║
+    ║   ██████╗  ██████╗ ███████╗████████╗███████╗██████╗      ║
+    ║   ██╔══██╗██╔═══██╗██╔════╝╚══██╔══╝██╔════╝██╔══██╗     ║
+    ║   ██████╔╝██║   ██║███████╗   ██║   █████╗  ██████╔╝     ║
+    ║   ██╔═══╝ ██║   ██║╚════██║   ██║   ██╔══╝  ██╔══██╗     ║
+    ║   ██║     ╚██████╔╝███████║   ██║   ███████╗██║  ██║     ║
+    ║   ╚═╝      ╚═════╝ ╚══════╝   ╚═╝   ╚══════╝╚═╝  ╚═╝     ║
+    ║                                                          ║
+    ║          The self‑possessed POS daemon for Go            ║
+    ║                  ESCPOS · ZPL · Scale                    ║
+    ║           Serial · USB · Network · Bluetooth             ║
+    ║                                                          ║
+    ╚══════════════════════════════════════════════════════════╝
+
+includes:
+  barcode:
+    taskfile: ./escpos/barcode/Taskfile.yml
+    dir: ./escpos/barcode
+    aliases:
+      - bc
+  bitimage:
+    taskfile: ./escpos/bitimage/Taskfile.yml
+    dir: ./escpos/bitimage
+    aliases:
+      - bi
+  character:
+    taskfile: ./escpos/character/Taskfile.yml
+    dir: ./escpos/character
+    aliases:
+      - ch
+  linespacing:
+    taskfile: ./escpos/linespacing/Taskfile.yml
+    dir: ./escpos/linespacing
+    aliases:
+      - ls
+  mechanismcontrol:
+    taskfile: ./escpos/mechanismcontrol/Taskfile.yml
+    dir: ./escpos/mechanismcontrol
+    aliases:
+      - mc
+  print:
+    taskfile: ./escpos/print/Taskfile.yml
+    dir: ./escpos/print
+    aliases:
+      - pr
+  printposition:
+    taskfile: ./escpos/printposition/Taskfile.yml
+    dir: ./escpos/printposition
+    aliases:
+      - pp
+  shared:
+    taskfile: ./escpos/shared/Taskfile.yml
+    dir: ./escpos/shared
+    aliases:
+      - sh
+  escpos:
+    taskfile: ./escpos/Taskfile.yml
+    dir: ./escpos
+    aliases:
+      - ep
+
+tasks:
+  default:
+    cmds:
+      - echo "{{.BANNER}}"
+    silent: true
+  build:
+    deps:
+      - test
+      - lint
+    cmds:
+      - echo "Building the project..."
+      - go build ./...
+  lint:
+    cmds:
+      - echo "Running linters..."
+        - golangci-lint run {{.LINT_FLAGS}}
+  test:
+    cmds:
+      - echo "Running all tests in detail..."
+        - go test {{.GP_TEST_FLAGS}} ./...
