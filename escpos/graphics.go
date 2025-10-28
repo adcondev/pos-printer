@@ -72,7 +72,7 @@ func (e *ESCImage) toRasterFormat() []byte {
 // Funciones que generan comandos ESC/POS para imágenes y modos de bits.
 
 // PrintRasterBitImage genera los comandos para imprimir una imagen rasterizada
-func (c *Protocol) PrintRasterBitImage(img *imaging.PrintImage, density Density) ([]byte, error) {
+func (c *Commands) PrintRasterBitImage(img *imaging.PrintImage, density Density) ([]byte, error) {
 	// Crear ESCImage
 	escImg, err := newESCImageFromPrintImage(img)
 	if err != nil {

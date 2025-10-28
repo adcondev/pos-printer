@@ -61,7 +61,7 @@ var codePageMap = map[CodePage]byte{
 // ============================================================================
 
 // SelectCharacterTable selecciona el conjunto de caracteres para la impresora
-func (c *Protocol) SelectCharacterTable(table encoding.CharacterSet) ([]byte, error) {
+func (c *Commands) SelectCharacterTable(table encoding.CharacterSet) ([]byte, error) {
 	encoder, ok := encoding.Registry[table]
 	if !ok {
 		return nil, fmt.Errorf("error: conjunto de caracteres %s no soportado por implementacion", encoder.Name)
@@ -79,6 +79,6 @@ func (c *Protocol) SelectCharacterTable(table encoding.CharacterSet) ([]byte, er
 }
 
 // CancelKanjiMode deactivates Kanji mode
-func (c *Protocol) CancelKanjiMode() []byte {
+func (c *Commands) CancelKanjiMode() []byte {
 	return []byte{shared.FS, '.'}
 }

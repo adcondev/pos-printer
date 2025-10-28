@@ -40,7 +40,7 @@ var fontMap = map[Font]byte{
 // Funciones públicas para cambiar formatos de texto.
 
 // SelectCharacterFont sets the character font
-func (c *Protocol) SelectCharacterFont(n Font) ([]byte, error) {
+func (c *Commands) SelectCharacterFont(n Font) ([]byte, error) {
 	font, ok := fontMap[n]
 	if !ok {
 		return nil, fmt.Errorf("no font found for font %v", n)
@@ -51,7 +51,7 @@ func (c *Protocol) SelectCharacterFont(n Font) ([]byte, error) {
 }
 
 // TurnEmphasizedMode enables or disables emphasized mode
-func (c *Protocol) TurnEmphasizedMode(n EmphasizedMode) ([]byte, error) {
+func (c *Commands) TurnEmphasizedMode(n EmphasizedMode) ([]byte, error) {
 	emph, ok := emphMap[n]
 	if !ok {
 		return nil, fmt.Errorf("no emph mode found")
@@ -61,7 +61,7 @@ func (c *Protocol) TurnEmphasizedMode(n EmphasizedMode) ([]byte, error) {
 }
 
 // SetDoubleStrike activa/desactiva doble golpe
-func (c *Protocol) SetDoubleStrike(on bool) []byte {
+func (c *Commands) SetDoubleStrike(on bool) []byte {
 	val := byte(0)
 	if on {
 		val = 1
@@ -71,7 +71,7 @@ func (c *Protocol) SetDoubleStrike(on bool) []byte {
 }
 
 // TurnUnderlineMode enables or disables underline mode
-func (c *Protocol) TurnUnderlineMode(n UnderlineMode) ([]byte, error) {
+func (c *Commands) TurnUnderlineMode(n UnderlineMode) ([]byte, error) {
 	mode, ok := ulModeMap[n]
 	if !ok {
 		return nil, fmt.Errorf("invalid underline mode: %d", n)

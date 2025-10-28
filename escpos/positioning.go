@@ -23,7 +23,7 @@ var alignMap = map[Alignment]byte{
 // Funciones que usan los mapas anteriores para generar comandos ESC/POS.
 
 // SetJustification convierte el tipo genérico al específico de ESC/POS
-func (c *Protocol) SetJustification(justification Alignment) ([]byte, error) {
+func (c *Commands) SetJustification(justification Alignment) ([]byte, error) {
 	alignment, ok := alignMap[justification]
 	if !ok {
 		return nil, fmt.Errorf("justificación no soportada: %v", justification)
