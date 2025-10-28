@@ -14,6 +14,7 @@ import (
 // CodePage define los conjuntos de caracteres estándar
 type CodePage byte
 
+// TODO: Arreglar linter para que no marque error en iota
 const (
 	CP437      CodePage = iota // CP437 U.S.A. / Standard Europe
 	Katakana                   // Katakana (JIS X 0201)
