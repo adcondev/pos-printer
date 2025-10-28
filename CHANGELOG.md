@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.8.0](https://github.com/AdConDev/pos-daemon/compare/v1.7.0...v1.8.0) (2025-10-28)
+
+
+### ✨ Features
+
+* **taskfiles:** add Task files to automate and improve some processes ([#48](https://github.com/adcondev/pos-printer/issues/48)) ([54de86c](https://github.com/AdConDev/pos-daemon/commit/54de86c6bde378206dca8c8d2f86627e45d3eff5))
+
 ## [1.7.0](https://github.com/AdConDev/pos-daemon/compare/v1.6.0...v1.7.0) (2025-10-23)
 
 
