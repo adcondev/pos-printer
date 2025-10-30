@@ -186,11 +186,11 @@ func (c *Commands) SetHorizontalTabPositions(positions []byte) ([]byte, error) {
 // Errors:
 //
 //	Returns ErrPrintDirection if direction is not a valid value (0-3, 48-51).
-func (c *Commands) SelectPrintDirectionPageMode(direction byte) ([]byte, error) {
+func (c *Commands) SelectPrintDirectionPageMode(direction PrintDirection) ([]byte, error) {
 	if err := ValidatePrintDirection(direction); err != nil {
 		return nil, err
 	}
-	return []byte{shared.ESC, 'T', direction}, nil
+	return []byte{shared.ESC, 'T', byte(direction)}, nil
 }
 
 // SetPrintAreaPageMode sets the print area and logical origin in Page mode.
@@ -310,7 +310,7 @@ func (c *Commands) SetRelativePrintPosition(distance int16) []byte {
 //
 //	mode: Justification mode:
 //	      0 or 48 -> Left justification
-//	      1 or 49 -> Centered
+//	      1 or 49 -> CenterAlign
 //	      2 or 50 -> Right justification
 //
 // Notes:
@@ -324,11 +324,11 @@ func (c *Commands) SetRelativePrintPosition(distance int16) []byte {
 // Errors:
 //
 //	Returns ErrJustification if mode is not a valid value (0-2, 48-50).
-func (c *Commands) SelectJustification(mode byte) ([]byte, error) {
+func (c *Commands) SelectJustification(mode Justification) ([]byte, error) {
 	if err := ValidateJustification(mode); err != nil {
 		return nil, err
 	}
-	return []byte{shared.ESC, 'a', mode}, nil
+	return []byte{shared.ESC, 'a', byte(mode)}, nil
 }
 
 // SetAbsoluteVerticalPrintPosition sets the absolute vertical print position in Page mode.
@@ -447,11 +447,11 @@ func (c *Commands) SetLeftMargin(margin uint16) []byte {
 // Errors:
 //
 //	Returns ErrBeginLineMode if mode is not a valid value (0, 1, 48, 49).
-func (c *Commands) SetPrintPositionBeginningLine(mode byte) ([]byte, error) {
+func (c *Commands) SetPrintPositionBeginningLine(mode BeginLine) ([]byte, error) {
 	if err := ValidateBeginLineMode(mode); err != nil {
 		return nil, err
 	}
-	return []byte{shared.GS, 'T', mode}, nil
+	return []byte{shared.GS, 'T', byte(mode)}, nil
 }
 
 // SetPrintAreaWidth sets the print area width in Standard mode.

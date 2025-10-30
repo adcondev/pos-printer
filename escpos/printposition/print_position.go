@@ -23,38 +23,58 @@ const (
 	HT = 0x09
 )
 
+// Justification represents text justification modes
+type Justification byte
+
 // Justification modes
 const (
-	JustifyLeft        byte = 0x00
-	JustifyCenter      byte = 0x01
-	JustifyRight       byte = 0x02
-	JustifyLeftASCII   byte = '0'
-	JustifyCenterASCII byte = '1'
-	JustifyRightASCII  byte = '2'
+	Left        Justification = 0x00
+	Center      Justification = 0x01
+	Right       Justification = 0x02
+	LeftASCII   Justification = '0'
+	CenterASCII Justification = '1'
+	RightASCII  Justification = '2'
 )
 
-// Print direction modes (Page mode)
+// PrintDirection represents print direction modes in Page mode
+type PrintDirection byte
+
 const (
-	DirectionLeftToRight byte = 0x00 // upper left start
-	DirectionBottomToTop byte = 0x01 // lower left start
-	DirectionRightToLeft byte = 0x02 // lower right start
-	DirectionTopToBottom byte = 0x03 // upper right start
+	// LeftToRight means upper left start
+	LeftToRight PrintDirection = 0x00
+	// BottomToTop means lower left start
+	BottomToTop PrintDirection = 0x01
+	// RightToLeft means lower right start
+	RightToLeft PrintDirection = 0x02
+	// TopToBottom means upper right start
+	TopToBottom PrintDirection = 0x03
 
-	DirectionLeftToRightASCII byte = '0'
-	DirectionBottomToTopASCII byte = '1'
-	DirectionRightToLeftASCII byte = '2'
-	DirectionTopToBottomASCII byte = '3'
+	// LeftToRightASCII ASCII for upper left start
+	LeftToRightASCII PrintDirection = '0'
+	// BottomToTopASCII ASCII for lower left start
+	BottomToTopASCII PrintDirection = '1'
+	// RightToLeftASCII ASCII for lower right start
+	RightToLeftASCII PrintDirection = '2'
+	// TopToBottomASCII ASCII for upper right start
+	TopToBottomASCII PrintDirection = '3'
 )
 
-// Beginning of line operations
+// BeginLine of line operations
+type BeginLine byte
+
 const (
-	BeginLineErase byte = 0x00 // erase buffer
-	BeginLinePrint byte = 0x01 // print buffer
+	// Erase clears the print buffer from the current position to the end of the line
+	Erase BeginLine = 0x00
+	// Print prints the buffer from the current position to the end of the line
+	Print BeginLine = 0x01
 
-	BeginLineEraseASCII byte = '0'
-	BeginLinePrintASCII byte = '1'
+	// EraseASCII clears the print buffer from the current position to the end of the line
+	EraseASCII BeginLine = '0'
+	// PrintASCII prints the buffer from the current position to the end of the line
+	PrintASCII BeginLine = '1'
 )
 
+// TODO: Check if better to be var and configurable from profile
 // Tab position limits
 const (
 	MaxTabPositions = 32
@@ -92,15 +112,15 @@ type Capability interface {
 	SetHorizontalTabPositions(positions []byte) ([]byte, error)
 
 	// Justification
-	SelectJustification(mode byte) ([]byte, error)
+	SelectJustification(mode Justification) ([]byte, error)
 
 	// Margins and print area
 	SetLeftMargin(margin uint16) []byte
 	SetPrintAreaWidth(width uint16) []byte
-	SetPrintPositionBeginningLine(mode byte) ([]byte, error)
+	SetPrintPositionBeginningLine(mode BeginLine) ([]byte, error)
 
 	// Page mode specific
-	SelectPrintDirectionPageMode(direction byte) ([]byte, error)
+	SelectPrintDirectionPageMode(direction PrintDirection) ([]byte, error)
 	SetPrintAreaPageMode(x, y, width, height uint16) ([]byte, error)
 	SetAbsoluteVerticalPrintPosition(position uint16) []byte
 	SetRelativeVerticalPrintPosition(distance int16) []byte
@@ -129,10 +149,10 @@ func NewCommands() *Commands {
 // ============================================================================
 
 // ValidateJustification validates if justification mode is valid.
-func ValidateJustification(mode byte) error {
+func ValidateJustification(mode Justification) error {
 	switch mode {
-	case JustifyLeft, JustifyCenter, JustifyRight,
-		JustifyLeftASCII, JustifyCenterASCII, JustifyRightASCII:
+	case Left, Center, Right,
+		LeftASCII, CenterASCII, RightASCII:
 		return nil
 	default:
 		return ErrJustification
@@ -140,10 +160,10 @@ func ValidateJustification(mode byte) error {
 }
 
 // ValidatePrintDirection validates if print direction is valid.
-func ValidatePrintDirection(direction byte) error {
+func ValidatePrintDirection(direction PrintDirection) error {
 	switch direction {
-	case DirectionLeftToRight, DirectionBottomToTop, DirectionRightToLeft, DirectionTopToBottom,
-		DirectionLeftToRightASCII, DirectionBottomToTopASCII, DirectionRightToLeftASCII, DirectionTopToBottomASCII:
+	case LeftToRight, BottomToTop, RightToLeft, TopToBottom,
+		LeftToRightASCII, BottomToTopASCII, RightToLeftASCII, TopToBottomASCII:
 		return nil
 	default:
 		return ErrPrintDirection
@@ -151,9 +171,9 @@ func ValidatePrintDirection(direction byte) error {
 }
 
 // ValidateBeginLineMode validates if begin line mode is valid.
-func ValidateBeginLineMode(mode byte) error {
+func ValidateBeginLineMode(mode BeginLine) error {
 	switch mode {
-	case BeginLineErase, BeginLinePrint, BeginLineEraseASCII, BeginLinePrintASCII:
+	case Erase, Print, EraseASCII, PrintASCII:
 		return nil
 	default:
 		return ErrBeginLineMode

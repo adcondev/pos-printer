@@ -40,6 +40,7 @@ func NewPrinter(proto *escpos.Commands, prof *profile.Escpos, conn connector.Con
 
 // Initialize resets the printer to default settings
 func (p *Printer) Initialize() error {
+	// TODO: Add profile-specific initialization if needed
 	cmd := p.Protocol.Initialize()
 	_, err := p.Connection.Write(cmd)
 	return err
@@ -204,10 +205,7 @@ func (p *Printer) FullCut() error {
 
 // PartialCut performs a partial paper cut
 func (p *Printer) PartialCut() error {
-	cmd, err := p.Protocol.PartialCut()
-	if err != nil {
-		return err
-	}
+	cmd := p.Protocol.PartialCut()
 	return p.Write(cmd)
 }
 
@@ -231,7 +229,7 @@ func (p *Printer) PrintTitle(title string) error {
 		return err
 	}
 
-	// Bold on
+	// BoldText on
 	if err := p.Bold(true); err != nil {
 		return err
 	}
