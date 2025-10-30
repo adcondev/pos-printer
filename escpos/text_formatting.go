@@ -39,17 +39,6 @@ var fontMap = map[Font]byte{
 // ============================================================================
 // Funciones públicas para cambiar formatos de texto.
 
-// SelectCharacterFont sets the character font
-func (c *Commands) SelectCharacterFont(n Font) ([]byte, error) {
-	font, ok := fontMap[n]
-	if !ok {
-		return nil, fmt.Errorf("no font found for font %v", n)
-	}
-
-	// ESC M n
-	return []byte{shared.ESC, 'M', font}, nil
-}
-
 // TurnEmphasizedMode enables or disables emphasized mode
 func (c *Commands) TurnEmphasizedMode(n EmphasizedMode) ([]byte, error) {
 	emph, ok := emphMap[n]

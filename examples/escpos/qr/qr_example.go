@@ -6,13 +6,14 @@ import (
 
 	"github.com/adcondev/pos-printer/connector"
 	"github.com/adcondev/pos-printer/escpos"
+	"github.com/adcondev/pos-printer/escpos/character"
 	"github.com/adcondev/pos-printer/pos"
 	"github.com/adcondev/pos-printer/profile"
 )
 
 // printQRHeader imprime el encabezado del documento QR
 func printQRHeader(printer *pos.EscposPrinter) error {
-	if err := printer.SetFont(escpos.FontA); err != nil {
+	if err := printer.SetFont(character.FontType(escpos.FontA)); err != nil {
 		return err
 	}
 	if err := printer.SetJustification(escpos.AlignCenter); err != nil {

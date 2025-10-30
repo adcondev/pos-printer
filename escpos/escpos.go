@@ -48,7 +48,6 @@ func NewEscposCommands() *Commands {
 
 // Initialize restores the printer to its default state
 func (c *Commands) Initialize() []byte {
-	// ESC @ - Reset printer
 	return []byte{shared.ESC, '@'}
 }
 
@@ -173,7 +172,7 @@ func (c *Commands) Align(alignment string) ([]byte, error) {
 	default:
 		return nil, fmt.Errorf("invalid alignment: %s (use left, center, or right)", alignment)
 	}
-	return c.PrintPosition.SelectJustification(mode)
+	return c.PrintPosition.SelectJustification(printposition.Justification(mode))
 }
 
 // AlignLeft sets left justification.
@@ -201,7 +200,6 @@ func (c *Commands) Size(width, height byte) ([]byte, error) {
 }
 
 // NormalSize resets the character size to normal.
-// Internally uses: Character.SelectCharacterSize(1, 1)
 func (c *Commands) NormalSize() []byte {
 	size, _ := character.NewSize(1, 1)
 	return c.Character.SelectCharacterSize(size)
@@ -262,8 +260,8 @@ func (c *Commands) FullCut() ([]byte, error) {
 }
 
 // PartialCut performs a partial paper cut.
-func (c *Commands) PartialCut() ([]byte, error) {
-	return c.MechanismControl.CutPaper(mechanismcontrol.CutModePartial)
+func (c *Commands) PartialCut() []byte {
+	return c.MechanismControl.PartialCut()
 }
 
 // FeedAndCut feeds paper then performs a cut.

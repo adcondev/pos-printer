@@ -41,7 +41,7 @@ type EscposPrinter struct {
 
 	// Opcional: Estado interno
 	initialized     escpos.PrinterInitiated
-	activeFont      escpos.Font
+	activeFont      character.FontType
 	activeAlignment escpos.Alignment
 	activeUnderline escpos.UnderlineMode
 	activeCharset   encoding.CharacterSet
@@ -71,10 +71,10 @@ func NewPrinter(proto Protocol, conn connector.Connector, prof *profile.Escpos) 
 		Connector:       conn,
 		Profile:         prof,
 		initialized:     false,
-		activeFont:      escpos.FontA,
+		activeFont:      character.FontA,
 		activeAlignment: escpos.AlignLeft,
 		activeUnderline: escpos.UnderNone,
-		activeCharset:   prof.DefaultCharSet,
+		activeCharset:   encoding.CharacterSet(prof.DefaultCharSet),
 		activeEmphasis:  escpos.EmphasizedOff,
 		protocolType:    proto,
 	}
@@ -178,12 +178,12 @@ func (ep *EscposPrinter) SetJustification(alignment escpos.Alignment) error {
 }
 
 // SetFont establece la fuente
-func (ep *EscposPrinter) SetFont(font escpos.Font) error {
+func (ep *EscposPrinter) SetFont(font character.FontType) error {
 	var cmd []byte
 	var err error
 	switch protoMap[ep.protocolType] {
 	case "Escpos":
-		cmd, err = ep.Escpos.SelectCharacterFont(font)
+		cmd, err = ep.Escpos.SetCharacterFont(font)
 		if err != nil {
 			return err
 		}
@@ -286,7 +286,7 @@ func (ep *EscposPrinter) Print(str string) error {
 		// Fallback: intentar con el charset por defecto
 		log.Printf("Error codificando con charset %d, volviendo a default: %v",
 			ep.activeCharset, err)
-		encoded, err = encoding.EncodeString(str, ep.Profile.DefaultCharSet)
+		encoded, err = encoding.EncodeString(str, encoding.CharacterSet(ep.Profile.DefaultCharSet))
 		if err != nil {
 			return fmt.Errorf("fallo al codificar texto %s: %w", str, err)
 		}
@@ -310,9 +310,9 @@ func (ep *EscposPrinter) TextLn(str string) error {
 	encoded, err := encoding.EncodeString(str+"\n", ep.activeCharset)
 	if err != nil {
 		log.Printf("trying default... failed to encode text \"%s\": %v", str, encoding.Registry[ep.activeCharset].Name)
-		encoded, err = encoding.EncodeString(str+"\n", ep.Profile.DefaultCharSet)
+		encoded, err = encoding.EncodeString(str+"\n", encoding.CharacterSet(ep.Profile.DefaultCharSet))
 		if err != nil {
-			log.Printf("failed to encode text \"%s\": %v", str, encoding.Registry[ep.Profile.DefaultCharSet].Name)
+			log.Printf("failed to encode text \"%s\": %v", str, encoding.Registry[encoding.CharacterSet(ep.Profile.DefaultCharSet)].Name)
 			return err
 		}
 	}

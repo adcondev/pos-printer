@@ -2,21 +2,20 @@ package profile
 
 import (
 	"github.com/adcondev/pos-printer/encoding"
+	"github.com/adcondev/pos-printer/escpos/character"
 )
 
 // Escpos define todas las características físicas y capacidades de una impresora
 type Escpos struct {
 	// Información básica
-	Model       string
-	Vendor      string
-	Description string
+	Model string
 
 	// Características físicas
 	PaperWidth  float64 // en mm (58mm, 80mm, etc.)
 	PaperHeight float64 // en mm (0 para rollo continuo)
 	DPI         int     // Dots Per Inch (ej. 203, 300)
 	DotsPerLine int     // Puntos por línea (ej. 384, 576)
-	PrintWidth  int     // Ancho de impresión en mm (ej. 48)
+	PrintWidth  int     // Ancho de impresión en mm (ej. 48, 42 en Font A)
 
 	// Capacidades
 	SupportsGraphics bool // Soporta gráficos (imágenes)
@@ -29,22 +28,18 @@ type Escpos struct {
 
 	// Juegos de caracteres
 	CharacterSets  []encoding.CharacterSet // Códigos de página soportados
-	DefaultCharSet encoding.CharacterSet   // Código de página por defecto0
+	DefaultCharSet character.CodeTable     // Código de página por defecto
 
 	// Configuración avanzada (opcional)
 	ImageThreshold int // Umbral para conversión B/N (0-255)
 
 	// Fuentes
 	Fonts map[string]int // Lista de fuentes soportadas, nombre -> ancho (en puntos)
-
-	// Extensible para características específicas
-	// Usar un mapa genérico permite agregar características sin cambiar la estructura
-	ExtendedFeatures map[string]interface{}
 }
 
 // ModelInfo devuelve una representación de string del modelo
 func (p *Escpos) ModelInfo() string {
-	return p.Vendor + " " + p.Model
+	return p.Model
 }
 
 // GetCharWidth calcula el ancho físico de un caracter en milímetros
@@ -56,7 +51,6 @@ func (p *Escpos) GetCharWidth(font string) int {
 func CreatePt210() *Escpos {
 	p := CreateProfile58mm()
 	p.Model = "58mm PT-210"
-	p.Vendor = "GOOJPRT"
 	p.CharacterSets = []encoding.CharacterSet{
 		encoding.CP437,
 		encoding.Katakana,
@@ -71,9 +65,9 @@ func CreatePt210() *Escpos {
 		encoding.CP858,
 	}
 
-	p.DefaultCharSet = encoding.CP858 // CP858 para español
-	p.QRMaxVersion = 19               // Máxima versión QR soportada
-	p.SupportsQR = true               // Soporta QR nativo
+	p.DefaultCharSet = character.PC850 // CP858 para español
+	p.QRMaxVersion = 19                // Máxima versión QR soportada
+	p.SupportsQR = true                // Soporta QR nativo
 	return p
 }
 
@@ -108,9 +102,7 @@ func CreateGP58N() *Escpos {
 // CreateProfile58mm crea un perfil para impresora térmica de 58mm común
 func CreateProfile58mm() *Escpos {
 	return &Escpos{
-		Model:       "Generic 58mm",
-		Vendor:      "Generic",
-		Description: "Impresora térmica genérica de 58mm",
+		Model: "Generic 58mm",
 
 		PaperWidth:  58,
 		DPI:         203,
@@ -148,8 +140,6 @@ func CreateProfile58mm() *Escpos {
 			"FontA": 12, // Ancho de 12 puntos
 			"FontB": 9,  // Ancho de 9 puntos
 		},
-
-		ExtendedFeatures: make(map[string]interface{}),
 	}
 }
 
@@ -177,16 +167,14 @@ func CreateECPM80250() *Escpos {
 		encoding.Latvian,
 	}
 
-	p.DefaultCharSet = encoding.CP437 // CP858 para español
+	p.DefaultCharSet = character.PC850 // CP858 para español
 	return p
 }
 
 // CreateProfile80mm crea un perfil para impresora térmica de 80mm común
 func CreateProfile80mm() *Escpos {
 	return &Escpos{
-		Model:       "Generic 80mm",
-		Vendor:      "Generic",
-		Description: "Impresora térmica genérica de 80mm",
+		Model: "Generic 80mm",
 
 		PaperWidth:  80,
 		DPI:         203,
@@ -219,11 +207,9 @@ func CreateProfile80mm() *Escpos {
 		},
 
 		// Más juegos de caracteres
-		DefaultCharSet: encoding.CP850, // CP858
+		DefaultCharSet: character.PC850, // CP858
 
 		ImageThreshold: 128,
-
-		ExtendedFeatures: make(map[string]interface{}),
 	}
 }
 

@@ -11,6 +11,3 @@ type Connector interface {
 	// - IsConnected() bool
 	// - Reset() error
 }
-
-// El WindowsPrintConnector ya implementa Write y Close,
-// así que debería cumplir con esta interfaz
