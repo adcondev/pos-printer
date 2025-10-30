@@ -19,7 +19,7 @@ func TestIntegration_PrintPosition_StandardModeWorkflow(t *testing.T) {
 		buffer = append(buffer, cmd.SetPrintAreaWidth(400)...)
 
 		// Set justification
-		justCmd, err := cmd.SelectJustification(printposition.JustifyCenter)
+		justCmd, err := cmd.SelectJustification(printposition.Center)
 		if err != nil {
 			t.Fatalf("SelectJustification: %v", err)
 		}
@@ -39,7 +39,7 @@ func TestIntegration_PrintPosition_StandardModeWorkflow(t *testing.T) {
 		buffer = append(buffer, cmd.SetRelativePrintPosition(50)...)
 
 		// Move to beginning of line
-		beginCmd, err := cmd.SetPrintPositionBeginningLine(printposition.BeginLinePrint)
+		beginCmd, err := cmd.SetPrintPositionBeginningLine(printposition.Print)
 		if err != nil {
 			t.Fatalf("SetPrintPositionBeginningLine: %v", err)
 		}
@@ -63,14 +63,14 @@ func TestIntegration_PrintPosition_StandardModeWorkflow(t *testing.T) {
 		// Test all justification modes
 		modes := []struct {
 			name string
-			mode byte
+			mode printposition.Justification
 		}{
-			{"left", printposition.JustifyLeft},
-			{"center", printposition.JustifyCenter},
-			{"right", printposition.JustifyRight},
-			{"left ASCII", printposition.JustifyLeftASCII},
-			{"center ASCII", printposition.JustifyCenterASCII},
-			{"right ASCII", printposition.JustifyRightASCII},
+			{"left", printposition.Left},
+			{"center", printposition.Center},
+			{"right", printposition.Right},
+			{"left ASCII", printposition.LeftASCII},
+			{"center ASCII", printposition.CenterASCII},
+			{"right ASCII", printposition.RightASCII},
 		}
 
 		for _, m := range modes {
@@ -154,7 +154,7 @@ func TestIntegration_PrintPosition_PageModeWorkflow(t *testing.T) {
 		var buffer []byte
 
 		// Set print direction
-		dirCmd, err := cmd.SelectPrintDirectionPageMode(printposition.DirectionLeftToRight)
+		dirCmd, err := cmd.SelectPrintDirectionPageMode(printposition.LeftToRight)
 		if err != nil {
 			t.Fatalf("SelectPrintDirectionPageMode: %v", err)
 		}
@@ -181,7 +181,7 @@ func TestIntegration_PrintPosition_PageModeWorkflow(t *testing.T) {
 		}
 
 		// Verify print direction command
-		expectedDir := []byte{shared.ESC, 'T', printposition.DirectionLeftToRight}
+		expectedDir := []byte{shared.ESC, 'T', byte(printposition.LeftToRight)}
 		if !bytes.Equal(buffer[:3], expectedDir) {
 			t.Errorf("First command = %#v, want %#v", buffer[:3], expectedDir)
 		}
@@ -190,16 +190,16 @@ func TestIntegration_PrintPosition_PageModeWorkflow(t *testing.T) {
 	t.Run("all print directions", func(t *testing.T) {
 		directions := []struct {
 			name      string
-			direction byte
+			direction printposition.PrintDirection
 		}{
-			{"left to right", printposition.DirectionLeftToRight},
-			{"bottom to top", printposition.DirectionBottomToTop},
-			{"right to left", printposition.DirectionRightToLeft},
-			{"top to bottom", printposition.DirectionTopToBottom},
-			{"left to right ASCII", printposition.DirectionLeftToRightASCII},
-			{"bottom to top ASCII", printposition.DirectionBottomToTopASCII},
-			{"right to left ASCII", printposition.DirectionRightToLeftASCII},
-			{"top to bottom ASCII", printposition.DirectionTopToBottomASCII},
+			{"left to right", printposition.LeftToRight},
+			{"bottom to top", printposition.BottomToTop},
+			{"right to left", printposition.RightToLeft},
+			{"top to bottom", printposition.TopToBottom},
+			{"left to right ASCII", printposition.LeftToRightASCII},
+			{"bottom to top ASCII", printposition.BottomToTopASCII},
+			{"right to left ASCII", printposition.RightToLeftASCII},
+			{"top to bottom ASCII", printposition.TopToBottomASCII},
 		}
 
 		for _, d := range directions {
@@ -210,7 +210,7 @@ func TestIntegration_PrintPosition_PageModeWorkflow(t *testing.T) {
 					return
 				}
 
-				expected := []byte{shared.ESC, 'T', d.direction}
+				expected := []byte{shared.ESC, 'T', byte(d.direction)}
 				if !bytes.Equal(cmd, expected) {
 					t.Errorf("Command = %#v, want %#v", cmd, expected)
 				}
@@ -262,15 +262,15 @@ func TestIntegration_PrintPosition_PageModeWorkflow(t *testing.T) {
 	t.Run("page mode with different starting positions", func(t *testing.T) {
 		testCases := []struct {
 			name      string
-			direction byte
+			direction printposition.PrintDirection
 			x, y      uint16
 			width     uint16
 			height    uint16
 		}{
-			{"upper left start", printposition.DirectionLeftToRight, 0, 0, 100, 100},
-			{"lower left start", printposition.DirectionBottomToTop, 0, 200, 100, 100},
-			{"lower right start", printposition.DirectionRightToLeft, 200, 200, 100, 100},
-			{"upper right start", printposition.DirectionTopToBottom, 200, 0, 100, 100},
+			{"upper left start", printposition.LeftToRight, 0, 0, 100, 100},
+			{"lower left start", printposition.BottomToTop, 0, 200, 100, 100},
+			{"lower right start", printposition.RightToLeft, 200, 200, 100, 100},
+			{"upper right start", printposition.TopToBottom, 200, 0, 100, 100},
 		}
 
 		for _, tc := range testCases {
@@ -309,7 +309,7 @@ func TestIntegration_PrintPosition_MixedModeTransitions(t *testing.T) {
 		// Standard mode setup
 		buffer = append(buffer, cmd.SetLeftMargin(20)...)
 		buffer = append(buffer, cmd.SetPrintAreaWidth(500)...)
-		justCmd, _ := cmd.SelectJustification(printposition.JustifyLeft)
+		justCmd, _ := cmd.SelectJustification(printposition.Left)
 		buffer = append(buffer, justCmd...)
 
 		// Standard mode positioning
@@ -317,7 +317,7 @@ func TestIntegration_PrintPosition_MixedModeTransitions(t *testing.T) {
 		buffer = append(buffer, cmd.SetRelativePrintPosition(50)...)
 
 		// Page mode commands (would be after switching to page mode)
-		dirCmd, _ := cmd.SelectPrintDirectionPageMode(printposition.DirectionLeftToRight)
+		dirCmd, _ := cmd.SelectPrintDirectionPageMode(printposition.LeftToRight)
 		buffer = append(buffer, dirCmd...)
 
 		areaCmd, _ := cmd.SetPrintAreaPageMode(0, 0, 400, 600)
@@ -344,7 +344,7 @@ func TestIntegration_PrintPosition_MixedModeTransitions(t *testing.T) {
 		buffer = append(buffer, cmd.SetAbsolutePrintPosition(200)...)
 
 		// Move to beginning and erase
-		eraseCmd, err := cmd.SetPrintPositionBeginningLine(printposition.BeginLineErase)
+		eraseCmd, err := cmd.SetPrintPositionBeginningLine(printposition.Erase)
 		if err != nil {
 			t.Fatalf("SetPrintPositionBeginningLine(erase): %v", err)
 		}
@@ -354,20 +354,20 @@ func TestIntegration_PrintPosition_MixedModeTransitions(t *testing.T) {
 		buffer = append(buffer, cmd.SetAbsolutePrintPosition(150)...)
 
 		// Move to beginning and print
-		printCmd, err := cmd.SetPrintPositionBeginningLine(printposition.BeginLinePrint)
+		printCmd, err := cmd.SetPrintPositionBeginningLine(printposition.Print)
 		if err != nil {
 			t.Fatalf("SetPrintPositionBeginningLine(print): %v", err)
 		}
 		buffer = append(buffer, printCmd...)
 
 		// Also utils ASCII variants
-		eraseASCIICmd, err := cmd.SetPrintPositionBeginningLine(printposition.BeginLineEraseASCII)
+		eraseASCIICmd, err := cmd.SetPrintPositionBeginningLine(printposition.EraseASCII)
 		if err != nil {
 			t.Fatalf("SetPrintPositionBeginningLine(erase ASCII): %v", err)
 		}
 		buffer = append(buffer, eraseASCIICmd...)
 
-		printASCIICmd, err := cmd.SetPrintPositionBeginningLine(printposition.BeginLinePrintASCII)
+		printASCIICmd, err := cmd.SetPrintPositionBeginningLine(printposition.PrintASCII)
 		if err != nil {
 			t.Fatalf("SetPrintPositionBeginningLine(print ASCII): %v", err)
 		}
@@ -547,22 +547,22 @@ func TestIntegration_PrintPosition_RealWorldScenarios(t *testing.T) {
 		var buffer []byte
 
 		// Center company name
-		centerCmd, _ := cmd.SelectJustification(printposition.JustifyCenter)
+		centerCmd, _ := cmd.SelectJustification(printposition.Center)
 		buffer = append(buffer, centerCmd...)
 		// ... print company name ...
 
 		// Left align address
-		leftCmd, _ := cmd.SelectJustification(printposition.JustifyLeft)
+		leftCmd, _ := cmd.SelectJustification(printposition.Left)
 		buffer = append(buffer, leftCmd...)
 		// ... print address ...
 
 		// Right align date/time
-		rightCmd, _ := cmd.SelectJustification(printposition.JustifyRight)
+		rightCmd, _ := cmd.SelectJustification(printposition.Right)
 		buffer = append(buffer, rightCmd...)
 		// ... print date/time ...
 
 		// Reset to left
-		resetCmd, _ := cmd.SelectJustification(printposition.JustifyLeft)
+		resetCmd, _ := cmd.SelectJustification(printposition.Left)
 		buffer = append(buffer, resetCmd...)
 
 		// Verify justification changes
@@ -588,7 +588,7 @@ func TestIntegration_PrintPosition_RealWorldScenarios(t *testing.T) {
 		// Print item rows
 		for item := 0; item < 5; item++ {
 			// Reset to beginning
-			beginCmd, _ := cmd.SetPrintPositionBeginningLine(printposition.BeginLinePrint)
+			beginCmd, _ := cmd.SetPrintPositionBeginningLine(printposition.Print)
 			buffer = append(buffer, beginCmd...)
 
 			// Tab to each column
@@ -613,7 +613,7 @@ func TestIntegration_PrintPosition_RealWorldScenarios(t *testing.T) {
 		buffer = append(buffer, cmd.SetPrintAreaWidth(300)...)
 
 		// Center barcode
-		centerCmd, _ := cmd.SelectJustification(printposition.JustifyCenter)
+		centerCmd, _ := cmd.SelectJustification(printposition.Center)
 		buffer = append(buffer, centerCmd...)
 
 		// Position for barcode
@@ -621,9 +621,9 @@ func TestIntegration_PrintPosition_RealWorldScenarios(t *testing.T) {
 		// ... print barcode ...
 
 		// Reset for text below
-		leftCmd, _ := cmd.SelectJustification(printposition.JustifyLeft)
+		leftCmd, _ := cmd.SelectJustification(printposition.Left)
 		buffer = append(buffer, leftCmd...)
-		beginCmd, _ := cmd.SetPrintPositionBeginningLine(printposition.BeginLinePrint)
+		beginCmd, _ := cmd.SetPrintPositionBeginningLine(printposition.Print)
 		buffer = append(buffer, beginCmd...)
 
 		// Verify positioning sequence
@@ -636,7 +636,7 @@ func TestIntegration_PrintPosition_RealWorldScenarios(t *testing.T) {
 		var buffer []byte
 
 		// Set up page mode for two-column layout
-		dirCmd, _ := cmd.SelectPrintDirectionPageMode(printposition.DirectionLeftToRight)
+		dirCmd, _ := cmd.SelectPrintDirectionPageMode(printposition.LeftToRight)
 		buffer = append(buffer, dirCmd...)
 
 		// Left column

@@ -235,7 +235,7 @@ func TestCommands_SelectJustification(t *testing.T) {
 
 	tests := []struct {
 		name    string
-		mode    byte
+		mode    printposition.Justification
 		want    []byte
 		wantErr bool
 	}{
@@ -399,7 +399,7 @@ func TestCommands_SetPrintPositionBeginningLine(t *testing.T) {
 
 	tests := []struct {
 		name    string
-		mode    byte
+		mode    printposition.BeginLine
 		want    []byte
 		wantErr bool
 	}{
@@ -473,7 +473,7 @@ func TestCommands_SelectPrintDirectionPageMode(t *testing.T) {
 
 	tests := []struct {
 		name      string
-		direction byte
+		direction printposition.PrintDirection
 		want      []byte
 		wantErr   bool
 	}{
