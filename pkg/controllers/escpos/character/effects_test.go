@@ -5,7 +5,7 @@ import (
 
 	"github.com/adcondev/pos-printer/escpos/character"
 	"github.com/adcondev/pos-printer/escpos/shared"
-	"github.com/adcondev/pos-printer/utils/test"
+	"github.com/adcondev/pos-printer/internal/testutils"
 )
 
 // ============================================================================
@@ -61,16 +61,16 @@ func TestEffectsCommands_SelectCharacterColor(t *testing.T) {
 			got, err := ec.SelectCharacterColor(tt.color)
 
 			// Verify error
-			if !test.AssertErrorOccurred(t, err, tt.wantErr != nil, "SelectCharacterColor") {
+			if !testutils.AssertErrorOccurred(t, err, tt.wantErr != nil, "SelectCharacterColor") {
 				return
 			}
 			if tt.wantErr != nil {
-				test.AssertError(t, err, tt.wantErr)
+				testutils.AssertError(t, err, tt.wantErr)
 				return
 			}
 
 			// Verify result
-			test.AssertBytes(t, got, tt.want, "SelectCharacterColor(%v)", tt.color)
+			testutils.AssertBytes(t, got, tt.want, "SelectCharacterColor(%v)", tt.color)
 		})
 	}
 }
@@ -124,16 +124,16 @@ func TestEffectsCommands_SelectBackgroundColor(t *testing.T) {
 			got, err := ec.SelectBackgroundColor(tt.color)
 
 			// Verify error
-			if !test.AssertErrorOccurred(t, err, tt.wantErr != nil, "SelectBackgroundColor") {
+			if !testutils.AssertErrorOccurred(t, err, tt.wantErr != nil, "SelectBackgroundColor") {
 				return
 			}
 			if tt.wantErr != nil {
-				test.AssertError(t, err, tt.wantErr)
+				testutils.AssertError(t, err, tt.wantErr)
 				return
 			}
 
 			// Verify result
-			test.AssertBytes(t, got, tt.want, "SelectBackgroundColor(%v)", tt.color)
+			testutils.AssertBytes(t, got, tt.want, "SelectBackgroundColor(%v)", tt.color)
 		})
 	}
 }
@@ -200,16 +200,16 @@ func TestEffectsCommands_SetCharacterShadowMode(t *testing.T) {
 			got, err := ec.SetCharacterShadowMode(tt.shadowMode, tt.shadowColor)
 
 			// Verify error
-			if !test.AssertErrorOccurred(t, err, tt.wantErr != nil, "SetCharacterShadowMode") {
+			if !testutils.AssertErrorOccurred(t, err, tt.wantErr != nil, "SetCharacterShadowMode") {
 				return
 			}
 			if tt.wantErr != nil {
-				test.AssertError(t, err, tt.wantErr)
+				testutils.AssertError(t, err, tt.wantErr)
 				return
 			}
 
 			// Verify result
-			test.AssertBytes(t, got, tt.want, "SetCharacterShadowMode(%v, %v)", tt.shadowMode, tt.shadowColor)
+			testutils.AssertBytes(t, got, tt.want, "SetCharacterShadowMode(%v, %v)", tt.shadowMode, tt.shadowColor)
 		})
 	}
 }

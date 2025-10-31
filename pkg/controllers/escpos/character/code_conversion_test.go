@@ -5,13 +5,14 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/adcondev/pos-printer/internal/testutils"
+
 	"github.com/adcondev/pos-printer/escpos/character"
 	"github.com/adcondev/pos-printer/escpos/shared"
-	"github.com/adcondev/pos-printer/utils/test"
 )
 
 // TODO: Swap out hardcoded bytes and values with constants from the character package
-// TODO: Swap boilerplate assertion code with calls to utils/test/assertions.go
+// TODO: Swap boilerplate assertion code with calls to utils/testutils/assertions.go
 // TODO: Define prefix bytes for commands to reduce repetition
 // TODO: Swap for specific type, the convert to byte. This simulates real usage better.
 
@@ -66,18 +67,18 @@ func TestCodeConversionCommands_SelectCharacterEncodeSystem(t *testing.T) {
 			got, err := cc.SelectCharacterEncodeSystem(tt.encoding)
 
 			// Standardized error checking
-			if !test.AssertErrorOccurred(t, err, tt.wantErr != nil, "SelectCharacterEncodeSystem") {
+			if !testutils.AssertErrorOccurred(t, err, tt.wantErr != nil, "SelectCharacterEncodeSystem") {
 				return
 			}
 
 			// Check specific error type if expecting error
 			if tt.wantErr != nil {
-				test.AssertError(t, err, tt.wantErr)
+				testutils.AssertError(t, err, tt.wantErr)
 				return
 			}
 
 			// Check result if no error expected
-			test.AssertBytes(t, got, tt.want, "SelectCharacterEncodeSystem(%v)", tt.encoding)
+			testutils.AssertBytes(t, got, tt.want, "SelectCharacterEncodeSystem(%v)", tt.encoding)
 		})
 	}
 }

@@ -1,4 +1,5 @@
-package test
+// Package testutils provides utility functions for testing byte slices and error handling.
+package testutils
 
 import (
 	"bytes"

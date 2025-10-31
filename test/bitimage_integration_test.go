@@ -1,12 +1,13 @@
-package bitimage_test
+package test_test
 
 import (
 	"bytes"
 	"testing"
 
+	"github.com/adcondev/pos-printer/internal/testutils"
+
 	"github.com/adcondev/pos-printer/escpos/bitimage"
 	"github.com/adcondev/pos-printer/escpos/shared"
-	"github.com/adcondev/pos-printer/utils/test"
 )
 
 func TestIntegration_BitImage_LogoWorkflow(t *testing.T) {
@@ -30,7 +31,7 @@ func TestIntegration_BitImage_LogoWorkflow(t *testing.T) {
 		logoWidth := uint16(200)
 		logoHeight := uint16(50)
 		widthBytes := (int(logoWidth) + 7) / 8
-		logoData := test.RepeatByte(widthBytes*int(logoHeight), 0xAA)
+		logoData := testutils.RepeatByte(widthBytes*int(logoHeight), 0xAA)
 
 		storeCmd, err := cmd.Graphics.StoreRasterGraphicsInBuffer(
 			bitimage.Monochrome,
@@ -79,7 +80,7 @@ func TestIntegration_BitImage_LogoWorkflow(t *testing.T) {
 		}
 
 		for _, color := range colors {
-			data := test.RepeatByte(dataSize, byte(color))
+			data := testutils.RepeatByte(dataSize, byte(color))
 			storeCmd, err := cmd.Graphics.StoreRasterGraphicsInBuffer(
 				bitimage.Monochrome,
 				bitimage.NormalScale,
@@ -155,7 +156,7 @@ func TestIntegration_BitImage_LogoWorkflow(t *testing.T) {
 
 		// Use legacy 8-dot single density mode
 		width := uint16(100)
-		data := test.RepeatByte(int(width), 0x55)
+		data := testutils.RepeatByte(int(width), 0x55)
 
 		legacyCmd, err := cmd.SelectBitImageMode(
 			bitimage.SingleDensity8,
@@ -169,7 +170,7 @@ func TestIntegration_BitImage_LogoWorkflow(t *testing.T) {
 
 		// Use legacy 24-dot double density mode
 		width24 := uint16(50)
-		data24 := test.RepeatByte(int(width24)*3, 0xAA)
+		data24 := testutils.RepeatByte(int(width24)*3, 0xAA)
 
 		legacy24Cmd, err := cmd.SelectBitImageMode(
 			bitimage.DoubleDensity24,
@@ -276,7 +277,7 @@ func TestIntegration_BitImage_ErrorHandling(t *testing.T) {
 			bitimage.Color1,
 			100,
 			2401, // Exceeds limit
-			test.RepeatByte(1000, 0xFF),
+			testutils.RepeatByte(1000, 0xFF),
 		)
 		if err == nil {
 			t.Error("Height exceeding monochrome normal limit should return error")
@@ -290,7 +291,7 @@ func TestIntegration_BitImage_ErrorHandling(t *testing.T) {
 			bitimage.Color1,
 			100,
 			301, // Exceeds limit
-			test.RepeatByte(1000, 0xFF),
+			testutils.RepeatByte(1000, 0xFF),
 		)
 		if err == nil {
 			t.Error("Height exceeding multiple tone double limit should return error")
@@ -317,7 +318,7 @@ func TestIntegration_BitImage_ScalingCombinations(t *testing.T) {
 			width := uint16(50)
 			height := uint16(50)
 			widthBytes := (int(width) + 7) / 8
-			data := test.RepeatByte(widthBytes*int(height), 0xFF)
+			data := testutils.RepeatByte(widthBytes*int(height), 0xFF)
 
 			storeCmd, err := cmd.Graphics.StoreRasterGraphicsInBuffer(
 				bitimage.Monochrome,
@@ -355,7 +356,7 @@ func TestIntegration_BitImage_LargeDataHandling(t *testing.T) {
 		height := uint16(2000)
 		widthBytes := (int(width) + 7) / 8
 		dataSize := widthBytes * int(height)
-		largeData := test.RepeatByte(dataSize, 0x99)
+		largeData := testutils.RepeatByte(dataSize, 0x99)
 
 		// Should use large format command
 		storeCmd, err := cmd.Graphics.StoreRasterGraphicsInBufferLarge(
@@ -387,7 +388,7 @@ func TestIntegration_BitImage_LargeDataHandling(t *testing.T) {
 		height := uint16(128)
 		heightBytes := (int(height) + 7) / 8
 		dataSize := int(width) * heightBytes
-		largeData := test.RepeatByte(dataSize, 0xEE)
+		largeData := testutils.RepeatByte(dataSize, 0xEE)
 
 		storeCmd, err := cmd.Graphics.StoreColumnGraphicsInBufferLarge(
 			bitimage.NormalScale,

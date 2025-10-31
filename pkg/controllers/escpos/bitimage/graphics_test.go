@@ -3,9 +3,10 @@ package bitimage_test
 import (
 	"testing"
 
+	"github.com/adcondev/pos-printer/internal/testutils"
+
 	"github.com/adcondev/pos-printer/escpos/bitimage"
 	"github.com/adcondev/pos-printer/escpos/shared"
-	"github.com/adcondev/pos-printer/utils/test"
 )
 
 // ============================================================================
@@ -93,15 +94,15 @@ func TestGraphicsCommands_SetGraphicsDotDensity(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := cmd.SetGraphicsDotDensity(tt.fn, tt.x, tt.y)
 
-			if !test.AssertErrorOccurred(t, err, tt.wantErr != nil, "SetGraphicsDotDensity") {
+			if !testutils.AssertErrorOccurred(t, err, tt.wantErr != nil, "SetGraphicsDotDensity") {
 				return
 			}
 			if tt.wantErr != nil {
-				test.AssertError(t, err, tt.wantErr)
+				testutils.AssertError(t, err, tt.wantErr)
 				return
 			}
 
-			test.AssertBytes(t, got, tt.want, "SetGraphicsDotDensity(%v, %v, %v)", tt.fn, tt.x, tt.y)
+			testutils.AssertBytes(t, got, tt.want, "SetGraphicsDotDensity(%v, %v, %v)", tt.fn, tt.x, tt.y)
 		})
 	}
 }
@@ -151,15 +152,15 @@ func TestGraphicsCommands_PrintBufferedGraphics(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := cmd.PrintBufferedGraphics(tt.fn)
 
-			if !test.AssertErrorOccurred(t, err, tt.wantErr != nil, "PrintBufferedGraphics") {
+			if !testutils.AssertErrorOccurred(t, err, tt.wantErr != nil, "PrintBufferedGraphics") {
 				return
 			}
 			if tt.wantErr != nil {
-				test.AssertError(t, err, tt.wantErr)
+				testutils.AssertError(t, err, tt.wantErr)
 				return
 			}
 
-			test.AssertBytes(t, got, tt.want, "PrintBufferedGraphics(%v)", tt.fn)
+			testutils.AssertBytes(t, got, tt.want, "PrintBufferedGraphics(%v)", tt.fn)
 		})
 	}
 }
@@ -167,10 +168,10 @@ func TestGraphicsCommands_PrintBufferedGraphics(t *testing.T) {
 func TestGraphicsCommands_StoreRasterGraphicsInBuffer(t *testing.T) {
 	cmd := bitimage.NewGraphicsCommands()
 
-	// Helper to create test data for raster format
+	// Helper to create testutils data for raster format
 	createRasterData := func(width, height uint16) []byte {
 		widthBytes := (int(width) + 7) / 8
-		return test.RepeatByte(widthBytes*int(height), 0xFF)
+		return testutils.RepeatByte(widthBytes*int(height), 0xFF)
 	}
 
 	tests := []struct {
@@ -367,11 +368,11 @@ func TestGraphicsCommands_StoreRasterGraphicsInBuffer(t *testing.T) {
 			got, err := cmd.StoreRasterGraphicsInBuffer(tt.tone, tt.horizontalScale, tt.verticalScale,
 				tt.color, tt.width, tt.height, tt.data)
 
-			if !test.AssertErrorOccurred(t, err, tt.wantErr != nil, "StoreRasterGraphicsInBuffer") {
+			if !testutils.AssertErrorOccurred(t, err, tt.wantErr != nil, "StoreRasterGraphicsInBuffer") {
 				return
 			}
 			if tt.wantErr != nil {
-				test.AssertError(t, err, tt.wantErr)
+				testutils.AssertError(t, err, tt.wantErr)
 				return
 			}
 
@@ -386,10 +387,10 @@ func TestGraphicsCommands_StoreRasterGraphicsInBuffer(t *testing.T) {
 func TestGraphicsCommands_StoreRasterGraphicsInBufferLarge(t *testing.T) {
 	cmd := bitimage.NewGraphicsCommands()
 
-	// Helper to create test data for raster format
+	// Helper to create testutils data for raster format
 	createRasterData := func(width, height uint16) []byte {
 		widthBytes := (int(width) + 7) / 8
-		return test.RepeatByte(widthBytes*int(height), 0xFF)
+		return testutils.RepeatByte(widthBytes*int(height), 0xFF)
 	}
 
 	tests := []struct {
@@ -432,11 +433,11 @@ func TestGraphicsCommands_StoreRasterGraphicsInBufferLarge(t *testing.T) {
 			got, err := cmd.StoreRasterGraphicsInBufferLarge(tt.tone, tt.horizontalScale, tt.verticalScale,
 				tt.color, tt.width, tt.height, tt.data)
 
-			if !test.AssertErrorOccurred(t, err, tt.wantErr != nil, "StoreRasterGraphicsInBufferLarge") {
+			if !testutils.AssertErrorOccurred(t, err, tt.wantErr != nil, "StoreRasterGraphicsInBufferLarge") {
 				return
 			}
 			if tt.wantErr != nil {
-				test.AssertError(t, err, tt.wantErr)
+				testutils.AssertError(t, err, tt.wantErr)
 				return
 			}
 
@@ -451,10 +452,10 @@ func TestGraphicsCommands_StoreRasterGraphicsInBufferLarge(t *testing.T) {
 func TestGraphicsCommands_StoreColumnGraphicsInBuffer(t *testing.T) {
 	cmd := bitimage.NewGraphicsCommands()
 
-	// Helper to create test data for column format
+	// Helper to create testutils data for column format
 	createColumnData := func(width, height uint16) []byte {
 		heightBytes := (int(height) + 7) / 8
-		return test.RepeatByte(int(width)*heightBytes, 0xFF)
+		return testutils.RepeatByte(int(width)*heightBytes, 0xFF)
 	}
 
 	tests := []struct {
@@ -574,11 +575,11 @@ func TestGraphicsCommands_StoreColumnGraphicsInBuffer(t *testing.T) {
 			got, err := cmd.StoreColumnGraphicsInBuffer(tt.horizontalScale, tt.verticalScale,
 				tt.color, tt.width, tt.height, tt.data)
 
-			if !test.AssertErrorOccurred(t, err, tt.wantErr != nil, "StoreColumnGraphicsInBuffer") {
+			if !testutils.AssertErrorOccurred(t, err, tt.wantErr != nil, "StoreColumnGraphicsInBuffer") {
 				return
 			}
 			if tt.wantErr != nil {
-				test.AssertError(t, err, tt.wantErr)
+				testutils.AssertError(t, err, tt.wantErr)
 				return
 			}
 
@@ -593,10 +594,10 @@ func TestGraphicsCommands_StoreColumnGraphicsInBuffer(t *testing.T) {
 func TestGraphicsCommands_StoreColumnGraphicsInBufferLarge(t *testing.T) {
 	cmd := bitimage.NewGraphicsCommands()
 
-	// Helper to create test data for column format
+	// Helper to create testutils data for column format
 	createColumnData := func(width, height uint16) []byte {
 		heightBytes := (int(height) + 7) / 8
-		return test.RepeatByte(int(width)*heightBytes, 0xFF)
+		return testutils.RepeatByte(int(width)*heightBytes, 0xFF)
 	}
 
 	tests := []struct {
@@ -636,11 +637,11 @@ func TestGraphicsCommands_StoreColumnGraphicsInBufferLarge(t *testing.T) {
 			got, err := cmd.StoreColumnGraphicsInBufferLarge(tt.horizontalScale, tt.verticalScale,
 				tt.color, tt.width, tt.height, tt.data)
 
-			if !test.AssertErrorOccurred(t, err, tt.wantErr != nil, "StoreColumnGraphicsInBufferLarge") {
+			if !testutils.AssertErrorOccurred(t, err, tt.wantErr != nil, "StoreColumnGraphicsInBufferLarge") {
 				return
 			}
 			if tt.wantErr != nil {
-				test.AssertError(t, err, tt.wantErr)
+				testutils.AssertError(t, err, tt.wantErr)
 				return
 			}
 
@@ -898,7 +899,7 @@ func TestCalculateRasterDataSize(t *testing.T) {
 			expectedSize := widthBytes * int(tt.height)
 
 			// Create data with expected size
-			data := test.RepeatByte(expectedSize, 0xFF)
+			data := testutils.RepeatByte(expectedSize, 0xFF)
 
 			// Should succeed with correct data size
 			_, err := cmd.StoreRasterGraphicsInBuffer(bitimage.Monochrome, bitimage.NormalScale,
@@ -909,7 +910,7 @@ func TestCalculateRasterDataSize(t *testing.T) {
 
 			// Should fail with incorrect data size
 			if expectedSize > 0 {
-				wrongData := test.RepeatByte(expectedSize-1, 0xFF)
+				wrongData := testutils.RepeatByte(expectedSize-1, 0xFF)
 				_, err = cmd.StoreRasterGraphicsInBuffer(bitimage.Monochrome, bitimage.NormalScale,
 					bitimage.NormalScale, bitimage.Color1, tt.width, tt.height, wrongData)
 				if err == nil {
@@ -945,7 +946,7 @@ func TestCalculateColumnDataSize(t *testing.T) {
 			expectedSize := int(tt.width) * heightBytes
 
 			// Create data with expected size
-			data := test.RepeatByte(expectedSize, 0xFF)
+			data := testutils.RepeatByte(expectedSize, 0xFF)
 
 			// Should succeed with correct data size
 			_, err := cmd.StoreColumnGraphicsInBuffer(bitimage.NormalScale, bitimage.NormalScale,
@@ -956,7 +957,7 @@ func TestCalculateColumnDataSize(t *testing.T) {
 
 			// Should fail with incorrect data size
 			if expectedSize > 0 {
-				wrongData := test.RepeatByte(expectedSize-1, 0xFF)
+				wrongData := testutils.RepeatByte(expectedSize-1, 0xFF)
 				_, err = cmd.StoreColumnGraphicsInBuffer(bitimage.NormalScale, bitimage.NormalScale,
 					bitimage.Color1, tt.width, tt.height, wrongData)
 				if err == nil {

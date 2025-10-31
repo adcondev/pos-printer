@@ -5,7 +5,7 @@ import (
 
 	"github.com/adcondev/pos-printer/escpos/bitimage"
 	"github.com/adcondev/pos-printer/escpos/shared"
-	"github.com/adcondev/pos-printer/utils/test"
+	"github.com/adcondev/pos-printer/internal/testutils"
 )
 
 // ============================================================================
@@ -19,7 +19,7 @@ func TestCommands_SelectBitImageMode(t *testing.T) {
 	// Helper to create test data
 	createTestData := func(mode bitimage.Mode, width uint16) []byte {
 		length := bitimage.CalculateDataLength(mode, width)
-		return test.RepeatByte(length, 0xFF)
+		return testutils.RepeatByte(length, 0xFF)
 	}
 
 	tests := []struct {
@@ -116,15 +116,15 @@ func TestCommands_SelectBitImageMode(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := cmd.SelectBitImageMode(tt.mode, tt.width, tt.data)
 
-			if !test.AssertErrorOccurred(t, err, tt.wantErr != nil, "SelectBitImageMode") {
+			if !testutils.AssertErrorOccurred(t, err, tt.wantErr != nil, "SelectBitImageMode") {
 				return
 			}
 			if tt.wantErr != nil {
-				test.AssertError(t, err, tt.wantErr)
+				testutils.AssertError(t, err, tt.wantErr)
 				return
 			}
 
-			test.AssertBytes(t, got, tt.want, "SelectBitImageMode(%v, %d, data[%d])",
+			testutils.AssertBytes(t, got, tt.want, "SelectBitImageMode(%v, %d, data[%d])",
 				tt.mode, tt.width, len(tt.data))
 		})
 	}
@@ -180,7 +180,7 @@ func TestCalculateDataLength(t *testing.T) {
 			cmd := bitimage.NewCommands()
 
 			// Create data with the expected length
-			data := test.RepeatByte(tt.want, 0xFF)
+			data := testutils.RepeatByte(tt.want, 0xFF)
 
 			if tt.want > 0 {
 				// Should succeed with correct data length
@@ -191,7 +191,7 @@ func TestCalculateDataLength(t *testing.T) {
 
 				// Should fail with incorrect data length
 				if tt.want > 1 {
-					wrongData := test.RepeatByte(tt.want-1, 0xFF)
+					wrongData := testutils.RepeatByte(tt.want-1, 0xFF)
 					_, err = cmd.SelectBitImageMode(tt.mode, tt.width, wrongData)
 					if err == nil {
 						t.Errorf("CalculateDataLength should have failed for incorrect data length")

@@ -1,12 +1,13 @@
-package bitimage_test
+package test_test
 
 import (
 	"bytes"
 	"testing"
 
+	"github.com/adcondev/pos-printer/internal/testutils"
+
 	"github.com/adcondev/pos-printer/escpos/bitimage"
 	"github.com/adcondev/pos-printer/escpos/shared"
-	"github.com/adcondev/pos-printer/utils/test"
 )
 
 func TestIntegration_Graphics_CompleteWorkflow(t *testing.T) {
@@ -31,7 +32,7 @@ func TestIntegration_Graphics_CompleteWorkflow(t *testing.T) {
 		height := uint16(200)
 		widthBytes := (int(width) + 7) / 8
 		dataSize := widthBytes * int(height)
-		rasterData := test.RepeatByte(dataSize, 0xF0)
+		rasterData := testutils.RepeatByte(dataSize, 0xF0)
 
 		storeCmd, err := cmd.StoreRasterGraphicsInBuffer(
 			bitimage.Monochrome,
@@ -84,7 +85,7 @@ func TestIntegration_Graphics_CompleteWorkflow(t *testing.T) {
 		height := uint16(128)
 		heightBytes := (int(height) + 7) / 8
 		dataSize := int(width) * heightBytes
-		columnData := test.RepeatByte(dataSize, 0xAA)
+		columnData := testutils.RepeatByte(dataSize, 0xAA)
 
 		storeCmd, err := cmd.StoreColumnGraphicsInBuffer(
 			bitimage.DoubleScale,
@@ -130,7 +131,7 @@ func TestIntegration_Graphics_CompleteWorkflow(t *testing.T) {
 		for i, color := range colors {
 			// Create different patterns for each color
 			pattern := byte(0x11 << uint(i)) //nolint:gosec
-			data := test.RepeatByte(dataSize, pattern)
+			data := testutils.RepeatByte(dataSize, pattern)
 
 			storeCmd, err := cmd.StoreRasterGraphicsInBuffer(
 				bitimage.MultipleTone,
@@ -186,7 +187,7 @@ func TestIntegration_Graphics_CompleteWorkflow(t *testing.T) {
 
 				widthBytes := (int(width) + 7) / 8
 				dataSize := widthBytes * int(height)
-				data := test.RepeatByte(dataSize, 0xFF)
+				data := testutils.RepeatByte(dataSize, 0xFF)
 
 				storeCmd, err := cmd.StoreRasterGraphicsInBuffer(
 					sc.tone,
@@ -224,10 +225,10 @@ func TestIntegration_Graphics_LargeDataHandling(t *testing.T) {
 		dataSize := widthBytes * int(height)
 
 		if dataSize <= 65535 {
-			t.Skip("Data size not large enough for extended format test")
+			t.Skip("Data size not large enough for extended format testutils")
 		}
 
-		largeData := test.RepeatByte(dataSize, 0x55)
+		largeData := testutils.RepeatByte(dataSize, 0x55)
 
 		storeCmd, err := cmd.StoreRasterGraphicsInBufferLarge(
 			bitimage.Monochrome,
@@ -269,10 +270,10 @@ func TestIntegration_Graphics_LargeDataHandling(t *testing.T) {
 
 		// Verify we need extended format (dataSize + 11 header bytes > 65535)
 		if dataSize+11 <= 65535 {
-			t.Skip("Data size not large enough for extended format test")
+			t.Skip("Data size not large enough for extended format testutils")
 		}
 
-		largeData := test.RepeatByte(dataSize, 0xCC)
+		largeData := testutils.RepeatByte(dataSize, 0xCC)
 
 		storeCmd, err := cmd.StoreColumnGraphicsInBufferLarge(
 			bitimage.NormalScale,
@@ -343,7 +344,7 @@ func TestIntegration_Graphics_ErrorRecovery(t *testing.T) {
 
 		// Should work with correct data size
 		widthBytes := (int(width) + 7) / 8
-		correctData := test.RepeatByte(widthBytes*int(height), 0xAA)
+		correctData := testutils.RepeatByte(widthBytes*int(height), 0xAA)
 
 		storeCmd, err := cmd.StoreRasterGraphicsInBuffer(
 			bitimage.Monochrome,
@@ -372,7 +373,7 @@ func TestIntegration_Graphics_ColorRestrictions(t *testing.T) {
 		height := uint16(64)
 		heightBytes := (int(height) + 7) / 8
 		dataSize := int(width) * heightBytes
-		data := test.RepeatByte(dataSize, 0xFF)
+		data := testutils.RepeatByte(dataSize, 0xFF)
 
 		// Colors 1-3 should work for column format
 		validColors := []bitimage.GraphicsColor{
@@ -414,7 +415,7 @@ func TestIntegration_Graphics_ColorRestrictions(t *testing.T) {
 		height := uint16(50)
 		widthBytes := (int(width) + 7) / 8
 		dataSize := widthBytes * int(height)
-		data := test.RepeatByte(dataSize, 0xFF)
+		data := testutils.RepeatByte(dataSize, 0xFF)
 
 		// All colors should work for raster format
 		allColors := []bitimage.GraphicsColor{
@@ -449,7 +450,7 @@ func TestIntegration_Graphics_DimensionLimits(t *testing.T) {
 		maxWidth := uint16(2400)
 		height := uint16(10)
 		widthBytes := (int(maxWidth) + 7) / 8
-		data := test.RepeatByte(widthBytes*int(height), 0xFF)
+		data := testutils.RepeatByte(widthBytes*int(height), 0xFF)
 
 		_, err := cmd.StoreRasterGraphicsInBuffer(
 			bitimage.Monochrome,
@@ -485,7 +486,7 @@ func TestIntegration_Graphics_DimensionLimits(t *testing.T) {
 		maxWidth := uint16(2048)
 		maxHeight := uint16(128)
 		heightBytes := (int(maxHeight) + 7) / 8
-		data := test.RepeatByte(int(maxWidth)*heightBytes, 0xFF)
+		data := testutils.RepeatByte(int(maxWidth)*heightBytes, 0xFF)
 
 		_, err := cmd.StoreColumnGraphicsInBuffer(
 			bitimage.NormalScale,

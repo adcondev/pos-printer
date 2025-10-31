@@ -1,4 +1,4 @@
-package test
+package testutils
 
 // FakeCapabilityBase provides fake functionality for shared
 type FakeCapabilityBase struct {

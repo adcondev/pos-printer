@@ -1,4 +1,4 @@
-package test
+package testutils
 
 import (
 	"bytes"
@@ -8,19 +8,23 @@ import (
 
 // Create a test helper for buffer management
 
+// BufferBuilder helps in building byte buffers for tests
 type BufferBuilder struct {
 	buffer []byte
 }
 
+// NewBufferBuilder initializes a new BufferBuilder
 func NewBufferBuilder() *BufferBuilder {
 	return &BufferBuilder{buffer: make([]byte, 0)}
 }
 
+// Append adds bytes to the buffer
 func (b *BufferBuilder) Append(cmd []byte) *BufferBuilder {
 	b.buffer = append(b.buffer, cmd...)
 	return b
 }
 
+// GetBuffer returns the constructed byte buffer
 func (b *BufferBuilder) GetBuffer() []byte {
 	return b.buffer
 }
@@ -64,6 +68,8 @@ func ConcatBytes(slices ...[]byte) []byte {
 func SplitBytes(data []byte, delimiter byte) [][]byte {
 	return bytes.Split(data, []byte{delimiter})
 }
+
+// TODO: Check linter
 
 // ReplaceBytes replaces all occurrences of old with new in data
 func ReplaceBytes(data, old, new []byte) []byte {
@@ -253,7 +259,7 @@ func BuildWithLength(data []byte) []byte {
 
 // BuildWithLittleEndianLength prepends little-endian length to data
 func BuildWithLittleEndianLength(data []byte) []byte {
-	length := uint16(len(data))
+	length := uint16(len(data)) //nolint:gosec
 	nL, nH := shared.ToLittleEndian(length)
 	result := make([]byte, 2+len(data))
 	result[0] = nL

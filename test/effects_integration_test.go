@@ -1,4 +1,4 @@
-package character_test
+package test_test
 
 import (
 	"testing"

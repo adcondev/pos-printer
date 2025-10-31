@@ -5,13 +5,13 @@ import (
 	"log"
 
 	"github.com/adcondev/pos-printer/connector"
-	"github.com/adcondev/pos-printer/devices"
 	"github.com/adcondev/pos-printer/escpos"
+	"github.com/adcondev/pos-printer/pkg/service"
 	"github.com/adcondev/pos-printer/profile"
 )
 
 // printHeader imprime el encabezado del documento de prueba
-func printHeader(printer *devices.Printer) error {
+func printHeader(printer *service.Printer) error {
 	// Título centrado y en negrita
 	if err := printer.PrintTitle("PRUEBA RÁPIDA DE IMPRESIÓN"); err != nil {
 		return err
@@ -22,7 +22,7 @@ func printHeader(printer *devices.Printer) error {
 }
 
 // printMainContent imprime el contenido principal del documento
-func printMainContent(printer *devices.Printer) error {
+func printMainContent(printer *service.Printer) error {
 	if err := printer.PrintLine("Esta es una prueba básica de la impresora completamente desacoplada."); err != nil {
 		return err
 	}
@@ -30,7 +30,7 @@ func printMainContent(printer *devices.Printer) error {
 }
 
 // printAdvantages imprime la lista de ventajas de la nueva arquitectura
-func printAdvantages(printer *devices.Printer) error {
+func printAdvantages(printer *service.Printer) error {
 	// Encabezado en negrita
 	if err := printer.PrintHeader("Ventajas de la nueva arquitectura:"); err != nil {
 		return err
@@ -49,7 +49,7 @@ func printAdvantages(printer *devices.Printer) error {
 }
 
 // finishPrinting alimenta papel y corta
-func finishPrinting(printer *devices.Printer) error {
+func finishPrinting(printer *service.Printer) error {
 	if err := printer.Feed(3); err != nil {
 		return err
 	}
@@ -79,7 +79,7 @@ func main() {
 	proto := escpos.NewEscposCommands()
 
 	// Crear instancia de impresora
-	printer, err := devices.NewPrinter(proto, prof, conn)
+	printer, err := service.NewPrinter(proto, prof, conn)
 	if err != nil {
 		log.Panicf("Error al crear la impresora: %v", err)
 	}

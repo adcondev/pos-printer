@@ -1,12 +1,13 @@
-package bitimage_test
+package test_test
 
 import (
 	"bytes"
 	"testing"
 
+	"github.com/adcondev/pos-printer/internal/testutils"
+
 	"github.com/adcondev/pos-printer/escpos/bitimage"
 	"github.com/adcondev/pos-printer/escpos/shared"
-	"github.com/adcondev/pos-printer/utils/test"
 )
 
 func TestIntegration_DownloadGraphics_CompleteWorkflow(t *testing.T) {
@@ -31,7 +32,7 @@ func TestIntegration_DownloadGraphics_CompleteWorkflow(t *testing.T) {
 		colorData := []bitimage.DLGraphicsColorData{
 			{
 				Color: bitimage.Color1,
-				Data:  test.RepeatByte(dataSize, 0xF0),
+				Data:  testutils.RepeatByte(dataSize, 0xF0),
 			},
 		}
 
@@ -77,10 +78,10 @@ func TestIntegration_DownloadGraphics_CompleteWorkflow(t *testing.T) {
 
 		// Define multiple color groups
 		colorData := []bitimage.DLGraphicsColorData{
-			{Color: bitimage.Color1, Data: test.RepeatByte(dataSize, 0x11)},
-			{Color: bitimage.Color2, Data: test.RepeatByte(dataSize, 0x22)},
-			{Color: bitimage.Color3, Data: test.RepeatByte(dataSize, 0x33)},
-			{Color: bitimage.Color4, Data: test.RepeatByte(dataSize, 0x44)},
+			{Color: bitimage.Color1, Data: testutils.RepeatByte(dataSize, 0x11)},
+			{Color: bitimage.Color2, Data: testutils.RepeatByte(dataSize, 0x22)},
+			{Color: bitimage.Color3, Data: testutils.RepeatByte(dataSize, 0x33)},
+			{Color: bitimage.Color4, Data: testutils.RepeatByte(dataSize, 0x44)},
 		}
 
 		defineCmd, err := cmd.DefineDownloadGraphics(
@@ -117,8 +118,8 @@ func TestIntegration_DownloadGraphics_CompleteWorkflow(t *testing.T) {
 
 		// Column format with colors 1 and 2
 		colorData := []bitimage.DLGraphicsColorData{
-			{Color: bitimage.Color1, Data: test.RepeatByte(dataSize, 0xAA)},
-			{Color: bitimage.Color2, Data: test.RepeatByte(dataSize, 0x55)},
+			{Color: bitimage.Color1, Data: testutils.RepeatByte(dataSize, 0xAA)},
+			{Color: bitimage.Color2, Data: testutils.RepeatByte(dataSize, 0x55)},
 		}
 
 		defineCmd, err := cmd.DefineDownloadGraphicsColumn(
@@ -133,7 +134,7 @@ func TestIntegration_DownloadGraphics_CompleteWorkflow(t *testing.T) {
 
 		// Column format with color 3 only
 		colorData3 := []bitimage.DLGraphicsColorData{
-			{Color: bitimage.Color3, Data: test.RepeatByte(dataSize, 0xFF)},
+			{Color: bitimage.Color3, Data: testutils.RepeatByte(dataSize, 0xFF)},
 		}
 
 		defineCmd3, err := cmd.DefineDownloadGraphicsColumn(
@@ -223,7 +224,7 @@ func TestIntegration_DownloadGraphics_LargeDataHandling(t *testing.T) {
 		colorData := []bitimage.DLGraphicsColorData{
 			{
 				Color: bitimage.Color1,
-				Data:  test.RepeatByte(dataSize, 0xDD),
+				Data:  testutils.RepeatByte(dataSize, 0xDD),
 			},
 		}
 
@@ -263,8 +264,8 @@ func TestIntegration_DownloadGraphics_LargeDataHandling(t *testing.T) {
 
 		// Large column data with two colors
 		colorData := []bitimage.DLGraphicsColorData{
-			{Color: bitimage.Color1, Data: test.RepeatByte(dataSize, 0x11)},
-			{Color: bitimage.Color2, Data: test.RepeatByte(dataSize, 0x22)},
+			{Color: bitimage.Color1, Data: testutils.RepeatByte(dataSize, 0x11)},
+			{Color: bitimage.Color2, Data: testutils.RepeatByte(dataSize, 0x22)},
 		}
 
 		defineCmd, err := cmd.DefineDownloadGraphicsColumnLarge(
@@ -298,8 +299,8 @@ func TestIntegration_DownloadGraphics_ErrorHandling(t *testing.T) {
 
 		// Monochrome with multiple colors - should fail
 		colorData := []bitimage.DLGraphicsColorData{
-			{Color: bitimage.Color1, Data: test.RepeatByte(dataSize, 0x11)},
-			{Color: bitimage.Color2, Data: test.RepeatByte(dataSize, 0x22)},
+			{Color: bitimage.Color1, Data: testutils.RepeatByte(dataSize, 0x11)},
+			{Color: bitimage.Color2, Data: testutils.RepeatByte(dataSize, 0x22)},
 		}
 
 		_, err := cmd.DefineDownloadGraphics(
@@ -317,8 +318,8 @@ func TestIntegration_DownloadGraphics_ErrorHandling(t *testing.T) {
 		columnDataSize := int(width) * heightBytes
 
 		invalidColorData := []bitimage.DLGraphicsColorData{
-			{Color: bitimage.Color3, Data: test.RepeatByte(columnDataSize, 0x33)},
-			{Color: bitimage.Color1, Data: test.RepeatByte(columnDataSize, 0x11)},
+			{Color: bitimage.Color3, Data: testutils.RepeatByte(columnDataSize, 0x33)},
+			{Color: bitimage.Color1, Data: testutils.RepeatByte(columnDataSize, 0x11)},
 		}
 
 		_, err = cmd.DefineDownloadGraphicsColumn(
@@ -433,14 +434,14 @@ func TestIntegration_DownloadGraphics_ErrorHandling(t *testing.T) {
 func TestIntegration_DownloadGraphics_ScalingModes(t *testing.T) {
 	cmd := bitimage.NewDownloadGraphicsCommands()
 
-	// Define test graphics once
+	// Define testutils graphics once
 	width := uint16(100)
 	height := uint16(50)
 	widthBytes := (int(width) + 7) / 8
 	dataSize := widthBytes * int(height)
 
 	colorData := []bitimage.DLGraphicsColorData{
-		{Color: bitimage.Color1, Data: test.RepeatByte(dataSize, 0xCC)},
+		{Color: bitimage.Color1, Data: testutils.RepeatByte(dataSize, 0xCC)},
 	}
 
 	defineCmd, err := cmd.DefineDownloadGraphics(
@@ -512,8 +513,8 @@ func TestIntegration_DownloadGraphics_DuplicateColors(t *testing.T) {
 
 	// Attempt to define duplicate colors
 	colorData := []bitimage.DLGraphicsColorData{
-		{Color: bitimage.Color1, Data: test.RepeatByte(dataSize, 0x11)},
-		{Color: bitimage.Color1, Data: test.RepeatByte(dataSize, 0x22)}, // Duplicate
+		{Color: bitimage.Color1, Data: testutils.RepeatByte(dataSize, 0x11)},
+		{Color: bitimage.Color1, Data: testutils.RepeatByte(dataSize, 0x22)}, // Duplicate
 	}
 
 	_, err := cmd.DefineDownloadGraphics(

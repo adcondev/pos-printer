@@ -1,4 +1,4 @@
-package test
+package testutils
 
 // IsUppercase checks if all alphabetic bytes are uppercase
 func IsUppercase(data []byte) bool {

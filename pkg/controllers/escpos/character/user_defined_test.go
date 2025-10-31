@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/adcondev/pos-printer/escpos/character"
-	"github.com/adcondev/pos-printer/utils/test"
+	"github.com/adcondev/pos-printer/internal/testutils"
 )
 
 // ============================================================================
@@ -61,7 +61,7 @@ func TestUserDefined_SelectUserDefinedCharacterSet(t *testing.T) {
 			got := udc.SelectUserDefinedCharacterSet(tt.charSet)
 
 			// Verify
-			test.AssertBytes(t, got, tt.want, "SelectUserDefinedCharacterSet(%d)", tt.charSet)
+			testutils.AssertBytes(t, got, tt.want, "SelectUserDefinedCharacterSet(%d)", tt.charSet)
 		})
 	}
 }
@@ -85,7 +85,7 @@ func TestUserDefinedCommands_DefineUserDefinedCharacters(t *testing.T) {
 			startCode: 65,
 			endCode:   65,
 			definitions: []character.UserDefinedChar{
-				{Width: 5, Data: test.RepeatByte(15, 0xFF)}, // 3 height × 5 width
+				{Width: 5, Data: testutils.RepeatByte(15, 0xFF)}, // 3 height × 5 width
 			},
 			wantPrefix: []byte{0x1B, 0x26, 3, 65, 65},
 			wantErr:    nil,
@@ -163,7 +163,7 @@ func TestUserDefinedCommands_DefineUserDefinedCharacters(t *testing.T) {
 			startCode: 65,
 			endCode:   67, // Range of 3
 			definitions: []character.UserDefinedChar{
-				{Width: 5, Data: test.RepeatByte(15, 0xFF)}, // Only 1 definition
+				{Width: 5, Data: testutils.RepeatByte(15, 0xFF)}, // Only 1 definition
 			},
 			wantPrefix: nil,
 			wantErr:    character.ErrDefinition,
@@ -187,7 +187,7 @@ func TestUserDefinedCommands_DefineUserDefinedCharacters(t *testing.T) {
 			got, err := udc.DefineUserDefinedCharacters(tt.height, tt.startCode, tt.endCode, tt.definitions)
 
 			// Verify error
-			if !test.AssertErrorOccurred(t, err, tt.wantErr != nil, "DefineUserDefinedCharacters") {
+			if !testutils.AssertErrorOccurred(t, err, tt.wantErr != nil, "DefineUserDefinedCharacters") {
 				return
 			}
 			if tt.wantErr != nil && !errors.Is(err, tt.wantErr) {
@@ -255,16 +255,16 @@ func TestUserDefined_CancelUserDefinedCharacter(t *testing.T) {
 			got, err := udc.CancelUserDefinedCharacter(tt.charCode)
 
 			// Verify error
-			if !test.AssertErrorOccurred(t, err, tt.wantErr != nil, "CancelUserDefinedCharacter") {
+			if !testutils.AssertErrorOccurred(t, err, tt.wantErr != nil, "CancelUserDefinedCharacter") {
 				return
 			}
 			if tt.wantErr != nil {
-				test.AssertError(t, err, tt.wantErr)
+				testutils.AssertError(t, err, tt.wantErr)
 				return
 			}
 
 			// Verify result
-			test.AssertBytes(t, got, tt.want, "CancelUserDefinedCharacter(%v)", tt.charCode)
+			testutils.AssertBytes(t, got, tt.want, "CancelUserDefinedCharacter(%v)", tt.charCode)
 		})
 	}
 }

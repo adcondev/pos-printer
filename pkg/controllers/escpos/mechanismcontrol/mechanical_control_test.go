@@ -5,7 +5,7 @@ import (
 
 	"github.com/adcondev/pos-printer/escpos/mechanismcontrol"
 	"github.com/adcondev/pos-printer/escpos/shared"
-	"github.com/adcondev/pos-printer/utils/test"
+	"github.com/adcondev/pos-printer/internal/testutils"
 )
 
 // ============================================================================
@@ -18,12 +18,12 @@ func TestCommands_ReturnHome(t *testing.T) {
 	got := cmd.ReturnHome()
 	want := []byte{shared.ESC, '<'}
 
-	test.AssertBytes(t, got, want, "ReturnHome()")
+	testutils.AssertBytes(t, got, want, "ReturnHome()")
 }
 
 func TestCommands_SetUnidirectionalPrintMode(t *testing.T) {
 	cmd := mechanismcontrol.NewCommands()
-	prefix := test.BuildCommand(shared.ESC, 'U')
+	prefix := testutils.BuildCommand(shared.ESC, 'U')
 
 	tests := []struct {
 		name string
@@ -55,7 +55,7 @@ func TestCommands_SetUnidirectionalPrintMode(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got := cmd.SetUnidirectionalPrintMode(tt.mode)
-			test.AssertBytes(t, got, tt.want, "SetUnidirectionalPrintMode(%v)", tt.mode)
+			testutils.AssertBytes(t, got, tt.want, "SetUnidirectionalPrintMode(%v)", tt.mode)
 		})
 	}
 }
@@ -104,15 +104,15 @@ func TestCommands_PaperCut(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := cmd.PaperCut(tt.cutType)
 
-			if !test.AssertErrorOccurred(t, err, tt.wantErr != nil, "PaperCut") {
+			if !testutils.AssertErrorOccurred(t, err, tt.wantErr != nil, "PaperCut") {
 				return
 			}
 			if tt.wantErr != nil {
-				test.AssertError(t, err, tt.wantErr)
+				testutils.AssertError(t, err, tt.wantErr)
 				return
 			}
 
-			test.AssertBytes(t, got, tt.want, "PaperCut(%v)", tt.cutType)
+			testutils.AssertBytes(t, got, tt.want, "PaperCut(%v)", tt.cutType)
 		})
 	}
 }
@@ -176,15 +176,15 @@ func TestCommands_PaperFeedAndCut(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := cmd.PaperFeedAndCut(tt.cutType, tt.feedAmount)
 
-			if !test.AssertErrorOccurred(t, err, tt.wantErr != nil, "PaperFeedAndCut") {
+			if !testutils.AssertErrorOccurred(t, err, tt.wantErr != nil, "PaperFeedAndCut") {
 				return
 			}
 			if tt.wantErr != nil {
-				test.AssertError(t, err, tt.wantErr)
+				testutils.AssertError(t, err, tt.wantErr)
 				return
 			}
 
-			test.AssertBytes(t, got, tt.want, "PaperFeedAndCut(%v, %d)", tt.cutType, tt.feedAmount)
+			testutils.AssertBytes(t, got, tt.want, "PaperFeedAndCut(%v, %d)", tt.cutType, tt.feedAmount)
 		})
 	}
 }
@@ -248,15 +248,15 @@ func TestCommands_ReservePaperCut(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := cmd.ReservePaperCut(tt.cutType, tt.feedAmount)
 
-			if !test.AssertErrorOccurred(t, err, tt.wantErr != nil, "ReservePaperCut") {
+			if !testutils.AssertErrorOccurred(t, err, tt.wantErr != nil, "ReservePaperCut") {
 				return
 			}
 			if tt.wantErr != nil {
-				test.AssertError(t, err, tt.wantErr)
+				testutils.AssertError(t, err, tt.wantErr)
 				return
 			}
 
-			test.AssertBytes(t, got, tt.want, "ReservePaperCut(%v, %d)", tt.cutType, tt.feedAmount)
+			testutils.AssertBytes(t, got, tt.want, "ReservePaperCut(%v, %d)", tt.cutType, tt.feedAmount)
 		})
 	}
 }
@@ -267,7 +267,7 @@ func TestCommands_ReservePaperCut(t *testing.T) {
 
 func TestCommands_CutPaper(t *testing.T) {
 	cmd := mechanismcontrol.NewCommands()
-	prefix := test.BuildCommand(shared.GS, 'V')
+	prefix := testutils.BuildCommand(shared.GS, 'V')
 
 	tests := []struct {
 		name    string
@@ -329,22 +329,22 @@ func TestCommands_CutPaper(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := cmd.CutPaper(tt.mode)
 
-			if !test.AssertErrorOccurred(t, err, tt.wantErr != nil, "CutPaper") {
+			if !testutils.AssertErrorOccurred(t, err, tt.wantErr != nil, "CutPaper") {
 				return
 			}
 			if tt.wantErr != nil {
-				test.AssertError(t, err, tt.wantErr)
+				testutils.AssertError(t, err, tt.wantErr)
 				return
 			}
 
-			test.AssertBytes(t, got, tt.want, "CutPaper(%v)", tt.mode)
+			testutils.AssertBytes(t, got, tt.want, "CutPaper(%v)", tt.mode)
 		})
 	}
 }
 
 func TestCommands_FeedAndCutPaper(t *testing.T) {
 	cmd := mechanismcontrol.NewCommands()
-	prefix := test.BuildCommand(shared.GS, 'V')
+	prefix := testutils.BuildCommand(shared.GS, 'V')
 
 	tests := []struct {
 		name       string
@@ -415,22 +415,22 @@ func TestCommands_FeedAndCutPaper(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := cmd.FeedAndCutPaper(tt.mode, tt.feedAmount)
 
-			if !test.AssertErrorOccurred(t, err, tt.wantErr != nil, "FeedAndCutPaper") {
+			if !testutils.AssertErrorOccurred(t, err, tt.wantErr != nil, "FeedAndCutPaper") {
 				return
 			}
 			if tt.wantErr != nil {
-				test.AssertError(t, err, tt.wantErr)
+				testutils.AssertError(t, err, tt.wantErr)
 				return
 			}
 
-			test.AssertBytes(t, got, tt.want, "FeedAndCutPaper(%v, %d)", tt.mode, tt.feedAmount)
+			testutils.AssertBytes(t, got, tt.want, "FeedAndCutPaper(%v, %d)", tt.mode, tt.feedAmount)
 		})
 	}
 }
 
 func TestCommands_SetCutPosition(t *testing.T) {
 	cmd := mechanismcontrol.NewCommands()
-	prefix := test.BuildCommand(shared.GS, 'V')
+	prefix := testutils.BuildCommand(shared.GS, 'V')
 
 	tests := []struct {
 		name     string
@@ -501,22 +501,22 @@ func TestCommands_SetCutPosition(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := cmd.SetCutPosition(tt.mode, tt.position)
 
-			if !test.AssertErrorOccurred(t, err, tt.wantErr != nil, "SetCutPosition") {
+			if !testutils.AssertErrorOccurred(t, err, tt.wantErr != nil, "SetCutPosition") {
 				return
 			}
 			if tt.wantErr != nil {
-				test.AssertError(t, err, tt.wantErr)
+				testutils.AssertError(t, err, tt.wantErr)
 				return
 			}
 
-			test.AssertBytes(t, got, tt.want, "SetCutPosition(%v, %d)", tt.mode, tt.position)
+			testutils.AssertBytes(t, got, tt.want, "SetCutPosition(%v, %d)", tt.mode, tt.position)
 		})
 	}
 }
 
 func TestCommands_FeedCutAndReturnPaper(t *testing.T) {
 	cmd := mechanismcontrol.NewCommands()
-	prefix := test.BuildCommand(shared.GS, 'V')
+	prefix := testutils.BuildCommand(shared.GS, 'V')
 
 	tests := []struct {
 		name       string
@@ -587,15 +587,15 @@ func TestCommands_FeedCutAndReturnPaper(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := cmd.FeedCutAndReturnPaper(tt.mode, tt.feedAmount)
 
-			if !test.AssertErrorOccurred(t, err, tt.wantErr != nil, "FeedCutAndReturnPaper") {
+			if !testutils.AssertErrorOccurred(t, err, tt.wantErr != nil, "FeedCutAndReturnPaper") {
 				return
 			}
 			if tt.wantErr != nil {
-				test.AssertError(t, err, tt.wantErr)
+				testutils.AssertError(t, err, tt.wantErr)
 				return
 			}
 
-			test.AssertBytes(t, got, tt.want, "FeedCutAndReturnPaper(%v, %d)", tt.mode, tt.feedAmount)
+			testutils.AssertBytes(t, got, tt.want, "FeedCutAndReturnPaper(%v, %d)", tt.mode, tt.feedAmount)
 		})
 	}
 }
@@ -655,7 +655,7 @@ func TestValidateCutMode(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			err := mechanismcontrol.ValidateCutMode(tt.mode)
-			test.AssertError(t, err, tt.wantErr)
+			testutils.AssertError(t, err, tt.wantErr)
 		})
 	}
 }
@@ -696,7 +696,7 @@ func TestValidateCutType(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			err := mechanismcontrol.ValidateCutType(tt.cutType)
-			test.AssertError(t, err, tt.wantErr)
+			testutils.AssertError(t, err, tt.wantErr)
 		})
 	}
 }
@@ -742,7 +742,7 @@ func TestValidateFeedCutMode(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			err := mechanismcontrol.ValidateFeedCutMode(tt.mode)
-			test.AssertError(t, err, tt.wantErr)
+			testutils.AssertError(t, err, tt.wantErr)
 		})
 	}
 }
@@ -788,7 +788,7 @@ func TestValidatePositionCutMode(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			err := mechanismcontrol.ValidatePositionCutMode(tt.mode)
-			test.AssertError(t, err, tt.wantErr)
+			testutils.AssertError(t, err, tt.wantErr)
 		})
 	}
 }
@@ -834,7 +834,7 @@ func TestValidateFeedCutReturnMode(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			err := mechanismcontrol.ValidateFeedCutReturnMode(tt.mode)
-			test.AssertError(t, err, tt.wantErr)
+			testutils.AssertError(t, err, tt.wantErr)
 		})
 	}
 }
@@ -849,25 +849,25 @@ func TestCommands_BoundaryValues(t *testing.T) {
 	t.Run("feed amount boundaries", func(t *testing.T) {
 		// Test minimum feed amount
 		got, err := cmd.PaperFeedAndCut(mechanismcontrol.CutTypeFull, 0)
-		test.AssertError(t, err, nil)
-		test.AssertLength(t, got, 8, "minimum feed amount command length")
+		testutils.AssertError(t, err, nil)
+		testutils.AssertLength(t, got, 8, "minimum feed amount command length")
 
 		// Test maximum feed amount
 		got, err = cmd.PaperFeedAndCut(mechanismcontrol.CutTypeFull, 255)
-		test.AssertError(t, err, nil)
-		test.AssertLength(t, got, 8, "maximum feed amount command length")
+		testutils.AssertError(t, err, nil)
+		testutils.AssertLength(t, got, 8, "maximum feed amount command length")
 	})
 
 	t.Run("position boundaries", func(t *testing.T) {
 		// Test minimum position
 		got, err := cmd.SetCutPosition(mechanismcontrol.PositionCutModeFull, 0)
-		test.AssertError(t, err, nil)
-		test.AssertLength(t, got, 4, "minimum position command length")
+		testutils.AssertError(t, err, nil)
+		testutils.AssertLength(t, got, 4, "minimum position command length")
 
 		// Test maximum position
 		got, err = cmd.SetCutPosition(mechanismcontrol.PositionCutModeFull, 255)
-		test.AssertError(t, err, nil)
-		test.AssertLength(t, got, 4, "maximum position command length")
+		testutils.AssertError(t, err, nil)
+		testutils.AssertLength(t, got, 4, "maximum position command length")
 	})
 }
 
@@ -885,9 +885,9 @@ func TestCommands_AllCutModeCombinations(t *testing.T) {
 	for _, mode := range validModes {
 		t.Run(string(rune(mode)), func(t *testing.T) {
 			got, err := cmd.CutPaper(mode)
-			test.AssertError(t, err, nil)
-			test.AssertNotEmpty(t, got, "CutPaper should return non-empty result for valid mode")
-			test.AssertHasPrefix(t, got, []byte{shared.GS, 'V'}, "CutPaper command prefix")
+			testutils.AssertError(t, err, nil)
+			testutils.AssertNotEmpty(t, got, "CutPaper should return non-empty result for valid mode")
+			testutils.AssertHasPrefix(t, got, []byte{shared.GS, 'V'}, "CutPaper command prefix")
 		})
 	}
 }
@@ -901,8 +901,8 @@ func TestCommands_ConsistencyBetweenModes(t *testing.T) {
 		got2, _ := cmd.CutPaper(mechanismcontrol.CutModeFullASCII)
 
 		// Both should be GS V commands but with different parameter values
-		test.AssertHasPrefix(t, got1, []byte{shared.GS, 'V'}, "full cut (0)")
-		test.AssertHasPrefix(t, got2, []byte{shared.GS, 'V'}, "full cut ASCII (48)")
+		testutils.AssertHasPrefix(t, got1, []byte{shared.GS, 'V'}, "full cut (0)")
+		testutils.AssertHasPrefix(t, got2, []byte{shared.GS, 'V'}, "full cut ASCII (48)")
 
 		// Values should be different
 		if got1[2] == got2[2] {
@@ -916,8 +916,8 @@ func TestCommands_ConsistencyBetweenModes(t *testing.T) {
 		got2, _ := cmd.CutPaper(mechanismcontrol.CutModePartialASCII)
 
 		// Both should be GS V commands but with different parameter values
-		test.AssertHasPrefix(t, got1, []byte{shared.GS, 'V'}, "partial cut (1)")
-		test.AssertHasPrefix(t, got2, []byte{shared.GS, 'V'}, "partial cut ASCII (49)")
+		testutils.AssertHasPrefix(t, got1, []byte{shared.GS, 'V'}, "partial cut (1)")
+		testutils.AssertHasPrefix(t, got2, []byte{shared.GS, 'V'}, "partial cut ASCII (49)")
 
 		// Values should be different
 		if got1[2] == got2[2] {
