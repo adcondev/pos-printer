@@ -5,7 +5,7 @@ import (
 
 	"github.com/adcondev/pos-printer/escpos/character"
 	"github.com/adcondev/pos-printer/escpos/shared"
-	"github.com/adcondev/pos-printer/utils/test"
+	"github.com/adcondev/pos-printer/internal/testutils"
 )
 
 // ============================================================================
@@ -93,11 +93,11 @@ func Test_BuildCharacterSize(t *testing.T) {
 			got, err := character.NewSize(tt.width, tt.height)
 
 			// Verify
-			if !test.AssertErrorOccurred(t, err, tt.wantErr != nil, "NewSize") {
+			if !testutils.AssertErrorOccurred(t, err, tt.wantErr != nil, "NewSize") {
 				return
 			}
 			if tt.wantErr != nil {
-				test.AssertError(t, err, tt.wantErr)
+				testutils.AssertError(t, err, tt.wantErr)
 				return
 			}
 
@@ -117,7 +117,7 @@ func Test_BuildCharacterSize(t *testing.T) {
 func TestCommands_SetRightSideCharacterSpacing(t *testing.T) {
 	// Setup
 	cmd := character.NewCommands()
-	prefix := test.BuildCommand(shared.ESC, shared.SP)
+	prefix := testutils.BuildCommand(shared.ESC, shared.SP)
 
 	tests := []struct {
 		name    string
@@ -147,7 +147,7 @@ func TestCommands_SetRightSideCharacterSpacing(t *testing.T) {
 			got := cmd.SetRightSideCharacterSpacing(tt.spacing)
 
 			// Verify
-			test.AssertBytes(t, got, tt.want, "SetRightSideCharacterSpacing(%d)", tt.spacing)
+			testutils.AssertBytes(t, got, tt.want, "SetRightSideCharacterSpacing(%d)", tt.spacing)
 		})
 	}
 }
@@ -155,7 +155,7 @@ func TestCommands_SetRightSideCharacterSpacing(t *testing.T) {
 func TestCommands_SelectPrintModes(t *testing.T) {
 	// Setup
 	cmd := character.NewCommands()
-	prefix := test.BuildCommand(shared.ESC, '!')
+	prefix := testutils.BuildCommand(shared.ESC, '!')
 
 	tests := []struct {
 		name string
@@ -205,7 +205,7 @@ func TestCommands_SelectPrintModes(t *testing.T) {
 			got := cmd.SelectPrintModes(tt.mode)
 
 			// Verify
-			test.AssertBytes(t, got, tt.want, "SelectPrintModes(%#x)", tt.mode)
+			testutils.AssertBytes(t, got, tt.want, "SelectPrintModes(%#x)", tt.mode)
 		})
 	}
 }
@@ -213,7 +213,7 @@ func TestCommands_SelectPrintModes(t *testing.T) {
 func TestCommands_SetUnderlineMode(t *testing.T) {
 	// Setup
 	cmd := character.NewCommands()
-	prefix := test.BuildCommand(shared.ESC, '-')
+	prefix := testutils.BuildCommand(shared.ESC, '-')
 
 	tests := []struct {
 		name    string
@@ -271,16 +271,16 @@ func TestCommands_SetUnderlineMode(t *testing.T) {
 			got, err := cmd.SetUnderlineMode(tt.mode)
 
 			// Verify error
-			if !test.AssertErrorOccurred(t, err, tt.wantErr != nil, "SetUnderlineMode") {
+			if !testutils.AssertErrorOccurred(t, err, tt.wantErr != nil, "SetUnderlineMode") {
 				return
 			}
 			if tt.wantErr != nil {
-				test.AssertError(t, err, tt.wantErr)
+				testutils.AssertError(t, err, tt.wantErr)
 				return
 			}
 
 			// Verify result
-			test.AssertBytes(t, got, tt.want, "SetUnderlineMode(%v)", tt.mode)
+			testutils.AssertBytes(t, got, tt.want, "SetUnderlineMode(%v)", tt.mode)
 		})
 	}
 }
@@ -288,7 +288,7 @@ func TestCommands_SetUnderlineMode(t *testing.T) {
 func TestCommands_SetEmphasizedMode(t *testing.T) {
 	// Setup
 	cmd := character.NewCommands()
-	prefix := test.BuildCommand(shared.ESC, 'E')
+	prefix := testutils.BuildCommand(shared.ESC, 'E')
 
 	tests := []struct {
 		name string
@@ -323,7 +323,7 @@ func TestCommands_SetEmphasizedMode(t *testing.T) {
 			got := cmd.SetEmphasizedMode(tt.mode)
 
 			// Verify
-			test.AssertBytes(t, got, tt.want, "SetEmphasizedMode(%d)", tt.mode)
+			testutils.AssertBytes(t, got, tt.want, "SetEmphasizedMode(%d)", tt.mode)
 		})
 	}
 }
@@ -331,7 +331,7 @@ func TestCommands_SetEmphasizedMode(t *testing.T) {
 func TestCommands_SetDoubleStrikeMode(t *testing.T) {
 	// Setup
 	cmd := character.NewCommands()
-	prefix := test.BuildCommand(shared.ESC, 'G')
+	prefix := testutils.BuildCommand(shared.ESC, 'G')
 
 	tests := []struct {
 		name string
@@ -366,7 +366,7 @@ func TestCommands_SetDoubleStrikeMode(t *testing.T) {
 			got := cmd.SetDoubleStrikeMode(tt.mode)
 
 			// Verify
-			test.AssertBytes(t, got, tt.want, "SetDoubleStrikeMode(%d)", tt.mode)
+			testutils.AssertBytes(t, got, tt.want, "SetDoubleStrikeMode(%d)", tt.mode)
 		})
 	}
 }
@@ -374,7 +374,7 @@ func TestCommands_SetDoubleStrikeMode(t *testing.T) {
 func TestCommands_SelectCharacterFont(t *testing.T) {
 	// Setup
 	cmd := character.NewCommands()
-	prefix := test.BuildCommand(shared.ESC, 'M')
+	prefix := testutils.BuildCommand(shared.ESC, 'M')
 
 	tests := []struct {
 		name    string
@@ -432,16 +432,16 @@ func TestCommands_SelectCharacterFont(t *testing.T) {
 			got, err := cmd.SelectCharacterFont(tt.font)
 
 			// Verify error
-			if !test.AssertErrorOccurred(t, err, tt.wantErr != nil, "SelectCharacterFont") {
+			if !testutils.AssertErrorOccurred(t, err, tt.wantErr != nil, "SelectCharacterFont") {
 				return
 			}
 			if tt.wantErr != nil {
-				test.AssertError(t, err, tt.wantErr)
+				testutils.AssertError(t, err, tt.wantErr)
 				return
 			}
 
 			// Verify result
-			test.AssertBytes(t, got, tt.want, "SelectCharacterFont(%v)", tt.font)
+			testutils.AssertBytes(t, got, tt.want, "SelectCharacterFont(%v)", tt.font)
 		})
 	}
 }
@@ -449,7 +449,7 @@ func TestCommands_SelectCharacterFont(t *testing.T) {
 func TestCommands_SelectInternationalCharacterSet(t *testing.T) {
 	// Setup
 	cmd := character.NewCommands()
-	prefix := test.BuildCommand(shared.ESC, 'R')
+	prefix := testutils.BuildCommand(shared.ESC, 'R')
 
 	tests := []struct {
 		name    string
@@ -495,16 +495,16 @@ func TestCommands_SelectInternationalCharacterSet(t *testing.T) {
 			got, err := cmd.SelectInternationalCharacterSet(tt.charset)
 
 			// Verify error
-			if !test.AssertErrorOccurred(t, err, tt.wantErr != nil, "SelectInternationalCharacterSet") {
+			if !testutils.AssertErrorOccurred(t, err, tt.wantErr != nil, "SelectInternationalCharacterSet") {
 				return
 			}
 			if tt.wantErr != nil {
-				test.AssertError(t, err, tt.wantErr)
+				testutils.AssertError(t, err, tt.wantErr)
 				return
 			}
 
 			// Verify result
-			test.AssertBytes(t, got, tt.want, "SelectInternationalCharacterSet(%v)", tt.charset)
+			testutils.AssertBytes(t, got, tt.want, "SelectInternationalCharacterSet(%v)", tt.charset)
 		})
 	}
 }
@@ -512,7 +512,7 @@ func TestCommands_SelectInternationalCharacterSet(t *testing.T) {
 func TestCommands_Set90DegreeClockwiseRotationMode(t *testing.T) {
 	// Setup
 	cmd := character.NewCommands()
-	prefix := test.BuildCommand(shared.ESC, 'V')
+	prefix := testutils.BuildCommand(shared.ESC, 'V')
 
 	tests := []struct {
 		name    string
@@ -558,16 +558,16 @@ func TestCommands_Set90DegreeClockwiseRotationMode(t *testing.T) {
 			got, err := cmd.Set90DegreeClockwiseRotationMode(tt.mode)
 
 			// Verify error
-			if !test.AssertErrorOccurred(t, err, tt.wantErr != nil, "Set90DegreeClockwiseRotationMode") {
+			if !testutils.AssertErrorOccurred(t, err, tt.wantErr != nil, "Set90DegreeClockwiseRotationMode") {
 				return
 			}
 			if tt.wantErr != nil {
-				test.AssertError(t, err, tt.wantErr)
+				testutils.AssertError(t, err, tt.wantErr)
 				return
 			}
 
 			// Verify result
-			test.AssertBytes(t, got, tt.want, "Set90DegreeClockwiseRotationMode(%v)", tt.mode)
+			testutils.AssertBytes(t, got, tt.want, "Set90DegreeClockwiseRotationMode(%v)", tt.mode)
 		})
 	}
 }
@@ -575,7 +575,7 @@ func TestCommands_Set90DegreeClockwiseRotationMode(t *testing.T) {
 func TestCommands_SelectPrintColor(t *testing.T) {
 	// Setup
 	cmd := character.NewCommands()
-	prefix := test.BuildCommand(shared.ESC, 'r')
+	prefix := testutils.BuildCommand(shared.ESC, 'r')
 
 	tests := []struct {
 		name    string
@@ -621,16 +621,16 @@ func TestCommands_SelectPrintColor(t *testing.T) {
 			got, err := cmd.SelectPrintColor(tt.color)
 
 			// Verify error
-			if !test.AssertErrorOccurred(t, err, tt.wantErr != nil, "SelectPrintColor") {
+			if !testutils.AssertErrorOccurred(t, err, tt.wantErr != nil, "SelectPrintColor") {
 				return
 			}
 			if tt.wantErr != nil {
-				test.AssertError(t, err, tt.wantErr)
+				testutils.AssertError(t, err, tt.wantErr)
 				return
 			}
 
 			// Verify result
-			test.AssertBytes(t, got, tt.want, "SelectPrintColor(%v)", tt.color)
+			testutils.AssertBytes(t, got, tt.want, "SelectPrintColor(%v)", tt.color)
 		})
 	}
 }
@@ -638,7 +638,7 @@ func TestCommands_SelectPrintColor(t *testing.T) {
 func TestCommands_SelectCharacterCodeTable(t *testing.T) {
 	// Setup
 	cmd := character.NewCommands()
-	prefix := test.BuildCommand(shared.ESC, 't')
+	prefix := testutils.BuildCommand(shared.ESC, 't')
 
 	tests := []struct {
 		name    string
@@ -684,16 +684,16 @@ func TestCommands_SelectCharacterCodeTable(t *testing.T) {
 			got, err := cmd.SelectCharacterCodeTable(tt.page)
 
 			// Verify error
-			if !test.AssertErrorOccurred(t, err, tt.wantErr != nil, "SelectCharacterCodeTable") {
+			if !testutils.AssertErrorOccurred(t, err, tt.wantErr != nil, "SelectCharacterCodeTable") {
 				return
 			}
 			if tt.wantErr != nil {
-				test.AssertError(t, err, tt.wantErr)
+				testutils.AssertError(t, err, tt.wantErr)
 				return
 			}
 
 			// Verify result
-			test.AssertBytes(t, got, tt.want, "SelectCharacterCodeTable(%v)", tt.page)
+			testutils.AssertBytes(t, got, tt.want, "SelectCharacterCodeTable(%v)", tt.page)
 		})
 	}
 }
@@ -701,7 +701,7 @@ func TestCommands_SelectCharacterCodeTable(t *testing.T) {
 func TestCommands_SetUpsideDownMode(t *testing.T) {
 	// Setup
 	cmd := character.NewCommands()
-	prefix := test.BuildCommand(shared.ESC, '{')
+	prefix := testutils.BuildCommand(shared.ESC, '{')
 
 	tests := []struct {
 		name string
@@ -736,7 +736,7 @@ func TestCommands_SetUpsideDownMode(t *testing.T) {
 			got := cmd.SetUpsideDownMode(tt.mode)
 
 			// Verify
-			test.AssertBytes(t, got, tt.want, "SetUpsideDownMode(%d)", tt.mode)
+			testutils.AssertBytes(t, got, tt.want, "SetUpsideDownMode(%d)", tt.mode)
 		})
 	}
 }
@@ -744,7 +744,7 @@ func TestCommands_SetUpsideDownMode(t *testing.T) {
 func TestCommands_SelectCharacterSize(t *testing.T) {
 	// Setup
 	cmd := character.NewCommands()
-	prefix := test.BuildCommand(shared.GS, '!')
+	prefix := testutils.BuildCommand(shared.GS, '!')
 
 	tests := []struct {
 		name string
@@ -789,7 +789,7 @@ func TestCommands_SelectCharacterSize(t *testing.T) {
 			got := cmd.SelectCharacterSize(tt.size)
 
 			// Verify
-			test.AssertBytes(t, got, tt.want, "SelectCharacterSize(%#x)", tt.size)
+			testutils.AssertBytes(t, got, tt.want, "SelectCharacterSize(%#x)", tt.size)
 		})
 	}
 }
@@ -797,7 +797,7 @@ func TestCommands_SelectCharacterSize(t *testing.T) {
 func TestCommands_SetWhiteBlackReverseMode(t *testing.T) {
 	// Setup
 	cmd := character.NewCommands()
-	prefix := test.BuildCommand(shared.GS, 'B')
+	prefix := testutils.BuildCommand(shared.GS, 'B')
 
 	tests := []struct {
 		name string
@@ -842,7 +842,7 @@ func TestCommands_SetWhiteBlackReverseMode(t *testing.T) {
 			got := cmd.SetWhiteBlackReverseMode(tt.mode)
 
 			// Verify
-			test.AssertBytes(t, got, tt.want, "SetWhiteBlackReverseMode(%d)", tt.mode)
+			testutils.AssertBytes(t, got, tt.want, "SetWhiteBlackReverseMode(%d)", tt.mode)
 		})
 	}
 }
@@ -850,7 +850,7 @@ func TestCommands_SetWhiteBlackReverseMode(t *testing.T) {
 func TestCommands_SetSmoothingMode(t *testing.T) {
 	// Setup
 	cmd := character.NewCommands()
-	prefix := test.BuildCommand(shared.GS, 'b')
+	prefix := testutils.BuildCommand(shared.GS, 'b')
 
 	tests := []struct {
 		name string
@@ -895,7 +895,7 @@ func TestCommands_SetSmoothingMode(t *testing.T) {
 			got := cmd.SetSmoothingMode(tt.mode)
 
 			// Verify
-			test.AssertBytes(t, got, tt.want, "SetSmoothingMode(%d)", tt.mode)
+			testutils.AssertBytes(t, got, tt.want, "SetSmoothingMode(%d)", tt.mode)
 		})
 	}
 }

@@ -1,4 +1,4 @@
-package printposition_test
+package test_test
 
 import (
 	"bytes"

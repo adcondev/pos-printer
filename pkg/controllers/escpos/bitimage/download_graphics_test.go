@@ -5,7 +5,7 @@ import (
 
 	"github.com/adcondev/pos-printer/escpos/bitimage"
 	"github.com/adcondev/pos-printer/escpos/shared"
-	"github.com/adcondev/pos-printer/utils/test"
+	"github.com/adcondev/pos-printer/internal/testutils"
 )
 
 // ============================================================================
@@ -51,15 +51,15 @@ func TestDownloadGraphicsCommands_GetDownloadGraphicsRemainingCapacity(t *testin
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := cmd.GetDownloadGraphicsRemainingCapacity(tt.fn)
 
-			if !test.AssertErrorOccurred(t, err, tt.wantErr != nil, "GetDownloadGraphicsRemainingCapacity") {
+			if !testutils.AssertErrorOccurred(t, err, tt.wantErr != nil, "GetDownloadGraphicsRemainingCapacity") {
 				return
 			}
 			if tt.wantErr != nil {
-				test.AssertError(t, err, tt.wantErr)
+				testutils.AssertError(t, err, tt.wantErr)
 				return
 			}
 
-			test.AssertBytes(t, got, tt.want, "GetDownloadGraphicsRemainingCapacity(%v)", tt.fn)
+			testutils.AssertBytes(t, got, tt.want, "GetDownloadGraphicsRemainingCapacity(%v)", tt.fn)
 		})
 	}
 }
@@ -69,7 +69,7 @@ func TestDownloadGraphicsCommands_GetDownloadGraphicsKeyCodeList(t *testing.T) {
 	want := []byte{shared.GS, '(', 'L', 0x04, 0x00, 0x30, 0x50, 'K', 'C'}
 
 	got := cmd.GetDownloadGraphicsKeyCodeList()
-	test.AssertBytes(t, got, want, "GetDownloadGraphicsKeyCodeList()")
+	testutils.AssertBytes(t, got, want, "GetDownloadGraphicsKeyCodeList()")
 }
 
 func TestDownloadGraphicsCommands_DeleteAllDownloadGraphics(t *testing.T) {
@@ -77,7 +77,7 @@ func TestDownloadGraphicsCommands_DeleteAllDownloadGraphics(t *testing.T) {
 	want := []byte{shared.GS, '(', 'L', 0x05, 0x00, 0x30, 0x51, 'C', 'L', 'R'}
 
 	got := cmd.DeleteAllDownloadGraphics()
-	test.AssertBytes(t, got, want, "DeleteAllDownloadGraphics()")
+	testutils.AssertBytes(t, got, want, "DeleteAllDownloadGraphics()")
 }
 
 func TestDownloadGraphicsCommands_DeleteDownloadGraphicsByKeyCode(t *testing.T) {
@@ -131,15 +131,15 @@ func TestDownloadGraphicsCommands_DeleteDownloadGraphicsByKeyCode(t *testing.T) 
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := cmd.DeleteDownloadGraphicsByKeyCode(tt.kc1, tt.kc2)
 
-			if !test.AssertErrorOccurred(t, err, tt.wantErr != nil, "DeleteDownloadGraphicsByKeyCode") {
+			if !testutils.AssertErrorOccurred(t, err, tt.wantErr != nil, "DeleteDownloadGraphicsByKeyCode") {
 				return
 			}
 			if tt.wantErr != nil {
-				test.AssertError(t, err, tt.wantErr)
+				testutils.AssertError(t, err, tt.wantErr)
 				return
 			}
 
-			test.AssertBytes(t, got, tt.want, "DeleteDownloadGraphicsByKeyCode(%v, %v)", tt.kc1, tt.kc2)
+			testutils.AssertBytes(t, got, tt.want, "DeleteDownloadGraphicsByKeyCode(%v, %v)", tt.kc1, tt.kc2)
 		})
 	}
 }
@@ -234,15 +234,15 @@ func TestDownloadGraphicsCommands_PrintDownloadGraphics(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := cmd.PrintDownloadGraphics(tt.kc1, tt.kc2, tt.horizontalScale, tt.verticalScale)
 
-			if !test.AssertErrorOccurred(t, err, tt.wantErr != nil, "PrintDownloadGraphics") {
+			if !testutils.AssertErrorOccurred(t, err, tt.wantErr != nil, "PrintDownloadGraphics") {
 				return
 			}
 			if tt.wantErr != nil {
-				test.AssertError(t, err, tt.wantErr)
+				testutils.AssertError(t, err, tt.wantErr)
 				return
 			}
 
-			test.AssertBytes(t, got, tt.want, "PrintDownloadGraphics(%v, %v, %v, %v)",
+			testutils.AssertBytes(t, got, tt.want, "PrintDownloadGraphics(%v, %v, %v, %v)",
 				tt.kc1, tt.kc2, tt.horizontalScale, tt.verticalScale)
 		})
 	}

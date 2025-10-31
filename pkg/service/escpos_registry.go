@@ -1,5 +1,5 @@
-// Package devices provides implementations for various POS printer devices.
-package devices
+// Package service provides implementations for various POS printer service.
+package service
 
 import (
 	"fmt"

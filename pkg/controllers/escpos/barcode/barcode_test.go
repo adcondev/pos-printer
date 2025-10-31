@@ -3,9 +3,31 @@ package barcode_test
 import (
 	"testing"
 
+	"github.com/adcondev/pos-printer/internal/testutils"
+
 	"github.com/adcondev/pos-printer/escpos/barcode"
 	"github.com/adcondev/pos-printer/escpos/shared"
-	"github.com/adcondev/pos-printer/utils/test"
+)
+
+var (
+	// Common testutils barcodes
+	Upca12     = []byte("123456789012")
+	Upca11     = []byte("12345678901")
+	Upce8      = []byte("12345678")
+	Upce7      = []byte("1234567")
+	Upce6      = []byte("123456")
+	Ean1313    = []byte("1234567890123")
+	Ean1312    = []byte("123456789012")
+	Ean88      = []byte("12345678")
+	Ean87      = []byte("1234567")
+	Code39Noss = []byte("ABC-123")
+	Code39Ss   = []byte("*ABC-123*")
+	ITFEven    = []byte("123456")
+	ITFMin     = []byte("12")
+	ITFOdd     = []byte("12345")
+	CodabarSs1 = []byte("A123456B")
+	CodabarSs2 = []byte("C123456D")
+	CodabarLss = []byte("a123456d")
 )
 
 // ============================================================================
@@ -14,7 +36,7 @@ import (
 
 func TestCommands_SelectHRICharacterPosition(t *testing.T) {
 	cmd := barcode.NewCommands()
-	prefix := test.BuildCommand(shared.GS, 'H')
+	prefix := testutils.BuildCommand(shared.GS, 'H')
 
 	tests := []struct {
 		name     string
@@ -94,15 +116,15 @@ func TestCommands_SelectHRICharacterPosition(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := cmd.SelectHRICharacterPosition(tt.position)
 
-			if !test.AssertErrorOccurred(t, err, tt.wantErr != nil, "SelectHRICharacterPosition") {
+			if !testutils.AssertErrorOccurred(t, err, tt.wantErr != nil, "SelectHRICharacterPosition") {
 				return
 			}
 			if tt.wantErr != nil {
-				test.AssertError(t, err, tt.wantErr)
+				testutils.AssertError(t, err, tt.wantErr)
 				return
 			}
 
-			test.AssertBytes(t, got, tt.want, "SelectHRICharacterPosition(%v)", tt.position)
+			testutils.AssertBytes(t, got, tt.want, "SelectHRICharacterPosition(%v)", tt.position)
 		})
 	}
 }
@@ -113,7 +135,7 @@ func TestCommands_SelectHRICharacterPosition(t *testing.T) {
 
 func TestCommands_SelectFontForHRI(t *testing.T) {
 	cmd := barcode.NewCommands()
-	prefix := test.BuildCommand(shared.GS, 'f')
+	prefix := testutils.BuildCommand(shared.GS, 'f')
 
 	tests := []struct {
 		name    string
@@ -217,15 +239,15 @@ func TestCommands_SelectFontForHRI(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := cmd.SelectFontForHRI(tt.font)
 
-			if !test.AssertErrorOccurred(t, err, tt.wantErr != nil, "SelectFontForHRI") {
+			if !testutils.AssertErrorOccurred(t, err, tt.wantErr != nil, "SelectFontForHRI") {
 				return
 			}
 			if tt.wantErr != nil {
-				test.AssertError(t, err, tt.wantErr)
+				testutils.AssertError(t, err, tt.wantErr)
 				return
 			}
 
-			test.AssertBytes(t, got, tt.want, "SelectFontForHRI(%v)", tt.font)
+			testutils.AssertBytes(t, got, tt.want, "SelectFontForHRI(%v)", tt.font)
 		})
 	}
 }
@@ -236,7 +258,7 @@ func TestCommands_SelectFontForHRI(t *testing.T) {
 
 func TestCommands_SetBarcodeHeight(t *testing.T) {
 	cmd := barcode.NewCommands()
-	prefix := test.BuildCommand(shared.GS, 'h')
+	prefix := testutils.BuildCommand(shared.GS, 'h')
 
 	tests := []struct {
 		name    string
@@ -280,22 +302,22 @@ func TestCommands_SetBarcodeHeight(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := cmd.SetBarcodeHeight(tt.height)
 
-			if !test.AssertErrorOccurred(t, err, tt.wantErr != nil, "SetBarcodeHeight") {
+			if !testutils.AssertErrorOccurred(t, err, tt.wantErr != nil, "SetBarcodeHeight") {
 				return
 			}
 			if tt.wantErr != nil {
-				test.AssertError(t, err, tt.wantErr)
+				testutils.AssertError(t, err, tt.wantErr)
 				return
 			}
 
-			test.AssertBytes(t, got, tt.want, "SetBarcodeHeight(%v)", tt.height)
+			testutils.AssertBytes(t, got, tt.want, "SetBarcodeHeight(%v)", tt.height)
 		})
 	}
 }
 
 func TestCommands_SetBarcodeWidth(t *testing.T) {
 	cmd := barcode.NewCommands()
-	prefix := test.BuildCommand(shared.GS, 'w')
+	prefix := testutils.BuildCommand(shared.GS, 'w')
 
 	tests := []struct {
 		name    string
@@ -387,15 +409,15 @@ func TestCommands_SetBarcodeWidth(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := cmd.SetBarcodeWidth(tt.width)
 
-			if !test.AssertErrorOccurred(t, err, tt.wantErr != nil, "SetBarcodeWidth") {
+			if !testutils.AssertErrorOccurred(t, err, tt.wantErr != nil, "SetBarcodeWidth") {
 				return
 			}
 			if tt.wantErr != nil {
-				test.AssertError(t, err, tt.wantErr)
+				testutils.AssertError(t, err, tt.wantErr)
 				return
 			}
 
-			test.AssertBytes(t, got, tt.want, "SetBarcodeWidth(%v)", tt.width)
+			testutils.AssertBytes(t, got, tt.want, "SetBarcodeWidth(%v)", tt.width)
 		})
 	}
 }
@@ -417,126 +439,126 @@ func TestCommands_PrintBarcode_FunctionA(t *testing.T) {
 		{
 			name:      "UPC-A 11 digits",
 			symbology: barcode.UPCA,
-			data:      test.UPCA11,
+			data:      Upca11,
 			want:      append([]byte{shared.GS, 'k', 0}, append([]byte("12345678901"), shared.NUL)...),
 			wantErr:   nil,
 		},
 		{
 			name:      "UPC-A 12 digits with check",
 			symbology: barcode.UPCA,
-			data:      test.UPCA12,
+			data:      Upca12,
 			want:      append([]byte{shared.GS, 'k', 0}, append([]byte("123456789012"), shared.NUL)...),
 			wantErr:   nil,
 		},
 		{
 			name:      "UPC-E 6 digits",
 			symbology: barcode.UPCE,
-			data:      test.UPCE6,
+			data:      Upce6,
 			want:      append([]byte{shared.GS, 'k', 1}, append([]byte("123456"), shared.NUL)...),
 			wantErr:   nil,
 		},
 		{
 			name:      "UPC-E 7 digits",
 			symbology: barcode.UPCE,
-			data:      test.UPCE7,
+			data:      Upce7,
 			want:      append([]byte{shared.GS, 'k', 1}, append([]byte("1234567"), shared.NUL)...),
 			wantErr:   nil,
 		},
 		{
 			name:      "UPC-E 8 digits",
 			symbology: barcode.UPCE,
-			data:      test.UPCE8,
+			data:      Upce8,
 			want:      append([]byte{shared.GS, 'k', 1}, append([]byte("12345678"), shared.NUL)...),
 			wantErr:   nil,
 		},
 		{
 			name:      "EAN13 12 digits",
 			symbology: barcode.JAN13,
-			data:      test.EAN13_12,
+			data:      Ean1312,
 			want:      append([]byte{shared.GS, 'k', 2}, append([]byte("123456789012"), shared.NUL)...),
 			wantErr:   nil,
 		},
 		{
 			name:      "EAN13 13 digits with check",
 			symbology: barcode.JAN13,
-			data:      test.EAN13_13,
+			data:      Ean1313,
 			want:      append([]byte{shared.GS, 'k', 2}, append([]byte("1234567890123"), shared.NUL)...),
 			wantErr:   nil,
 		},
 		{
 			name:      "EAN8 7 digits",
 			symbology: barcode.JAN8,
-			data:      test.EAN8_7,
+			data:      Ean87,
 			want:      append([]byte{shared.GS, 'k', 3}, append([]byte("1234567"), shared.NUL)...),
 			wantErr:   nil,
 		},
 		{
 			name:      "EAN8 8 digits with check",
 			symbology: barcode.JAN8,
-			data:      test.EAN8_8,
+			data:      Ean88,
 			want:      append([]byte{shared.GS, 'k', 3}, append([]byte("12345678"), shared.NUL)...),
 			wantErr:   nil,
 		},
 		{
 			name:      "EAN8 8 digits with check",
 			symbology: barcode.JAN8,
-			data:      test.EAN8_8,
+			data:      Ean88,
 			want:      append([]byte{shared.GS, 'k', 3}, append([]byte("12345678"), shared.NUL)...),
 			wantErr:   nil,
 		},
 		{
 			name:      "CODE39 with start/stop",
 			symbology: barcode.CODE39,
-			data:      test.CODE39_SS,
+			data:      Code39Ss,
 			want:      append([]byte{shared.GS, 'k', 4}, append([]byte("*ABC-123*"), shared.NUL)...),
 			wantErr:   nil,
 		},
 		{
 			name:      "CODE39 without start/stop",
 			symbology: barcode.CODE39,
-			data:      test.CODE39_NOSS,
+			data:      Code39Noss,
 			want:      append([]byte{shared.GS, 'k', 4}, append([]byte("ABC-123"), shared.NUL)...),
 			wantErr:   nil,
 		},
 		{
 			name:      "ITF even digits",
 			symbology: barcode.ITF,
-			data:      test.ITFEven,
+			data:      ITFEven,
 			want:      append([]byte{shared.GS, 'k', 5}, append([]byte("123456"), shared.NUL)...),
 			wantErr:   nil,
 		},
 		{
 			name:      "ITF minimum (2 digits)",
 			symbology: barcode.ITF,
-			data:      test.ITFMin,
+			data:      ITFMin,
 			want:      append([]byte{shared.GS, 'k', 5}, append([]byte("12"), shared.NUL)...),
 			wantErr:   nil,
 		},
 		{
 			name:      "ITF odd digits (error)",
 			symbology: barcode.ITF,
-			data:      test.ITFOdd,
+			data:      ITFOdd,
 			want:      nil,
 			wantErr:   barcode.ErrOddITFLength,
 		},
 		{
 			name:      "CODABAR with start/stop A-B",
 			symbology: barcode.CODABAR,
-			data:      test.CODABAR_SS_1,
+			data:      CodabarSs1,
 			want:      append([]byte{shared.GS, 'k', 6}, append([]byte("A123456B"), shared.NUL)...),
 			wantErr:   nil,
 		},
 		{
 			name:      "CODABAR with start/stop C-D",
 			symbology: barcode.CODABAR,
-			data:      test.CODABAR_SS_2,
+			data:      CodabarSs2,
 			want:      append([]byte{shared.GS, 'k', 6}, append([]byte("C123456D"), shared.NUL)...),
 			wantErr:   nil,
 		},
 		{
 			name:      "CODABAR lowercase start/stop a-b",
 			symbology: barcode.CODABAR,
-			data:      test.CODABAR_LSS,
+			data:      CodabarLss,
 			want:      append([]byte{shared.GS, 'k', 6}, append([]byte("a123456d"), shared.NUL)...),
 			wantErr:   nil,
 		},
@@ -553,15 +575,15 @@ func TestCommands_PrintBarcode_FunctionA(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := cmd.PrintBarcode(tt.symbology, tt.data)
 
-			if !test.AssertErrorOccurred(t, err, tt.wantErr != nil, "PrintBarcode") {
+			if !testutils.AssertErrorOccurred(t, err, tt.wantErr != nil, "PrintBarcode") {
 				return
 			}
 			if tt.wantErr != nil {
-				test.AssertError(t, err, tt.wantErr)
+				testutils.AssertError(t, err, tt.wantErr)
 				return
 			}
 
-			test.AssertBytes(t, got, tt.want, "PrintBarcode(%v, %q)", tt.symbology, tt.data)
+			testutils.AssertBytes(t, got, tt.want, "PrintBarcode(%v, %q)", tt.symbology, tt.data)
 		})
 	}
 }
@@ -730,16 +752,16 @@ func TestCommands_PrintBarcode_FunctionB(t *testing.T) {
 		{
 			name:      "data too long",
 			symbology: barcode.CODE39B,
-			data:      test.RepeatByte(256, 'A'),
+			data:      testutils.RepeatByte(256, 'A'),
 			want:      nil,
 			wantErr:   barcode.ErrDataTooLong,
 		},
 		{
 			name:      "maximum valid length",
 			symbology: barcode.CODE39B,
-			data:      test.RepeatByte(255, 'B'),
+			data:      testutils.RepeatByte(255, 'B'),
 			want: append([]byte{shared.GS, 'k', 69, 255},
-				test.RepeatByte(255, 'B')...),
+				testutils.RepeatByte(255, 'B')...),
 			wantErr: nil,
 		},
 	}
@@ -748,15 +770,15 @@ func TestCommands_PrintBarcode_FunctionB(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := cmd.PrintBarcode(tt.symbology, tt.data)
 
-			if !test.AssertErrorOccurred(t, err, tt.wantErr != nil, "PrintBarcode") {
+			if !testutils.AssertErrorOccurred(t, err, tt.wantErr != nil, "PrintBarcode") {
 				return
 			}
 			if tt.wantErr != nil {
-				test.AssertError(t, err, tt.wantErr)
+				testutils.AssertError(t, err, tt.wantErr)
 				return
 			}
 
-			test.AssertBytes(t, got, tt.want, "PrintBarcode(%v, %q)", tt.symbology, string(tt.data))
+			testutils.AssertBytes(t, got, tt.want, "PrintBarcode(%v, %q)", tt.symbology, string(tt.data))
 		})
 	}
 }
@@ -894,7 +916,7 @@ func TestCommands_PrintBarcodeWithCodeSet(t *testing.T) {
 			name:      "data too long",
 			symbology: barcode.CODE128,
 			codeSet:   barcode.Code128SetB,
-			data:      test.RepeatByte(254, 'A'),
+			data:      testutils.RepeatByte(254, 'A'),
 			want:      nil,
 			wantErr:   barcode.ErrDataTooLong,
 		},
@@ -902,9 +924,9 @@ func TestCommands_PrintBarcodeWithCodeSet(t *testing.T) {
 			name:      "maximum valid length CODE128",
 			symbology: barcode.CODE128,
 			codeSet:   barcode.Code128SetB,
-			data:      test.RepeatByte(253, 'X'), // 253 + 2 for prefix = 255
+			data:      testutils.RepeatByte(253, 'X'), // 253 + 2 for prefix = 255
 			want: append([]byte{shared.GS, 'k', 73, 255},
-				append([]byte{'{', 'B'}, test.RepeatByte(253, 'X')...)...),
+				append([]byte{'{', 'B'}, testutils.RepeatByte(253, 'X')...)...),
 			wantErr: nil,
 		},
 		{
@@ -922,15 +944,15 @@ func TestCommands_PrintBarcodeWithCodeSet(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := cmd.PrintBarcodeWithCodeSet(tt.symbology, tt.codeSet, tt.data)
 
-			if !test.AssertErrorOccurred(t, err, tt.wantErr != nil, "PrintBarcodeWithCodeSet") {
+			if !testutils.AssertErrorOccurred(t, err, tt.wantErr != nil, "PrintBarcodeWithCodeSet") {
 				return
 			}
 			if tt.wantErr != nil {
-				test.AssertError(t, err, tt.wantErr)
+				testutils.AssertError(t, err, tt.wantErr)
 				return
 			}
 
-			test.AssertBytes(t, got, tt.want, "PrintBarcodeWithCodeSet(%v, %v, %q)",
+			testutils.AssertBytes(t, got, tt.want, "PrintBarcodeWithCodeSet(%v, %v, %q)",
 				tt.symbology, tt.codeSet, string(tt.data))
 		})
 	}
@@ -941,14 +963,14 @@ func TestCommands_EdgeCases(t *testing.T) {
 
 	t.Run("maximum data at boundaries", func(t *testing.T) {
 		// Test exactly 255 bytes
-		maxData := test.RepeatByte(255, 'X')
+		maxData := testutils.RepeatByte(255, 'X')
 		_, err := cmd.PrintBarcode(barcode.CODE39B, maxData)
-		test.AssertError(t, err, nil)
+		testutils.AssertError(t, err, nil)
 
 		// Test 254 bytes (should work)
-		almostMaxData := test.RepeatByte(254, 'Y')
+		almostMaxData := testutils.RepeatByte(254, 'Y')
 		_, err = cmd.PrintBarcode(barcode.CODE39B, almostMaxData)
-		test.AssertError(t, err, nil)
+		testutils.AssertError(t, err, nil)
 	})
 
 	t.Run("special characters in different positions", func(t *testing.T) {
@@ -959,7 +981,7 @@ func TestCommands_EdgeCases(t *testing.T) {
 			barcode.Code128SetA,
 			dataWithNull,
 		)
-		test.AssertError(t, err, nil)
+		testutils.AssertError(t, err, nil)
 	})
 }
 
@@ -1019,7 +1041,7 @@ func TestValidateNumericData(t *testing.T) {
 
 			// Also verify with assertion helper for consistency
 			if tt.want {
-				test.AssertNumeric(t, tt.data, "ValidateNumericData test: %s", tt.name)
+				testutils.AssertNumeric(t, tt.data, "ValidateNumericData testutils: %s", tt.name)
 			}
 		})
 	}
@@ -1129,7 +1151,7 @@ func TestValidateCode39Data(t *testing.T) {
 			if tt.want && len(tt.data) > 0 {
 				// CODE39 uses uppercase and special chars
 				allowed := []byte("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ $%*+-./")
-				test.AssertContainsOnly(t, tt.data, allowed, "CODE39 validation: %s", tt.name)
+				testutils.AssertContainsOnly(t, tt.data, allowed, "CODE39 validation: %s", tt.name)
 			}
 		})
 	}
@@ -1246,11 +1268,11 @@ func TestCommands_InvalidSymbology(t *testing.T) {
 
 	for _, symbology := range invalidSymbologies {
 		t.Run(string(rune(symbology)), func(t *testing.T) {
-			_, err := cmd.PrintBarcode(symbology, []byte("test"))
+			_, err := cmd.PrintBarcode(symbology, []byte("testutils"))
 			if err == nil {
 				t.Errorf("PrintBarcode with symbology %d should return error", symbology)
 			}
-			test.AssertError(t, err, barcode.ErrSymbology)
+			testutils.AssertError(t, err, barcode.ErrSymbology)
 		})
 	}
 }
@@ -1261,10 +1283,10 @@ func TestCommands_SpecialSymbology(t *testing.T) {
 		invalidUPC := []byte("12345A78901")
 
 		// Use the assertion helper
-		test.AssertNumeric(t, validUPC, "UPC-A data should be numeric")
+		testutils.AssertNumeric(t, validUPC, "UPC-A data should be numeric")
 
 		// This will fail with a descriptive error
-		// test.AssertNumeric(t, invalidUPC, "UPC-A validation test")
+		// testutils.AssertNumeric(t, invalidUPC, "UPC-A validation testutils")
 
 		// Verify barcode package agrees
 		if !barcode.ValidateNumericData(validUPC) {
@@ -1279,11 +1301,11 @@ func TestCommands_SpecialSymbology(t *testing.T) {
 		validCode39 := []byte("ABC-123")
 
 		// Check it's uppercase where alphabetic
-		test.AssertUppercase(t, []byte("ABC"), "CODE39 letters should be uppercase")
+		testutils.AssertUppercase(t, []byte("ABC"), "CODE39 letters should be uppercase")
 
 		// Check allowed character set
 		allowed := []byte("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ $%*+-./")
-		test.AssertContainsOnly(t, validCode39, allowed, "CODE39 character validation")
+		testutils.AssertContainsOnly(t, validCode39, allowed, "CODE39 character validation")
 
 		// Verify with barcode package
 		if !barcode.ValidateCode39Data(validCode39) {
@@ -1295,11 +1317,11 @@ func TestCommands_SpecialSymbology(t *testing.T) {
 		evenData := []byte("123456")
 		oddData := []byte("12345")
 
-		test.AssertNumeric(t, evenData, "ITF data should be numeric")
-		test.AssertEvenLength(t, evenData, "ITF data should have even length")
+		testutils.AssertNumeric(t, evenData, "ITF data should be numeric")
+		testutils.AssertEvenLength(t, evenData, "ITF data should have even length")
 
 		// This should fail
-		if test.IsEvenLength(oddData) {
+		if testutils.IsEvenLength(oddData) {
 			t.Error("Odd data should not pass even length check")
 		}
 	})
@@ -1308,15 +1330,15 @@ func TestCommands_SpecialSymbology(t *testing.T) {
 		cmd := barcode.NewCommands()
 		result, _ := cmd.PrintBarcode(barcode.UPCA, []byte("12345678901"))
 
-		test.AssertHasNullTerminator(t, result, "Function A barcodes should end with NUL")
+		testutils.AssertHasNullTerminator(t, result, "Function A barcodes should end with NUL")
 	})
 
 	t.Run("barcode data length validation", func(t *testing.T) {
 		data := []byte("TEST123")
-		test.AssertValidLength(t, data, 1, 255, "Barcode data length check")
+		testutils.AssertValidLength(t, data, 1, 255, "Barcode data length check")
 
 		// Test printable ASCII for CODE39
-		test.AssertPrintableASCII(t, data, "CODE39 should use printable ASCII")
+		testutils.AssertPrintableASCII(t, data, "CODE39 should use printable ASCII")
 	})
 
 	t.Run("CODABAR start/stop validation", func(t *testing.T) {
@@ -1324,10 +1346,10 @@ func TestCommands_SpecialSymbology(t *testing.T) {
 
 		// Check start/stop characters are in allowed range
 		startStop := []byte{'A', 'B', 'C', 'D', 'a', 'b', 'c', 'd'}
-		if !test.ContainsAny([]byte{validCodabar[0]}, startStop) {
+		if !testutils.ContainsAny([]byte{validCodabar[0]}, startStop) {
 			t.Error("Invalid CODABAR start character")
 		}
-		if !test.ContainsAny([]byte{validCodabar[len(validCodabar)-1]}, startStop) {
+		if !testutils.ContainsAny([]byte{validCodabar[len(validCodabar)-1]}, startStop) {
 			t.Error("Invalid CODABAR stop character")
 		}
 
@@ -1384,14 +1406,14 @@ func TestCommands_BoundaryValues(t *testing.T) {
 
 	t.Run("data length boundaries", func(t *testing.T) {
 		// Maximum valid length for Function B
-		maxData := test.RepeatByte(255, 'X')
+		maxData := testutils.RepeatByte(255, 'X')
 		_, err := cmd.PrintBarcode(barcode.CODE39B, maxData)
 		if err != nil {
 			t.Errorf("PrintBarcode with 255 bytes should be valid: %v", err)
 		}
 
 		// Over maximum
-		overData := test.RepeatByte(256, 'Y')
+		overData := testutils.RepeatByte(256, 'Y')
 		_, err = cmd.PrintBarcode(barcode.CODE39B, overData)
 		if err == nil {
 			t.Error("PrintBarcode with 256 bytes should return error")

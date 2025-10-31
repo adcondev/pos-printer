@@ -5,7 +5,7 @@ import (
 
 	"github.com/adcondev/pos-printer/escpos/bitimage"
 	"github.com/adcondev/pos-printer/escpos/shared"
-	"github.com/adcondev/pos-printer/utils/test"
+	"github.com/adcondev/pos-printer/internal/testutils"
 )
 
 // ============================================================================
@@ -51,15 +51,15 @@ func TestNVGraphicsCommands_GetNVGraphicsCapacity(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := cmd.GetNVGraphicsCapacity(tt.fn)
 
-			if !test.AssertErrorOccurred(t, err, tt.wantErr != nil, "GetNVGraphicsCapacity") {
+			if !testutils.AssertErrorOccurred(t, err, tt.wantErr != nil, "GetNVGraphicsCapacity") {
 				return
 			}
 			if tt.wantErr != nil {
-				test.AssertError(t, err, tt.wantErr)
+				testutils.AssertError(t, err, tt.wantErr)
 				return
 			}
 
-			test.AssertBytes(t, got, tt.want, "GetNVGraphicsCapacity(%v)", tt.fn)
+			testutils.AssertBytes(t, got, tt.want, "GetNVGraphicsCapacity(%v)", tt.fn)
 		})
 	}
 }
@@ -103,15 +103,15 @@ func TestNVGraphicsCommands_GetNVGraphicsRemainingCapacity(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := cmd.GetNVGraphicsRemainingCapacity(tt.fn)
 
-			if !test.AssertErrorOccurred(t, err, tt.wantErr != nil, "GetNVGraphicsRemainingCapacity") {
+			if !testutils.AssertErrorOccurred(t, err, tt.wantErr != nil, "GetNVGraphicsRemainingCapacity") {
 				return
 			}
 			if tt.wantErr != nil {
-				test.AssertError(t, err, tt.wantErr)
+				testutils.AssertError(t, err, tt.wantErr)
 				return
 			}
 
-			test.AssertBytes(t, got, tt.want, "GetNVGraphicsRemainingCapacity(%v)", tt.fn)
+			testutils.AssertBytes(t, got, tt.want, "GetNVGraphicsRemainingCapacity(%v)", tt.fn)
 		})
 	}
 }
@@ -121,7 +121,7 @@ func TestNVGraphicsCommands_GetNVGraphicsKeyCodeList(t *testing.T) {
 	want := []byte{shared.GS, '(', 'L', 0x04, 0x00, 0x30, 0x40, 'K', 'C'}
 
 	got := cmd.GetNVGraphicsKeyCodeList()
-	test.AssertBytes(t, got, want, "GetNVGraphicsKeyCodeList()")
+	testutils.AssertBytes(t, got, want, "GetNVGraphicsKeyCodeList()")
 }
 
 func TestNVGraphicsCommands_DeleteAllNVGraphics(t *testing.T) {
@@ -129,7 +129,7 @@ func TestNVGraphicsCommands_DeleteAllNVGraphics(t *testing.T) {
 	want := []byte{shared.GS, '(', 'L', 0x05, 0x00, 0x30, 0x41, 'C', 'L', 'R'}
 
 	got := cmd.DeleteAllNVGraphics()
-	test.AssertBytes(t, got, want, "DeleteAllNVGraphics()")
+	testutils.AssertBytes(t, got, want, "DeleteAllNVGraphics()")
 }
 
 func TestNVGraphicsCommands_DeleteNVGraphicsByKeyCode(t *testing.T) {
@@ -183,15 +183,15 @@ func TestNVGraphicsCommands_DeleteNVGraphicsByKeyCode(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := cmd.DeleteNVGraphicsByKeyCode(tt.kc1, tt.kc2)
 
-			if !test.AssertErrorOccurred(t, err, tt.wantErr != nil, "DeleteNVGraphicsByKeyCode") {
+			if !testutils.AssertErrorOccurred(t, err, tt.wantErr != nil, "DeleteNVGraphicsByKeyCode") {
 				return
 			}
 			if tt.wantErr != nil {
-				test.AssertError(t, err, tt.wantErr)
+				testutils.AssertError(t, err, tt.wantErr)
 				return
 			}
 
-			test.AssertBytes(t, got, tt.want, "DeleteNVGraphicsByKeyCode(%v, %v)", tt.kc1, tt.kc2)
+			testutils.AssertBytes(t, got, tt.want, "DeleteNVGraphicsByKeyCode(%v, %v)", tt.kc1, tt.kc2)
 		})
 	}
 }
@@ -277,15 +277,15 @@ func TestNVGraphicsCommands_PrintNVGraphics(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := cmd.PrintNVGraphics(tt.kc1, tt.kc2, tt.horizontalScale, tt.verticalScale)
 
-			if !test.AssertErrorOccurred(t, err, tt.wantErr != nil, "PrintNVGraphics") {
+			if !testutils.AssertErrorOccurred(t, err, tt.wantErr != nil, "PrintNVGraphics") {
 				return
 			}
 			if tt.wantErr != nil {
-				test.AssertError(t, err, tt.wantErr)
+				testutils.AssertError(t, err, tt.wantErr)
 				return
 			}
 
-			test.AssertBytes(t, got, tt.want, "PrintNVGraphics(%v, %v, %v, %v)",
+			testutils.AssertBytes(t, got, tt.want, "PrintNVGraphics(%v, %v, %v, %v)",
 				tt.kc1, tt.kc2, tt.horizontalScale, tt.verticalScale)
 		})
 	}
@@ -404,12 +404,12 @@ func TestValidateBMPData(t *testing.T) {
 	}{
 		{
 			name:    "valid BMP header",
-			data:    append([]byte{'B', 'M'}, test.RepeatByte(52, 0)...),
+			data:    append([]byte{'B', 'M'}, testutils.RepeatByte(52, 0)...),
 			wantErr: false,
 		},
 		{
 			name:    "larger valid BMP",
-			data:    append([]byte{'B', 'M'}, test.RepeatByte(100, 0)...),
+			data:    append([]byte{'B', 'M'}, testutils.RepeatByte(100, 0)...),
 			wantErr: false,
 		},
 		{
@@ -419,7 +419,7 @@ func TestValidateBMPData(t *testing.T) {
 		},
 		{
 			name:    "wrong signature",
-			data:    append([]byte{'X', 'Y'}, test.RepeatByte(52, 0)...),
+			data:    append([]byte{'X', 'Y'}, testutils.RepeatByte(52, 0)...),
 			wantErr: true,
 		},
 		{

@@ -1,12 +1,13 @@
-package bitimage_test
+package test_test
 
 import (
 	"bytes"
 	"testing"
 
+	"github.com/adcondev/pos-printer/internal/testutils"
+
 	"github.com/adcondev/pos-printer/escpos/bitimage"
 	"github.com/adcondev/pos-printer/escpos/shared"
-	"github.com/adcondev/pos-printer/utils/test"
 )
 
 func TestIntegration_NVGraphics_CompleteWorkflow(t *testing.T) {
@@ -38,7 +39,7 @@ func TestIntegration_NVGraphics_CompleteWorkflow(t *testing.T) {
 		colorData := []bitimage.NVGraphicsColorData{
 			{
 				Color: bitimage.Color1,
-				Data:  test.RepeatByte(dataSize, 0xF0),
+				Data:  testutils.RepeatByte(dataSize, 0xF0),
 			},
 		}
 
@@ -85,10 +86,10 @@ func TestIntegration_NVGraphics_CompleteWorkflow(t *testing.T) {
 
 		// Define multiple color groups
 		colorData := []bitimage.NVGraphicsColorData{
-			{Color: bitimage.Color1, Data: test.RepeatByte(dataSize, 0x11)},
-			{Color: bitimage.Color2, Data: test.RepeatByte(dataSize, 0x22)},
-			{Color: bitimage.Color3, Data: test.RepeatByte(dataSize, 0x33)},
-			{Color: bitimage.Color4, Data: test.RepeatByte(dataSize, 0x44)},
+			{Color: bitimage.Color1, Data: testutils.RepeatByte(dataSize, 0x11)},
+			{Color: bitimage.Color2, Data: testutils.RepeatByte(dataSize, 0x22)},
+			{Color: bitimage.Color3, Data: testutils.RepeatByte(dataSize, 0x33)},
+			{Color: bitimage.Color4, Data: testutils.RepeatByte(dataSize, 0x44)},
 		}
 
 		defineCmd, err := cmd.DefineNVRasterGraphics(
@@ -125,8 +126,8 @@ func TestIntegration_NVGraphics_CompleteWorkflow(t *testing.T) {
 
 		// Column format with colors 1 and 2
 		colorData := []bitimage.NVGraphicsColorData{
-			{Color: bitimage.Color1, Data: test.RepeatByte(dataSize, 0xAA)},
-			{Color: bitimage.Color2, Data: test.RepeatByte(dataSize, 0x55)},
+			{Color: bitimage.Color1, Data: testutils.RepeatByte(dataSize, 0xAA)},
+			{Color: bitimage.Color2, Data: testutils.RepeatByte(dataSize, 0x55)},
 		}
 
 		defineCmd, err := cmd.DefineNVColumnGraphics(
@@ -141,7 +142,7 @@ func TestIntegration_NVGraphics_CompleteWorkflow(t *testing.T) {
 
 		// Column format with color 3 only
 		colorData3 := []bitimage.NVGraphicsColorData{
-			{Color: bitimage.Color3, Data: test.RepeatByte(dataSize, 0xFF)},
+			{Color: bitimage.Color3, Data: testutils.RepeatByte(dataSize, 0xFF)},
 		}
 
 		defineCmd3, err := cmd.DefineNVColumnGraphics(
@@ -252,13 +253,13 @@ func TestIntegration_NVGraphics_LargeDataHandling(t *testing.T) {
 		dataSize := widthBytes * int(height)
 
 		if dataSize <= 65535 {
-			t.Skip("Data size not large enough for extended format test")
+			t.Skip("Data size not large enough for extended format testutils")
 		}
 
 		colorData := []bitimage.NVGraphicsColorData{
 			{
 				Color: bitimage.Color1,
-				Data:  test.RepeatByte(dataSize, 0xEE),
+				Data:  testutils.RepeatByte(dataSize, 0xEE),
 			},
 		}
 
@@ -298,8 +299,8 @@ func TestIntegration_NVGraphics_LargeDataHandling(t *testing.T) {
 
 		// Large column data with two colors
 		colorData := []bitimage.NVGraphicsColorData{
-			{Color: bitimage.Color1, Data: test.RepeatByte(dataSize, 0x11)},
-			{Color: bitimage.Color2, Data: test.RepeatByte(dataSize, 0x22)},
+			{Color: bitimage.Color1, Data: testutils.RepeatByte(dataSize, 0x11)},
+			{Color: bitimage.Color2, Data: testutils.RepeatByte(dataSize, 0x22)},
 		}
 
 		defineCmd, err := cmd.DefineNVColumnGraphicsLarge(
@@ -339,7 +340,7 @@ func TestIntegration_NVGraphics_ColorRestrictions(t *testing.T) {
 
 		for _, color := range validColors {
 			colorData := []bitimage.NVGraphicsColorData{
-				{Color: color, Data: test.RepeatByte(dataSize, 0xFF)},
+				{Color: color, Data: testutils.RepeatByte(dataSize, 0xFF)},
 			}
 
 			_, err := cmd.DefineNVRasterGraphics(
@@ -355,8 +356,8 @@ func TestIntegration_NVGraphics_ColorRestrictions(t *testing.T) {
 
 		// Monochrome should reject multiple colors
 		multiColorData := []bitimage.NVGraphicsColorData{
-			{Color: bitimage.Color1, Data: test.RepeatByte(dataSize, 0x11)},
-			{Color: bitimage.Color2, Data: test.RepeatByte(dataSize, 0x22)},
+			{Color: bitimage.Color1, Data: testutils.RepeatByte(dataSize, 0x11)},
+			{Color: bitimage.Color2, Data: testutils.RepeatByte(dataSize, 0x22)},
 		}
 
 		_, err := cmd.DefineNVRasterGraphics(
@@ -389,7 +390,7 @@ func TestIntegration_NVGraphics_ColorRestrictions(t *testing.T) {
 			for _, color := range colors {
 				colorData = append(colorData, bitimage.NVGraphicsColorData{
 					Color: color,
-					Data:  test.RepeatByte(dataSize, byte(color)),
+					Data:  testutils.RepeatByte(dataSize, byte(color)),
 				})
 			}
 
@@ -405,8 +406,8 @@ func TestIntegration_NVGraphics_ColorRestrictions(t *testing.T) {
 
 		// Test invalid combination (Color3 with others)
 		invalidColorData := []bitimage.NVGraphicsColorData{
-			{Color: bitimage.Color3, Data: test.RepeatByte(dataSize, 0x33)},
-			{Color: bitimage.Color1, Data: test.RepeatByte(dataSize, 0x11)},
+			{Color: bitimage.Color3, Data: testutils.RepeatByte(dataSize, 0x33)},
+			{Color: bitimage.Color1, Data: testutils.RepeatByte(dataSize, 0x11)},
 		}
 
 		_, err := cmd.DefineNVColumnGraphics(
@@ -427,8 +428,8 @@ func TestIntegration_NVGraphics_ColorRestrictions(t *testing.T) {
 
 		// Try to define duplicate colors
 		duplicateColorData := []bitimage.NVGraphicsColorData{
-			{Color: bitimage.Color1, Data: test.RepeatByte(dataSize, 0x11)},
-			{Color: bitimage.Color1, Data: test.RepeatByte(dataSize, 0x22)}, // Duplicate
+			{Color: bitimage.Color1, Data: testutils.RepeatByte(dataSize, 0x11)},
+			{Color: bitimage.Color1, Data: testutils.RepeatByte(dataSize, 0x22)}, // Duplicate
 		}
 
 		_, err := cmd.DefineNVRasterGraphics(
@@ -556,14 +557,14 @@ func TestIntegration_NVGraphics_ErrorHandling(t *testing.T) {
 func TestIntegration_NVGraphics_ScalingModes(t *testing.T) {
 	cmd := bitimage.NewNVGraphicsCommands()
 
-	// Define test graphics once
+	// Define testutils graphics once
 	width := uint16(100)
 	height := uint16(50)
 	widthBytes := (int(width) + 7) / 8
 	dataSize := widthBytes * int(height)
 
 	colorData := []bitimage.NVGraphicsColorData{
-		{Color: bitimage.Color1, Data: test.RepeatByte(dataSize, 0xCC)},
+		{Color: bitimage.Color1, Data: testutils.RepeatByte(dataSize, 0xCC)},
 	}
 
 	defineCmd, err := cmd.DefineNVRasterGraphics(
@@ -627,7 +628,7 @@ func TestIntegration_NVGraphics_ScalingModes(t *testing.T) {
 
 func TestIntegration_NVGraphics_PerformanceRecommendations(t *testing.T) {
 	t.Run("recommended number of NV graphics", func(t *testing.T) {
-		// This is a conceptual test to document the recommendation
+		// This is a conceptual testutils to document the recommendation
 		// In real usage, defining 50+ NV graphics would take significant time
 
 		const recommendedMax = 50

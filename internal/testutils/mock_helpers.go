@@ -1,4 +1,4 @@
-package test
+package testutils
 
 // MockTracker provides mock tracking functionality
 type MockTracker struct {
