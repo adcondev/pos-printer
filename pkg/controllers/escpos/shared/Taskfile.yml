@@ -5,9 +5,9 @@ version: '3'
 tasks:
   test:
     cmds:
-      - echo "Running escpos tests..."
-      - go test
+      - echo "Running shared tests..."
+      - go testutils
   lint:
     cmds:
-      - echo "Running escpos linters..."
+      - echo "Running shared linters..."
       - golangci-lint run

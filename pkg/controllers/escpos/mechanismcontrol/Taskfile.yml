@@ -6,7 +6,7 @@ tasks:
   test:
     cmds:
       - echo "Running mechanism control tests..."
-      - go test
+      - go testutils
   lint:
     cmds:
       - echo "Running mechanism control linters..."

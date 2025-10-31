@@ -5,9 +5,9 @@ version: '3'
 tasks:
   test:
     cmds:
-      - echo "Running character tests..."
-      - go test
+      - echo "Running barcode tests..."
+      - go testutils
   lint:
     cmds:
-      - echo "Running character linters..."
+      - echo "Running barcode linters..."
       - golangci-lint run
