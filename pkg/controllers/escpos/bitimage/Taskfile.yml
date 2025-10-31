@@ -6,7 +6,7 @@ tasks:
   test:
     cmds:
       - echo "Running bit image tests..."
-      - go test
+      - go testutils
   lint:
     cmds:
       - echo "Running bit image linters..."
