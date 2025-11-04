@@ -72,8 +72,8 @@ func SplitBytes(data []byte, delimiter byte) [][]byte {
 // TODO: Check linter
 
 // ReplaceBytes replaces all occurrences of old with new in data
-func ReplaceBytes(data, old, new []byte) []byte {
-	return bytes.ReplaceAll(data, old, new)
+func ReplaceBytes(data, old, news []byte) []byte {
+	return bytes.ReplaceAll(data, old, news)
 }
 
 // TrimBytes removes leading and trailing bytes matching cutset

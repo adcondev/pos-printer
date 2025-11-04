@@ -625,28 +625,3 @@ func TestIntegration_NVGraphics_ScalingModes(t *testing.T) {
 		t.Errorf("Full buffer length = %d, expected %d", len(fullBuffer), expectedLen)
 	}
 }
-
-func TestIntegration_NVGraphics_PerformanceRecommendations(t *testing.T) {
-	t.Run("recommended number of NV graphics", func(t *testing.T) {
-		// This is a conceptual testutils to document the recommendation
-		// In real usage, defining 50+ NV graphics would take significant time
-
-		const recommendedMax = 50
-
-		// Simulate checking if we're within recommended limits
-		graphicsCount := 45 // Example count
-
-		if graphicsCount > recommendedMax {
-			t.Logf("Warning: %d NV graphics exceeds recommended maximum of %d",
-				graphicsCount, recommendedMax)
-			t.Log("Expected execution time may exceed 60 seconds")
-		} else {
-			t.Logf("%d NV graphics is within recommended maximum of %d", graphicsCount, recommendedMax)
-		}
-
-		// For 100 graphics, execution time can be up to 120 seconds
-		if graphicsCount >= 100 {
-			t.Log("Warning: With 100+ NV graphics, execution time may reach 120 seconds")
-		}
-	})
-}
