@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"testing"
 
-	"github.com/adcondev/pos-printer/escpos/linespacing"
-	"github.com/adcondev/pos-printer/escpos/shared"
+	"github.com/adcondev/pos-printer/pkg/controllers/escpos/linespacing"
+	"github.com/adcondev/pos-printer/pkg/controllers/escpos/shared"
 )
 
 // Naming Convention: Test{Struct}_{Method}_{Scenario}

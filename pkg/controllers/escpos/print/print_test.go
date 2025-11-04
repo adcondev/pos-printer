@@ -5,9 +5,8 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/adcondev/pos-printer/escpos/print"
-	"github.com/adcondev/pos-printer/escpos/printposition"
-	"github.com/adcondev/pos-printer/escpos/shared"
+	"github.com/adcondev/pos-printer/pkg/controllers/escpos/print"
+	"github.com/adcondev/pos-printer/pkg/controllers/escpos/shared"
 )
 
 // ============================================================================
@@ -30,7 +29,7 @@ func TestUtility_Formatting_CharacterReplacement(t *testing.T) {
 		{
 			name: "replaces tab with HT",
 			data: []byte("Col1\tCol2"),
-			want: []byte{'C', 'o', 'l', '1', printposition.HT, 'C', 'o', 'l', '2'},
+			want: []byte{'C', 'o', 'l', '1', shared.HT, 'C', 'o', 'l', '2'},
 		},
 		{
 			name: "replaces carriage return with CR",
@@ -40,7 +39,7 @@ func TestUtility_Formatting_CharacterReplacement(t *testing.T) {
 		{
 			name: "handles multiple replacements",
 			data: []byte("A\nB\tC\rD"),
-			want: []byte{'A', print.LF, 'B', printposition.HT, 'C', print.CR, 'D'},
+			want: []byte{'A', print.LF, 'B', shared.HT, 'C', print.CR, 'D'},
 		},
 		{
 			name: "preserves regular characters",
@@ -91,7 +90,7 @@ func TestCommands_Text(t *testing.T) {
 		{
 			name:    "text with tab",
 			text:    "A\tB",
-			want:    []byte{'A', printposition.HT, 'B'},
+			want:    []byte{'A', shared.HT, 'B'},
 			wantErr: false,
 		},
 		{

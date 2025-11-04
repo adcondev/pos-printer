@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"testing"
 
-	"github.com/adcondev/pos-printer/escpos/printposition"
-	"github.com/adcondev/pos-printer/escpos/shared"
+	"github.com/adcondev/pos-printer/pkg/controllers/escpos/printposition"
+	"github.com/adcondev/pos-printer/pkg/controllers/escpos/shared"
 )
 
 func TestIntegration_PrintPosition_StandardModeWorkflow(t *testing.T) {
@@ -113,7 +113,7 @@ func TestIntegration_PrintPosition_StandardModeWorkflow(t *testing.T) {
 		buffer = append(buffer, cmd.HorizontalTab()...)
 
 		// Verify tab usage
-		htCount := bytes.Count(buffer, []byte{printposition.HT})
+		htCount := bytes.Count(buffer, []byte{shared.HT})
 		if htCount != 3 {
 			t.Errorf("HT count = %d, want 3", htCount)
 		}
@@ -598,7 +598,7 @@ func TestIntegration_PrintPosition_RealWorldScenarios(t *testing.T) {
 		}
 
 		// Count total tabs used
-		tabCount := bytes.Count(buffer, []byte{printposition.HT})
+		tabCount := bytes.Count(buffer, []byte{shared.HT})
 		expectedTabs := 3 + (5 * 3) // Header + 5 items
 		if tabCount != expectedTabs {
 			t.Errorf("Tab count = %d, want %d", tabCount, expectedTabs)

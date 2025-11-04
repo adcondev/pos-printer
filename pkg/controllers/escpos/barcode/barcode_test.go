@@ -5,8 +5,8 @@ import (
 
 	"github.com/adcondev/pos-printer/internal/testutils"
 
-	"github.com/adcondev/pos-printer/escpos/barcode"
-	"github.com/adcondev/pos-printer/escpos/shared"
+	"github.com/adcondev/pos-printer/pkg/controllers/escpos/barcode"
+	"github.com/adcondev/pos-printer/pkg/controllers/escpos/shared"
 )
 
 var (

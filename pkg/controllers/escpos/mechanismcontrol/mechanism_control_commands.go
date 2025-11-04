@@ -1,7 +1,7 @@
 package mechanismcontrol
 
 import (
-	"github.com/adcondev/pos-printer/escpos/shared"
+	"github.com/adcondev/pos-printer/pkg/controllers/escpos/shared"
 )
 
 // ReturnHome moves the print head to the standby position.
@@ -162,8 +162,8 @@ func (c *Commands) PartialCutThreePoints() []byte {
 // Parameters:
 //
 //	m: Cut type:
-//	   0 -> Full cut
-//	   1 -> Partial cut
+//	   0 -> CutTypeFull cut
+//	   1 -> CutTypePartial cut
 //
 // Notes:
 //   - This command is not accompanied by a paper feed operation
@@ -202,8 +202,8 @@ func (c *Commands) PaperCut(m CutType) ([]byte, error) {
 // Parameters:
 //
 //	m: Cut type:
-//	   0 -> Full cut after paper feed
-//	   1 -> Partial cut after paper feed
+//	   0 -> CutTypeFull cut after paper feed
+//	   1 -> CutTypePartial cut after paper feed
 //	n: Paper feed amount before cutting: (cut position + [n × horizontal or vertical motion unit])
 //
 // Notes:
@@ -244,8 +244,8 @@ func (c *Commands) PaperFeedAndCut(m CutType, n byte) ([]byte, error) {
 // Parameters:
 //
 //	m: Cut type:
-//	   0 -> Full cut at specified position
-//	   1 -> Partial cut at specified position
+//	   0 -> CutTypeFull cut at specified position
+//	   1 -> CutTypePartial cut at specified position
 //	n: Paper feed amount: (cut position + [n × horizontal or vertical motion unit])
 //
 // Notes:
@@ -289,8 +289,8 @@ func (c *Commands) ReservePaperCut(m CutType, n byte) ([]byte, error) {
 // Parameters:
 //
 //	m: Cutting shape:
-//	   0 or 48 -> Full cut
-//	   1 or 49 -> Partial cut
+//	   0 or 48 -> CutTypeFull cut
+//	   1 or 49 -> CutTypePartial cut
 //
 // Notes:
 //   - When Standard mode is selected, this command is enabled only when processed at the beginning of line
@@ -327,9 +327,9 @@ func (c *Commands) CutPaper(m CutMode) ([]byte, error) {
 // Parameters:
 //
 //	m: Cutting shape:
-//	   65 -> Full cut
-//	   66 -> Partial cut
-//	n: Feed amount before cutting: [cutting position + (n × vertical motion unit)]
+//	   65 -> CutTypeFull cut
+//	   66 -> CutTypePartial cut
+//	n: FeedLines amount before cutting: [cutting position + (n × vertical motion unit)]
 //
 // Notes:
 //   - When Standard mode is selected, this command is enabled only when processed at the beginning of line
@@ -339,7 +339,7 @@ func (c *Commands) CutPaper(m CutMode) ([]byte, error) {
 // Errors:
 //
 //	Returns ErrFeedCutMode if m is not a valid value (65, 66).
-func (c *Commands) FeedAndCutPaper(m FeedCutMode, n byte) ([]byte, error) {
+func (c *Commands) FeedAndCutPaper(m FeedCut, n byte) ([]byte, error) {
 	if err := ValidateFeedCutMode(m); err != nil {
 		return nil, err
 	}
@@ -366,8 +366,8 @@ func (c *Commands) FeedAndCutPaper(m FeedCutMode, n byte) ([]byte, error) {
 // Parameters:
 //
 //	m: Cutting shape:
-//	   97 -> Full cut
-//	   98 -> Partial cut
+//	   97 -> CutTypeFull cut
+//	   98 -> CutTypePartial cut
 //	n: Position offset: [cutting position + (n × vertical motion unit)]
 //
 // Notes:
@@ -385,7 +385,7 @@ func (c *Commands) FeedAndCutPaper(m FeedCutMode, n byte) ([]byte, error) {
 // Errors:
 //
 //	Returns ErrPositionCutMode if m is not a valid value (97, 98).
-func (c *Commands) SetCutPosition(m PositionCutMode, n byte) ([]byte, error) {
+func (c *Commands) SetCutPosition(m PositionCut, n byte) ([]byte, error) {
 	if err := ValidatePositionCutMode(m); err != nil {
 		return nil, err
 	}
@@ -412,9 +412,9 @@ func (c *Commands) SetCutPosition(m PositionCutMode, n byte) ([]byte, error) {
 // Parameters:
 //
 //	m: Cutting shape:
-//	   103 -> Full cut
-//	   104 -> Partial cut
-//	n: Feed amount before cutting: [cutting position + (n × vertical motion unit)]
+//	   103 -> CutTypeFull cut
+//	   104 -> CutTypePartial cut
+//	n: FeedLines amount before cutting: [cutting position + (n × vertical motion unit)]
 //
 // Notes:
 //   - When Standard mode is selected, this command is enabled only when processed at the beginning of line
@@ -426,7 +426,7 @@ func (c *Commands) SetCutPosition(m PositionCutMode, n byte) ([]byte, error) {
 // Errors:
 //
 //	Returns ErrFeedCutReturnMode if m is not a valid value (103, 104).
-func (c *Commands) FeedCutAndReturnPaper(m FeedCutReturnMode, n byte) ([]byte, error) {
+func (c *Commands) FeedCutAndReturnPaper(m FeedCutReturn, n byte) ([]byte, error) {
 	if err := ValidateFeedCutReturnMode(m); err != nil {
 		return nil, err
 	}

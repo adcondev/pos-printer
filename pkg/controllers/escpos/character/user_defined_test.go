@@ -5,8 +5,8 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/adcondev/pos-printer/escpos/character"
 	"github.com/adcondev/pos-printer/internal/testutils"
+	"github.com/adcondev/pos-printer/pkg/controllers/escpos/character"
 )
 
 // ============================================================================

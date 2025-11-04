@@ -1,7 +1,7 @@
 package bitimage
 
 import (
-	"github.com/adcondev/pos-printer/escpos/shared"
+	"github.com/adcondev/pos-printer/pkg/controllers/escpos/shared"
 )
 
 // GetDownloadGraphicsRemainingCapacity transmits the remaining capacity (unused area) in the download graphics area.

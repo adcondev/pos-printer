@@ -6,8 +6,8 @@ import (
 
 	"github.com/adcondev/pos-printer/internal/testutils"
 
-	"github.com/adcondev/pos-printer/escpos/bitimage"
-	"github.com/adcondev/pos-printer/escpos/shared"
+	"github.com/adcondev/pos-printer/pkg/controllers/escpos/bitimage"
+	"github.com/adcondev/pos-printer/pkg/controllers/escpos/shared"
 )
 
 func TestIntegration_Graphics_CompleteWorkflow(t *testing.T) {

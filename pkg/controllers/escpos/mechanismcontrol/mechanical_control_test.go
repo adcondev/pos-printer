@@ -3,8 +3,9 @@ package mechanismcontrol_test
 import (
 	"testing"
 
-	"github.com/adcondev/pos-printer/escpos/mechanismcontrol"
-	"github.com/adcondev/pos-printer/escpos/shared"
+	"github.com/adcondev/pos-printer/pkg/controllers/escpos/mechanismcontrol"
+	"github.com/adcondev/pos-printer/pkg/controllers/escpos/shared"
+
 	"github.com/adcondev/pos-printer/internal/testutils"
 )
 
@@ -32,12 +33,12 @@ func TestCommands_SetUnidirectionalPrintMode(t *testing.T) {
 	}{
 		{
 			name: "unidirectional off",
-			mode: mechanismcontrol.UnidirectionalOff,
+			mode: mechanismcontrol.UnidirOff,
 			want: append(prefix, 0x00),
 		},
 		{
 			name: "unidirectional on",
-			mode: mechanismcontrol.UnidirectionalOn,
+			mode: mechanismcontrol.UnidirOn,
 			want: append(prefix, 0x01),
 		},
 		{
@@ -104,7 +105,7 @@ func TestCommands_PaperCut(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := cmd.PaperCut(tt.cutType)
 
-			if !testutils.AssertErrorOccurred(t, err, tt.wantErr != nil, "PaperCut") {
+			if !testutils.AssertErrorOccurred(t, err, tt.wantErr != nil, "PartialPaperCut") {
 				return
 			}
 			if tt.wantErr != nil {
@@ -112,7 +113,7 @@ func TestCommands_PaperCut(t *testing.T) {
 				return
 			}
 
-			testutils.AssertBytes(t, got, tt.want, "PaperCut(%v)", tt.cutType)
+			testutils.AssertBytes(t, got, tt.want, "PartialPaperCut(%v)", tt.cutType)
 		})
 	}
 }
@@ -348,42 +349,42 @@ func TestCommands_FeedAndCutPaper(t *testing.T) {
 
 	tests := []struct {
 		name       string
-		mode       mechanismcontrol.FeedCutMode
+		mode       mechanismcontrol.FeedCut
 		feedAmount byte
 		want       []byte
 		wantErr    error
 	}{
 		{
 			name:       "full cut no feed",
-			mode:       mechanismcontrol.FeedCutModeFull,
+			mode:       mechanismcontrol.FeedCutFull,
 			feedAmount: 0,
 			want:       append(prefix, 65, 0),
 			wantErr:    nil,
 		},
 		{
 			name:       "partial cut no feed",
-			mode:       mechanismcontrol.FeedCutModePartial,
+			mode:       mechanismcontrol.FeedCutPartial,
 			feedAmount: 0,
 			want:       append(prefix, 66, 0),
 			wantErr:    nil,
 		},
 		{
 			name:       "full cut with feed",
-			mode:       mechanismcontrol.FeedCutModeFull,
+			mode:       mechanismcontrol.FeedCutFull,
 			feedAmount: 30,
 			want:       append(prefix, 65, 30),
 			wantErr:    nil,
 		},
 		{
 			name:       "partial cut with feed",
-			mode:       mechanismcontrol.FeedCutModePartial,
+			mode:       mechanismcontrol.FeedCutPartial,
 			feedAmount: 60,
 			want:       append(prefix, 66, 60),
 			wantErr:    nil,
 		},
 		{
 			name:       "full cut max feed",
-			mode:       mechanismcontrol.FeedCutModeFull,
+			mode:       mechanismcontrol.FeedCutFull,
 			feedAmount: 255,
 			want:       append(prefix, 65, 255),
 			wantErr:    nil,
@@ -434,42 +435,42 @@ func TestCommands_SetCutPosition(t *testing.T) {
 
 	tests := []struct {
 		name     string
-		mode     mechanismcontrol.PositionCutMode
+		mode     mechanismcontrol.PositionCut
 		position byte
 		want     []byte
 		wantErr  error
 	}{
 		{
 			name:     "full cut at position 0",
-			mode:     mechanismcontrol.PositionCutModeFull,
+			mode:     mechanismcontrol.PositionCutFull,
 			position: 0,
 			want:     append(prefix, 97, 0),
 			wantErr:  nil,
 		},
 		{
 			name:     "partial cut at position 0",
-			mode:     mechanismcontrol.PositionCutModePartial,
+			mode:     mechanismcontrol.PositionCutPartial,
 			position: 0,
 			want:     append(prefix, 98, 0),
 			wantErr:  nil,
 		},
 		{
 			name:     "full cut at position 50",
-			mode:     mechanismcontrol.PositionCutModeFull,
+			mode:     mechanismcontrol.PositionCutFull,
 			position: 50,
 			want:     append(prefix, 97, 50),
 			wantErr:  nil,
 		},
 		{
 			name:     "partial cut at position 100",
-			mode:     mechanismcontrol.PositionCutModePartial,
+			mode:     mechanismcontrol.PositionCutPartial,
 			position: 100,
 			want:     append(prefix, 98, 100),
 			wantErr:  nil,
 		},
 		{
 			name:     "full cut at max position",
-			mode:     mechanismcontrol.PositionCutModeFull,
+			mode:     mechanismcontrol.PositionCutFull,
 			position: 255,
 			want:     append(prefix, 97, 255),
 			wantErr:  nil,
@@ -520,42 +521,42 @@ func TestCommands_FeedCutAndReturnPaper(t *testing.T) {
 
 	tests := []struct {
 		name       string
-		mode       mechanismcontrol.FeedCutReturnMode
+		mode       mechanismcontrol.FeedCutReturn
 		feedAmount byte
 		want       []byte
 		wantErr    error
 	}{
 		{
 			name:       "full cut and return no feed",
-			mode:       mechanismcontrol.FeedCutReturnModeFull,
+			mode:       mechanismcontrol.FeedCutReturnFull,
 			feedAmount: 0,
 			want:       append(prefix, 103, 0),
 			wantErr:    nil,
 		},
 		{
 			name:       "partial cut and return no feed",
-			mode:       mechanismcontrol.FeedCutReturnModePartial,
+			mode:       mechanismcontrol.FeedCutReturnPartial,
 			feedAmount: 0,
 			want:       append(prefix, 104, 0),
 			wantErr:    nil,
 		},
 		{
 			name:       "full cut and return with feed",
-			mode:       mechanismcontrol.FeedCutReturnModeFull,
+			mode:       mechanismcontrol.FeedCutReturnFull,
 			feedAmount: 25,
 			want:       append(prefix, 103, 25),
 			wantErr:    nil,
 		},
 		{
 			name:       "partial cut and return with feed",
-			mode:       mechanismcontrol.FeedCutReturnModePartial,
+			mode:       mechanismcontrol.FeedCutReturnPartial,
 			feedAmount: 75,
 			want:       append(prefix, 104, 75),
 			wantErr:    nil,
 		},
 		{
 			name:       "full cut and return max feed",
-			mode:       mechanismcontrol.FeedCutReturnModeFull,
+			mode:       mechanismcontrol.FeedCutReturnFull,
 			feedAmount: 255,
 			want:       append(prefix, 103, 255),
 			wantErr:    nil,
@@ -704,17 +705,17 @@ func TestValidateCutType(t *testing.T) {
 func TestValidateFeedCutMode(t *testing.T) {
 	tests := []struct {
 		name    string
-		mode    mechanismcontrol.FeedCutMode
+		mode    mechanismcontrol.FeedCut
 		wantErr error
 	}{
 		{
 			name:    "valid full cut mode",
-			mode:    mechanismcontrol.FeedCutModeFull,
+			mode:    mechanismcontrol.FeedCutFull,
 			wantErr: nil,
 		},
 		{
 			name:    "valid partial cut mode",
-			mode:    mechanismcontrol.FeedCutModePartial,
+			mode:    mechanismcontrol.FeedCutPartial,
 			wantErr: nil,
 		},
 		{
@@ -750,17 +751,17 @@ func TestValidateFeedCutMode(t *testing.T) {
 func TestValidatePositionCutMode(t *testing.T) {
 	tests := []struct {
 		name    string
-		mode    mechanismcontrol.PositionCutMode
+		mode    mechanismcontrol.PositionCut
 		wantErr error
 	}{
 		{
 			name:    "valid full cut mode",
-			mode:    mechanismcontrol.PositionCutModeFull,
+			mode:    mechanismcontrol.PositionCutFull,
 			wantErr: nil,
 		},
 		{
 			name:    "valid partial cut mode",
-			mode:    mechanismcontrol.PositionCutModePartial,
+			mode:    mechanismcontrol.PositionCutPartial,
 			wantErr: nil,
 		},
 		{
@@ -796,17 +797,17 @@ func TestValidatePositionCutMode(t *testing.T) {
 func TestValidateFeedCutReturnMode(t *testing.T) {
 	tests := []struct {
 		name    string
-		mode    mechanismcontrol.FeedCutReturnMode
+		mode    mechanismcontrol.FeedCutReturn
 		wantErr error
 	}{
 		{
 			name:    "valid full cut mode",
-			mode:    mechanismcontrol.FeedCutReturnModeFull,
+			mode:    mechanismcontrol.FeedCutReturnFull,
 			wantErr: nil,
 		},
 		{
 			name:    "valid partial cut mode",
-			mode:    mechanismcontrol.FeedCutReturnModePartial,
+			mode:    mechanismcontrol.FeedCutReturnPartial,
 			wantErr: nil,
 		},
 		{
@@ -860,12 +861,12 @@ func TestCommands_BoundaryValues(t *testing.T) {
 
 	t.Run("position boundaries", func(t *testing.T) {
 		// Test minimum position
-		got, err := cmd.SetCutPosition(mechanismcontrol.PositionCutModeFull, 0)
+		got, err := cmd.SetCutPosition(mechanismcontrol.PositionCutFull, 0)
 		testutils.AssertError(t, err, nil)
 		testutils.AssertLength(t, got, 4, "minimum position command length")
 
 		// Test maximum position
-		got, err = cmd.SetCutPosition(mechanismcontrol.PositionCutModeFull, 255)
+		got, err = cmd.SetCutPosition(mechanismcontrol.PositionCutFull, 255)
 		testutils.AssertError(t, err, nil)
 		testutils.AssertLength(t, got, 4, "maximum position command length")
 	})
@@ -906,7 +907,7 @@ func TestCommands_ConsistencyBetweenModes(t *testing.T) {
 
 		// Values should be different
 		if got1[2] == got2[2] {
-			t.Error("Full cut modes should have different parameter values")
+			t.Error("CutTypeFull cut modes should have different parameter values")
 		}
 	})
 
@@ -921,7 +922,7 @@ func TestCommands_ConsistencyBetweenModes(t *testing.T) {
 
 		// Values should be different
 		if got1[2] == got2[2] {
-			t.Error("Partial cut modes should have different parameter values")
+			t.Error("CutTypePartial cut modes should have different parameter values")
 		}
 	})
 }

@@ -1,7 +1,7 @@
 package print
 
 import (
-	"github.com/adcondev/pos-printer/escpos/shared"
+	"github.com/adcondev/pos-printer/pkg/controllers/escpos/shared"
 )
 
 // FormFeed executes form feed operation (behavior varies by mode).

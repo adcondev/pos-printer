@@ -1,7 +1,7 @@
 package bitimage
 
 import (
-	"github.com/adcondev/pos-printer/escpos/shared"
+	"github.com/adcondev/pos-printer/pkg/controllers/escpos/shared"
 )
 
 // GetNVGraphicsCapacity transmits the entire capacity of the NV graphics area.

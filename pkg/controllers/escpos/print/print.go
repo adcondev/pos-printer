@@ -4,8 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/adcondev/pos-printer/escpos/printposition"
-	"github.com/adcondev/pos-printer/escpos/shared"
+	"github.com/adcondev/pos-printer/pkg/controllers/escpos/shared"
 )
 
 // ============================================================================
@@ -22,11 +21,11 @@ import (
 
 // Control characters used in printing commands
 const (
-	// LF (Line Feed)
+	// LF (Line FeedLines)
 	LF byte = 0x0A
 	// CR (Carriage Return)
 	CR byte = 0x0D
-	// FF (Form Feed)
+	// FF (Form FeedLines)
 	FF byte = 0x0C
 	// CAN (Cancel)
 	CAN byte = 0x18
@@ -137,7 +136,7 @@ func Formatting(data []byte) []byte {
 		case '\r':
 			formatted[i] = CR
 		case '\t':
-			formatted[i] = printposition.HT
+			formatted[i] = shared.HT
 		}
 	}
 	return formatted

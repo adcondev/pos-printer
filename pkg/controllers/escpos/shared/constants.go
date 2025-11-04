@@ -11,4 +11,6 @@ const (
 	ESC byte = 0x1B
 	// GS represents the byte de "Group Separator" en ESC/POS.
 	GS byte = 0x1D
+	// HT represents the byte de "Horizontal Tab" en ESC/POS.
+	HT byte = 0x09
 )

@@ -3,9 +3,9 @@ package character_test
 import (
 	"testing"
 
-	"github.com/adcondev/pos-printer/escpos/character"
-	"github.com/adcondev/pos-printer/escpos/shared"
 	"github.com/adcondev/pos-printer/internal/testutils"
+	"github.com/adcondev/pos-printer/pkg/controllers/escpos/character"
+	"github.com/adcondev/pos-printer/pkg/controllers/escpos/shared"
 )
 
 // ============================================================================

@@ -5,8 +5,8 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/adcondev/pos-printer/escpos/printposition"
-	"github.com/adcondev/pos-printer/escpos/shared"
+	"github.com/adcondev/pos-printer/pkg/controllers/escpos/printposition"
+	"github.com/adcondev/pos-printer/pkg/controllers/escpos/shared"
 )
 
 // ============================================================================
@@ -18,7 +18,7 @@ import (
 func TestCommands_HorizontalTab(t *testing.T) {
 	cmd := printposition.NewCommands()
 	got := cmd.HorizontalTab()
-	want := []byte{printposition.HT}
+	want := []byte{shared.HT}
 
 	if !bytes.Equal(got, want) {
 		t.Errorf("HorizontalTab() = %#v, want %#v", got, want)

@@ -22,10 +22,10 @@ import (
 type UnidirectionalMode byte
 
 const (
-	// UnidirectionalOff turns off unidirectional mode (bidirectional on)
-	UnidirectionalOff UnidirectionalMode = 0x00
-	// UnidirectionalOn turns on unidirectional mode
-	UnidirectionalOn UnidirectionalMode = 0x01
+	// UnidirOff turns off unidirectional mode (bidirectional on)
+	UnidirOff UnidirectionalMode = 0x00
+	// UnidirOn turns on unidirectional mode
+	UnidirOn UnidirectionalMode = 0x01
 )
 
 // CutMode represents the paper cut mode for simple cut commands
@@ -52,34 +52,34 @@ const (
 	CutTypePartial CutType = 0x01
 )
 
-// FeedCutMode represents the feed and cut mode
-type FeedCutMode byte
+// FeedCut represents the feed and cut mode
+type FeedCut byte
 
 const (
-	// FeedCutModeFull performs a full cut after feeding
-	FeedCutModeFull FeedCutMode = 65
-	// FeedCutModePartial performs a partial cut after feeding
-	FeedCutModePartial FeedCutMode = 66
+	// FeedCutFull performs a full cut after feeding
+	FeedCutFull FeedCut = 65
+	// FeedCutPartial performs a partial cut after feeding
+	FeedCutPartial FeedCut = 66
 )
 
-// PositionCutMode represents the position cut mode
-type PositionCutMode byte
+// PositionCut represents the position cut mode
+type PositionCut byte
 
 const (
-	// PositionCutModeFull performs a full cut at position
-	PositionCutModeFull PositionCutMode = 97
-	// PositionCutModePartial performs a partial cut at position
-	PositionCutModePartial PositionCutMode = 98
+	// PositionCutFull performs a full cut at position
+	PositionCutFull PositionCut = 97
+	// PositionCutPartial performs a partial cut at position
+	PositionCutPartial PositionCut = 98
 )
 
-// FeedCutReturnMode represents the feed, cut and return mode
-type FeedCutReturnMode byte
+// FeedCutReturn represents the feed, cut and return mode
+type FeedCutReturn byte
 
 const (
-	// FeedCutReturnModeFull performs a full cut with return
-	FeedCutReturnModeFull FeedCutReturnMode = 103
-	// FeedCutReturnModePartial performs a partial cut with return
-	FeedCutReturnModePartial FeedCutReturnMode = 104
+	// FeedCutReturnFull performs a full cut with return
+	FeedCutReturnFull FeedCutReturn = 103
+	// FeedCutReturnPartial performs a partial cut with return
+	FeedCutReturnPartial FeedCutReturn = 104
 )
 
 const (
@@ -128,9 +128,9 @@ type Capability interface {
 
 	// Simple cut commands
 	CutPaper(mode CutMode) ([]byte, error)
-	FeedAndCutPaper(mode FeedCutMode, feedAmount byte) ([]byte, error)
-	SetCutPosition(mode PositionCutMode, position byte) ([]byte, error)
-	FeedCutAndReturnPaper(mode FeedCutReturnMode, feedAmount byte) ([]byte, error)
+	FeedAndCutPaper(mode FeedCut, feedAmount byte) ([]byte, error)
+	SetCutPosition(mode PositionCut, position byte) ([]byte, error)
+	FeedCutAndReturnPaper(mode FeedCutReturn, feedAmount byte) ([]byte, error)
 }
 
 // ============================================================================
@@ -170,9 +170,9 @@ func ValidateCutType(cutType CutType) error {
 }
 
 // ValidateFeedCutMode validates if feed cut mode is valid
-func ValidateFeedCutMode(mode FeedCutMode) error {
+func ValidateFeedCutMode(mode FeedCut) error {
 	switch mode {
-	case FeedCutModeFull, FeedCutModePartial:
+	case FeedCutFull, FeedCutPartial:
 		return nil
 	default:
 		return ErrFeedCutMode
@@ -180,9 +180,9 @@ func ValidateFeedCutMode(mode FeedCutMode) error {
 }
 
 // ValidatePositionCutMode validates if position cut mode is valid
-func ValidatePositionCutMode(mode PositionCutMode) error {
+func ValidatePositionCutMode(mode PositionCut) error {
 	switch mode {
-	case PositionCutModeFull, PositionCutModePartial:
+	case PositionCutFull, PositionCutPartial:
 		return nil
 	default:
 		return ErrPositionCutMode
@@ -190,9 +190,9 @@ func ValidatePositionCutMode(mode PositionCutMode) error {
 }
 
 // ValidateFeedCutReturnMode validates if feed cut return mode is valid
-func ValidateFeedCutReturnMode(mode FeedCutReturnMode) error {
+func ValidateFeedCutReturnMode(mode FeedCutReturn) error {
 	switch mode {
-	case FeedCutReturnModeFull, FeedCutReturnModePartial:
+	case FeedCutReturnFull, FeedCutReturnPartial:
 		return nil
 	default:
 		return ErrFeedCutReturnMode
