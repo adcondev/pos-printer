@@ -1,7 +1,7 @@
 package linespacing
 
 import (
-	"github.com/adcondev/pos-printer/escpos/shared"
+	"github.com/adcondev/pos-printer/pkg/controllers/escpos/shared"
 )
 
 // SetLineSpacing sets the line spacing to spacing × (vertical or horizontal motion unit).

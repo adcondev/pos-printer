@@ -3,7 +3,7 @@ package testutils
 import (
 	"bytes"
 
-	"github.com/adcondev/pos-printer/escpos/shared"
+	"github.com/adcondev/pos-printer/pkg/controllers/escpos/shared"
 )
 
 // Create a test helper for buffer management

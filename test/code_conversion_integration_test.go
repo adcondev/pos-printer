@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"testing"
 
-	"github.com/adcondev/pos-printer/escpos/character"
-	"github.com/adcondev/pos-printer/escpos/shared"
+	"github.com/adcondev/pos-printer/pkg/controllers/escpos/character"
+	"github.com/adcondev/pos-printer/pkg/controllers/escpos/shared"
 )
 
 func TestIntegration_CodeConversion_MultiLanguageSupport(t *testing.T) {

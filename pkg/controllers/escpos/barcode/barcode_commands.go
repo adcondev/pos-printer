@@ -3,7 +3,7 @@ package barcode
 import (
 	"fmt"
 
-	"github.com/adcondev/pos-printer/escpos/shared"
+	"github.com/adcondev/pos-printer/pkg/controllers/escpos/shared"
 )
 
 // ============================================================================

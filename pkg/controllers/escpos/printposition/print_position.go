@@ -17,12 +17,6 @@ import (
 // Constant and Var Definitions
 // ============================================================================
 
-// Control characters
-const (
-	// HT moves the print position to the next horizontal tab position.
-	HT = 0x09
-)
-
 // Justification represents text justification modes
 type Justification byte
 

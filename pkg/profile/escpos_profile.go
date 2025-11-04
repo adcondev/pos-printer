@@ -1,8 +1,7 @@
 package profile
 
 import (
-	"github.com/adcondev/pos-printer/encoding"
-	"github.com/adcondev/pos-printer/escpos/character"
+	"github.com/adcondev/pos-printer/pkg/controllers/escpos/character"
 )
 
 // Escpos define todas las características físicas y capacidades de una impresora
@@ -27,8 +26,7 @@ type Escpos struct {
 	QRMaxVersion byte // Máxima versión soportada
 
 	// Juegos de caracteres
-	CharacterSets  []encoding.CharacterSet // Códigos de página soportados
-	DefaultCharSet character.CodeTable     // Código de página por defecto
+	DefaultCharSet character.CodeTable // Código de página por defecto
 
 	// Configuración avanzada (opcional)
 	ImageThreshold int // Umbral para conversión B/N (0-255)
@@ -51,19 +49,6 @@ func (p *Escpos) GetCharWidth(font string) int {
 func CreatePt210() *Escpos {
 	p := CreateProfile58mm()
 	p.Model = "58mm PT-210"
-	p.CharacterSets = []encoding.CharacterSet{
-		encoding.CP437,
-		encoding.Katakana,
-		encoding.CP850,
-		encoding.CP860,
-		encoding.CP863,
-		encoding.CP865,
-		encoding.WestEurope,
-		encoding.WCP1252,
-		encoding.CP866,
-		encoding.CP852,
-		encoding.CP858,
-	}
 
 	p.DefaultCharSet = character.PC850 // CP858 para español
 	p.QRMaxVersion = 19                // Máxima versión QR soportada
@@ -75,25 +60,6 @@ func CreatePt210() *Escpos {
 func CreateGP58N() *Escpos {
 	p := CreateProfile58mm()
 	p.Model = "58mm GP-58N"
-	p.CharacterSets = []encoding.CharacterSet{
-		encoding.CP437,
-		encoding.Katakana,
-		encoding.CP850,
-		encoding.CP860,
-		encoding.CP863,
-		encoding.CP865,
-		encoding.WestEurope,
-		encoding.Greek,
-		encoding.Hebrew,
-		// encoding.CP755, // No soportado directamente
-		encoding.Iran,
-		encoding.WCP1252,
-		encoding.CP866,
-		encoding.CP852,
-		encoding.CP858,
-		encoding.IranII,
-		encoding.Latvian,
-	}
 
 	p.DefaultCharSet = 0 // CP858 para español
 	return p
@@ -115,25 +81,6 @@ func CreateProfile58mm() *Escpos {
 		SupportsCutter:   false,
 		SupportsDrawer:   false,
 
-		CharacterSets: []encoding.CharacterSet{
-			encoding.CP437,
-			encoding.Katakana,
-			encoding.CP850,
-			encoding.CP860,
-			encoding.CP863,
-			encoding.CP865,
-			encoding.WestEurope,
-			encoding.Greek,
-			encoding.Hebrew,
-			// encoding.CP755, // No soportado directamente
-			encoding.Iran,
-			encoding.WCP1252,
-			encoding.CP866,
-			encoding.CP852,
-			encoding.CP858,
-			encoding.IranII,
-			encoding.Latvian,
-		}, // Más juegos de caracteres
 		DefaultCharSet: 19, // CP858
 
 		Fonts: map[string]int{
@@ -147,27 +94,6 @@ func CreateProfile58mm() *Escpos {
 func CreateECPM80250() *Escpos {
 	p := CreateProfile80mm()
 	p.Model = "80mm EC-PM-80250"
-	p.CharacterSets = []encoding.CharacterSet{
-		encoding.CP437,
-		encoding.Katakana,
-		encoding.CP850,
-		encoding.CP860,
-		encoding.CP863,
-		encoding.CP865,
-		encoding.WestEurope,
-		encoding.Greek,
-		encoding.Hebrew,
-		// encoding.CP755, // No soportado directamente
-		encoding.Iran,
-		encoding.WCP1252,
-		encoding.CP866,
-		encoding.CP852,
-		encoding.CP858,
-		encoding.IranII,
-		encoding.Latvian,
-	}
-
-	p.DefaultCharSet = character.PC850 // CP858 para español
 	return p
 }
 
@@ -178,7 +104,7 @@ func CreateProfile80mm() *Escpos {
 
 		PaperWidth:  80,
 		DPI:         203,
-		DotsPerLine: 576, // Típico para 80mm a 203 DPI
+		DotsPerLine: 576, // Típico para 80mm (72mm) a 203 DPI
 
 		SupportsGraphics: true,
 		SupportsBarcode:  true,
@@ -186,28 +112,8 @@ func CreateProfile80mm() *Escpos {
 		SupportsCutter:   true,
 		SupportsDrawer:   true,
 
-		CharacterSets: []encoding.CharacterSet{
-			encoding.CP437,
-			encoding.Katakana,
-			encoding.CP850,
-			encoding.CP860,
-			encoding.CP863,
-			encoding.CP865,
-			encoding.WestEurope,
-			encoding.Greek,
-			encoding.Hebrew,
-			// encoding.CP755, // No soportado directamente
-			encoding.Iran,
-			encoding.WCP1252,
-			encoding.CP866,
-			encoding.CP852,
-			encoding.CP858,
-			encoding.IranII,
-			encoding.Latvian,
-		},
-
 		// Más juegos de caracteres
-		DefaultCharSet: character.PC850, // CP858
+		DefaultCharSet: character.PC850, // CP850
 
 		ImageThreshold: 128,
 	}

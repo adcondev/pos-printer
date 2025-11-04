@@ -4,7 +4,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/adcondev/pos-printer/escpos/shared"
+	"github.com/adcondev/pos-printer/pkg/controllers/escpos/shared"
 )
 
 func TestUtils_IsBufOk_ValidInput(t *testing.T) {

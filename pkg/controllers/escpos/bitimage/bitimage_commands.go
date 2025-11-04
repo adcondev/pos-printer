@@ -1,7 +1,7 @@
 package bitimage
 
 import (
-	"github.com/adcondev/pos-printer/escpos/shared"
+	"github.com/adcondev/pos-printer/pkg/controllers/escpos/shared"
 )
 
 // SelectBitImageMode stores bit image data in the print buffer with the specified mode.

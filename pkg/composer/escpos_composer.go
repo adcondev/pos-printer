@@ -5,25 +5,25 @@ package composer
 import (
 	"fmt"
 
-	"github.com/adcondev/pos-printer/escpos/barcode"
-	"github.com/adcondev/pos-printer/escpos/bitimage"
-	"github.com/adcondev/pos-printer/escpos/character"
-	"github.com/adcondev/pos-printer/escpos/linespacing"
-	"github.com/adcondev/pos-printer/escpos/mechanismcontrol"
-	"github.com/adcondev/pos-printer/escpos/print"
-	"github.com/adcondev/pos-printer/escpos/printposition"
-	"github.com/adcondev/pos-printer/escpos/shared"
+	"github.com/adcondev/pos-printer/pkg/controllers/escpos/barcode"
+	"github.com/adcondev/pos-printer/pkg/controllers/escpos/bitimage"
+	"github.com/adcondev/pos-printer/pkg/controllers/escpos/character"
+	"github.com/adcondev/pos-printer/pkg/controllers/escpos/linespacing"
+	"github.com/adcondev/pos-printer/pkg/controllers/escpos/mechanismcontrol"
+	"github.com/adcondev/pos-printer/pkg/controllers/escpos/print"
+	"github.com/adcondev/pos-printer/pkg/controllers/escpos/printposition"
+	"github.com/adcondev/pos-printer/pkg/controllers/escpos/shared"
 )
 
-// Composer implements the ESCPOS Commands
-type Composer struct {
-	barcode          barcode.Capability
-	bitImage         bitimage.Capability
-	character        character.Capability
-	lineSpacing      linespacing.Capability
-	mechanismControl mechanismcontrol.Capability
-	print            print.Capability
-	printPosition    printposition.Capability
+// Escpos implements the ESCPOS Commands
+type Escpos struct {
+	Barcode          barcode.Capability
+	BitImage         bitimage.Capability
+	Character        character.Capability
+	LineSpacing      linespacing.Capability
+	MechanismControl mechanismcontrol.Capability
+	Print            print.Capability
+	PrintPosition    printposition.Capability
 	// TODO: Implement other capabilities
 	// PrintingPaper        printingpaper.Capability
 	// PaperSensor          papersensor.Capability
@@ -37,16 +37,16 @@ type Composer struct {
 	// CounterPrinting      counterprinting.Capability
 }
 
-// NewComposer creates a new instance of the ESC/POS protocol
-func NewComposer() *Composer {
-	return &Composer{
-		barcode:          barcode.NewCommands(),
-		bitImage:         bitimage.NewCommands(),
-		character:        character.NewCommands(),
-		lineSpacing:      linespacing.NewCommands(),
-		mechanismControl: mechanismcontrol.NewCommands(),
-		print:            print.NewCommands(),
-		printPosition:    printposition.NewCommands(),
+// NewEscpos creates a new instance of the ESC/POS protocol
+func NewEscpos() *Escpos {
+	return &Escpos{
+		Barcode:          barcode.NewCommands(),
+		BitImage:         bitimage.NewCommands(),
+		Character:        character.NewCommands(),
+		LineSpacing:      linespacing.NewCommands(),
+		MechanismControl: mechanismcontrol.NewCommands(),
+		Print:            print.NewCommands(),
+		PrintPosition:    printposition.NewCommands(),
 	}
 }
 
@@ -73,7 +73,7 @@ func NewComposer() *Composer {
 //	None
 //
 // Notes:
-//   - Clears the data in the print buffer and resets printer modes to those at power-on.
+//   - Clears the data in the Print buffer and resets printer modes to those at power-on.
 //   - Macro definitions are NOT cleared.
 //   - Offline response selection is NOT cleared.
 //   - Contents of user NV memory are NOT cleared.
@@ -82,8 +82,8 @@ func NewComposer() *Composer {
 //   - Software setting values are NOT cleared.
 //   - DIP switch settings are NOT re-read.
 //   - The data in the receiver buffer is NOT cleared.
-//   - In Page mode: deletes data in print areas, initializes all settings, and selects Standard mode.
-//   - Cancels many active settings (print mode, line feed, etc.) and moves the print position to the left side
+//   - In Page mode: deletes data in Print areas, initializes all settings, and selects Standard mode.
+//   - Cancels many active settings (Print mode, line feed, etc.) and moves the Print position to the left side
 //     of the printable area; printer status becomes "Beginning of the line".
 //   - Certain ESC = behavior is preserved/adjusted as described by the printer (see model notes).
 //   - Use with care when expecting persistent RAM/NV behavior — only RAM settings are reset to power-on defaults.
@@ -91,7 +91,7 @@ func NewComposer() *Composer {
 // Errors:
 //
 //	This function is safe and does not return errors
-func InitializePrinter() []byte {
+func (c *Escpos) InitializePrinter() []byte {
 	return []byte{shared.ESC, '@'}
 }
 
@@ -99,65 +99,34 @@ func InitializePrinter() []byte {
 // Minimal Print Methods
 // ============================================================================
 
-// Init restores the printer to its default state
-func (c *Composer) Init() []byte {
-	// TODO: Implement any additional initialization logic if needed based on defaults and profile
-	return InitializePrinter()
-}
-
-// FontA selects Font A
-func (c *Composer) FontA() []byte {
-	cmd, _ := c.character.SelectCharacterFont(character.FontA)
-	return cmd
-}
-
 // LeftMargin sets the left margin
-func (c *Composer) LeftMargin(margin uint16) []byte {
-	return c.printPosition.SetLeftMargin(margin)
+func (c *Escpos) LeftMargin(margin uint16) []byte {
+	return c.PrintPosition.SetLeftMargin(margin)
 }
 
-// PrintWidth sets the print area width
-func (c *Composer) PrintWidth(width uint16) []byte {
-	return c.printPosition.SetPrintAreaWidth(width)
-}
-
-// Print sends text to the printer without a line feed.
-func (c *Composer) Print(text string) ([]byte, error) {
-	cmd, err := c.print.Text(text)
-	if err != nil {
-		return nil, fmt.Errorf("print: text: %w", err)
-	}
-	return cmd, nil
+// PrintWidth sets the Print area width
+func (c *Escpos) PrintWidth(width uint16) []byte {
+	return c.PrintPosition.SetPrintAreaWidth(width)
 }
 
 // PrintLn sends text to the printer followed by a line feed.
-func (c *Composer) PrintLn(text string) ([]byte, error) {
-	cmd, err := c.print.Text(text)
+func (c *Escpos) PrintLn(text string) ([]byte, error) {
+	cmd, err := c.Print.Text(text)
 	if err != nil {
 		return nil, fmt.Errorf("println: text: %w", err)
 	}
-	cmd = append(cmd, c.print.PrintAndLineFeed()...)
+	cmd = append(cmd, c.Print.PrintAndLineFeed()...)
 	return cmd, nil
 }
 
-// Feed feeds n lines.
-func (c *Composer) Feed(n byte) []byte {
-	return c.print.PrintAndFeedLines(n)
-}
-
-// BoldText enables or disables bold mode.
-func (c *Composer) BoldText() []byte {
-	return c.character.SetEmphasizedMode(character.OnEm)
-}
-
 // RegularText disables bold mode.
-func (c *Composer) RegularText() []byte {
-	return c.character.SetEmphasizedMode(character.OffEm)
+func (c *Escpos) RegularText() []byte {
+	return c.Character.SetEmphasizedMode(character.OffEm)
 }
 
 // SetAlign sets the text alignment.
-func (c *Composer) SetAlign(mode printposition.Justification) ([]byte, error) {
-	cmd, err := c.printPosition.SelectJustification(mode)
+func (c *Escpos) SetAlign(mode printposition.Justification) ([]byte, error) {
+	cmd, err := c.PrintPosition.SelectJustification(mode)
 	if err != nil {
 		return nil, fmt.Errorf("set align: select justification: %w", err)
 	}
@@ -165,31 +134,37 @@ func (c *Composer) SetAlign(mode printposition.Justification) ([]byte, error) {
 }
 
 // CenterAlign centers the text.
-func (c *Composer) CenterAlign() []byte {
-	cmd, _ := c.printPosition.SelectJustification(printposition.Center)
+func (c *Escpos) CenterAlign() []byte {
+	cmd, _ := c.PrintPosition.SelectJustification(printposition.Center)
 	return cmd
 }
 
 // LeftAlign left-aligns the text.
-func (c *Composer) LeftAlign() []byte {
-	cmd, _ := c.printPosition.SelectJustification(printposition.Left)
+func (c *Escpos) LeftAlign() []byte {
+	cmd, _ := c.PrintPosition.SelectJustification(printposition.Left)
 	return cmd
 }
 
 // RightAlign right-aligns the text.
-func (c *Composer) RightAlign() []byte {
-	cmd, _ := c.printPosition.SelectJustification(printposition.Right)
+func (c *Escpos) RightAlign() []byte {
+	cmd, _ := c.PrintPosition.SelectJustification(printposition.Right)
 	return cmd
 }
 
 // RegularTextSize sets the smallest(regular) text size.
-func (c *Composer) RegularTextSize() []byte {
+func (c *Escpos) RegularTextSize() []byte {
 	size, _ := character.NewSize(1, 1)
-	return c.character.SelectCharacterSize(size)
+	return c.Character.SelectCharacterSize(size)
 }
 
 // DoubleSizeText sets double size text.
-func (c *Composer) DoubleSizeText() []byte {
+func (c *Escpos) DoubleSizeText() []byte {
 	size, _ := character.NewSize(2, 2)
-	return c.character.SelectCharacterSize(size)
+	return c.Character.SelectCharacterSize(size)
+}
+
+// FullPaperCut performs a full paper cut.
+func (c *Escpos) FullPaperCut(lines byte) []byte {
+	cmd, _ := c.MechanismControl.FeedAndCutPaper(mechanismcontrol.FeedCutFull, lines)
+	return cmd
 }

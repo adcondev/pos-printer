@@ -3,7 +3,7 @@ package printposition
 import (
 	"fmt"
 
-	"github.com/adcondev/pos-printer/escpos/shared"
+	"github.com/adcondev/pos-printer/pkg/controllers/escpos/shared"
 )
 
 // HorizontalTab moves the print position to the next horizontal tab position.
@@ -40,7 +40,7 @@ import (
 //
 //	This function is safe and does not return errors.
 func (c *Commands) HorizontalTab() []byte {
-	return []byte{HT}
+	return []byte{shared.HT}
 }
 
 // SetAbsolutePrintPosition sets the absolute print position.

@@ -1,7 +1,7 @@
 package character
 
 import (
-	"github.com/adcondev/pos-printer/escpos/shared"
+	"github.com/adcondev/pos-printer/pkg/controllers/escpos/shared"
 )
 
 // SelectCharacterEncodeSystem selects the character encoding system.
