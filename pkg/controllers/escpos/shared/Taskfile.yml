@@ -6,7 +6,7 @@ tasks:
   test:
     cmds:
       - echo "Running shared tests..."
-      - go testutils
+      - go test
   lint:
     cmds:
       - echo "Running shared linters..."

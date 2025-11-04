@@ -9,7 +9,7 @@
 
 <br>
 
-<img src="img/pos-printer.jpg" alt="POS Printer Logo" width="200" height="auto">
+<img src="assets/images/pos-printer.jpg" alt="POS Printer Logo" width="200" height="auto">
 
 **A modular, extensible library for thermal printer communication across multiple protocols**
 
@@ -77,8 +77,9 @@ package main
 
 import (
 	"log"
-	"github.com/adcondev/pos-printer/pos"
+
 	"github.com/adcondev/pos-printer/escpos"
+	"github.com/adcondev/pos-printer/pos"
 )
 
 func main() {
@@ -116,11 +117,11 @@ func main() {
 
 ## 🖨️ Supported Protocols
 
-| Protocol | Status      | Description                                      |
-|----------|-------------|--------------------------------------------------|
-| ESC/POS  | ✅ Stable     | Epson Standard Code for Point of Sale Printers   |
-| ZPL      | 🔄 In Progress| Zebra Programming Language for label printers    |
-| Image    | ✅ Stable     | Direct bitmap generation for any printer         |
+| Protocol | Status         | Description                                    |
+|----------|----------------|------------------------------------------------|
+| ESC/POS  | ✅ Stable       | Epson Standard Code for Point of Sale Printers |
+| ZPL      | 🔄 In Progress | Zebra Programming Language for label printers  |
+| Image    | ✅ Stable       | Direct bitmap generation for any printer       |
 
 ## 🤝 Contributing
 

@@ -15,7 +15,7 @@ vars:
     ║   ██║     ╚██████╔╝███████║   ██║   ███████╗██║  ██║     ║
     ║   ╚═╝      ╚═════╝ ╚══════╝   ╚═╝   ╚══════╝╚═╝  ╚═╝     ║
     ║                                                          ║
-    ║          The self‑possessed POS daemon for Go            ║
+    ║                  The POS daemon for Go                   ║
     ║                  ESCPOS · ZPL · Scale                    ║
     ║           Serial · USB · Network · Bluetooth             ║
     ║                                                          ║
@@ -23,51 +23,55 @@ vars:
 
 includes:
   barcode:
-    taskfile: ./escpos/barcode/Taskfile.yml
-    dir: ./escpos/barcode
+    taskfile: ./pkg/controllers/escpos/barcode/Taskfile.yml
+    dir: ./pkg/controllers/escpos/barcode
     aliases:
       - bc
   bitimage:
-    taskfile: ./escpos/bitimage/Taskfile.yml
-    dir: ./escpos/bitimage
+    taskfile: ./pkg/controllers/escpos/bitimage/Taskfile.yml
+    dir: ./pkg/controllers/escpos/bitimage
     aliases:
       - bi
   character:
-    taskfile: ./escpos/character/Taskfile.yml
-    dir: ./escpos/character
+    taskfile: ./pkg/controllers/escpos/character/Taskfile.yml
+    dir: ./pkg/controllers/escpos/character
     aliases:
       - ch
   linespacing:
-    taskfile: ./escpos/linespacing/Taskfile.yml
-    dir: ./escpos/linespacing
+    taskfile: ./pkg/controllers/escpos/linespacing/Taskfile.yml
+    dir: ./pkg/controllers/escpos/linespacing
     aliases:
       - ls
   mechanismcontrol:
-    taskfile: ./escpos/mechanismcontrol/Taskfile.yml
-    dir: ./escpos/mechanismcontrol
+    taskfile: ./pkg/controllers/escpos/mechanismcontrol/Taskfile.yml
+    dir: ./pkg/controllers/escpos/mechanismcontrol
     aliases:
       - mc
   print:
-    taskfile: ./escpos/print/Taskfile.yml
-    dir: ./escpos/print
+    taskfile: ./pkg/controllers/escpos/print/Taskfile.yml
+    dir: ./pkg/controllers/escpos/print
     aliases:
       - pr
   printposition:
-    taskfile: ./escpos/printposition/Taskfile.yml
-    dir: ./escpos/printposition
+    taskfile: ./pkg/controllers/escpos/printposition/Taskfile.yml
+    dir: ./pkg/controllers/escpos/printposition
     aliases:
       - pp
+  qrcode:
+    taskfile: ./pkg/controllers/escpos/qrcode/Taskfile.yml
+    dir: ./pkg/controllers/escpos/qrcode
+    aliases:
+      - qr
   shared:
-    taskfile: ./escpos/shared/Taskfile.yml
-    dir: ./escpos/shared
+    taskfile: ./pkg/controllers/escpos/shared/Taskfile.yml
+    dir: ./pkg/controllers/escpos/shared
     aliases:
       - sh
-  escpos:
-    taskfile: ./escpos/Taskfile.yml
-    dir: ./escpos
+  integration-tests:
+    taskfile: ./test/Taskfile.yml
+    dir: ./test
     aliases:
-      - ep
-
+      - itest
 tasks:
   default:
     cmds:
@@ -83,8 +87,8 @@ tasks:
   lint:
     cmds:
       - echo "Running linters..."
-        - golangci-lint run {{.LINT_FLAGS}}
+      - golangci-lint run {{.LINT_FLAGS}}
   test:
     cmds:
       - echo "Running all tests in detail..."
-        - go test {{.GP_TEST_FLAGS}} ./...
+      - go test {{.GP_TEST_FLAGS}} ./...
