@@ -48,17 +48,6 @@ func AssertErrorOccurred(t *testing.T, err error, wantErr bool, methodName strin
 	return true
 }
 
-// AssertUint16Bytes verifies uint16 little-endian byte conversion
-func AssertUint16Bytes(t *testing.T, value uint16, wantLow, wantHigh byte) {
-	t.Helper()
-	gotLow := byte(value & 0xFF)
-	gotHigh := byte((value >> 8) & 0xFF)
-	if gotLow != wantLow || gotHigh != wantHigh {
-		t.Errorf("uint16(%d) bytes = (%#x, %#x), want (%#x, %#x)",
-			value, gotLow, gotHigh, wantLow, wantHigh)
-	}
-}
-
 // AssertContains checks if a byte slice contains a subsequence
 func AssertContains(t *testing.T, haystack, needle []byte, msgAndArgs ...interface{}) {
 	t.Helper()
@@ -75,43 +64,10 @@ func AssertContains(t *testing.T, haystack, needle []byte, msgAndArgs ...interfa
 	}
 }
 
-// AssertNotContains checks if a byte slice does not contain a subsequence
-func AssertNotContains(t *testing.T, haystack, needle []byte, msgAndArgs ...interface{}) {
-	t.Helper()
-	if bytes.Contains(haystack, needle) {
-		msg := "byte slice contains unexpected subsequence"
-		if len(msgAndArgs) > 0 {
-			if format, ok := msgAndArgs[0].(string); ok && len(msgAndArgs) > 1 {
-				msg = fmt.Sprintf(format, msgAndArgs[1:]...)
-			} else {
-				msg = fmt.Sprint(msgAndArgs[0])
-			}
-		}
-		t.Errorf("%s\nhaystack: %#v\nneedle:   %#v", msg, haystack, needle)
-	}
-}
-
-// AssertEmpty checks if a byte slice is empty
+// AssertNotEmpty checks if a byte slice is empty
 func AssertNotEmpty(t *testing.T, data []byte, s string) {
 	if len(data) == 0 {
 		t.Errorf("%s: data should not be empty", s)
-	}
-}
-
-// AssertByteCount verifies the number of occurrences of a byte sequence
-func AssertByteCount(t *testing.T, data []byte, pattern []byte, expectedCount int, msgAndArgs ...interface{}) {
-	t.Helper()
-	count := bytes.Count(data, pattern)
-	if count != expectedCount {
-		msg := "byte pattern count mismatch"
-		if len(msgAndArgs) > 0 {
-			if format, ok := msgAndArgs[0].(string); ok && len(msgAndArgs) > 1 {
-				msg = fmt.Sprintf(format, msgAndArgs[1:]...)
-			} else {
-				msg = fmt.Sprint(msgAndArgs[0])
-			}
-		}
-		t.Errorf("%s\npattern: %#v\ngot count: %d, want: %d", msg, pattern, count, expectedCount)
 	}
 }
 
@@ -147,22 +103,6 @@ func AssertHasPrefix(t *testing.T, data, prefix []byte, msgAndArgs ...interface{
 	}
 }
 
-// AssertHasSuffix checks if a byte slice ends with a specific suffix
-func AssertHasSuffix(t *testing.T, data, suffix []byte, msgAndArgs ...interface{}) {
-	t.Helper()
-	if !bytes.HasSuffix(data, suffix) {
-		msg := "byte slice does not have expected suffix"
-		if len(msgAndArgs) > 0 {
-			if format, ok := msgAndArgs[0].(string); ok && len(msgAndArgs) > 1 {
-				msg = fmt.Sprintf(format, msgAndArgs[1:]...)
-			} else {
-				msg = fmt.Sprint(msgAndArgs[0])
-			}
-		}
-		t.Errorf("%s\ndata:   %#v\nsuffix: %#v", msg, data, suffix)
-	}
-}
-
 // AssertNumeric checks if all bytes are numeric and provides detailed error
 func AssertNumeric(t *testing.T, data []byte, msgAndArgs ...interface{}) {
 	t.Helper()
@@ -172,21 +112,6 @@ func AssertNumeric(t *testing.T, data []byte, msgAndArgs ...interface{}) {
 		for i, b := range data {
 			if b < '0' || b > '9' {
 				t.Errorf("%s\nfirst non-numeric byte at index %d: %#x (%c)\ndata: %q",
-					msg, i, b, b, data)
-				return
-			}
-		}
-	}
-}
-
-// AssertAlphanumeric checks if all bytes are alphanumeric
-func AssertAlphanumeric(t *testing.T, data []byte, msgAndArgs ...interface{}) {
-	t.Helper()
-	if !IsAlphanumeric(data) {
-		msg := formatMessage("expected all alphanumeric bytes", msgAndArgs...)
-		for i, b := range data {
-			if !IsAlphanumericByte(b) {
-				t.Errorf("%s\nfirst invalid byte at index %d: %#x (%c)\ndata: %q",
 					msg, i, b, b, data)
 				return
 			}
@@ -247,21 +172,6 @@ func AssertEvenLength(t *testing.T, data []byte, msgAndArgs ...interface{}) {
 	}
 }
 
-// AssertInRange checks if all bytes are within specified range
-func AssertInRange(t *testing.T, data []byte, min, max byte, msgAndArgs ...interface{}) {
-	t.Helper()
-	if !IsInRange(data, min, max) {
-		msg := formatMessage(fmt.Sprintf("expected bytes in range [%d, %d]", min, max), msgAndArgs...)
-		for i, b := range data {
-			if b < min || b > max {
-				t.Errorf("%s\nout of range byte at index %d: %d\ndata: %#v",
-					msg, i, b, data)
-				return
-			}
-		}
-	}
-}
-
 // AssertContainsOnly checks if data contains only bytes from allowed set
 func AssertContainsOnly(t *testing.T, data []byte, allowed []byte, msgAndArgs ...interface{}) {
 	t.Helper()
@@ -282,19 +192,10 @@ func AssertContainsOnly(t *testing.T, data []byte, allowed []byte, msgAndArgs ..
 }
 
 // AssertValidLength checks if data length is within bounds
-func AssertValidLength(t *testing.T, data []byte, min, max int, msgAndArgs ...interface{}) {
+func AssertValidLength(t *testing.T, data []byte, minim, maxim int, msgAndArgs ...interface{}) {
 	t.Helper()
-	if !ValidateLength(data, min, max) {
-		msg := formatMessage(fmt.Sprintf("expected length between %d and %d", min, max), msgAndArgs...)
-		t.Errorf("%s\nactual length: %d\ndata: %#v", msg, len(data), data)
-	}
-}
-
-// AssertInvalidLength checks if data length is outside bounds
-func AssertInvalidLength(t *testing.T, data []byte, min, max int, msgAndArgs ...interface{}) {
-	t.Helper()
-	if ValidateLength(data, min, max) {
-		msg := formatMessage(fmt.Sprintf("expected length outside %d to %d", min, max), msgAndArgs...)
+	if !ValidateLength(data, minim, maxim) {
+		msg := formatMessage(fmt.Sprintf("expected length between %d and %d", minim, maxim), msgAndArgs...)
 		t.Errorf("%s\nactual length: %d\ndata: %#v", msg, len(data), data)
 	}
 }
@@ -308,36 +209,4 @@ func formatMessage(defaultMsg string, msgAndArgs ...interface{}) string {
 		return fmt.Sprint(msgAndArgs[0])
 	}
 	return defaultMsg
-}
-
-// IsAlphanumericByte Helper to check if a single byte is alphanumeric
-func IsAlphanumericByte(b byte) bool {
-	return (b >= 'A' && b <= 'Z') || (b >= 'a' && b <= 'z') || (b >= '0' && b <= '9')
-}
-
-// AssertCommandPrefix checks if a command starts with expected prefix bytes
-func AssertCommandPrefix(t *testing.T, command []byte, expectedPrefix []byte, msgAndArgs ...interface{}) {
-	t.Helper()
-	AssertHasPrefix(t, command, expectedPrefix, msgAndArgs...)
-}
-
-// AssertBarcodeCommand verifies a complete barcode command structure
-func AssertBarcodeCommand(t *testing.T, command []byte, symbology byte, data []byte, isNullTerminated bool) {
-	t.Helper()
-	// Check command prefix
-	AssertHasPrefix(t, command, []byte{0x1D, 0x6B, symbology}, "barcode command prefix")
-
-	if isNullTerminated {
-		// Function A format
-		AssertHasNullTerminator(t, command, "Function A barcode")
-		AssertContains(t, command, data, "barcode data")
-	} else {
-		// Function B format - has length byte
-		if len(command) > 3 {
-			lengthByte := command[3]
-			if int(lengthByte) != len(data) {
-				t.Errorf("length byte = %d, want %d", lengthByte, len(data))
-			}
-		}
-	}
 }

@@ -7,15 +7,6 @@ type FakeCapabilityBase struct {
 	StateMap map[string]interface{}
 }
 
-// NewFakeCapabilityBase creates a new fake base
-func NewFakeCapabilityBase() *FakeCapabilityBase {
-	return &FakeCapabilityBase{
-		Buffer:   make([]byte, 0),
-		Tracker:  NewMockTracker(),
-		StateMap: make(map[string]interface{}),
-	}
-}
-
 // AppendCommand adds a command to the buffer and tracks it
 func (f *FakeCapabilityBase) AppendCommand(cmd []byte, methodName string) {
 	f.Buffer = append(f.Buffer, cmd...)

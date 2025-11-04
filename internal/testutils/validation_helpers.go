@@ -59,9 +59,9 @@ func IsEvenLength(data []byte) bool {
 }
 
 // IsInRange checks if all bytes are within specified range
-func IsInRange(data []byte, min, max byte) bool {
+func IsInRange(data []byte, minim, maxim byte) bool {
 	for _, b := range data {
-		if b < min || b > max {
+		if b < minim || b > maxim {
 			return false
 		}
 	}
@@ -97,9 +97,9 @@ func ContainsAny(data []byte, targets []byte) bool {
 }
 
 // ValidateLength checks if data length is within bounds
-func ValidateLength(data []byte, min, max int) bool {
+func ValidateLength(data []byte, minim, maxim int) bool {
 	length := len(data)
-	return length >= min && length <= max
+	return length >= minim && length <= maxim
 }
 
 // IsNumeric checks if all bytes are numeric ASCII characters
@@ -134,7 +134,7 @@ func IsAlphanumeric(data []byte) bool {
 		return true // empty is considered valid
 	}
 	for _, b := range data {
-		if !((b >= 'A' && b <= 'Z') || (b >= 'a' && b <= 'z') || (b >= '0' && b <= '9')) {
+		if (b < 'A' || b > 'Z') && (b < 'a' || b > 'z') && (b < '0' || b > '9') {
 			return false
 		}
 	}
@@ -147,7 +147,7 @@ func IsHexadecimal(data []byte) bool {
 		return true
 	}
 	for _, b := range data {
-		if !((b >= '0' && b <= '9') || (b >= 'A' && b <= 'F') || (b >= 'a' && b <= 'f')) {
+		if (b < '0' || b > '9') && (b < 'A' || b > 'F') && (b < 'a' || b > 'f') {
 			return false
 		}
 	}

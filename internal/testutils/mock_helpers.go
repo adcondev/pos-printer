@@ -7,14 +7,6 @@ type MockTracker struct {
 	LastCommand string
 }
 
-// NewMockTracker creates a new tracker instance
-func NewMockTracker() *MockTracker {
-	return &MockTracker{
-		CallCount:   make(map[string]int),
-		CallHistory: make([]string, 0),
-	}
-}
-
 // Track records a method call
 func (mt *MockTracker) Track(methodName string) {
 	mt.CallCount[methodName]++
