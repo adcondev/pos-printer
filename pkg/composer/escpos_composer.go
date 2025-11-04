@@ -12,6 +12,7 @@ import (
 	"github.com/adcondev/pos-printer/pkg/controllers/escpos/mechanismcontrol"
 	"github.com/adcondev/pos-printer/pkg/controllers/escpos/print"
 	"github.com/adcondev/pos-printer/pkg/controllers/escpos/printposition"
+	"github.com/adcondev/pos-printer/pkg/controllers/escpos/qrcode"
 	"github.com/adcondev/pos-printer/pkg/controllers/escpos/shared"
 )
 
@@ -24,17 +25,23 @@ type Escpos struct {
 	MechanismControl mechanismcontrol.Capability
 	Print            print.Capability
 	PrintPosition    printposition.Capability
+	QRCode           qrcode.Capability
 	// TODO: Implement other capabilities
 	// PrintingPaper        printingpaper.Capability
 	// PaperSensor          papersensor.Capability
 	// PanelButton          panelbutton.Capability
 	// Status               status.Capability
-	// TwoDimensionalCode   twodimensionalcode.Capability
 	// MacroFunctions       macrofunctions.Capability
 	// Kanji 		        kanji.Capability
 	// Miscellaneous 	    miscellaneous.Capability
 	// Customize 	        customize.Capability
 	// CounterPrinting      counterprinting.Capability
+	// PDF417              pdf417.Capability
+	// MaxiCode           maxicode.Capability
+	// DataBar           databar.Capability
+	// CompositeSym   compositesym.Capability
+	// AztecCode     azteccode.Capability
+	// DataMatrix   datamatrix.Capability
 }
 
 // NewEscpos creates a new instance of the ESC/POS protocol
@@ -47,6 +54,7 @@ func NewEscpos() *Escpos {
 		MechanismControl: mechanismcontrol.NewCommands(),
 		Print:            print.NewCommands(),
 		PrintPosition:    printposition.NewCommands(),
+		QRCode:           qrcode.NewCommands(),
 	}
 }
 
