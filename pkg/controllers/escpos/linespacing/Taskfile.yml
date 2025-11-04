@@ -5,9 +5,9 @@ version: '3'
 tasks:
   test:
     cmds:
-      - echo "Running line spacing tests..."
-      - go testutils
+      - echo "Running linespacing tests..."
+      - go test
   lint:
     cmds:
-      - echo "Running line spacing linters..."
+      - echo "Running linespacing linters..."
       - golangci-lint run

@@ -6,7 +6,7 @@ tasks:
   test:
     cmds:
       - echo "Running print tests..."
-      - go testutils
+      - go test
   lint:
     cmds:
       - echo "Running print linters..."

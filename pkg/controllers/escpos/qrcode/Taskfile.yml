@@ -5,9 +5,9 @@ version: '3'
 tasks:
   test:
     cmds:
-      - echo "Running bitimage tests..."
+      - echo "Running qrcode tests..."
       - go test
   lint:
     cmds:
-      - echo "Running bitimage linters..."
+      - echo "Running qrcode linters..."
       - golangci-lint run

@@ -5,9 +5,9 @@ version: '3'
 tasks:
   test:
     cmds:
-      - echo "Running print position tests..."
-      - go testutils
+      - echo "Running printposition tests..."
+      - go test
   lint:
     cmds:
-      - echo "Running print position linters..."
+      - echo "Running printposition linters..."
       - golangci-lint run
