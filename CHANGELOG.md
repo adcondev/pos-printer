@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.0.0](https://github.com/AdConDev/pos-daemon/compare/v1.8.0...v2.0.0) (2025-11-04)
+
+
+### ⚠ BREAKING CHANGES
+
+* **escpos:** refactor Protocol to Commands and enhance functionality
+
+### ✨ Features
+
+* **arq:** introduce modular escpos architecture and printer profiles ([86d877b](https://github.com/AdConDev/pos-daemon/commit/86d877b64813613cbd437f24f9e1c8dd2c30371f))
+* **escpos:** add QR code capability to ESC/POS protocol ([2d1f7f3](https://github.com/AdConDev/pos-daemon/commit/2d1f7f3a691bd7b915c96fc3b6b860eddb38a9cd))
+* **escpos:** refactor Protocol to Commands and enhance functionality ([eec9582](https://github.com/AdConDev/pos-daemon/commit/eec9582bc030b068941a20d8daabb0668ca49b95))
+* **graphics:** add advanced image processing engine ([0148e8c](https://github.com/AdConDev/pos-daemon/commit/0148e8c5a8e04987d384e3b5beaef4c136b1eeb9))
+* **printposition:** introduce composer and refactor print position ([9b4aeb0](https://github.com/AdConDev/pos-daemon/commit/9b4aeb0104c09c2910f603570fa1005df5f9ce78))
+* **qrcode:** implement QR Code generation commands ([57571fa](https://github.com/AdConDev/pos-daemon/commit/57571fa2c4bbe4a2135d200743841b4a373226de))
+
+
+### 📦 Dependencies
+
+* remove unused QR code dependency ([f479762](https://github.com/AdConDev/pos-daemon/commit/f4797628613309fb42f644ae289a1638f905790d))
+
 ## [1.8.0](https://github.com/AdConDev/pos-daemon/compare/v1.7.0...v1.8.0) (2025-10-28)
 
 
