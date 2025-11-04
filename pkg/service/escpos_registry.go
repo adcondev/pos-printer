@@ -162,12 +162,29 @@ func (p *Printer) PrintBitmap(bitmap *graphics.MonochromeBitmap) error {
 		return fmt.Errorf("bitmap cannot be nil")
 	}
 
-	// Usar el comando GS v 0 para imprimir imagen raster
+	width := bitmap.GetWidthBytes()
+	height := bitmap.Height
+
+	if width < 0 {
+		return fmt.Errorf("invalid bitmap width: %d", width)
+	}
+	if height < 0 {
+		return fmt.Errorf("invalid bitmap height: %d", height)
+	}
+
+	const maxUint16 = 1<<16 - 1
+	if width > maxUint16 {
+		return fmt.Errorf("bitmap width in bytes %d exceeds uint16 max %d", width, maxUint16)
+	}
+	if height > maxUint16 {
+		return fmt.Errorf("bitmap height %d exceeds uint16 max %d", height, maxUint16)
+	}
+
 	cmd, err := p.Protocol.BitImage.PrintRasterBitImage(
-		0,                              // Modo normal
-		uint16(bitmap.GetWidthBytes()), // Ancho en BYTES, not pixels!
-		uint16(bitmap.Height),          // Alto en puntos (dots)
-		bitmap.GetRasterData(),         // Datos de imagen
+		0, // normal mode
+		uint16(width),
+		uint16(height),
+		bitmap.GetRasterData(),
 	)
 	if err != nil {
 		return fmt.Errorf("generate raster command: %w", err)
