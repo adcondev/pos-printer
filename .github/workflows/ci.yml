@@ -58,7 +58,7 @@ jobs:
             print
             printposition
             qrcode
-          requireScope: true
+          requireScope: false
           subjectPattern: ^(?![A-Z]).+$
           subjectPatternError: |
             The subject must start with lowercase letter.
