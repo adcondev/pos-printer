@@ -125,12 +125,7 @@ func printJob(printer *service.Printer, bitmap *graphics.MonochromeBitmap) error
 		return err
 	}
 
-	err = printer.PrintLine("IMPRESIÓN DE IMAGEN")
-	if err != nil {
-		return err
-	}
-
-	err = printer.FeedLines(1)
+	err = printer.PrintLine("IMPRESIÓN DE IMAGEN BASE64")
 	if err != nil {
 		return err
 	}
@@ -140,16 +135,19 @@ func printJob(printer *service.Printer, bitmap *graphics.MonochromeBitmap) error
 	if err := printer.PrintBitmap(bitmap); err != nil {
 		return fmt.Errorf("print bitmap: %w", err)
 	}
+	// ====================================
 
-	err = printer.FeedLines(1)
+	err = printer.PrintLine("áéíóú ÁÉÍÓÚ üÜ ñÑ")
 	if err != nil {
 		return err
 	}
 
-	err = printer.PrintLine("BASE64")
+	err = printer.PrintLine("¡! @ $ & ¿?")
 	if err != nil {
 		return err
 	}
+
+	// TODO: Englobar en una función, este es un corte simétrico (3 lineas antes y 3 después)
 
 	err = printer.FeedLines(3)
 	if err != nil {

@@ -2,12 +2,13 @@ package profile
 
 import (
 	"github.com/adcondev/pos-printer/pkg/controllers/escpos/character"
+	"github.com/adcondev/pos-printer/pkg/graphics"
 )
 
 // Escpos define todas las características físicas y capacidades de una impresora
 type Escpos struct {
 	// Información básica
-	Model string
+	Model string // Same name used for printer connection
 
 	// Características físicas
 	PaperWidth  float64 // en mm (58mm, 80mm, etc.)
@@ -25,24 +26,15 @@ type Escpos struct {
 
 	QRMaxVersion byte // Máxima versión soportada
 
-	// Juegos de caracteres
-	DefaultCharSet character.CodeTable // Código de página por defecto
+	// Code table and encoding configuration
+	CodeTable character.CodeTable
 
 	// Configuración avanzada (opcional)
-	ImageThreshold int // Umbral para conversión B/N (0-255)
+	ImageThreshold int                 // Umbral para conversión B/N (0-255)
+	Dithering      graphics.DitherMode // Tipo de dithering por defecto
 
 	// Fuentes
 	Fonts map[string]int // Lista de fuentes soportadas, nombre -> ancho (en puntos)
-}
-
-// ModelInfo devuelve una representación de string del modelo
-func (p *Escpos) ModelInfo() string {
-	return p.Model
-}
-
-// GetCharWidth calcula el ancho físico de un caracter en milímetros
-func (p *Escpos) GetCharWidth(font string) int {
-	return p.DotsPerLine / p.Fonts[font]
 }
 
 // CreatePt210 crea un perfil para impresora térmica de 58mm PT-58N
@@ -50,9 +42,9 @@ func CreatePt210() *Escpos {
 	p := CreateProfile58mm()
 	p.Model = "58mm PT-210"
 
-	p.DefaultCharSet = character.PC850 // CP858 para español
-	p.QRMaxVersion = 19                // Máxima versión QR soportada
-	p.SupportsQR = true                // Soporta QR nativo
+	p.CodeTable = character.PC850
+	p.QRMaxVersion = 19 // Máxima versión QR soportada
+	p.SupportsQR = true // Soporta QR nativo
 	return p
 }
 
@@ -61,7 +53,7 @@ func CreateGP58N() *Escpos {
 	p := CreateProfile58mm()
 	p.Model = "58mm GP-58N"
 
-	p.DefaultCharSet = 0 // CP858 para español
+	p.CodeTable = character.PC850
 	return p
 }
 
@@ -81,7 +73,7 @@ func CreateProfile58mm() *Escpos {
 		SupportsCutter:   false,
 		SupportsDrawer:   false,
 
-		DefaultCharSet: 19, // CP858
+		CodeTable: character.PC850,
 
 		Fonts: map[string]int{
 			"FontA": 12, // Ancho de 12 puntos
@@ -113,13 +105,8 @@ func CreateProfile80mm() *Escpos {
 		SupportsDrawer:   true,
 
 		// Más juegos de caracteres
-		DefaultCharSet: character.PC850, // CP850
+		CodeTable: character.PC850, // CP850
 
 		ImageThreshold: 128,
 	}
-}
-
-// HasImageSupport indica si la impresora soporta impresión de imágenes
-func (p *Escpos) HasImageSupport() bool {
-	return p.SupportsGraphics
 }
