@@ -6,6 +6,8 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/adcondev/pos-printer)](https://goreportcard.com/report/github.com/adcondev/pos-printer)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Go.Dev reference](https://img.shields.io/badge/go.dev-reference-blue?logo=go&logoColor=white)](https://pkg.go.dev/github.com/adcondev/pos-printer)
+[![Mentioned in Awesome Go](https://awesome.re/mentioned-badge.svg)](https://github.com/avelino/awesome-go)
+
 
 <br>
 
@@ -14,6 +16,18 @@
 **A modular, extensible library for thermal printer communication across multiple protocols**
 
 </div>
+
+## 📝 Table of Contents
+
+- [Overview](#-overview)
+- [Key-Features](#-key-features)
+- [Architecture-Diagram](#️-architecture-diagram)
+- [Installation](#-installation)
+- [Usage-Example](#-usage-example)
+- [Supported-Protocols](#️-supported-protocols)
+- [Roadmap](#-roadmap)
+- [Contributing](#-contributing)
+- [License](#-license)
 
 ## 📝 Overview
 
@@ -107,7 +121,7 @@ func main() {
 
 	// 4. Send a command
 	cmd := escpos.NewPrinter(p.Device.Connector)
-	if err := cmd.Print("Hello, World!\n"); err != nil {
+	if err := cmd.Print("Hello, World!\n"); err != nil {.
 		log.Fatalf("Failed to print: %v", err)
 	}
 
@@ -122,6 +136,13 @@ func main() {
 | ESC/POS  | ✅ Stable       | Epson Standard Code for Point of Sale Printers |
 | ZPL      | 🔄 In Progress | Zebra Programming Language for label printers  |
 | Image    | ✅ Stable       | Direct bitmap generation for any printer       |
+
+## 🗺️ Roadmap
+
+- [ ] Full support for the ZPL protocol.
+- [ ] Add support for Bluetooth connections.
+- [ ] Implement a more advanced logging system.
+- [ ] Create a web-based interface for managing printers.
 
 ## 🤝 Contributing
 
