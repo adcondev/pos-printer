@@ -36,7 +36,6 @@ The v2.0.0 release includes major architectural changes:
 - [ ] All tests passing
 - [ ] Documentation updated
 - [ ] CHANGELOG.md reviewed
-- [ ] Version in package.json is correct
 - [ ] No uncommitted changes
 
 ### Post-release Tasks
