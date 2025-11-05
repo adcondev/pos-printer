@@ -83,7 +83,7 @@ tasks:
       - lint
     cmds:
       - echo "Building the project..."
-      - go build ./...
+      - go build -v ./...
   lint:
     cmds:
       - echo "Running linters..."
@@ -92,3 +92,8 @@ tasks:
     cmds:
       - echo "Running all tests in detail..."
       - go test {{.GP_TEST_FLAGS}} ./...
+  deps:
+    cmds:
+      - echo "Tidying and downloading dependencies..."
+      - go mod tidy
+      - go mod download

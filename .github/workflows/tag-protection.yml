@@ -1,0 +1,27 @@
+name: Protect Version Tags
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  protect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Document tag creation
+        run: |
+          TAG_NAME="${GITHUB_REF#refs/tags/}"
+          echo "✅ New version tag created: $TAG_NAME"
+          echo "📝 Tag protection must be configured manually in repository settings:"
+          echo "   1. Go to Settings > Tags"
+          echo "   2. Add a tag protection rule"
+          echo "   3. Pattern: v*"
+          echo ""
+          echo "Tag: $TAG_NAME" >> $GITHUB_STEP_SUMMARY
+          echo "Created by: ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "Timestamp: $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY

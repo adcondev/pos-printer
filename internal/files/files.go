@@ -1,4 +1,5 @@
-package internal
+// Package files improve file handling with security checks
+package files
 
 import (
 	"fmt"
