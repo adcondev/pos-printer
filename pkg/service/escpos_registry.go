@@ -45,6 +45,8 @@ func NewPrinter(proto *composer.Escpos, prof *profile.Escpos, conn connection.Co
 func (p *Printer) Initialize() error {
 	// TODO: Add profile-specific initialization if needed
 	cmd := p.Protocol.InitializePrinter()
+	pc, _ := p.Protocol.Character.SelectCharacterCodeTable(character.PC850)
+	cmd = append(cmd, pc...)
 	_, err := p.Connection.Write(cmd)
 	return err
 }

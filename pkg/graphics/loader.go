@@ -1,6 +1,8 @@
 package graphics
 
 import (
+	"bytes"
+	"encoding/base64"
 	"fmt"
 	"image"
 	_ "image/jpeg" // Register JPEG decoder
@@ -11,10 +13,10 @@ import (
 	"strings"
 )
 
-// LoadImageFromFile loads an image from a file path within baseDir.
+// LoadFromFile loads an image from a file path within baseDir.
 //
 // It validates the path to prevent directory traversal attacks.
-func LoadImageFromFile(baseDir, relPath string) (image.Image, error) {
+func LoadFromFile(baseDir, relPath string) (image.Image, error) {
 	baseAbs, err := filepath.Abs(baseDir)
 	if err != nil {
 		return nil, fmt.Errorf("invalid base directory: %w", err)
@@ -39,6 +41,7 @@ func LoadImageFromFile(baseDir, relPath string) (image.Image, error) {
 		return nil, fmt.Errorf("file %s is outside allowed directory", relPath)
 	}
 
+	// Open and decode the image file
 	file, err := os.Open(targetAbs)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open file: %w", err)
@@ -50,11 +53,33 @@ func LoadImageFromFile(baseDir, relPath string) (image.Image, error) {
 		}
 	}(file)
 
+	// Decode image
 	img, format, err := image.Decode(file)
 	if err != nil {
 		return nil, fmt.Errorf("failed to decode image: %w", err)
 	}
 
 	log.Printf("Loaded image format: %s\n", format)
+	return img, nil
+}
+
+// LoadFromBase64 converts a base64-encoded string to an image.Image.
+func LoadFromBase64(data string) (image.Image, error) {
+	// Decode base64 to byte slice
+	imgBytes, err := base64.StdEncoding.DecodeString(data)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decode base64 string: %w", err)
+	}
+
+	// Wrap byte slice in an io.Reader for image.Decode
+	reader := bytes.NewReader(imgBytes)
+
+	// Convert to image.Image
+	img, format, err := image.Decode(reader)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decode image: %w", err)
+	}
+
+	log.Printf("Decoded image format: %s\n", format)
 	return img, nil
 }

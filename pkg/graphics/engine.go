@@ -8,27 +8,29 @@ import (
 	"golang.org/x/image/draw"
 )
 
-// ProcessingMode defines how images are converted to monochrome
-type ProcessingMode int
+// DitherMode defines how images are converted to monochrome
+type DitherMode int
+
+// TODO: Implement Floyd-Steinberg and Ordered dithering methods in future
 
 const (
 	// Threshold applies simple threshold conversion
-	Threshold ProcessingMode = iota
+	Threshold DitherMode = iota
 	// Atkinson applies Atkinson dithering algorithm
 	Atkinson
 	// FloydSteinberg applies Floyd-Steinberg dithering (future)
-	FloydSteinberg
+	// FloydSteinberg
 	// Ordered applies ordered dithering with Bayer matrix (future)
-	Ordered
+	// Ordered
 )
 
 // Options configures the graphics processing pipeline
 type Options struct {
-	Width          int            // Target width in pixels
-	Threshold      uint8          // Threshold for black/white (0-255)
-	Mode           ProcessingMode // Processing algorithm
-	AutoRotate     bool           // Auto-rotate for best fit
-	PreserveAspect bool           // Maintain aspect ratio
+	Width          int        // Target width in pixels
+	Threshold      uint8      // Threshold for black/white (0-255)
+	Mode           DitherMode // Processing algorithm
+	AutoRotate     bool       // Auto-rotate for best fit
+	PreserveAspect bool       // Maintain aspect ratio
 }
 
 // DefaultOptions returns sensible defaults for 80mm printers
@@ -95,11 +97,9 @@ func (p *Pipeline) resize(img image.Image) image.Image {
 		targetH = (srcH * targetW) / srcW
 	}
 
-	// Simple nearest-neighbor scaling for now
-	// TODO: Implement better scaling algorithms
+	// Trade-off: BiLinear is slower than nearest-neighbor, but the quality improvement is usually worth it for printing.
+	// TODO: Consider supporting other scaling algorithms (e.g., NN, Lanczos, Catmull-Rom) for even better quality or performance tuning.
 	dst := image.NewRGBA(image.Rect(0, 0, targetW, targetH))
-
-	// Bilinear scaling
 	draw.BiLinear.Scale(dst, dst.Bounds(), img, bounds, draw.Over, nil)
 
 	return dst
