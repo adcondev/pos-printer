@@ -1,5 +1,4 @@
 //go:build !windows
-// +build !windows
 
 package connection
 
@@ -11,17 +10,17 @@ import (
 type WindowsPrintConnector struct{}
 
 // NewWindowsPrintConnector devuelve un error en sistemas no-Windows
-func NewWindowsPrintConnector(printerName string) (*WindowsPrintConnector, error) {
+func NewWindowsPrintConnector(_ string) (*WindowsPrintConnector, error) {
 	return nil, errors.New("WindowsPrintConnector no está disponible en este sistema operativo")
 }
 
 // Write implementación para sistemas no-Windows
-func (c *WindowsPrintConnector) Write(data []byte) (int, error) {
+func (c *WindowsPrintConnector) Write(_ []byte) (int, error) {
 	return 0, errors.New("WindowsPrintConnector no está disponible en este sistema operativo")
 }
 
 // Read implementación para sistemas no-Windows
-func (c *WindowsPrintConnector) Read(buf []byte) (int, error) {
+func (c *WindowsPrintConnector) Read(_ []byte) (int, error) {
 	return 0, errors.New("WindowsPrintConnector no está disponible en este sistema operativo")
 }
 

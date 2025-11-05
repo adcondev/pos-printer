@@ -47,6 +47,7 @@ go.work.sum
 !CONTRIBUTING.md
 !CHANGELOG.md
 !CODE_OF_CONDUCT.md
+!RELEASING.md
 !LICENSE
 
 !*.php
@@ -60,6 +61,9 @@ go.work.sum
 !.versionrc.js
 
 !Makefile
+
+!Dockerfile
+!.pre-commit-config.yml
 
 # ...even if they are in subdirectories
 !*/

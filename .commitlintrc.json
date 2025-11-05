@@ -3,30 +3,7 @@
     "@commitlint/config-conventional"
   ],
   "rules": {
-    "type-enum": [
-      2,
-      "always",
-      [
-        "feat",
-        "fix",
-        "docs",
-        "style",
-        "refactor",
-        "perf",
-        "test",
-        "build",
-        "ci",
-        "chore",
-        "deps",
-        "revert"
-      ]
-    ],
-    "type-case": [
-      2,
-      "always",
-      "lower-case"
-    ],
-    "type-empty": [
+    "scope-empty": [
       2,
       "never"
     ],
@@ -34,137 +11,22 @@
       2,
       "always",
       [
-        "connector",
-        "encoding",
-        "imaging",
-        "printer",
-        "profile",
-        "protocol",
         "escpos",
-        "types",
-        "utils",
-        "config",
-        "github",
-        "logs",
-        "errors"
+        "graphics",
+        "connector",
+        "profile",
+        "service",
+        "barcode",
+        "bitimage",
+        "character",
+        "linespacing",
+        "mechanismcontrol",
+        "print",
+        "printposition",
+        "qrcode",
+        "shared",
+        "models"
       ]
-    ],
-    "scope-case": [
-      2,
-      "always",
-      "lower-case"
-    ],
-    "scope-empty": [
-      2,
-      "never"
-    ],
-    "subject-case": [
-      2,
-      "always",
-      "lower-case"
-    ],
-    "subject-empty": [
-      2,
-      "never"
-    ],
-    "subject-full-stop": [
-      2,
-      "never",
-      "."
-    ],
-    "subject-min-length": [
-      2,
-      "always",
-      5
-    ],
-    "subject-max-length": [
-      2,
-      "always",
-      50
-    ],
-    "subject-exclamation-mark": [
-      2,
-      "always",
-      "consistent"
-    ],
-    "header-case": [
-      2,
-      "always",
-      "lower-case"
-    ],
-    "header-full-stop": [
-      2,
-      "never",
-      "."
-    ],
-    "header-max-length": [
-      2,
-      "always",
-      72
-    ],
-    "body-leading-blank": [
-      2,
-      "always"
-    ],
-    "body-max-line-length": [
-      2,
-      "always",
-      100
-    ],
-    "footer-leading-blank": [
-      2,
-      "always"
-    ],
-    "footer-max-line-length": [
-      2,
-      "always",
-      100
-    ],
-    "references-empty": [
-      1,
-      "never"
-    ],
-    "signed-off-by": [
-      2,
-      "always",
-      "Signed-off-by"
-    ],
-    "trailer-exists": [
-      0
     ]
-  },
-  "prompt": {
-    "settings": {
-      "enableMultipleScopes": false,
-      "scopeEnumSeparator": ","
-    },
-    "messages": {
-      "skip": ":skip",
-      "max": "maximum %d chars",
-      "min": "minimum %d chars",
-      "emptyWarning": "cannot be empty",
-      "upperLimitWarning": "over limit",
-      "lowerLimitWarning": "below limit"
-    },
-    "questions": {
-      "type": {
-        "description": "Select the type of change you're committing:"
-      },
-      "scope": {
-        "description": "What component of the project does this change affect?"
-      },
-      "subject": {
-        "description": "Write a short, imperative mood description of the change:\n"
-      },
-      "body": {
-        "description": "Provide a longer description of the change (optional). Use '|' to break new line:\n"
-      },
-      "breaking": {
-        "description": "List any breaking changes (optional):\n"
-      },
-      "issues": {
-        "description": "List any issues fixed by this change (optional). E.g.: #31, #34:\n"
-      }
-    }
   }
 }
