@@ -47,7 +47,7 @@ func main() {
 	imgName := "test_image.jpg"
 	imgPath := "./assets/images"
 	log.Printf("Loading image from: %s", imgPath)
-	img, err := graphics.LoadImageFromFile(imgPath, imgName)
+	img, err := graphics.LoadFromFile(imgPath, imgName)
 	if err != nil {
 		log.Panicf("Failed to load image: %v", err)
 	}
