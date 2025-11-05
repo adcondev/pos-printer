@@ -3,7 +3,7 @@ description: Create a report to help us improve
 title: "[Bug]: "
 labels: [ "bug", "triage" ]
 assignees:
-  - AdConDev
+  - adcondev
 
 body:
   - type: markdown
@@ -43,11 +43,12 @@ body:
     id: version
     attributes:
       label: Version
-      description: What version of pos-daemon are you running?
+      description: What version of pos-printer are you running?
       options:
-        - v0.1.3 (latest)
-        - v0.1.2
-        - v0.1.1
+        - v2.0.0 (latest)
+        - v1.8.0
+        - v1.7.0
+        - v1.6.0
         - main branch
     validations:
       required: true

@@ -47,6 +47,7 @@ go.work.sum
 !CONTRIBUTING.md
 !CHANGELOG.md
 !CODE_OF_CONDUCT.md
+!RELEASING.md
 !LICENSE
 
 !*.php
@@ -61,9 +62,13 @@ go.work.sum
 
 !Makefile
 
+!Dockerfile
+!.pre-commit-config.yml
+
 # ...even if they are in subdirectories
 !*/
-!img/*.jpg
+!assets/
+!assets/images/pos-printer.jpg
 
 ### GoLand template
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio, WebStorm and Rider

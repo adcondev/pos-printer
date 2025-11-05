@@ -44,11 +44,24 @@ jobs:
             chore
             deps
             revert
-          requireScope: false  # Set to true if you want to enforce scopes
+          scopes: |
+            escpos
+            graphics
+            connector
+            profile
+            service
+            barcode
+            bitimage
+            character
+            linespacing
+            mechanismcontrol
+            print
+            printposition
+            qrcode
+          requireScope: false
           subjectPattern: ^(?![A-Z]).+$
           subjectPatternError: |
             The subject must start with lowercase letter.
-            Example: "feat: add support for XYZ model"
 
   test:
     name: Test
@@ -56,37 +69,66 @@ jobs:
     strategy:
       matrix:
         os: [ ubuntu-latest, windows-latest, macos-latest ]
-        go-version: [ '1.24' ]
       fail-fast: false
 
     steps:
       - uses: actions/checkout@v5
 
-      - name: Setup Go ${{ matrix.go-version }}
+      - name: Setup Go
         uses: actions/setup-go@v6
         with:
-          go-version: ${{ matrix.go-version }}
+          go-version: ${{ env.GO_VERSION }}
           cache: true
 
-      # Fixed: Run tests only (without coverage) on all platforms
       - name: Run tests
-        run: go test -v -race ./...
+        shell: bash
+        run: go test -race -coverprofile=coverage.txt -covermode=atomic ./...
 
-      # Fixed: Only generate coverage on Ubuntu
-      - name: Generate coverage
-        if: matrix.os == 'ubuntu-latest' && matrix.go-version == '1.24'
-        run: |
-          go test -v -coverprofile=coverage.txt -covermode=atomic ./...
-          COVERAGE=$(go tool cover -func=coverage.txt | grep total | awk '{print $3}')
-          echo "### 📊 Test Coverage: $COVERAGE" >> $GITHUB_STEP_SUMMARY
-
-      # Upload coverage only if it was generated
       - name: Upload coverage
-        if: matrix.os == 'ubuntu-latest' && matrix.go-version == '1.24'
+        if: matrix.os == 'ubuntu-latest'
         uses: codecov/codecov-action@v5
         with:
+          files: ./coverage.txt
           fail_ci_if_error: false
-          verbose: true
+
+  benchmark:
+    name: Benchmarks
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-go@v6
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
+      - name: Run benchmarks
+        run: |
+          go test -bench=. -benchmem ./pkg/... | tee benchmark.txt
+          echo "## 📊 Benchmark Results" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          cat benchmark.txt >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Upload Trivy results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: 'trivy-results.sarif'
 
   lint:
     name: Lint
@@ -97,35 +139,10 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v6
         with:
-          go-version: '1.24'
-          cache: true
+          go-version: ${{ env.GO_VERSION }}
 
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v8
         with:
-          version: v2.3.1
-          args: --timeout=5m
-          only-new-issues: true
-
-      - name: Go mod tidy check
-        run: |
-          go mod tidy
-          git diff --exit-code go.mod go.sum || (echo "::error::Run 'go mod tidy' and commit changes" && exit 1)
-
-  build:
-    name: Build
-    runs-on: ubuntu-latest
-    needs: [ test, lint ]
-    steps:
-      - uses: actions/checkout@v5
-
-      - name: Setup Go
-        uses: actions/setup-go@v6
-        with:
-          go-version: '1.24'
-          cache: true
-
-      - name: Build
-        run: |
-          go build -v ./...
-          echo "✅ Build successful" >> $GITHUB_STEP_SUMMARY
+          version: latest
+          args: --config=.golangci.yml

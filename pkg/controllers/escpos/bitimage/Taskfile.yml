@@ -1,0 +1,13 @@
+# https://taskfile.dev
+
+version: '3'
+
+tasks:
+  test:
+    cmds:
+      - echo "Running bitimage tests..."
+      - go test
+  lint:
+    cmds:
+      - echo "Running bitimage linters..."
+      - golangci-lint run

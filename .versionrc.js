@@ -9,15 +9,15 @@ module.exports = {
         {type: "test", section: "✅ Tests"},
         {type: "ci", section: "🤖 Continuous Integration"},
         {type: "build", section: "🏗️ Build System"},
-        {type: "style", hidden: true},
-        {type: "refactor", hidden: true},
-        {type: "chore", hidden: true},
-        {type: "docs", hidden: true},
+        {type: "style", section: "🎨 Styles"},
+        {type: "refactor", section: "♻️ Code Refactoring"},
+        {type: "chore", section: "🧹 Chores"},
+        {type: "docs", section: "📝 Documentation"},
     ],
 
     // Configuración de GitHub
-    commitUrlFormat: "https://github.com/AdConDev/pos-daemon/commit/{{hash}}",
-    compareUrlFormat: "https://github.com/AdConDev/pos-daemon/compare/{{previousTag}}...{{currentTag}}",
+    commitUrlFormat: "https://github.com/adcondev/pos-printer/commit/{{hash}}",
+    compareUrlFormat: "https://github.com/adcondev/pos-printer/compare/{{previousTag}}...{{currentTag}}",
 
     // Skip CI en commits de release
     releaseCommitMessageFormat: "chore(release): v{{currentTag}} [skip ci]"
