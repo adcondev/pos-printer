@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.0.1](https://github.com/adcondev/pos-printer/compare/v2.0.0...v2.0.1) (2025-11-05)
+
+
+### 📝 Documentation
+
+* **readme:** update LEARNING.md and README.md ([#53](https://github.com/adcondev/pos-printer/issues/53)) ([54d39a4](https://github.com/adcondev/pos-printer/commit/54d39a4ae9136ad3ff548d43a5285e3bb221b6a7))
+
+
+### 🤖 Continuous Integration
+
+* **escpos:** update CI configuration and add pre-commit hooks ([#54](https://github.com/adcondev/pos-printer/issues/54)) ([6ee16d6](https://github.com/adcondev/pos-printer/commit/6ee16d6be8e410d287b2c232b3146a2a461060cb))
+
+
+### 📦 Dependencies
+
+* **ci:** bump actions/setup-node from 5 to 6 ([#49](https://github.com/adcondev/pos-printer/issues/49)) ([925e1be](https://github.com/adcondev/pos-printer/commit/925e1bef25466a41aaec64a4899fa5f5aa12a19d))
+
 ## [2.0.0](https://github.com/AdConDev/pos-daemon/compare/v1.8.0...v2.0.0) (2025-11-04)
 
 
