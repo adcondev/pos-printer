@@ -7,6 +7,10 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Go.Dev reference](https://img.shields.io/badge/go.dev-reference-blue?logo=go&logoColor=white)](https://pkg.go.dev/github.com/adcondev/pos-printer)
 [![Mentioned in Awesome Go](https://awesome.re/mentioned-badge.svg)](https://github.com/avelino/awesome-go)
+[![Go Version](https://img.shields.io/badge/go-1.24-blue.svg)](https://go.dev/)
+[![Release](https://img.shields.io/github/v/release/adcondev/pos-printer)](https://github.com/adcondev/pos-printer/releases)
+[![Coverage](https://codecov.io/gh/adcondev/pos-printer/branch/main/graph/badge.svg)](https://codecov.io/gh/adcondev/pos-printer)
+[![Docker](https://img.shields.io/badge/docker-ghcr.io-blue)](https://github.com/adcondev/pos-printer/pkgs/container/pos-printer)
 
 
 <br>
