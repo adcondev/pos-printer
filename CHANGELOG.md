@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.2.1](https://github.com/adcondev/pos-printer/compare/v2.2.0...v2.2.1) (2025-11-06)
+
+
+### 🐛 Bug Fixes
+
+* **profile:** improve logging for unsupported code tables ([#57](https://github.com/adcondev/pos-printer/issues/57)) ([b886820](https://github.com/adcondev/pos-printer/commit/b886820fa250fa03a20189c54ed1da80fefb674d))
+
 ## [2.2.0](https://github.com/adcondev/pos-printer/compare/v2.1.0...v2.2.0) (2025-11-06)
 
 
