@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.2.0](https://github.com/adcondev/pos-printer/compare/v2.1.0...v2.2.0) (2025-11-06)
+
+
+### 🐛 Bug Fixes
+
+* **profile:** enhance encoding support and error handling ([b28539b](https://github.com/adcondev/pos-printer/commit/b28539b1a312af0bdaf8431bbe8f8c985aaea6e4))
+
+
+### ✨ Features
+
+* **character:** add encoding support for character tables ([b6a2a6f](https://github.com/adcondev/pos-printer/commit/b6a2a6f98c248898ff09090eb683cba73556b40d))
+* **escpos:** add graphics base64 image printing and autoencoding for printer code tables ([#56](https://github.com/adcondev/pos-printer/issues/56)) ([d636895](https://github.com/adcondev/pos-printer/commit/d63689555d53a42710014cf0db064108192a4e13)), closes [/#diff-562156e83a675c98d4982e84e8336971ca88db93fecfcceb69cd0fc1ca6fca18L28-R45](https://github.com/adcondev///issues/diff-562156e83a675c98d4982e84e8336971ca88db93fecfcceb69cd0fc1ca6fca18L28-R45) [/#diff-562156e83a675c98d4982e84e8336971ca88db93fecfcceb69cd0fc1ca6fca18L64-R56](https://github.com/adcondev///issues/diff-562156e83a675c98d4982e84e8336971ca88db93fecfcceb69cd0fc1ca6fca18L64-R56) [/#diff-562156e83a675c98d4982e84e8336971ca88db93fecfcceb69cd0fc1ca6fca18L84-R76](https://github.com/adcondev///issues/diff-562156e83a675c98d4982e84e8336971ca88db93fecfcceb69cd0fc1ca6fca18L84-R76) [/#diff-562156e83a675c98d4982e84e8336971ca88db93fecfcceb69cd0fc1ca6fca18L116-L125](https://github.com/adcondev///issues/diff-562156e83a675c98d4982e84e8336971ca88db93fecfcceb69cd0fc1ca6fca18L116-L125) [/#diff-a1c3ae8fd8f99a288574b99ee6b6d1b0fcfc7b6291679c91a9b2cd2b26631f74L47-R50](https://github.com/adcondev///issues/diff-a1c3ae8fd8f99a288574b99ee6b6d1b0fcfc7b6291679c91a9b2cd2b26631f74L47-R50) [/#diff-a1c3ae8fd8f99a288574b99ee6b6d1b0fcfc7b6291679c91a9b2cd2b26631f74L71-R74](https://github.com/adcondev///issues/diff-a1c3ae8fd8f99a288574b99ee6b6d1b0fcfc7b6291679c91a9b2cd2b26631f74L71-R74) [/#diff-a1c3ae8fd8f99a288574b99ee6b6d1b0fcfc7b6291679c91a9b2cd2b26631f74L80-R87](https://github.com/adcondev///issues/diff-a1c3ae8fd8f99a288574b99ee6b6d1b0fcfc7b6291679c91a9b2cd2b26631f74L80-R87) [/#diff-a1c3ae8fd8f99a288574b99ee6b6d1b0fcfc7b6291679c91a9b2cd2b26631f74R204-R213](https://github.com/adcondev///issues/diff-a1c3ae8fd8f99a288574b99ee6b6d1b0fcfc7b6291679c91a9b2cd2b26631f74R204-R213) [/#diff-af506b9fe4fcc35d7d61e3b6aba087ea5f4187c8a4a7025e40d5248dd0302abbL128-R128](https://github.com/adcondev///issues/diff-af506b9fe4fcc35d7d61e3b6aba087ea5f4187c8a4a7025e40d5248dd0302abbL128-R128) [/#diff-af506b9fe4fcc35d7d61e3b6aba087ea5f4187c8a4a7025e40d5248dd0302abbR138-R151](https://github.com/adcondev///issues/diff-af506b9fe4fcc35d7d61e3b6aba087ea5f4187c8a4a7025e40d5248dd0302abbR138-R151)
+* **graphics:** add base64 image loading functionality and example ([aa5b68a](https://github.com/adcondev/pos-printer/commit/aa5b68aaf4475a9f8d859fc85466106dea5c03a7))
+* **graphics:** update version to 2.1.0 and changelog ([32b7757](https://github.com/adcondev/pos-printer/commit/32b7757fb53bbda55a0d87f0c358442d84a5ddb7))
+
 ## [2.1.0](https://github.com/adcondev/pos-printer/compare/v2.0.1...v2.1.0) (2025-11-05)
 
 ### ✨ Features
