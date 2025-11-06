@@ -4,10 +4,10 @@ All notable changes to this project will be documented in this file. See [standa
 
 ## [2.1.0](https://github.com/adcondev/pos-printer/compare/v2.0.1...v2.1.0) (2025-11-05)
 
-
 ### ✨ Features
 
-* **graphics:** add base64 image loading functionality and example ([#55](https://github.com/adcondev/pos-printer/issues/55)) ([8abc948](https://github.com/adcondev/pos-printer/commit/8abc948da3d68f90792f796228ec8b861be42019))
+* **graphics:** add base64 image loading functionality and
+  example ([#55](https://github.com/adcondev/pos-printer/issues/55)) ([8abc948](https://github.com/adcondev/pos-printer/commit/8abc948da3d68f90792f796228ec8b861be42019))
 
 ### [2.0.1](https://github.com/adcondev/pos-printer/compare/v2.0.0...v2.0.1) (2025-11-05)
 

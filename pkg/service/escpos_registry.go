@@ -3,6 +3,7 @@ package service
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/adcondev/pos-printer/pkg/composer"
 	"github.com/adcondev/pos-printer/pkg/connection"
@@ -30,6 +31,7 @@ func NewPrinter(proto *composer.Escpos, prof *profile.Escpos, conn connection.Co
 	if prof == nil {
 		return nil, fmt.Errorf("profile cannot be nil")
 	}
+
 	return &Printer{
 		Profile:    *prof,
 		Connection: conn,
@@ -44,11 +46,14 @@ func NewPrinter(proto *composer.Escpos, prof *profile.Escpos, conn connection.Co
 // Initialize resets the printer to default settings
 func (p *Printer) Initialize() error {
 	// TODO: Add profile-specific initialization if needed
-	cmd := p.Protocol.InitializePrinter()
-	pc, _ := p.Protocol.Character.SelectCharacterCodeTable(character.PC850)
-	cmd = append(cmd, pc...)
-	_, err := p.Connection.Write(cmd)
-	return err
+	ct, _ := p.Protocol.Character.SelectCharacterCodeTable(p.Profile.CodeTable)
+	if !p.Profile.IsSupported(p.Profile.CodeTable) {
+		ct, _ = p.Protocol.Character.SelectCharacterCodeTable(character.WPC1252)
+		log.Printf("warning: unsupported code table %v, falling back to Windows-1252", p.Profile.CodeTable)
+	}
+
+	init := append(p.Protocol.InitializePrinter(), ct...)
+	return p.Write(init)
 }
 
 // Close closes the connection to the printer
@@ -68,7 +73,11 @@ func (p *Printer) Write(data []byte) error {
 
 // Print sends text without line feed
 func (p *Printer) Print(text string) error {
-	cmd, err := p.Protocol.Print.Text(text)
+	encText, err := p.Profile.EncodeString(text)
+	if err != nil {
+		return err
+	}
+	cmd, err := p.Protocol.Print.Text(encText)
 	if err != nil {
 		return err
 	}
@@ -77,7 +86,11 @@ func (p *Printer) Print(text string) error {
 
 // PrintLine sends text with line feed
 func (p *Printer) PrintLine(text string) error {
-	cmd, err := p.Protocol.PrintLn(text)
+	encText, err := p.Profile.EncodeString(text)
+	if err != nil {
+		return err
+	}
+	cmd, err := p.Protocol.PrintLn(encText)
 	if err != nil {
 		return err
 	}
@@ -193,4 +206,21 @@ func (p *Printer) PrintBitmap(bitmap *graphics.MonochromeBitmap) error {
 	}
 
 	return p.Write(cmd)
+}
+
+// SetCodeTable changes the character code table
+func (p *Printer) SetCodeTable(codeTable character.CodeTable) error {
+	cmd, err := p.Protocol.Character.SelectCharacterCodeTable(codeTable)
+	if !p.Profile.IsSupported(codeTable) {
+		cmd, err = p.Protocol.Character.SelectCharacterCodeTable(character.WPC1252)
+		log.Printf("warning: unsupported code table %v, falling back to Windows-1252", codeTable)
+	}
+	if err != nil {
+		return fmt.Errorf("set code table: %w", err)
+	}
+	if err := p.Write(cmd); err != nil {
+		return fmt.Errorf("write code table command: %w", err)
+	}
+	p.Profile.CodeTable = codeTable
+	return nil
 }
