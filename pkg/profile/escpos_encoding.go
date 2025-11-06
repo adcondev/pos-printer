@@ -60,23 +60,27 @@ var codeTableMap = map[character.CodeTable]encoding.Encoding{
 }
 
 // EncodeString encodes a string using the specified code table
-func (e *Escpos) EncodeString(text string) ([]byte, error) {
-	log.Printf("Code Table: %d", e.CodeTable)
-	enc := e.GetEncoding(e.CodeTable)
-	log.Printf("Encoding: %T", enc)
-	result, err := enc.Bytes([]byte(text))
+func (e *Escpos) EncodeString(text string) (string, error) {
+	enc := e.getEncoding(e.CodeTable)
+	result, err := enc.String(text)
 	if err != nil {
-		return nil, fmt.Errorf("failed to encode string: %w", err)
+		return "", fmt.Errorf("failed to encode string: %w", err)
 	}
 	return result, nil
 }
 
-// GetEncoding returns the encoding.Encoder for the specified code table
-func (e *Escpos) GetEncoding(codeTable character.CodeTable) *encoding.Encoder {
+// getEncoding returns the encoding.Encoder for the specified code table
+func (e *Escpos) getEncoding(codeTable character.CodeTable) *encoding.Encoder {
 	enc, ok := codeTableMap[codeTable]
 	if !ok {
-		log.Printf("warning: unsupported code table %v, falling back to Windows-1252", codeTable)
+		log.Printf("warning: unsupported encoding %v, falling back to Windows-1252", codeTable)
 		return charmap.Windows1252.NewEncoder()
 	}
 	return enc.NewEncoder()
+}
+
+// IsSupported checks if the specified code table is supported
+func (e *Escpos) IsSupported(codeTable character.CodeTable) bool {
+	_, ok := codeTableMap[codeTable]
+	return ok
 }
