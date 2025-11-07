@@ -31,7 +31,7 @@ func (b *Builder) SetProfile(model string, width int, codeTable string) *Builder
 	return b
 }
 
-// AddText agrega un comando de texto
+// AddText generates a text command
 func (b *Builder) AddText(content string, style *TextStyle) *Builder {
 	cmd := TextCommand{
 		Content: content,
@@ -52,7 +52,7 @@ func (b *Builder) AddText(content string, style *TextStyle) *Builder {
 	return b
 }
 
-// AddImage agrega un comando de imagen
+// AddImage creates an image command
 func (b *Builder) AddImage(base64Data string, width int, align string) *Builder {
 	cmd := ImageCommand{
 		Code:      base64Data,

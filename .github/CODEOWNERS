@@ -1,5 +1,24 @@
 # Global owners
-*       @AdConDev
+*       @adcondev
 
-# Workflow files
-.github/workflows/    @AdConDev
+# Core components
+/pkg/composer/        @adcondev
+/pkg/connection/      @adcondev
+/pkg/commands/     @adcondev
+/pkg/document/        @adcondev
+/pkg/graphics/        @adcondev
+/pkg/profile/         @adcondev
+/pkg/service/         @adcondev
+
+# Testing
+/test/                @adcondev
+/internal/testutils/  @adcondev
+
+# Documentation
+*.md                  @adcondev
+/docs/                @adcondev
+
+# CI/CD and configuration
+/.github/             @adcondev
+/.golangci.yml        @adcondev
+/Makefile             @adcondev

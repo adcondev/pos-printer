@@ -45,9 +45,11 @@ jobs:
             deps
             revert
           scopes: |
-            escpos
+            composer
+            connection
+            commands
+            document
             graphics
-            connector
             profile
             service
             barcode
@@ -58,7 +60,14 @@ jobs:
             print
             printposition
             qrcode
-          requireScope: false
+            common
+            models
+            github
+          # NOTE: Changing requireScope from false to true is a breaking change.
+          # This will reject any PR titles without a scope that were previously valid.
+          # Please ensure your PR titles follow the "<type>(<scope>): <subject>" format.
+          # For more information, see CONTRIBUTING.md or contact the maintainers.
+          requireScope: true
           subjectPattern: ^(?![A-Z]).+$
           subjectPatternError: |
             The subject must start with lowercase letter.
@@ -90,6 +99,22 @@ jobs:
         with:
           files: ./coverage.txt
           fail_ci_if_error: false
+
+  integration-test:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
+      - name: Run integration tests
+        run: |
+          go test -v -tags=integration ./test/...
 
   benchmark:
     name: Benchmarks

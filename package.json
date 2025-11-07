@@ -2,19 +2,41 @@
   "name": "@adcondev/pos-printer",
   "version": "2.3.0",
   "private": true,
-  "devDependencies": {
-    "@commitlint/cli": "^19.0.0",
-    "@commitlint/config-conventional": "^19.0.0",
-    "standard-version": "^9.5.0"
-  },
-  "description": "POS Printer Commands Core Logic",
+  "description": "A modular Go library for thermal printer communication",
+  "keywords": [
+    "pos",
+    "printer",
+    "escpos",
+    "thermal",
+    "receipt",
+    "golang"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/adcondev/pos-printer.git"
   },
   "author": "adcondev",
   "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/adcondev/pos-printer/issues"
+  },
+  "homepage": "https://github.com/adcondev/pos-printer#readme",
   "scripts": {
-    "release": "standard-version"
+    "release": "standard-version",
+    "release:minor": "standard-version --release-as minor",
+    "release:patch": "standard-version --release-as patch",
+    "release:major": "standard-version --release-as major",
+    "postinstall": "husky install",
+    "prepare": "husky install"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^19.0.0",
+    "@commitlint/config-conventional": "^19.0.0",
+    "husky": "^9.0.0",
+    "standard-version": "^9.5.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
   }
 }

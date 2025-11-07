@@ -13,39 +13,67 @@ github:
 
 tests:
   - changed-files:
-      - any-glob-to-any-file: '**/*_test.go'
+      - any-glob-to-any-file:
+          - '**/*_test.go'
+          - 'test/**'
+          - 'internal/testutils/**'
 
-encoding:
+# Core components
+composer:
   - changed-files:
-      - any-glob-to-any-file: '**/encoding/**'
+      - any-glob-to-any-file: 'pkg/composer/**'
 
-connector:
+connection:
   - changed-files:
-      - any-glob-to-any-file: '**/connector/**'
+      - any-glob-to-any-file: 'pkg/connection/**'
 
-printer:
+commands:
   - changed-files:
-      - any-glob-to-any-file: '**/pos/**'
+      - any-glob-to-any-file: 'pkg/commands/**'
 
-image:
+document:
   - changed-files:
-      - any-glob-to-any-file: '**/imaging/**'
+      - any-glob-to-any-file: 'pkg/document/**'
+
+graphics:
+  - changed-files:
+      - any-glob-to-any-file: 'pkg/graphics/**'
 
 profile:
   - changed-files:
-      - any-glob-to-any-file: '**/profile/**'
+      - any-glob-to-any-file: 'pkg/profile/**'
 
-protocol:
+service:
   - changed-files:
-      - any-glob-to-any-file: '**/protocol/**'
+      - any-glob-to-any-file: 'pkg/service/**'
 
-types:
+# ESC/POS specific components
+barcode:
   - changed-files:
-      - any-glob-to-any-file: '**/types/**'
+      - any-glob-to-any-file: 'pkg/commands/escpos/barcode/**'
 
-utils:
+qrcode:
   - changed-files:
-      - any-glob-to-any-file: '**/utils/**'
+      - any-glob-to-any-file: 'pkg/commands/escpos/qrcode/**'
+
+bitimage:
+  - changed-files:
+      - any-glob-to-any-file: 'pkg/commands/escpos/bitimage/**'
+
+character:
+  - changed-files:
+      - any-glob-to-any-file: 'pkg/commands/escpos/character/**'
+
+# Other categories
+windows:
+  - changed-files:
+      - any-glob-to-any-file:
+          - '**/*_windows.go'
+          - 'pkg/connection/windows/**'
+
+examples:
+  - changed-files:
+      - any-glob-to-any-file: 'examples/**'
 
 dependencies:
   - changed-files:

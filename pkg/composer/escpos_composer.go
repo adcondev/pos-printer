@@ -5,19 +5,19 @@ package composer
 import (
 	"fmt"
 
-	"github.com/adcondev/pos-printer/pkg/controllers/escpos/barcode"
-	"github.com/adcondev/pos-printer/pkg/controllers/escpos/bitimage"
-	"github.com/adcondev/pos-printer/pkg/controllers/escpos/character"
-	"github.com/adcondev/pos-printer/pkg/controllers/escpos/linespacing"
-	"github.com/adcondev/pos-printer/pkg/controllers/escpos/mechanismcontrol"
-	"github.com/adcondev/pos-printer/pkg/controllers/escpos/print"
-	"github.com/adcondev/pos-printer/pkg/controllers/escpos/printposition"
-	"github.com/adcondev/pos-printer/pkg/controllers/escpos/qrcode"
-	"github.com/adcondev/pos-printer/pkg/controllers/escpos/shared"
+	"github.com/adcondev/pos-printer/pkg/commands/barcode"
+	"github.com/adcondev/pos-printer/pkg/commands/bitimage"
+	"github.com/adcondev/pos-printer/pkg/commands/character"
+	"github.com/adcondev/pos-printer/pkg/commands/common"
+	"github.com/adcondev/pos-printer/pkg/commands/linespacing"
+	"github.com/adcondev/pos-printer/pkg/commands/mechanismcontrol"
+	"github.com/adcondev/pos-printer/pkg/commands/print"
+	"github.com/adcondev/pos-printer/pkg/commands/printposition"
+	"github.com/adcondev/pos-printer/pkg/commands/qrcode"
 )
 
-// Escpos implements the ESCPOS Commands
-type Escpos struct {
+// EscposProtocol implements the ESCPOS Commands
+type EscposProtocol struct {
 	Barcode          barcode.Capability
 	BitImage         bitimage.Capability
 	Character        character.Capability
@@ -45,8 +45,8 @@ type Escpos struct {
 }
 
 // NewEscpos creates a new instance of the ESC/POS protocol
-func NewEscpos() *Escpos {
-	return &Escpos{
+func NewEscpos() *EscposProtocol {
+	return &EscposProtocol{
 		Barcode:          barcode.NewCommands(),
 		BitImage:         bitimage.NewCommands(),
 		Character:        character.NewCommands(),
@@ -99,8 +99,8 @@ func NewEscpos() *Escpos {
 // Errors:
 //
 //	This function is safe and does not return errors
-func (c *Escpos) InitializePrinter() []byte {
-	return []byte{shared.ESC, '@'}
+func (c *EscposProtocol) InitializePrinter() []byte {
+	return []byte{common.ESC, '@'}
 }
 
 // ============================================================================
@@ -108,17 +108,17 @@ func (c *Escpos) InitializePrinter() []byte {
 // ============================================================================
 
 // LeftMargin sets the left margin
-func (c *Escpos) LeftMargin(margin uint16) []byte {
+func (c *EscposProtocol) LeftMargin(margin uint16) []byte {
 	return c.PrintPosition.SetLeftMargin(margin)
 }
 
 // PrintWidth sets the Print area width
-func (c *Escpos) PrintWidth(width uint16) []byte {
+func (c *EscposProtocol) PrintWidth(width uint16) []byte {
 	return c.PrintPosition.SetPrintAreaWidth(width)
 }
 
 // PrintLn sends text to the printer followed by a line feed.
-func (c *Escpos) PrintLn(text string) ([]byte, error) {
+func (c *EscposProtocol) PrintLn(text string) ([]byte, error) {
 	cmd, err := c.Print.Text(text)
 	if err != nil {
 		return nil, fmt.Errorf("println: text: %w", err)
@@ -128,12 +128,12 @@ func (c *Escpos) PrintLn(text string) ([]byte, error) {
 }
 
 // RegularText disables bold mode.
-func (c *Escpos) RegularText() []byte {
+func (c *EscposProtocol) RegularText() []byte {
 	return c.Character.SetEmphasizedMode(character.OffEm)
 }
 
 // SetAlign sets the text alignment.
-func (c *Escpos) SetAlign(mode printposition.Justification) ([]byte, error) {
+func (c *EscposProtocol) SetAlign(mode printposition.Justification) ([]byte, error) {
 	cmd, err := c.PrintPosition.SelectJustification(mode)
 	if err != nil {
 		return nil, fmt.Errorf("set align: select justification: %w", err)
@@ -142,37 +142,37 @@ func (c *Escpos) SetAlign(mode printposition.Justification) ([]byte, error) {
 }
 
 // CenterAlign centers the text.
-func (c *Escpos) CenterAlign() []byte {
+func (c *EscposProtocol) CenterAlign() []byte {
 	cmd, _ := c.PrintPosition.SelectJustification(printposition.Center)
 	return cmd
 }
 
 // LeftAlign left-aligns the text.
-func (c *Escpos) LeftAlign() []byte {
+func (c *EscposProtocol) LeftAlign() []byte {
 	cmd, _ := c.PrintPosition.SelectJustification(printposition.Left)
 	return cmd
 }
 
 // RightAlign right-aligns the text.
-func (c *Escpos) RightAlign() []byte {
+func (c *EscposProtocol) RightAlign() []byte {
 	cmd, _ := c.PrintPosition.SelectJustification(printposition.Right)
 	return cmd
 }
 
 // RegularTextSize sets the smallest(regular) text size.
-func (c *Escpos) RegularTextSize() []byte {
+func (c *EscposProtocol) RegularTextSize() []byte {
 	size, _ := character.NewSize(1, 1)
 	return c.Character.SelectCharacterSize(size)
 }
 
 // DoubleSizeText sets double size text.
-func (c *Escpos) DoubleSizeText() []byte {
+func (c *EscposProtocol) DoubleSizeText() []byte {
 	size, _ := character.NewSize(2, 2)
 	return c.Character.SelectCharacterSize(size)
 }
 
 // FullPaperCut performs a full paper cut.
-func (c *Escpos) FullPaperCut(lines byte) []byte {
+func (c *EscposProtocol) FullPaperCut(lines byte) []byte {
 	cmd, _ := c.MechanismControl.FeedAndCutPaper(mechanismcontrol.FeedCutFull, lines)
 	return cmd
 }

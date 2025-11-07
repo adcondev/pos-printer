@@ -24,13 +24,13 @@ type ProfileConfig struct {
 	CodeTable string `json:"code_table"` // Tabla de caracteres
 }
 
-// Command representa un comando individual
+// Command represents a single command in the document
 type Command struct {
 	Type string          `json:"type"`
 	Data json.RawMessage `json:"data"`
 }
 
-// TextCommand comando de texto
+// TextCommand represents a text command
 type TextCommand struct {
 	Content string    `json:"content"`
 	Style   TextStyle `json:"style,omitempty"`
@@ -46,7 +46,7 @@ type TextStyle struct {
 	Inverse   bool   `json:"inverse,omitempty"`
 }
 
-// ImageCommand comando de imagen
+// ImageCommand represents an image command
 type ImageCommand struct {
 	Code      string `json:"code"`                // Base64
 	Format    string `json:"format,omitempty"`    // png, jpg, bmp
@@ -56,24 +56,24 @@ type ImageCommand struct {
 	Dithering string `json:"dithering,omitempty"` // threshold, atkinson
 }
 
-// SeparatorCommand comando de separador
+// SeparatorCommand represents a separator command
 type SeparatorCommand struct {
 	Char   string `json:"char,omitempty"`   // Carácter a usar
 	Length int    `json:"length,omitempty"` // Longitud en caracteres
 }
 
-// FeedCommand comando de avance
+// FeedCommand represents a feed command
 type FeedCommand struct {
 	Lines int `json:"lines"` // Líneas a avanzar
 }
 
-// CutCommand comando de corte
+// CutCommand represents a cut command
 type CutCommand struct {
 	Mode string `json:"mode,omitempty"` // full, partial
 	Feed int    `json:"feed,omitempty"` // Líneas antes del corte
 }
 
-// QRCommand comando QR (preparado para futura implementación)
+// QRCommand represents a QR command (WIP)
 type QRCommand struct {
 	Data  string `json:"data"`
 	Size  string `json:"size,omitempty"`  // small, medium, large
@@ -81,7 +81,7 @@ type QRCommand struct {
 	// TODO: Implementar cuando se agregue soporte QR
 }
 
-// TableCommand comando de tabla (preparado para futura implementación)
+// TableCommand represents a table command (WIP)
 type TableCommand struct {
 	Columns []TableColumn `json:"columns"`
 	Rows    [][]string    `json:"rows"`

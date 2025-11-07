@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/adcondev/pos-printer/pkg/controllers/escpos/character"
+	"github.com/adcondev/pos-printer/pkg/commands/character"
 	"github.com/adcondev/pos-printer/pkg/graphics"
-	"github.com/adcondev/pos-printer/pkg/service"
+	"github.com/adcondev/pos-printer/pkg/printer"
 )
 
-// handleText maneja comandos de texto
+// handleText manages text commands
 func (e *Executor) handleText(printer *service.Printer, data json.RawMessage) error {
 	var cmd TextCommand
 	if err := json.Unmarshal(data, &cmd); err != nil {
@@ -72,7 +72,7 @@ func (e *Executor) handleText(printer *service.Printer, data json.RawMessage) er
 		}
 	}
 
-	// Resetear estilos para el siguiente comando
+	// Reset styles for subsequent command
 	if cmd.Style.Bold {
 		cmdBytes := printer.Protocol.Character.SetEmphasizedMode(character.OffEm)
 		err := printer.Write(cmdBytes)
@@ -91,7 +91,7 @@ func (e *Executor) handleText(printer *service.Printer, data json.RawMessage) er
 	return nil
 }
 
-// handleImage maneja comandos de imagen
+// handleImage manages image commands
 func (e *Executor) handleImage(printer *service.Printer, data json.RawMessage) error {
 	var cmd ImageCommand
 	if err := json.Unmarshal(data, &cmd); err != nil {
@@ -170,7 +170,7 @@ func (e *Executor) handleImage(printer *service.Printer, data json.RawMessage) e
 	return nil
 }
 
-// handleSeparator maneja comandos de separador
+// handleSeparator manages separator commands
 func (e *Executor) handleSeparator(printer *service.Printer, data json.RawMessage) error {
 	var cmd SeparatorCommand
 	if err := json.Unmarshal(data, &cmd); err != nil {
@@ -192,7 +192,7 @@ func (e *Executor) handleSeparator(printer *service.Printer, data json.RawMessag
 	return printer.PrintLine(line)
 }
 
-// handleFeed maneja comandos de avance de papel
+// handleFeed manages feed commands
 func (e *Executor) handleFeed(printer *service.Printer, data json.RawMessage) error {
 	var cmd FeedCommand
 	if err := json.Unmarshal(data, &cmd); err != nil {
@@ -206,7 +206,7 @@ func (e *Executor) handleFeed(printer *service.Printer, data json.RawMessage) er
 	return printer.FeedLines(byte(cmd.Lines))
 }
 
-// handleCut maneja comandos de corte
+// handleCut manages cut commands
 func (e *Executor) handleCut(printer *service.Printer, data json.RawMessage) error {
 	var cmd CutCommand
 	if err := json.Unmarshal(data, &cmd); err != nil {
@@ -230,7 +230,7 @@ func (e *Executor) handleCut(printer *service.Printer, data json.RawMessage) err
 	}
 }
 
-// handleQRPlaceholder placeholder para comando QR
+// handleQRPlaceholder manges QR code commands (WIP)
 func (e *Executor) handleQRPlaceholder(printer *service.Printer, data json.RawMessage) error {
 	var cmd QRCommand
 	if err := json.Unmarshal(data, &cmd); err != nil {
@@ -259,7 +259,7 @@ func (e *Executor) handleQRPlaceholder(printer *service.Printer, data json.RawMe
 	return nil
 }
 
-// handleTablePlaceholder placeholder para comando de tabla
+// handleTablePlaceholder manages table commands (WIP)
 func (e *Executor) handleTablePlaceholder(printer *service.Printer, data json.RawMessage) error {
 	var cmd TableCommand
 	if err := json.Unmarshal(data, &cmd); err != nil {
