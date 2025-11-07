@@ -125,7 +125,7 @@ func main() {
 
 	// 4. Send a command
 	cmd := escpos.NewPrinter(p.Device.Connector)
-	if err := cmd.Print("Hello, World!\n"); err != nil {.
+	if err := cmd.Print("Hello, World!\n"); err != nil {
 		log.Fatalf("Failed to print: %v", err)
 	}
 
