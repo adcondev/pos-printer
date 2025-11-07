@@ -3,6 +3,7 @@ package document
 
 import (
 	"encoding/json"
+	"log"
 )
 
 // Builder ayuda a construir documentos programáticamente
@@ -40,7 +41,10 @@ func (b *Builder) AddText(content string, style *TextStyle) *Builder {
 		cmd.Style = *style
 	}
 
-	data, _ := json.Marshal(cmd)
+	data, err := json.Marshal(cmd)
+	if err != nil {
+		log.Printf("Error marshaling text command: %v", err)
+	}
 	b.doc.Commands = append(b.doc.Commands, Command{
 		Type: "text",
 		Data: data,
@@ -57,7 +61,10 @@ func (b *Builder) AddImage(base64Data string, width int, align string) *Builder 
 		Dithering: "threshold",
 	}
 
-	data, _ := json.Marshal(cmd)
+	data, err := json.Marshal(cmd)
+	if err != nil {
+		log.Printf("Error marshaling image command: %v", err)
+	}
 	b.doc.Commands = append(b.doc.Commands, Command{
 		Type: "image",
 		Data: data,
@@ -72,7 +79,10 @@ func (b *Builder) AddSeparator(char string, length int) *Builder {
 		Length: length,
 	}
 
-	data, _ := json.Marshal(cmd)
+	data, err := json.Marshal(cmd)
+	if err != nil {
+		log.Printf("Error marshaling separator command: %v", err)
+	}
 	b.doc.Commands = append(b.doc.Commands, Command{
 		Type: "separator",
 		Data: data,
@@ -84,7 +94,10 @@ func (b *Builder) AddSeparator(char string, length int) *Builder {
 func (b *Builder) AddFeed(lines int) *Builder {
 	cmd := FeedCommand{Lines: lines}
 
-	data, _ := json.Marshal(cmd)
+	data, err := json.Marshal(cmd)
+	if err != nil {
+		log.Printf("Error marshaling feed command: %v", err)
+	}
 	b.doc.Commands = append(b.doc.Commands, Command{
 		Type: "feed",
 		Data: data,
@@ -99,7 +112,10 @@ func (b *Builder) AddCut(mode string, feed int) *Builder {
 		Feed: feed,
 	}
 
-	data, _ := json.Marshal(cmd)
+	data, err := json.Marshal(cmd)
+	if err != nil {
+		log.Printf("Error marshaling cut command: %v", err)
+	}
 	b.doc.Commands = append(b.doc.Commands, Command{
 		Type: "cut",
 		Data: data,
