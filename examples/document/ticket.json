@@ -1,0 +1,188 @@
+{
+  "version": "1.0",
+  "profile": {
+    "model": "80mm EC-PM-80250",
+    "width": 576,
+    "code_table": "PC850"
+  },
+  "commands": [
+    {
+      "type": "text",
+      "data": {
+        "content": "MI TIENDA",
+        "style": {
+          "align": "center",
+          "bold": true,
+          "size": "2x2"
+        },
+        "newline": true
+      }
+    },
+    {
+      "type": "image",
+      "data": {
+        "code": "CODIGO_EN_BASE64",
+        "align": "center",
+        "width": 256,
+        "dithering": "atkinson",
+        "threshold": 128
+      }
+    },
+    {
+      "type": "text",
+      "data": {
+        "content": "RFC: ABC123456789",
+        "style": {
+          "align": "center"
+        },
+        "newline": true
+      }
+    },
+    {
+      "type": "separator",
+      "data": {
+        "char": "=",
+        "length": 48
+      }
+    },
+    {
+      "type": "text",
+      "data": {
+        "content": "FOLIO: 00123",
+        "style": {
+          "align": "left"
+        },
+        "newline": true
+      }
+    },
+    {
+      "type": "text",
+      "data": {
+        "content": "FECHA: 2025-01-06 15:30:00",
+        "style": {
+          "align": "left"
+        },
+        "newline": true
+      }
+    },
+    {
+      "type": "separator",
+      "data": {
+        "char": "-",
+        "length": 48
+      }
+    },
+    {
+      "type": "table",
+      "data": {
+        "columns": [
+          {
+            "width": 20,
+            "align": "left"
+          },
+          {
+            "width": 8,
+            "align": "center"
+          },
+          {
+            "width": 10,
+            "align": "right"
+          },
+          {
+            "width": 10,
+            "align": "right"
+          }
+        ],
+        "rows": [
+          [
+            "PRODUCTO",
+            "CANT",
+            "PRECIO",
+            "TOTAL"
+          ],
+          [
+            "Coca Cola 600ml",
+            "2",
+            "$20.00",
+            "$40.00"
+          ],
+          [
+            "Sabritas Original",
+            "1",
+            "$15.00",
+            "$15.00"
+          ],
+          [
+            "Galletas Marias",
+            "3",
+            "$12.00",
+            "$36.00"
+          ]
+        ]
+      }
+    },
+    {
+      "type": "separator",
+      "data": {
+        "char": "-",
+        "length": 48
+      }
+    },
+    {
+      "type": "text",
+      "data": {
+        "content": "TOTAL: $91.00",
+        "style": {
+          "align": "right",
+          "bold": true,
+          "size": "2x2"
+        },
+        "newline": true
+      }
+    },
+    {
+      "type": "feed",
+      "data": {
+        "lines": 2
+      }
+    },
+    {
+      "type": "qr",
+      "data": {
+        "data": "https://factura.ejemplo.com/00123",
+        "size": "medium",
+        "align": "center"
+      }
+    },
+    {
+      "type": "feed",
+      "data": {
+        "lines": 1
+      }
+    },
+    {
+      "type": "text",
+      "data": {
+        "content": "GRACIAS POR SU COMPRA",
+        "style": {
+          "align": "center",
+          "bold": true
+        },
+        "newline": true
+      }
+    },
+    {
+      "type": "feed",
+      "data": {
+        "lines": 3
+      }
+    },
+    {
+      "type": "cut",
+      "data": {
+        "mode": "partial",
+        "feed": 0
+      }
+    }
+  ]
+}
