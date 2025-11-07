@@ -7,7 +7,8 @@ The "pos-printer" repository is a comprehensive, modular Go library designed to 
 ## Tech Stack and Key Technologies
 
 *   **Language:** Go (Golang)
-*   **Build Automation:** Go Modules, Taskfile
+*   **Dependency Management:** Go Modules
+*   **Build Automation:** Taskfile
 *   **Testing:** Go's built-in testing framework, `golangci-lint` for linting
 *   **Protocols:** ESC/POS, ZPL (in progress)
 
