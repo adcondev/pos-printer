@@ -1,6 +1,40 @@
 # Changelog
 
-All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+All notable changes to the POS Printer library will be documented in this file.
+
+## [3.0.0](https://github.com/adcondev/pos-printer/compare/v2.3.0...v3.0.0) (2025-11-07)
+
+
+### ⚠ BREAKING CHANGES
+
+* **commands:** rename controllers to commands (#61)
+* **escpos:** rename controllers to commands
+
+### 📝 Documentation
+
+* add LEARNING.md and update README.md ([21bc0f5](https://github.com/adcondev/pos-printer/commit/21bc0f525faee77b6a32df265fd6451622fec28c))
+
+
+### 🐛 Bug Fixes
+
+* update LEARNING.md ([99a7a85](https://github.com/adcondev/pos-printer/commit/99a7a858cce47007610f21c23448e355ced51204))
+
+
+### ♻️ Code Refactoring
+
+* **base64:** rename example file for clarity ([8d6533d](https://github.com/adcondev/pos-printer/commit/8d6533db418a2a58ede14fc245a3e285a3fb0d16))
+* **commands:** improve command documentation and comments ([764a58f](https://github.com/adcondev/pos-printer/commit/764a58feafe8f4b68a87740fe77e2c608c5b4363))
+
+
+### 🤖 Continuous Integration
+
+* **github:** update workflow to dynamically find example directories ([cc643b8](https://github.com/adcondev/pos-printer/commit/cc643b88009eb569ed2e745d9c384827daf866d2))
+
+
+### ✨ Features
+
+* **commands:** rename controllers to commands ([#61](https://github.com/adcondev/pos-printer/issues/61)) ([fa786f3](https://github.com/adcondev/pos-printer/commit/fa786f3e5e445935ae2a193ffe15ac74f24c6272)), closes [/#diff-8f12d5f5467d5a9e7d05741bfaa3151879b70dc9b12ed2da94e21fcbbd80a986L14-L16](https://github.com/adcondev///issues/diff-8f12d5f5467d5a9e7d05741bfaa3151879b70dc9b12ed2da94e21fcbbd80a986L14-L16) [/#diff-8f12d5f5467d5a9e7d05741bfaa3151879b70dc9b12ed2da94e21fcbbd80a986L27-R69](https://github.com/adcondev///issues/diff-8f12d5f5467d5a9e7d05741bfaa3151879b70dc9b12ed2da94e21fcbbd80a986L27-R69) [/#diff-b803fcb7f17ed9235f1e5cb1fcd2f5d3b2838429d4368ae4c57ce4436577f03fL48-L50](https://github.com/adcondev///issues/diff-b803fcb7f17ed9235f1e5cb1fcd2f5d3b2838429d4368ae4c57ce4436577f03fL48-L50) [/#diff-b803fcb7f17ed9235f1e5cb1fcd2f5d3b2838429d4368ae4c57ce4436577f03fL61-R70](https://github.com/adcondev///issues/diff-b803fcb7f17ed9235f1e5cb1fcd2f5d3b2838429d4368ae4c57ce4436577f03fL61-R70) [/#diff-b803fcb7f17ed9235f1e5cb1fcd2f5d3b2838429d4368ae4c57ce4436577f03fR103-R118](https://github.com/adcondev///issues/diff-b803fcb7f17ed9235f1e5cb1fcd2f5d3b2838429d4368ae4c57ce4436577f03fR103-R118) [/#diff-89708b194914fd416481a81522862b10b3cd5f123be3eb550e6a1de67a01765aL6-R6](https://github.com/adcondev///issues/diff-89708b194914fd416481a81522862b10b3cd5f123be3eb550e6a1de67a01765aL6-R6) [/#diff-89708b194914fd416481a81522862b10b3cd5f123be3eb550e6a1de67a01765aL240-R242](https://github.com/adcondev///issues/diff-89708b194914fd416481a81522862b10b3cd5f123be3eb550e6a1de67a01765aL240-R242) [/#diff-89708b194914fd416481a81522862b10b3cd5f123be3eb550e6a1de67a01765aL269-R269](https://github.com/adcondev///issues/diff-89708b194914fd416481a81522862b10b3cd5f123be3eb550e6a1de67a01765aL269-R269) [/#diff-5c25f228ee796b995a56de464ea307b5cc1eeaaffb990f9329fe91a063fc3429L6-R6](https://github.com/adcondev///issues/diff-5c25f228ee796b995a56de464ea307b5cc1eeaaffb990f9329fe91a063fc3429L6-R6) [/#diff-cd2d359855d0301ce190f1ec3b4c572ea690c83747f6df61c9340720e3d2425eL26-R67](https://github.com/adcondev///issues/diff-cd2d359855d0301ce190f1ec3b4c572ea690c83747f6df61c9340720e3d2425eL26-R67) [/#diff-6179837f7df53a6f05c522b6b7bb566d484d5465d9894fb04910dd08bb40dcc9R8-R62](https://github.com/adcondev///issues/diff-6179837f7df53a6f05c522b6b7bb566d484d5465d9894fb04910dd08bb40dcc9R8-R62) [/#diff-6179837f7df53a6f05c522b6b7bb566d484d5465d9894fb04910dd08bb40dcc9R71-R83](https://github.com/adcondev///issues/diff-6179837f7df53a6f05c522b6b7bb566d484d5465d9894fb04910dd08bb40dcc9R71-R83) [/#diff-7a68c862ed13ecb99f59c4f61a92bbbc265afe66afa76b17bb9739a8cce7cab1L2-R2](https://github.com/adcondev///issues/diff-7a68c862ed13ecb99f59c4f61a92bbbc265afe66afa76b17bb9739a8cce7cab1L2-R2) [/#diff-7a68c862ed13ecb99f59c4f61a92bbbc265afe66afa76b17bb9739a8cce7cab1L12-R27](https://github.com/adcondev///issues/diff-7a68c862ed13ecb99f59c4f61a92bbbc265afe66afa76b17bb9739a8cce7cab1L12-R27)
+* **escpos:** rename controllers to commands ([1aa49fc](https://github.com/adcondev/pos-printer/commit/1aa49fc332c9a369d524d8f15e63dd9cfa3f1ab1))
 
 ## [2.3.0](https://github.com/adcondev/pos-printer/compare/v2.2.1...v2.3.0) (2025-11-07)
 
