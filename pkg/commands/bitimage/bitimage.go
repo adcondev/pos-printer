@@ -61,6 +61,8 @@ type NVBitImageData struct {
 	Data   []byte // Bit image data in column format
 }
 
+// TODO: Check unused constants
+
 // Constants for image size limits
 const (
 	// MaxHorizontalDots represents maximum horizontal dots for bit images

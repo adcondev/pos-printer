@@ -37,17 +37,6 @@ const (
 
 	// GS represents the GS command byte for special functions
 	GS byte = 0x1D
-	// LeftParenN represents the left parenthesis byte
-	LeftParenN byte = 0x28
-	// LetterN represents the letter N byte
-	LetterN byte = 0x4E
-	// GSParenNFnShadow represents the shadow function code
-	GSParenNFnShadow byte = 0x32
-
-	// GSParenNShadowPL represents the pL parameter for shadow function
-	GSParenNShadowPL byte = 0x03
-	// GSParenNShadowPH represents the pH parameter for shadow function
-	GSParenNShadowPH byte = 0x00
 
 	// ShadowModeOffByte represents shadow mode off (numeric)
 	ShadowModeOffByte byte = 0x00

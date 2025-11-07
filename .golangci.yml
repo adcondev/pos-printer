@@ -5,9 +5,6 @@ run:
   tests: true
   build-tags:
     - integration
-  skip-dirs:
-    - examples
-    - test
 
 linters:
   # Solo habilitar los esenciales
@@ -31,53 +28,3 @@ linters:
     - prealloc
     - bodyclose
     - goconst
-
-linters-settings:
-  gocyclo:
-    min-complexity: 15
-
-  govet:
-    check-shadowing: true
-    enabled:
-      - atomic
-      - bools
-      - errorsas
-      - fieldalignment
-      - nilfunc
-      - printf
-      - shadow
-      - structtag
-      - unreachable
-  gocritic:
-    enabled-tags:
-      - diagnostic
-      - experimental
-      - opinionated
-      - performance
-      - style
-
-  gosec:
-    excludes:
-      - G104  # Global exclusion: ignore error checking for prints in all code
-
-issues:
-  # Límites razonables
-  max-issues-per-linter: 50
-  max-same-issues: 25
-  
-  # Para PRs, solo mostrar issues nuevos
-  new: true
-  new-from-rev: HEAD~1
-
-  exclude-rules:
-    # Exclude test files from some linters
-    - path: _test\.go
-      linters:
-        - gosec
-        - unparam
-
-    # Exclude examples from strict checks
-    - path: examples/
-      linters:
-        - errcheck
-        - gosec

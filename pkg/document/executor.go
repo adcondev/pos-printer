@@ -17,7 +17,7 @@ type Executor struct {
 	profile  *profile.Escpos
 }
 
-// CommandHandler función que maneja un tipo de comando
+// CommandHandler a command handler function
 type CommandHandler func(printer *service.Printer, data json.RawMessage) error
 
 // NewExecutor crea un nuevo ejecutor
@@ -42,7 +42,7 @@ func NewExecutor(printer *service.Printer) *Executor {
 	return e
 }
 
-// RegisterHandler registra un nuevo manejador de comando
+// RegisterHandler registers a new command handler
 func (e *Executor) RegisterHandler(cmdType string, handler CommandHandler) {
 	e.handlers[cmdType] = handler
 }
@@ -61,7 +61,7 @@ func (e *Executor) Execute(doc *Document) error {
 		}
 	}
 
-	// Ejecutar cada comando
+	// Execute commands
 	for i, cmd := range doc.Commands {
 		handler, exists := e.handlers[cmd.Type]
 		if !exists {

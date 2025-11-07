@@ -21,8 +21,6 @@ type Model byte
 
 // Model constants - QR Code model types
 const (
-	// ModelDefault is the default QR Code model (Model 2)
-	ModelDefault Model = 50
 	// Model1 is original QR specification
 	Model1 Model = 49
 	// Model2 is the most common QR Code model

@@ -32,23 +32,52 @@ and follow the specification below.
 
 ## Scope
 
-Scope MUST be a noun describing a section of the codebase surrounded by parentheses. Common scopes include:
+Scope MUST be a noun describing a section of the codebase surrounded by parentheses.
 
-- `(encoding)`
-- `(connector)`
-- `(printer)`
-- `(imaging)`
-- `(profiles)`
-- `(protocol)`
-- `(escpos)`
-- `(errors)`
-- `(logs)`
-- `(config)`
-- `(api)`
-- `(models)`
-- `(service)`
-- `(utils)`
-- `(github)`
+### Core Components
+
+- `(encoding)` - Text encoding and character set handling
+- `(connector)` - Printer connection and communication
+- `(printer)` - Main printer functionality
+- `(composer)` - Command composition and assembly
+
+### Printing Features
+
+- `(commands)` - ESC/POS commands
+- `(document)` - Document structure and management
+- `(graphics)` - Image and graphics handling
+- `(barcode)` - Barcode generation
+- `(qrcode)` - QR code generation
+- `(bitimage)` - Bitmap image processing
+
+### Formatting
+
+- `(character)` - Character formatting
+- `(linespacing)` - Line spacing control
+- `(print)` - Print operations
+- `(printposition)` - Cursor and print position
+
+### Configuration
+
+- `(profiles)` - Printer profiles
+- `(protocol)` - Communication protocols
+- `(config)` - Configuration management
+- `(mechanismcontrol)` - Hardware mechanism control
+
+### Infrastructure
+
+- `(api)` - API endpoints and interfaces
+- `(service)` - Service layer
+- `(models)` - Data models
+- `(errors)` - Error handling
+- `(logs)` - Logging functionality
+- `(utils)` - Utility functions
+- `(common)` - Shared/common code
+
+### Development
+
+- `(github)` - GitHub workflows and configurations
+- `(connection)` - Connection management (consider merging with `connector`)
 
 ## Description
 
@@ -82,15 +111,40 @@ Breaking changes MUST be indicated in one of two ways:
     - `Refs: #456`
     - `BREAKING CHANGE: description of breaking change`
 
+## Examples Specific to This Project
+
+```
+feat(barcode): add support for Code 128 format
+fix(connector): resolve timeout issue on Windows
+docs(api): update REST endpoint documentation
+refactor(composer): simplify command builder logic
+perf(imaging): optimize bitmap compression algorithm
+test(qrcode): add unit tests for error correction levels
+```
+
+## Common Mistakes to Avoid
+
+❌ `fix: fixed bug` (too vague)
+✅ `fix(connector): resolve USB connection timeout`
+
+❌ `feat: added new feature for printing` (not specific)
+✅ `feat(barcode): add support for QR code error correction`
+
+❌ `update code` (missing type and scope)
+✅ `refactor(composer): extract command validation logic`
+
 ## Instructions for AI
 
-1. Analyze the code changes to determine the correct type and scope
-2. Write a clear, concise description in imperative mood
-3. Include a body explaining WHY the change was made and WHAT it accomplishes
-4. Add relevant footers (especially for issue references or breaking changes)
-5. Ensure the message is in English
-6. Keep the first line (type+scope+description) under 50 characters
-7. Wrap the body text at 72 characters
+When analyzing changes in this project:
+
+1. **Identify the affected component** from the scope list above
+2. **Determine the type** based on the nature of the change:
+    - New ESC/POS commands → `feat`
+    - Printer connectivity issues → `fix(connector)`
+    - Performance optimizations → `perf`
+3. **Focus on user impact** in the description, not implementation details
+4. **Include technical context** in the body when necessary
+5. **Reference issues** using `Fixes: #123` or `Refs: #456`
 
 When presented with code changes, first identify the primary purpose of the change to select the appropriate type and
 scope, then follow this Format to generate a conventional commit message.

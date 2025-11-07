@@ -48,6 +48,8 @@ const (
 // Error Definitions
 // ============================================================================
 
+// TODO: refine error definitions
+
 // Error variables
 var (
 	// ErrInvalidDLFunctionCode indicates an invalid download function code

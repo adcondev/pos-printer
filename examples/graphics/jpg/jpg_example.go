@@ -153,7 +153,6 @@ func printJob(printer *service.Printer, bitmap *graphics.MonochromeBitmap) error
 	if err != nil {
 		return err
 	}
-	// Aquí se agregarían los comandos para imprimir la imagen procesada
 
 	err = printer.PartialFeedAndCut(9)
 	if err != nil {

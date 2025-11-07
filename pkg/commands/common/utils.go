@@ -2,7 +2,7 @@
 //
 // This package contains shared buffer validation functions, byte manipulation utilities,
 // and shared constants used across multiple ESC/POS command implementations.
-package common //nolint:revives
+package common //nolint:revive
 
 import "errors"
 
@@ -47,14 +47,14 @@ func IsBufLenOk(buf []byte) error {
 	return nil
 }
 
-// ToLittleEndian convierte una longitud en dos bytes little-endian (dL,dH) para usar en comandos ESCPOS.
+// ToLittleEndian convierte una longitud en dos bytes little-endian (dL,dH) para usar en ESCPOS.
 func ToLittleEndian(number uint16) (nL, nH byte) {
 	nL = byte(number & 0xFF)        // byte de menor peso
 	nH = byte((number >> 8) & 0xFF) // byte de mayor peso
 	return nL, nH
 }
 
-// ToLittleEndian32 convierte una longitud en cuatro bytes little-endian (nL, nH, nHH, nHHH) para usar en comandos ESCPOS.
+// ToLittleEndian32 convierte una longitud en cuatro bytes little-endian (nL, nH, nHH, nHHH) para usar en ESCPOS.
 func ToLittleEndian32(number uint32) (nL, nH, nHH, nHHH byte) {
 	nL = byte(number & 0xFF)           // byte de menor peso
 	nH = byte((number >> 8) & 0xFF)    // segundo byte
