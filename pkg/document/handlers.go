@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/adcondev/pos-printer/pkg/controllers/escpos/character"
+	"github.com/adcondev/pos-printer/pkg/commands/character"
 	"github.com/adcondev/pos-printer/pkg/graphics"
-	"github.com/adcondev/pos-printer/pkg/service"
+	"github.com/adcondev/pos-printer/pkg/printer"
 )
 
 // handleText maneja comandos de texto

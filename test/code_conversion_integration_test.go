@@ -4,18 +4,18 @@ import (
 	"bytes"
 	"testing"
 
-	"github.com/adcondev/pos-printer/pkg/controllers/escpos/character"
-	"github.com/adcondev/pos-printer/pkg/controllers/escpos/shared"
+	character2 "github.com/adcondev/pos-printer/pkg/commands/character"
+	"github.com/adcondev/pos-printer/pkg/commands/common"
 )
 
 func TestIntegration_CodeConversion_MultiLanguageSupport(t *testing.T) {
-	cmd := character.NewCommands()
+	cmd := character2.NewCommands()
 
 	t.Run("UTF-8 with font priorities", func(t *testing.T) {
 		var buffer []byte
 
 		// Enable UTF-8
-		utf8Cmd, err := cmd.CodeConversion.SelectCharacterEncodeSystem(character.UTF8)
+		utf8Cmd, err := cmd.CodeConversion.SelectCharacterEncodeSystem(character2.UTF8)
 		if err != nil {
 			t.Fatalf("SelectCharacterEncodeSystem(UTF8): %v", err)
 		}
@@ -23,8 +23,8 @@ func TestIntegration_CodeConversion_MultiLanguageSupport(t *testing.T) {
 
 		// Set Chinese as primary font
 		chinesePriority, err := cmd.CodeConversion.SetFontPriority(
-			character.First,
-			character.SimplifiedChineseMincho,
+			character2.First,
+			character2.SimplifiedChineseMincho,
 		)
 		if err != nil {
 			t.Fatalf("SetFontPriority(Chinese): %v", err)
@@ -33,8 +33,8 @@ func TestIntegration_CodeConversion_MultiLanguageSupport(t *testing.T) {
 
 		// Set Japanese as secondary font
 		japanesePriority, err := cmd.CodeConversion.SetFontPriority(
-			character.Second,
-			character.JapaneseGothic,
+			character2.Second,
+			character2.JapaneseGothic,
 		)
 		if err != nil {
 			t.Fatalf("SetFontPriority(Japanese): %v", err)
@@ -42,7 +42,7 @@ func TestIntegration_CodeConversion_MultiLanguageSupport(t *testing.T) {
 		buffer = append(buffer, japanesePriority...)
 
 		// Verify commands were generated
-		if !bytes.Contains(buffer, []byte{shared.FS, '(', 'C'}) {
+		if !bytes.Contains(buffer, []byte{common.FS, '(', 'C'}) {
 			t.Error("Buffer should contain encoding commands")
 		}
 
@@ -53,8 +53,8 @@ func TestIntegration_CodeConversion_MultiLanguageSupport(t *testing.T) {
 
 	t.Run("encoding switch workflow", func(t *testing.T) {
 		// Switch from 1-byte to UTF-8 and back
-		oneByteCmd, _ := cmd.CodeConversion.SelectCharacterEncodeSystem(character.OneByte)
-		utf8Cmd, _ := cmd.CodeConversion.SelectCharacterEncodeSystem(character.UTF8)
+		oneByteCmd, _ := cmd.CodeConversion.SelectCharacterEncodeSystem(character2.OneByte)
+		utf8Cmd, _ := cmd.CodeConversion.SelectCharacterEncodeSystem(character2.UTF8)
 
 		if len(oneByteCmd) != 7 || len(utf8Cmd) != 7 {
 			t.Error("Encoding commands should be 7 bytes each")

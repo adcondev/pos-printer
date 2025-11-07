@@ -1,5 +1,5 @@
 module.exports = {
-    // Solo mostrar lo importante en el changelog
+    // Updated types with library-specific sections
     types: [
         {type: "feat", section: "✨ Features"},
         {type: "fix", section: "🐛 Bug Fixes"},
@@ -9,16 +9,20 @@ module.exports = {
         {type: "test", section: "✅ Tests"},
         {type: "ci", section: "🤖 Continuous Integration"},
         {type: "build", section: "🏗️ Build System"},
-        {type: "style", section: "🎨 Styles"},
         {type: "refactor", section: "♻️ Code Refactoring"},
-        {type: "chore", section: "🧹 Chores"},
         {type: "docs", section: "📝 Documentation"},
+        {type: "style", section: "🎨 Code Style"},
+        {type: "chore", hidden: true}
     ],
 
-    // Configuración de GitHub
+    // GitHub configuration
     commitUrlFormat: "https://github.com/adcondev/pos-printer/commit/{{hash}}",
     compareUrlFormat: "https://github.com/adcondev/pos-printer/compare/{{previousTag}}...{{currentTag}}",
+    userUrlFormat: "https://github.com/{{user}}",
 
-    // Skip CI en commits de release
-    releaseCommitMessageFormat: "chore(release): v{{currentTag}} [skip ci]"
+    // Skip CI on release commits
+    releaseCommitMessageFormat: "chore(release): v{{currentTag}} [skip ci]",
+
+    // Custom header for CHANGELOG
+    header: "# Changelog\n\nAll notable changes to the POS Printer library will be documented in this file.\n"
 };

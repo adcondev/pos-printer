@@ -1,6 +1,6 @@
 package testutils
 
-// FakeCapabilityBase provides fake functionality for shared
+// FakeCapabilityBase provides fake functionality for shared capabilities
 type FakeCapabilityBase struct {
 	Buffer   []byte
 	Tracker  *MockTracker

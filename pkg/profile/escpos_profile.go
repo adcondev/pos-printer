@@ -1,7 +1,7 @@
 package profile
 
 import (
-	"github.com/adcondev/pos-printer/pkg/controllers/escpos/character"
+	"github.com/adcondev/pos-printer/pkg/commands/character"
 	"github.com/adcondev/pos-printer/pkg/graphics"
 )
 

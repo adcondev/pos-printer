@@ -23,48 +23,48 @@ vars:
 
 includes:
   barcode:
-    taskfile: ./pkg/controllers/escpos/barcode/Taskfile.yml
-    dir: ./pkg/controllers/escpos/barcode
+    taskfile: ./pkg/commands/barcode/Taskfile.yml
+    dir: ./pkg/commands/barcode
     aliases:
       - bc
   bitimage:
-    taskfile: ./pkg/controllers/escpos/bitimage/Taskfile.yml
-    dir: ./pkg/controllers/escpos/bitimage
+    taskfile: ./pkg/commands/bitimage/Taskfile.yml
+    dir: ./pkg/commands/bitimage
     aliases:
       - bi
   character:
-    taskfile: ./pkg/controllers/escpos/character/Taskfile.yml
-    dir: ./pkg/controllers/escpos/character
+    taskfile: ./pkg/commands/character/Taskfile.yml
+    dir: ./pkg/commands/character
     aliases:
       - ch
   linespacing:
-    taskfile: ./pkg/controllers/escpos/linespacing/Taskfile.yml
-    dir: ./pkg/controllers/escpos/linespacing
+    taskfile: ./pkg/commands/linespacing/Taskfile.yml
+    dir: ./pkg/commands/linespacing
     aliases:
       - ls
   mechanismcontrol:
-    taskfile: ./pkg/controllers/escpos/mechanismcontrol/Taskfile.yml
-    dir: ./pkg/controllers/escpos/mechanismcontrol
+    taskfile: ./pkg/commands/mechanismcontrol/Taskfile.yml
+    dir: ./pkg/commands/mechanismcontrol
     aliases:
       - mc
   print:
-    taskfile: ./pkg/controllers/escpos/print/Taskfile.yml
-    dir: ./pkg/controllers/escpos/print
+    taskfile: ./pkg/commands/print/Taskfile.yml
+    dir: ./pkg/commands/print
     aliases:
       - pr
   printposition:
-    taskfile: ./pkg/controllers/escpos/printposition/Taskfile.yml
-    dir: ./pkg/controllers/escpos/printposition
+    taskfile: ./pkg/commands/printposition/Taskfile.yml
+    dir: ./pkg/commands/printposition
     aliases:
       - pp
   qrcode:
-    taskfile: ./pkg/controllers/escpos/qrcode/Taskfile.yml
-    dir: ./pkg/controllers/escpos/qrcode
+    taskfile: ./pkg/commands/qrcode/Taskfile.yml
+    dir: ./pkg/commands/qrcode
     aliases:
       - qr
-  shared:
-    taskfile: ./pkg/controllers/escpos/shared/Taskfile.yml
-    dir: ./pkg/controllers/escpos/shared
+  common:
+    taskfile: ./pkg/commands/common/Taskfile.yml
+    dir: ./pkg/commands/common
     aliases:
       - sh
   integration-tests:

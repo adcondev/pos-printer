@@ -5,9 +5,8 @@ import (
 	"testing"
 
 	"github.com/adcondev/pos-printer/internal/testutils"
-
-	"github.com/adcondev/pos-printer/pkg/controllers/escpos/bitimage"
-	"github.com/adcondev/pos-printer/pkg/controllers/escpos/shared"
+	"github.com/adcondev/pos-printer/pkg/commands/bitimage"
+	"github.com/adcondev/pos-printer/pkg/commands/common"
 )
 
 func TestIntegration_Graphics_CompleteWorkflow(t *testing.T) {
@@ -56,7 +55,7 @@ func TestIntegration_Graphics_CompleteWorkflow(t *testing.T) {
 		buffer = append(buffer, printCmd...)
 
 		// Verify command structure
-		if !bytes.Contains(buffer, []byte{shared.GS, '(', 'L'}) {
+		if !bytes.Contains(buffer, []byte{common.GS, '(', 'L'}) {
 			t.Error("Buffer should contain graphics commands")
 		}
 
@@ -244,7 +243,7 @@ func TestIntegration_Graphics_LargeDataHandling(t *testing.T) {
 		}
 
 		// Verify extended format
-		if storeCmd[0] != shared.GS || storeCmd[1] != '8' || storeCmd[2] != 'L' {
+		if storeCmd[0] != common.GS || storeCmd[1] != '8' || storeCmd[2] != 'L' {
 			t.Error("Large data should use GS 8 L extended format")
 		}
 
@@ -288,7 +287,7 @@ func TestIntegration_Graphics_LargeDataHandling(t *testing.T) {
 		}
 
 		// Verify extended format
-		if storeCmd[0] != shared.GS || storeCmd[1] != '8' || storeCmd[2] != 'L' {
+		if storeCmd[0] != common.GS || storeCmd[1] != '8' || storeCmd[2] != 'L' {
 			t.Error("Large column data should use GS 8 L extended format")
 		}
 	})

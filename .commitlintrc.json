@@ -11,9 +11,11 @@
       2,
       "always",
       [
-        "escpos",
+        "composer",
+        "connection",
+        "commands",
+        "document",
         "graphics",
-        "connector",
         "profile",
         "service",
         "barcode",
@@ -24,9 +26,47 @@
         "print",
         "printposition",
         "qrcode",
-        "shared",
-        "models"
+        "common",
+        "models",
+        "deps",
+        "ci",
+        "docs",
+        "test",
+        "release"
       ]
+    ],
+    "type-enum": [
+      2,
+      "always",
+      [
+        "feat",
+        "fix",
+        "docs",
+        "style",
+        "refactor",
+        "perf",
+        "test",
+        "build",
+        "ci",
+        "chore",
+        "revert",
+        "deps"
+      ]
+    ],
+    "subject-case": [
+      2,
+      "never",
+      [
+        "sentence-case",
+        "start-case",
+        "pascal-case",
+        "upper-case"
+      ]
+    ],
+    "subject-full-stop": [
+      2,
+      "never",
+      "."
     ]
   }
 }

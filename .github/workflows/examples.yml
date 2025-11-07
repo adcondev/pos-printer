@@ -1,0 +1,38 @@
+name: Test Examples
+
+on:
+  push:
+    paths:
+      - 'examples/**'
+      - 'pkg/**'
+  pull_request:
+    paths:
+      - 'examples/**'
+      - 'pkg/**'
+
+jobs:
+  test-examples:
+    name: Verify Examples
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: '1.24'
+
+      - name: Build examples
+        run: |
+          for example in examples/*/; do
+            echo "Building ${example}..."
+            (cd "$example" && go build -o /tmp/example .)
+          done
+
+      - name: Verify example imports
+        run: |
+          for example in examples/*/; do
+            echo "Checking ${example}..."
+            (cd "$example" && go mod tidy && git diff --exit-code go.mod go.sum)
+          done

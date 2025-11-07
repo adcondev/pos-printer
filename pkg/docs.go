@@ -6,7 +6,7 @@ offering a high-level API for printer control, text formatting, graphics printin
 
 Installation
 
-	go get github.com/adcondev/pos-printer@v2.0.0
+	go get github.com/adcondev/pos-printer@v3.0.0
 
 Basic Usage
 
@@ -38,7 +38,7 @@ Basic Usage
 The library follows a modular architecture with clear separation of concerns:
 
   - Composer: High-level ESC/POS command composition
-  - Controllers: Individual command implementations (barcode, character, etc.)
+  - Commands: Individual command implementations (barcode, character, etc.)
   - Connection: Platform-specific printer connections
   - Graphics: Advanced image processing and bitmap conversion
   - Profile: Printer-specific configurations
@@ -62,7 +62,8 @@ Platform Support
 
 Version History
 
-  - v2.0.0: Major refactor with modular architecture
+  - v3.0.0: Major refactor with modular architecture
+  - v2.0.0: Initial stable release with core features
   - v1.8.0: Added Task automation
   - v1.7.0: Bit image support
   - v1.6.0: Mechanism control commands

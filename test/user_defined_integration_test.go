@@ -4,19 +4,19 @@ import (
 	"bytes"
 	"testing"
 
-	"github.com/adcondev/pos-printer/pkg/controllers/escpos/character"
+	character2 "github.com/adcondev/pos-printer/pkg/commands/character"
 )
 
 func TestIntegration_UserDefined_CustomLogoWorkflow(t *testing.T) {
-	cmd := character.NewCommands()
+	cmd := character2.NewCommands()
 
 	t.Run("define and use custom characters", func(t *testing.T) {
 		var buffer []byte
 
 		// Create 4-part logo
-		logoChars := make([]character.UserDefinedChar, 4)
+		logoChars := make([]character2.UserDefinedChar, 4)
 		for i := range logoChars {
-			logoChars[i] = character.UserDefinedChar{
+			logoChars[i] = character2.UserDefinedChar{
 				Width: 12,
 				Data:  bytes.Repeat([]byte{byte(0x01 << i)}, 36), // Pattern for each part
 			}
@@ -30,10 +30,10 @@ func TestIntegration_UserDefined_CustomLogoWorkflow(t *testing.T) {
 		buffer = append(buffer, defineCmd...)
 
 		// Enable user-defined character set
-		buffer = append(buffer, cmd.UserDefined.SelectUserDefinedCharacterSet(character.UserDefinedOn)...)
+		buffer = append(buffer, cmd.UserDefined.SelectUserDefinedCharacterSet(character2.UserDefinedOn)...)
 
 		// Later disable user-defined set
-		buffer = append(buffer, cmd.UserDefined.SelectUserDefinedCharacterSet(character.UserDefinedOff)...)
+		buffer = append(buffer, cmd.UserDefined.SelectUserDefinedCharacterSet(character2.UserDefinedOff)...)
 
 		if len(buffer) < 150 {
 			t.Error("Buffer should contain logo definition commands")
@@ -47,7 +47,7 @@ func TestIntegration_UserDefined_CustomLogoWorkflow(t *testing.T) {
 
 	t.Run("character replacement workflow", func(t *testing.T) {
 		// Replace a single character
-		customChar := []character.UserDefinedChar{{
+		customChar := []character2.UserDefinedChar{{
 			Width: 8,
 			Data:  bytes.Repeat([]byte{0xAA}, 24), // 8 width × 3 height
 		}}

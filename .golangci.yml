@@ -5,21 +5,61 @@ run:
   tests: true
   build-tags:
     - integration
+  skip-dirs:
+    - examples
+    - test
 
 linters:
   # Solo habilitar los esenciales
   enable:
-    # Críticos - Siempre activos
-    - errcheck      # Manejo de errores
-    - govet        # Bugs potenciales
-    - staticcheck  # El mejor linter general
-    - ineffassign  # Variables no usadas
-    - gosec        # Seguridad básica
-    - unused      # Código no usado
-    - gocyclo     # Complejidad ciclomática
-    - gocritic     # Buenas prácticas
-    - unparam    # Parámetros no usados
-    - revive     # Código muerto
+    # Critical linters
+    - errcheck
+    - govet
+    - staticcheck
+    - ineffassign
+    - gosec
+    - unused
+
+    # Code quality
+    - gocyclo
+    - gocritic
+    - unparam
+    - revive
+    - misspell
+
+    # Best practices
+    - prealloc
+    - bodyclose
+    - goconst
+
+linters-settings:
+  gocyclo:
+    min-complexity: 15
+
+  govet:
+    check-shadowing: true
+    enabled:
+      - atomic
+      - bools
+      - errorsas
+      - fieldalignment
+      - nilfunc
+      - printf
+      - shadow
+      - structtag
+      - unreachable
+  gocritic:
+    enabled-tags:
+      - diagnostic
+      - experimental
+      - opinionated
+      - performance
+      - style
+
+  gosec:
+    excludes:
+      - G104  # Global exclusion: ignore error checking for prints in all code
+
 issues:
   # Límites razonables
   max-issues-per-linter: 50
@@ -28,3 +68,16 @@ issues:
   # Para PRs, solo mostrar issues nuevos
   new: true
   new-from-rev: HEAD~1
+
+  exclude-rules:
+    # Exclude test files from some linters
+    - path: _test\.go
+      linters:
+        - gosec
+        - unparam
+
+    # Exclude examples from strict checks
+    - path: examples/
+      linters:
+        - errcheck
+        - gosec
