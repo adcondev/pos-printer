@@ -49,6 +49,8 @@ go.work.sum
 !CODE_OF_CONDUCT.md
 !RELEASING.md
 !LICENSE
+!MOTIVATION1.md
+!MOTIVATION2.md
 
 !*.php
 !*.json

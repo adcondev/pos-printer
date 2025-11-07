@@ -106,7 +106,7 @@ func printStatistics(bitmap *graphics.MonochromeBitmap) {
 	density := float64(blackPixels) * 100.0 / float64(totalPixels)
 
 	fmt.Println("\n=== Processing Statistics ===")
-	fmt.Printf("Image dimensions: %d x %d pixels\n", bitmap.Width, bitmap.Height)
+	fmt.Printf("Code dimensions: %d x %d pixels\n", bitmap.Width, bitmap.Height)
 	fmt.Printf("Total pixels: %d\n", totalPixels)
 	fmt.Printf("Black pixels: %d (%.2f%%)\n", blackPixels, density)
 	fmt.Printf("White pixels: %d (%.2f%%)\n", totalPixels-blackPixels, 100.0-density)

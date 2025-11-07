@@ -51,9 +51,6 @@ const (
 	// MaxKeyCode represents maximum key code value (ASCII ~)
 	MaxKeyCode = 126
 	// NVGraphicsAreaSize represents total NV graphics area size in KB
-	NVGraphicsAreaSize = 256 * 1024
-	// RecommendedMaxNVGraphics represents recommended maximum number of NV graphics
-	RecommendedMaxNVGraphics = 50
 )
 
 // ============================================================================
@@ -70,8 +67,6 @@ var (
 	ErrInvalidColorCount = errors.New("invalid color count for specified tone")
 	// ErrInvalidBMPFormat indicates invalid Windows BMP format
 	ErrInvalidBMPFormat = errors.New("invalid Windows BMP format")
-	// ErrNVCapacityExceeded indicates NV memory capacity exceeded
-	ErrNVCapacityExceeded = errors.New("NV graphics memory capacity exceeded")
 	// ErrDuplicateColor indicates duplicate color in color data
 	ErrDuplicateColor = errors.New("duplicate color in color data")
 )
@@ -85,31 +80,16 @@ var _ NVGraphicsCapability = (*NvGraphicsCommands)(nil)
 
 // NVGraphicsCapability defines NV graphics-related operations
 type NVGraphicsCapability interface {
-	// Capacity management
 	GetNVGraphicsCapacity(fn NVFunctionCode) ([]byte, error)
 	GetNVGraphicsRemainingCapacity(fn NVFunctionCode) ([]byte, error)
 	GetNVGraphicsKeyCodeList() []byte
-
-	// Data management
 	DeleteAllNVGraphics() []byte
 	DeleteNVGraphicsByKeyCode(kc1, kc2 byte) ([]byte, error)
-
-	// Raster format definition
-	DefineNVRasterGraphics(tone GraphicsTone, kc1, kc2 byte, width, height uint16,
-		colorData []NVGraphicsColorData) ([]byte, error)
-	DefineNVRasterGraphicsLarge(tone GraphicsTone, kc1, kc2 byte, width, height uint16,
-		colorData []NVGraphicsColorData) ([]byte, error)
-
-	// Column format definition
-	DefineNVColumnGraphics(kc1, kc2 byte, width, height uint16,
-		colorData []NVGraphicsColorData) ([]byte, error)
-	DefineNVColumnGraphicsLarge(kc1, kc2 byte, width, height uint16,
-		colorData []NVGraphicsColorData) ([]byte, error)
-
-	// Printing
+	DefineNVRasterGraphics(tone GraphicsTone, kc1, kc2 byte, width, height uint16, colorData []NVGraphicsColorData) ([]byte, error)
+	DefineNVRasterGraphicsLarge(tone GraphicsTone, kc1, kc2 byte, width, height uint16, colorData []NVGraphicsColorData) ([]byte, error)
+	DefineNVColumnGraphics(kc1, kc2 byte, width, height uint16, colorData []NVGraphicsColorData) ([]byte, error)
+	DefineNVColumnGraphicsLarge(kc1, kc2 byte, width, height uint16, colorData []NVGraphicsColorData) ([]byte, error)
 	PrintNVGraphics(kc1, kc2 byte, horizontalScale, verticalScale GraphicsScale) ([]byte, error)
-
-	// BMP conversion
 	DefineWindowsBMPNVGraphics(kc1, kc2 byte, tone GraphicsTone, bmpData []byte) ([]byte, error)
 }
 

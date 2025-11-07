@@ -32,9 +32,6 @@ type Escpos struct {
 	// Configuración avanzada (opcional)
 	ImageThreshold int                 // Umbral para conversión B/N (0-255)
 	Dithering      graphics.DitherMode // Tipo de dithering por defecto
-
-	// Fuentes
-	Fonts map[string]int // Lista de fuentes soportadas, nombre -> ancho (en puntos)
 }
 
 // CreatePt210 crea un perfil para impresora térmica de 58mm PT-58N
@@ -74,11 +71,6 @@ func CreateProfile58mm() *Escpos {
 		SupportsDrawer:   false,
 
 		CodeTable: character.PC850,
-
-		Fonts: map[string]int{
-			"FontA": 12, // Ancho de 12 puntos
-			"FontB": 9,  // Ancho de 9 puntos
-		},
 	}
 }
 
