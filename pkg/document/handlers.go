@@ -60,16 +60,15 @@ func (e *Executor) handleText(printer *service.Printer, data json.RawMessage) er
 	}
 
 	// Imprimir texto
-	if cmd.NewLine || cmd.Content == "" {
-		// Por defecto agregar nueva línea si no se especifica
-		if cmd.NewLine || (cmd.Content != "" && !cmd.NewLine) {
+	if cmd.Content != "" {
+		if cmd.NewLine {
 			if err := printer.PrintLine(cmd.Content); err != nil {
 				return err
 			}
-		}
-	} else {
-		if err := printer.Print(cmd.Content); err != nil {
-			return err
+		} else {
+			if err := printer.Print(cmd.Content); err != nil {
+				return err
+			}
 		}
 	}
 
