@@ -46,8 +46,10 @@ func NewPrinter(proto *composer.Escpos, prof *profile.Escpos, conn connection.Co
 // Initialize resets the printer to default settings
 func (p *Printer) Initialize() error {
 	// TODO: Add profile-specific initialization if needed
-	ct, _ := p.Protocol.Character.SelectCharacterCodeTable(p.Profile.CodeTable)
-	if !p.Profile.IsSupported(p.Profile.CodeTable) {
+	var ct []byte
+	if p.Profile.IsSupported(p.Profile.CodeTable) {
+		ct, _ = p.Protocol.Character.SelectCharacterCodeTable(p.Profile.CodeTable)
+	} else {
 		ct, _ = p.Protocol.Character.SelectCharacterCodeTable(character.WPC1252)
 		log.Printf("warning: unsupported code table %v, falling back to Windows-1252", p.Profile.CodeTable)
 	}
@@ -210,10 +212,13 @@ func (p *Printer) PrintBitmap(bitmap *graphics.MonochromeBitmap) error {
 
 // SetCodeTable changes the character code table
 func (p *Printer) SetCodeTable(codeTable character.CodeTable) error {
-	cmd, err := p.Protocol.Character.SelectCharacterCodeTable(codeTable)
+	var cmd []byte
+	var err error
 	if !p.Profile.IsSupported(codeTable) {
 		cmd, err = p.Protocol.Character.SelectCharacterCodeTable(character.WPC1252)
 		log.Printf("warning: unsupported code table %v, falling back to Windows-1252", codeTable)
+	} else {
+		cmd, err = p.Protocol.Character.SelectCharacterCodeTable(codeTable)
 	}
 	if err != nil {
 		return fmt.Errorf("set code table: %w", err)
