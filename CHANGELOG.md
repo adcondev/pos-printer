@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.3.0](https://github.com/adcondev/pos-printer/compare/v2.2.1...v2.3.0) (2025-11-07)
+
+
+### ✨ Features
+
+* **escpos:** add document building and execution features ([#58](https://github.com/adcondev/pos-printer/issues/58)) ([3e89d73](https://github.com/adcondev/pos-printer/commit/3e89d734d6f86221088cb7ce9e0c64f2cf842864)), closes [#59](https://github.com/adcondev/pos-printer/issues/59)
+
 ### [2.2.1](https://github.com/adcondev/pos-printer/compare/v2.2.0...v2.2.1) (2025-11-06)
 
 
