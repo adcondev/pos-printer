@@ -178,7 +178,7 @@ The CI/CD pipeline is built on **GitHub Actions** and is designed to ensure code
 The project uses an automated release process that triggers on merges to the `main` branch. The process is as follows:
 
 1.  **Analyze Commits:** The pipeline analyzes the commit messages since the last release to determine the next semantic version (major, minor, or patch).
-2.  **Generate Release Notes:** A new `CHANGELOG.md` is generated based on the commit messages.
+2.  **Generate Release Notes:** The `CHANGELOG.md` is updated based on the commit messages.
 3.  **Create GitHub Release:** A new GitHub release is created with the new version and release notes.
 4.  **Warm up Go Proxy:** The Go module proxy is notified of the new version to ensure it is available to developers as quickly as possible.
 
