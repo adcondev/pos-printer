@@ -2,6 +2,13 @@
 
 All notable changes to the POS Printer library will be documented in this file.
 
+### [3.0.4](https://github.com/adcondev/pos-printer/compare/v3.0.3...v3.0.4) (2025-11-10)
+
+
+### 📦 Dependencies
+
+* **gh-actions:** bump github/codeql-action from 3 to 4 ([#65](https://github.com/adcondev/pos-printer/issues/65)) ([9b437df](https://github.com/adcondev/pos-printer/commit/9b437df564430b352d4c064ae42f23e48b990431))
+
 ### [3.0.3](https://github.com/adcondev/pos-printer/compare/v3.0.2...v3.0.3) (2025-11-10)
 
 
