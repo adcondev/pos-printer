@@ -82,6 +82,9 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
           check-regexp: '.*'
           wait-interval: 10
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          allowed-conclusions: success
+          timeout-minutes: 30
           running-workflow-name: 'Dependabot Enhanced Auto-merge'
 
       - name: Auto-approve and merge
