@@ -2,6 +2,19 @@
 
 All notable changes to the POS Printer library will be documented in this file.
 
+### [3.0.1](https://github.com/adcondev/pos-printer/compare/v3.0.0...v3.0.1) (2025-11-10)
+
+
+### 🤖 Continuous Integration
+
+* **dependabot:** enhance auto-merge workflow with timeout and success criteria ([5f74df6](https://github.com/adcondev/pos-printer/commit/5f74df60c908f8361b777fe9b4337200538a3052))
+* **github:** add new scopes for gomod, npm, and gh-actions ([39746f4](https://github.com/adcondev/pos-printer/commit/39746f4dc5f920e163582d627415ad1fdcbf3285))
+
+
+### 📦 Dependencies
+
+* **npm:** bump @commitlint/config-conventional from 19.8.1 to 20.0.0 ([#62](https://github.com/adcondev/pos-printer/issues/62)) ([277a12c](https://github.com/adcondev/pos-printer/commit/277a12ca66553a20cbd94a61edca87cba494f1f9))
+
 ## [3.0.0](https://github.com/adcondev/pos-printer/compare/v2.3.0...v3.0.0) (2025-11-07)
 
 
