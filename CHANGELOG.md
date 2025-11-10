@@ -2,6 +2,13 @@
 
 All notable changes to the POS Printer library will be documented in this file.
 
+### [3.0.2](https://github.com/adcondev/pos-printer/compare/v3.0.1...v3.0.2) (2025-11-10)
+
+
+### 📦 Dependencies
+
+* **npm:** bump @commitlint/cli from 19.8.1 to 20.1.0 ([#63](https://github.com/adcondev/pos-printer/issues/63)) ([1d19593](https://github.com/adcondev/pos-printer/commit/1d1959395768b428b075502cd21c2168e21918b5))
+
 ### [3.0.1](https://github.com/adcondev/pos-printer/compare/v3.0.0...v3.0.1) (2025-11-10)
 
 
