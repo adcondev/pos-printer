@@ -1,12 +1,11 @@
-name: Release
+name: Release Notes
 
 on:
-  push:
+  workflow_run:
+    workflows: [ "CI" ]
+    types:
+      - completed
     branches: [ main, master ]
-    paths-ignore:
-      - '**.md'
-      - '.github/**'
-      - '!.github/workflows/release.yml'
 
 permissions:
   contents: write
@@ -17,10 +16,14 @@ jobs:
   release:
     name: Create Release
     runs-on: ubuntu-latest
+    concurrency:
+      group: release-${{ github.ref }}
+      cancel-in-progress: false
     if: |
-      !contains(github.event.head_commit.message, 'chore(release)') &&
-      !contains(github.event.head_commit.message, '[skip ci]') &&
-      !contains(github.event.head_commit.message, '[skip release]')
+      github.event.workflow_run.conclusion == 'success' &&
+      !contains(github.event.workflow_run.head_commit.message, 'chore(release)') &&
+      !contains(github.event.workflow_run.head_commit.message, '[skip ci]') &&
+      !contains(github.event.workflow_run.head_commit.message, '[skip release]')
 
     steps:
       - name: Generate token
@@ -36,6 +39,7 @@ jobs:
         with:
           fetch-depth: 0
           token: ${{ steps.generate_token.outputs.token || secrets.GITHUB_TOKEN }}
+          ref: ${{ github.event.workflow_run.head_branch }}
 
       - name: Setup Git
         run: |
@@ -46,11 +50,22 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: '20'
-          cache: 'npm'
+
+      - name: Cache node modules
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
 
       - name: Install dependencies
         run: |
-          npm ci || npm install
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
 
       - name: Analyze commits
         id: analyze
@@ -94,19 +109,35 @@ jobs:
           echo "- Release type: ${RELEASE_TYPE:-none}" >> $GITHUB_STEP_SUMMARY
           echo "- Next version: $([ -n "$RELEASE_TYPE" ] && echo "Will calculate..." || echo "No release")" >> $GITHUB_STEP_SUMMARY
 
-      - name: Create Release
+      - name: Generate Release Notes
         if: steps.analyze.outputs.should_release == 'true'
         id: release
         run: |
-          # Run standard-version with the detected release type
-          npx standard-version --release-as ${{ steps.analyze.outputs.release_type }}
+          set -e  # Exit on error
           
-          # Get the new version
-          NEW_VERSION=$(node -p "require('./package.json').version")
+          # Run standard-version
+          if ! npx standard-version --release-as ${{ steps.analyze.outputs.release_type }}; then
+            echo "❌ standard-version failed"
+            exit 1
+          fi
+          
+          # Get the new version from the git tag
+          NEW_VERSION=$(git describe --tags --abbrev=0 | sed 's/^v//')
           echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
           
-          # Push changes
-          git push --follow-tags origin ${{ github.ref_name }}
+          # Push changes with error handling
+          if ! git push --follow-tags origin ${{ github.event.workflow_run.head_branch }}; then
+            echo "❌ Failed to push tags"
+            git tag -d "v${NEW_VERSION}"  # Cleanup local tag
+            exit 1
+          fi
+
+      - name: Extract Release Notes
+        if: steps.analyze.outputs.should_release == 'true'
+        id: extract_notes
+        run: |
+          # Extract only the latest version's changelog
+          awk '/^## \[/{if (++count == 2) exit} count == 1' CHANGELOG.md > RELEASE_NOTES.md
 
       - name: Create GitHub Release
         if: steps.analyze.outputs.should_release == 'true'
@@ -114,9 +145,20 @@ jobs:
         with:
           tag_name: v${{ steps.release.outputs.new_version }}
           name: Release v${{ steps.release.outputs.new_version }}
-          body_path: CHANGELOG.md
+          body_path: RELEASE_NOTES.md
           generate_release_notes: true
           make_latest: true
+
+      - name: Warm up Go Proxy
+        if: steps.analyze.outputs.should_release == 'true'
+        run: |
+          # Give GitHub a moment to process the tag
+          sleep 10
+
+          # Trigger proxy.golang.org to fetch the new version
+          curl -f "https://proxy.golang.org/github.com/${{ github.repository }}/@v/v${{ steps.release.outputs.new_version }}.info" || true
+
+          echo "✅ Go module proxy notified" >> $GITHUB_STEP_SUMMARY
 
       - name: Generate Go Module Release Info
         if: steps.analyze.outputs.should_release == 'true'
@@ -126,3 +168,17 @@ jobs:
           echo "```bash" >> $GITHUB_STEP_SUMMARY
           echo "go get github.com/${{ github.repository }}@v${{ steps.release.outputs.new_version }}" >> $GITHUB_STEP_SUMMARY
           echo "```" >> $GITHUB_STEP_SUMMARY
+
+      - name: Summary
+        if: always()
+        run: |
+          if [ "${{ steps.analyze.outputs.should_release }}" == "true" ]; then
+            echo "## 🚀 Release v${{ steps.release.outputs.new_version }} Published!" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Install:** \`go get github.com/${{ github.repository }}@v${{ steps.release.outputs.new_version }}\`" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "[View Release](https://github.com/${{ github.repository }}/releases/tag/v${{ steps.release.outputs.new_version }})" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "## ℹ️ No Release Created" >> $GITHUB_STEP_SUMMARY
+            echo "No releasable changes detected." >> $GITHUB_STEP_SUMMARY
+          fi

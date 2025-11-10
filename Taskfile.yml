@@ -3,7 +3,7 @@
 version: '3'
 
 vars:
-  GP_TEST_FLAGS: -v
+  TEST_FLAGS: -coverprofile=coverage.txt -covermode=atomic
   LINT_FLAGS: --timeout=5m
   BANNER: |
     ╔══════════════════════════════════════════════════════════╗
@@ -91,7 +91,7 @@ tasks:
   test:
     cmds:
       - echo "Running all tests in detail..."
-      - go test {{.GP_TEST_FLAGS}} ./...
+      - go test {{.TEST_FLAGS}} ./...
   deps:
     cmds:
       - echo "Tidying and downloading dependencies..."
