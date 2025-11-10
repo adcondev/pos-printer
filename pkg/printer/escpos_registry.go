@@ -159,7 +159,7 @@ func (p *Printer) DoubleSize() error {
 
 // FullCut performs a full paper cut
 func (p *Printer) FullCut(lines byte) error {
-	cmd := p.Protocol.FullPaperCut(lines)
+	cmd, _ := p.Protocol.MechanismControl.FeedAndCutPaper(mechanismcontrol.FeedCutFull, lines)
 	return p.Write(cmd)
 }
 

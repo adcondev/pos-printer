@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	common2 "github.com/adcondev/pos-printer/pkg/commands/common"
+	"github.com/adcondev/pos-printer/pkg/commands/common"
 )
 
 // ============================================================================
@@ -45,9 +45,9 @@ var (
 
 var (
 	// ErrEmptyText indicates that the provided text is empty
-	ErrEmptyText = common2.ErrEmptyBuffer
+	ErrEmptyText = common.ErrEmptyBuffer
 	// ErrTextTooLarge indicates that the provided text exceeds buffer limits
-	ErrTextTooLarge = common2.ErrBufferOverflow
+	ErrTextTooLarge = common.ErrBufferOverflow
 	// ErrReverseUnits invalid number of motion units for reverse print
 	ErrReverseUnits = fmt.Errorf("invalid reverse feed units (try 0-%d)", MaxReverseMotionUnits)
 	// ErrReverseLines invalid number of lines for reverse print
@@ -65,19 +65,13 @@ var _ Capability = (*Commands)(nil)
 type Capability interface {
 	// Text operations
 	Text(text string) ([]byte, error)
-
-	// Basic print commands
 	PrintAndLineFeed() []byte
 	PrintAndCarriageReturn() []byte
 	FormFeed() []byte
-
-	// Paper feed operations
 	PrintAndFeedPaper(units byte) []byte
 	PrintAndFeedLines(lines byte) []byte
 	PrintAndReverseFeed(units byte) ([]byte, error)
 	PrintAndReverseFeedLines(lines byte) ([]byte, error)
-
-	// Page mode specific
 	PrintDataInPageMode() []byte
 	CancelData() []byte
 }
@@ -106,11 +100,11 @@ func NewCommands() *Commands {
 //   - Replaces '\t' with HT (0x09)
 //   - Validates buffer size according to printer limitations
 func (c *Commands) Text(n string) ([]byte, error) {
-	if err := common2.IsBufLenOk([]byte(n)); err != nil {
+	if err := common.IsBufLenOk([]byte(n)); err != nil {
 		switch {
-		case errors.Is(err, common2.ErrEmptyBuffer):
+		case errors.Is(err, common.ErrEmptyBuffer):
 			return nil, ErrEmptyText
-		case errors.Is(err, common2.ErrBufferOverflow):
+		case errors.Is(err, common.ErrBufferOverflow):
 			return nil, ErrTextTooLarge
 		default:
 			return nil, err
@@ -136,7 +130,7 @@ func Formatting(data []byte) []byte {
 		case '\r':
 			formatted[i] = CR
 		case '\t':
-			formatted[i] = common2.HT
+			formatted[i] = common.HT
 		}
 	}
 	return formatted

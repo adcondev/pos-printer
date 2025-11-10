@@ -87,7 +87,6 @@ Scope MUST be a noun describing a section of the codebase surrounded by parenthe
 - MUST be imperative, present tense: "change" not "changed" nor "changes"
 - MUST be lowercase
 - MUST NOT end with a period
-- MUST be concise (under 50 characters)
 
 ## Breaking Changes
 
@@ -102,7 +101,6 @@ Breaking changes MUST be indicated in one of two ways:
 - Use the body to explain WHAT and WHY (not HOW)
 - Separate paragraphs with blank lines
 - Use bullet points with hyphens (`-`)
-- SHOULD wrap at 72 characters
 
 ## Footers
 
@@ -113,28 +111,6 @@ Breaking changes MUST be indicated in one of two ways:
     - `Reviewed-by: Person Name`
     - `Refs: #456`
     - `BREAKING CHANGE: description of breaking change`
-
-## Examples Specific to This Project
-
-```
-feat(barcode): add support for Code 128 format
-fix(connector): resolve timeout issue on Windows
-docs(api): update REST endpoint documentation
-refactor(composer): simplify command builder logic
-perf(imaging): optimize bitmap compression algorithm
-test(qrcode): add unit tests for error correction levels
-```
-
-## Common Mistakes to Avoid
-
-❌ `fix: fixed bug` (too vague)
-✅ `fix(connector): resolve USB connection timeout`
-
-❌ `feat: added new feature for printing` (not specific)
-✅ `feat(barcode): add support for QR code error correction`
-
-❌ `update code` (missing type and scope)
-✅ `refactor(composer): extract command validation logic`
 
 ## Instructions for AI
 

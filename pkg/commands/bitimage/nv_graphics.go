@@ -109,6 +109,8 @@ func NewNVGraphicsCommands() *NvGraphicsCommands {
 // Helper Functions
 // ============================================================================
 
+// TODO: Check if is better to have them in composer package
+
 // calculateNVRasterDataSize calculates the data size for NV raster format graphics
 func calculateNVRasterDataSize(width, height uint16) int {
 	widthBytes := (int(width) + 7) / 8
@@ -119,6 +121,60 @@ func calculateNVRasterDataSize(width, height uint16) int {
 func calculateNVColumnDataSize(width, height uint16) int {
 	heightBytes := (int(height) + 7) / 8
 	return int(width) * heightBytes
+}
+
+// ============================================================================
+// Validation Helper Functions
+// ============================================================================
+
+// ValidateNVCapacityFunctionCode validates if function code is valid for capacity query
+func ValidateNVCapacityFunctionCode(fn NVFunctionCode) error {
+	if fn != NVFuncGetCapacity && fn != NVFuncGetCapacityASCII {
+		return ErrInvalidNVFunctionCode
+	}
+	return nil
+}
+
+// ValidateNVRemainingFunctionCode validates if function code is valid for remaining capacity query
+func ValidateNVRemainingFunctionCode(fn NVFunctionCode) error {
+	if fn != NVFuncGetRemaining && fn != NVFuncGetRemainingASCII {
+		return ErrInvalidNVFunctionCode
+	}
+	return nil
+}
+
+// ValidateKeyCode validates if key code is valid
+func ValidateKeyCode(kc byte) error {
+	if kc < MinKeyCode || kc > MaxKeyCode {
+		return ErrInvalidKeyCode
+	}
+	return nil
+}
+
+// ValidateNVGraphicsDimensions validates NV graphics dimensions
+func ValidateNVGraphicsDimensions(width, height uint16) error {
+	if width < 1 || width > MaxNVGraphicsWidth {
+		return ErrInvalidWidth
+	}
+	if height < 1 || height > MaxNVGraphicsHeight {
+		return ErrInvalidHeight
+	}
+	return nil
+}
+
+// ValidateBMPData validates Windows BMP format data
+func ValidateBMPData(data []byte) error {
+	// Check minimum BMP file size (file header + DIB header)
+	if len(data) < 54 {
+		return ErrInvalidBMPFormat
+	}
+
+	// Check BMP signature "BM"
+	if data[0] != 'B' || data[1] != 'M' {
+		return ErrInvalidBMPFormat
+	}
+
+	return nil
 }
 
 // validateColorDataForTone validates color data based on tone
@@ -192,60 +248,6 @@ func validateColumnColorData(colorData []NVGraphicsColorData) error {
 	// Colors 1 and 2 can be used alone or together (max 2)
 	if !hasColor3 && len(colorData) > 2 {
 		return ErrInvalidColorCount
-	}
-
-	return nil
-}
-
-// ============================================================================
-// Validation Helper Functions
-// ============================================================================
-
-// ValidateNVCapacityFunctionCode validates if function code is valid for capacity query
-func ValidateNVCapacityFunctionCode(fn NVFunctionCode) error {
-	if fn != NVFuncGetCapacity && fn != NVFuncGetCapacityASCII {
-		return ErrInvalidNVFunctionCode
-	}
-	return nil
-}
-
-// ValidateNVRemainingFunctionCode validates if function code is valid for remaining capacity query
-func ValidateNVRemainingFunctionCode(fn NVFunctionCode) error {
-	if fn != NVFuncGetRemaining && fn != NVFuncGetRemainingASCII {
-		return ErrInvalidNVFunctionCode
-	}
-	return nil
-}
-
-// ValidateKeyCode validates if key code is valid
-func ValidateKeyCode(kc byte) error {
-	if kc < MinKeyCode || kc > MaxKeyCode {
-		return ErrInvalidKeyCode
-	}
-	return nil
-}
-
-// ValidateNVGraphicsDimensions validates NV graphics dimensions
-func ValidateNVGraphicsDimensions(width, height uint16) error {
-	if width < 1 || width > MaxNVGraphicsWidth {
-		return ErrInvalidWidth
-	}
-	if height < 1 || height > MaxNVGraphicsHeight {
-		return ErrInvalidHeight
-	}
-	return nil
-}
-
-// ValidateBMPData validates Windows BMP format data
-func ValidateBMPData(data []byte) error {
-	// Check minimum BMP file size (file header + DIB header)
-	if len(data) < 54 {
-		return ErrInvalidBMPFormat
-	}
-
-	// Check BMP signature "BM"
-	if data[0] != 'B' || data[1] != 'M' {
-		return ErrInvalidBMPFormat
 	}
 
 	return nil

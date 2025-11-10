@@ -170,9 +170,3 @@ func (c *EscposProtocol) DoubleSizeText() []byte {
 	size, _ := character.NewSize(2, 2)
 	return c.Character.SelectCharacterSize(size)
 }
-
-// FullPaperCut performs a full paper cut.
-func (c *EscposProtocol) FullPaperCut(lines byte) []byte {
-	cmd, _ := c.MechanismControl.FeedAndCutPaper(mechanismcontrol.FeedCutFull, lines)
-	return cmd
-}
