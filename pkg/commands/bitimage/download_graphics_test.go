@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/adcondev/pos-printer/internal/testutils"
-	bitimage2 "github.com/adcondev/pos-printer/pkg/commands/bitimage"
+	"github.com/adcondev/pos-printer/pkg/commands/bitimage"
 	"github.com/adcondev/pos-printer/pkg/commands/common"
 )
 
@@ -13,23 +13,23 @@ import (
 // ============================================================================
 
 func TestDownloadGraphicsCommands_GetDownloadGraphicsRemainingCapacity(t *testing.T) {
-	cmd := bitimage2.NewDownloadGraphicsCommands()
+	cmd := bitimage.NewDownloadGraphicsCommands()
 
 	tests := []struct {
 		name    string
-		fn      bitimage2.DLFunctionCode
+		fn      bitimage.DLFunctionCode
 		want    []byte
 		wantErr error
 	}{
 		{
 			name:    "function code 4",
-			fn:      bitimage2.DLFuncGetRemaining,
+			fn:      bitimage.DLFuncGetRemaining,
 			want:    []byte{common.GS, '(', 'L', 0x02, 0x00, 0x30, 4},
 			wantErr: nil,
 		},
 		{
 			name:    "function code 52 (ASCII)",
-			fn:      bitimage2.DLFuncGetRemainingASCII,
+			fn:      bitimage.DLFuncGetRemainingASCII,
 			want:    []byte{common.GS, '(', 'L', 0x02, 0x00, 0x30, 52},
 			wantErr: nil,
 		},
@@ -37,13 +37,13 @@ func TestDownloadGraphicsCommands_GetDownloadGraphicsRemainingCapacity(t *testin
 			name:    "invalid function code 0",
 			fn:      0,
 			want:    nil,
-			wantErr: bitimage2.ErrInvalidDLFunctionCode,
+			wantErr: bitimage.ErrInvalidDLFunctionCode,
 		},
 		{
 			name:    "invalid function code 99",
 			fn:      99,
 			want:    nil,
-			wantErr: bitimage2.ErrInvalidDLFunctionCode,
+			wantErr: bitimage.ErrInvalidDLFunctionCode,
 		},
 	}
 
@@ -65,7 +65,7 @@ func TestDownloadGraphicsCommands_GetDownloadGraphicsRemainingCapacity(t *testin
 }
 
 func TestDownloadGraphicsCommands_GetDownloadGraphicsKeyCodeList(t *testing.T) {
-	cmd := bitimage2.NewDownloadGraphicsCommands()
+	cmd := bitimage.NewDownloadGraphicsCommands()
 	want := []byte{common.GS, '(', 'L', 0x04, 0x00, 0x30, 0x50, 'K', 'C'}
 
 	got := cmd.GetDownloadGraphicsKeyCodeList()
@@ -73,7 +73,7 @@ func TestDownloadGraphicsCommands_GetDownloadGraphicsKeyCodeList(t *testing.T) {
 }
 
 func TestDownloadGraphicsCommands_DeleteAllDownloadGraphics(t *testing.T) {
-	cmd := bitimage2.NewDownloadGraphicsCommands()
+	cmd := bitimage.NewDownloadGraphicsCommands()
 	want := []byte{common.GS, '(', 'L', 0x05, 0x00, 0x30, 0x51, 'C', 'L', 'R'}
 
 	got := cmd.DeleteAllDownloadGraphics()
@@ -81,7 +81,7 @@ func TestDownloadGraphicsCommands_DeleteAllDownloadGraphics(t *testing.T) {
 }
 
 func TestDownloadGraphicsCommands_DeleteDownloadGraphicsByKeyCode(t *testing.T) {
-	cmd := bitimage2.NewDownloadGraphicsCommands()
+	cmd := bitimage.NewDownloadGraphicsCommands()
 
 	tests := []struct {
 		name    string
@@ -116,14 +116,14 @@ func TestDownloadGraphicsCommands_DeleteDownloadGraphicsByKeyCode(t *testing.T) 
 			kc1:     31,
 			kc2:     32,
 			want:    nil,
-			wantErr: bitimage2.ErrInvalidKeyCode,
+			wantErr: bitimage.ErrInvalidKeyCode,
 		},
 		{
 			name:    "invalid kc2",
 			kc1:     32,
 			kc2:     127,
 			want:    nil,
-			wantErr: bitimage2.ErrInvalidKeyCode,
+			wantErr: bitimage.ErrInvalidKeyCode,
 		},
 	}
 
@@ -145,14 +145,14 @@ func TestDownloadGraphicsCommands_DeleteDownloadGraphicsByKeyCode(t *testing.T) 
 }
 
 func TestDownloadGraphicsCommands_PrintDownloadGraphics(t *testing.T) {
-	cmd := bitimage2.NewDownloadGraphicsCommands()
+	cmd := bitimage.NewDownloadGraphicsCommands()
 
 	tests := []struct {
 		name            string
 		kc1             byte
 		kc2             byte
-		horizontalScale bitimage2.GraphicsScale
-		verticalScale   bitimage2.GraphicsScale
+		horizontalScale bitimage.GraphicsScale
+		verticalScale   bitimage.GraphicsScale
 		want            []byte
 		wantErr         error
 	}{
@@ -160,8 +160,8 @@ func TestDownloadGraphicsCommands_PrintDownloadGraphics(t *testing.T) {
 			name:            "normal scale",
 			kc1:             'X',
 			kc2:             'Y',
-			horizontalScale: bitimage2.NormalScale,
-			verticalScale:   bitimage2.NormalScale,
+			horizontalScale: bitimage.NormalScale,
+			verticalScale:   bitimage.NormalScale,
 			want:            []byte{common.GS, '(', 'L', 0x06, 0x00, 0x30, 0x55, 'X', 'Y', 1, 1},
 			wantErr:         nil,
 		},
@@ -169,8 +169,8 @@ func TestDownloadGraphicsCommands_PrintDownloadGraphics(t *testing.T) {
 			name:            "double width",
 			kc1:             'A',
 			kc2:             'B',
-			horizontalScale: bitimage2.DoubleScale,
-			verticalScale:   bitimage2.NormalScale,
+			horizontalScale: bitimage.DoubleScale,
+			verticalScale:   bitimage.NormalScale,
 			want:            []byte{common.GS, '(', 'L', 0x06, 0x00, 0x30, 0x55, 'A', 'B', 2, 1},
 			wantErr:         nil,
 		},
@@ -178,8 +178,8 @@ func TestDownloadGraphicsCommands_PrintDownloadGraphics(t *testing.T) {
 			name:            "double height",
 			kc1:             'C',
 			kc2:             'D',
-			horizontalScale: bitimage2.NormalScale,
-			verticalScale:   bitimage2.DoubleScale,
+			horizontalScale: bitimage.NormalScale,
+			verticalScale:   bitimage.DoubleScale,
 			want:            []byte{common.GS, '(', 'L', 0x06, 0x00, 0x30, 0x55, 'C', 'D', 1, 2},
 			wantErr:         nil,
 		},
@@ -187,8 +187,8 @@ func TestDownloadGraphicsCommands_PrintDownloadGraphics(t *testing.T) {
 			name:            "quadruple",
 			kc1:             'E',
 			kc2:             'F',
-			horizontalScale: bitimage2.DoubleScale,
-			verticalScale:   bitimage2.DoubleScale,
+			horizontalScale: bitimage.DoubleScale,
+			verticalScale:   bitimage.DoubleScale,
 			want:            []byte{common.GS, '(', 'L', 0x06, 0x00, 0x30, 0x55, 'E', 'F', 2, 2},
 			wantErr:         nil,
 		},
@@ -196,37 +196,37 @@ func TestDownloadGraphicsCommands_PrintDownloadGraphics(t *testing.T) {
 			name:            "invalid key code 1",
 			kc1:             31,
 			kc2:             32,
-			horizontalScale: bitimage2.NormalScale,
-			verticalScale:   bitimage2.NormalScale,
+			horizontalScale: bitimage.NormalScale,
+			verticalScale:   bitimage.NormalScale,
 			want:            nil,
-			wantErr:         bitimage2.ErrInvalidKeyCode,
+			wantErr:         bitimage.ErrInvalidKeyCode,
 		},
 		{
 			name:            "invalid key code 2",
 			kc1:             32,
 			kc2:             127,
-			horizontalScale: bitimage2.NormalScale,
-			verticalScale:   bitimage2.NormalScale,
+			horizontalScale: bitimage.NormalScale,
+			verticalScale:   bitimage.NormalScale,
 			want:            nil,
-			wantErr:         bitimage2.ErrInvalidKeyCode,
+			wantErr:         bitimage.ErrInvalidKeyCode,
 		},
 		{
 			name:            "invalid horizontal scale",
 			kc1:             'A',
 			kc2:             'B',
 			horizontalScale: 0,
-			verticalScale:   bitimage2.NormalScale,
+			verticalScale:   bitimage.NormalScale,
 			want:            nil,
-			wantErr:         bitimage2.ErrInvalidScale,
+			wantErr:         bitimage.ErrInvalidScale,
 		},
 		{
 			name:            "invalid vertical scale",
 			kc1:             'A',
 			kc2:             'B',
-			horizontalScale: bitimage2.NormalScale,
+			horizontalScale: bitimage.NormalScale,
 			verticalScale:   3,
 			want:            nil,
-			wantErr:         bitimage2.ErrInvalidScale,
+			wantErr:         bitimage.ErrInvalidScale,
 		},
 	}
 
@@ -255,11 +255,11 @@ func TestDownloadGraphicsCommands_PrintDownloadGraphics(t *testing.T) {
 func TestValidateDLRemainingFunctionCode(t *testing.T) {
 	tests := []struct {
 		name    string
-		fn      bitimage2.DLFunctionCode
+		fn      bitimage.DLFunctionCode
 		wantErr bool
 	}{
-		{"valid code 4", bitimage2.DLFuncGetRemaining, false},
-		{"valid code 52", bitimage2.DLFuncGetRemainingASCII, false},
+		{"valid code 4", bitimage.DLFuncGetRemaining, false},
+		{"valid code 52", bitimage.DLFuncGetRemainingASCII, false},
 		{"invalid code 0", 0, true},
 		{"invalid code 3", 3, true},
 		{"invalid code 51", 51, true},
@@ -268,7 +268,7 @@ func TestValidateDLRemainingFunctionCode(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err := bitimage2.ValidateDLRemainingFunctionCode(tt.fn)
+			err := bitimage.ValidateDLRemainingFunctionCode(tt.fn)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ValidateDLRemainingFunctionCode(%v) error = %v, wantErr %v", tt.fn, err, tt.wantErr)
 			}
@@ -296,7 +296,7 @@ func TestValidateDLGraphicsDimensions(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err := bitimage2.ValidateDLGraphicsDimensions(tt.width, tt.height)
+			err := bitimage.ValidateDLGraphicsDimensions(tt.width, tt.height)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ValidateDLGraphicsDimensions(%v, %v) error = %v, wantErr %v",
 					tt.width, tt.height, err, tt.wantErr)

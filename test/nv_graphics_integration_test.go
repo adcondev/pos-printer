@@ -5,25 +5,25 @@ import (
 	"testing"
 
 	"github.com/adcondev/pos-printer/internal/testutils"
-	bitimage2 "github.com/adcondev/pos-printer/pkg/commands/bitimage"
+	"github.com/adcondev/pos-printer/pkg/commands/bitimage"
 	"github.com/adcondev/pos-printer/pkg/commands/common"
 )
 
 func TestIntegration_NVGraphics_CompleteWorkflow(t *testing.T) {
-	cmd := bitimage2.NewNVGraphicsCommands()
+	cmd := bitimage.NewNVGraphicsCommands()
 
 	t.Run("define and print NV graphics", func(t *testing.T) {
 		var buffer []byte
 
 		// Step 1: Check NV capacity
-		capacityCmd, err := cmd.GetNVGraphicsCapacity(bitimage2.NVFuncGetCapacity)
+		capacityCmd, err := cmd.GetNVGraphicsCapacity(bitimage.NVFuncGetCapacity)
 		if err != nil {
 			t.Fatalf("GetNVGraphicsCapacity failed: %v", err)
 		}
 		buffer = append(buffer, capacityCmd...)
 
 		// Step 2: Check remaining capacity
-		remainingCmd, err := cmd.GetNVGraphicsRemainingCapacity(bitimage2.NVFuncGetRemaining)
+		remainingCmd, err := cmd.GetNVGraphicsRemainingCapacity(bitimage.NVFuncGetRemaining)
 		if err != nil {
 			t.Fatalf("GetNVGraphicsRemainingCapacity failed: %v", err)
 		}
@@ -35,15 +35,15 @@ func TestIntegration_NVGraphics_CompleteWorkflow(t *testing.T) {
 		widthBytes := (int(width) + 7) / 8
 		dataSize := widthBytes * int(height)
 
-		colorData := []bitimage2.NVGraphicsColorData{
+		colorData := []bitimage.NVGraphicsColorData{
 			{
-				Color: bitimage2.Color1,
+				Color: bitimage.Color1,
 				Data:  testutils.RepeatByte(dataSize, 0xF0),
 			},
 		}
 
 		defineCmd, err := cmd.DefineNVRasterGraphics(
-			bitimage2.Monochrome,
+			bitimage.Monochrome,
 			'N', 'V',
 			width, height,
 			colorData,
@@ -54,7 +54,7 @@ func TestIntegration_NVGraphics_CompleteWorkflow(t *testing.T) {
 		buffer = append(buffer, defineCmd...)
 
 		// Step 4: Print the NV graphics
-		printCmd, err := cmd.PrintNVGraphics('N', 'V', bitimage2.NormalScale, bitimage2.NormalScale)
+		printCmd, err := cmd.PrintNVGraphics('N', 'V', bitimage.NormalScale, bitimage.NormalScale)
 		if err != nil {
 			t.Fatalf("PrintNVGraphics failed: %v", err)
 		}
@@ -84,15 +84,15 @@ func TestIntegration_NVGraphics_CompleteWorkflow(t *testing.T) {
 		dataSize := widthBytes * int(height)
 
 		// Define multiple color groups
-		colorData := []bitimage2.NVGraphicsColorData{
-			{Color: bitimage2.Color1, Data: testutils.RepeatByte(dataSize, 0x11)},
-			{Color: bitimage2.Color2, Data: testutils.RepeatByte(dataSize, 0x22)},
-			{Color: bitimage2.Color3, Data: testutils.RepeatByte(dataSize, 0x33)},
-			{Color: bitimage2.Color4, Data: testutils.RepeatByte(dataSize, 0x44)},
+		colorData := []bitimage.NVGraphicsColorData{
+			{Color: bitimage.Color1, Data: testutils.RepeatByte(dataSize, 0x11)},
+			{Color: bitimage.Color2, Data: testutils.RepeatByte(dataSize, 0x22)},
+			{Color: bitimage.Color3, Data: testutils.RepeatByte(dataSize, 0x33)},
+			{Color: bitimage.Color4, Data: testutils.RepeatByte(dataSize, 0x44)},
 		}
 
 		defineCmd, err := cmd.DefineNVRasterGraphics(
-			bitimage2.MultipleTone,
+			bitimage.MultipleTone,
 			'M', 'C',
 			width, height,
 			colorData,
@@ -103,7 +103,7 @@ func TestIntegration_NVGraphics_CompleteWorkflow(t *testing.T) {
 		buffer = append(buffer, defineCmd...)
 
 		// Print with double scale
-		printCmd, err := cmd.PrintNVGraphics('M', 'C', bitimage2.DoubleScale, bitimage2.DoubleScale)
+		printCmd, err := cmd.PrintNVGraphics('M', 'C', bitimage.DoubleScale, bitimage.DoubleScale)
 		if err != nil {
 			t.Fatalf("PrintNVGraphics failed: %v", err)
 		}
@@ -124,9 +124,9 @@ func TestIntegration_NVGraphics_CompleteWorkflow(t *testing.T) {
 		dataSize := int(width) * heightBytes
 
 		// Column format with colors 1 and 2
-		colorData := []bitimage2.NVGraphicsColorData{
-			{Color: bitimage2.Color1, Data: testutils.RepeatByte(dataSize, 0xAA)},
-			{Color: bitimage2.Color2, Data: testutils.RepeatByte(dataSize, 0x55)},
+		colorData := []bitimage.NVGraphicsColorData{
+			{Color: bitimage.Color1, Data: testutils.RepeatByte(dataSize, 0xAA)},
+			{Color: bitimage.Color2, Data: testutils.RepeatByte(dataSize, 0x55)},
 		}
 
 		defineCmd, err := cmd.DefineNVColumnGraphics(
@@ -140,8 +140,8 @@ func TestIntegration_NVGraphics_CompleteWorkflow(t *testing.T) {
 		buffer = append(buffer, defineCmd...)
 
 		// Column format with color 3 only
-		colorData3 := []bitimage2.NVGraphicsColorData{
-			{Color: bitimage2.Color3, Data: testutils.RepeatByte(dataSize, 0xFF)},
+		colorData3 := []bitimage.NVGraphicsColorData{
+			{Color: bitimage.Color3, Data: testutils.RepeatByte(dataSize, 0xFF)},
 		}
 
 		defineCmd3, err := cmd.DefineNVColumnGraphics(
@@ -155,8 +155,8 @@ func TestIntegration_NVGraphics_CompleteWorkflow(t *testing.T) {
 		buffer = append(buffer, defineCmd3...)
 
 		// Print both graphics
-		printCmd1, _ := cmd.PrintNVGraphics('C', 'F', bitimage2.NormalScale, bitimage2.DoubleScale)
-		printCmd2, _ := cmd.PrintNVGraphics('C', '3', bitimage2.DoubleScale, bitimage2.NormalScale)
+		printCmd1, _ := cmd.PrintNVGraphics('C', 'F', bitimage.NormalScale, bitimage.DoubleScale)
+		printCmd2, _ := cmd.PrintNVGraphics('C', '3', bitimage.DoubleScale, bitimage.NormalScale)
 
 		buffer = append(buffer, printCmd1...)
 		buffer = append(buffer, printCmd2...)
@@ -181,7 +181,7 @@ func TestIntegration_NVGraphics_CompleteWorkflow(t *testing.T) {
 		// Define monochrome BMP
 		defineCmd, err := cmd.DefineWindowsBMPNVGraphics(
 			'B', '1',
-			bitimage2.Monochrome,
+			bitimage.Monochrome,
 			bmpData,
 		)
 		if err != nil {
@@ -192,7 +192,7 @@ func TestIntegration_NVGraphics_CompleteWorkflow(t *testing.T) {
 		// Define multiple tone BMP
 		defineCmd2, err := cmd.DefineWindowsBMPNVGraphics(
 			'B', '2',
-			bitimage2.MultipleTone,
+			bitimage.MultipleTone,
 			bmpData,
 		)
 		if err != nil {
@@ -201,8 +201,8 @@ func TestIntegration_NVGraphics_CompleteWorkflow(t *testing.T) {
 		buffer = append(buffer, defineCmd2...)
 
 		// Print both BMPs
-		printCmd1, _ := cmd.PrintNVGraphics('B', '1', bitimage2.NormalScale, bitimage2.NormalScale)
-		printCmd2, _ := cmd.PrintNVGraphics('B', '2', bitimage2.DoubleScale, bitimage2.DoubleScale)
+		printCmd1, _ := cmd.PrintNVGraphics('B', '1', bitimage.NormalScale, bitimage.NormalScale)
+		printCmd2, _ := cmd.PrintNVGraphics('B', '2', bitimage.DoubleScale, bitimage.DoubleScale)
 
 		buffer = append(buffer, printCmd1...)
 		buffer = append(buffer, printCmd2...)
@@ -242,7 +242,7 @@ func TestIntegration_NVGraphics_CompleteWorkflow(t *testing.T) {
 }
 
 func TestIntegration_NVGraphics_LargeDataHandling(t *testing.T) {
-	cmd := bitimage2.NewNVGraphicsCommands()
+	cmd := bitimage.NewNVGraphicsCommands()
 
 	t.Run("large raster format exceeding standard size", func(t *testing.T) {
 		// Create data larger than 65535 bytes
@@ -255,15 +255,15 @@ func TestIntegration_NVGraphics_LargeDataHandling(t *testing.T) {
 			t.Skip("Data size not large enough for extended format testutils")
 		}
 
-		colorData := []bitimage2.NVGraphicsColorData{
+		colorData := []bitimage.NVGraphicsColorData{
 			{
-				Color: bitimage2.Color1,
+				Color: bitimage.Color1,
 				Data:  testutils.RepeatByte(dataSize, 0xEE),
 			},
 		}
 
 		defineCmd, err := cmd.DefineNVRasterGraphicsLarge(
-			bitimage2.Monochrome,
+			bitimage.Monochrome,
 			'L', 'R',
 			width, height,
 			colorData,
@@ -297,9 +297,9 @@ func TestIntegration_NVGraphics_LargeDataHandling(t *testing.T) {
 		dataSize := int(width) * heightBytes
 
 		// Large column data with two colors
-		colorData := []bitimage2.NVGraphicsColorData{
-			{Color: bitimage2.Color1, Data: testutils.RepeatByte(dataSize, 0x11)},
-			{Color: bitimage2.Color2, Data: testutils.RepeatByte(dataSize, 0x22)},
+		colorData := []bitimage.NVGraphicsColorData{
+			{Color: bitimage.Color1, Data: testutils.RepeatByte(dataSize, 0x11)},
+			{Color: bitimage.Color2, Data: testutils.RepeatByte(dataSize, 0x22)},
 		}
 
 		defineCmd, err := cmd.DefineNVColumnGraphicsLarge(
@@ -323,7 +323,7 @@ func TestIntegration_NVGraphics_LargeDataHandling(t *testing.T) {
 }
 
 func TestIntegration_NVGraphics_ColorRestrictions(t *testing.T) {
-	cmd := bitimage2.NewNVGraphicsCommands()
+	cmd := bitimage.NewNVGraphicsCommands()
 
 	t.Run("monochrome tone color restrictions", func(t *testing.T) {
 		width := uint16(100)
@@ -332,18 +332,18 @@ func TestIntegration_NVGraphics_ColorRestrictions(t *testing.T) {
 		dataSize := widthBytes * int(height)
 
 		// Monochrome should accept only Color1 or Color2
-		validColors := []bitimage2.GraphicsColor{
-			bitimage2.Color1,
-			bitimage2.Color2,
+		validColors := []bitimage.GraphicsColor{
+			bitimage.Color1,
+			bitimage.Color2,
 		}
 
 		for _, color := range validColors {
-			colorData := []bitimage2.NVGraphicsColorData{
+			colorData := []bitimage.NVGraphicsColorData{
 				{Color: color, Data: testutils.RepeatByte(dataSize, 0xFF)},
 			}
 
 			_, err := cmd.DefineNVRasterGraphics(
-				bitimage2.Monochrome,
+				bitimage.Monochrome,
 				'T', byte('0'+color),
 				width, height,
 				colorData,
@@ -354,13 +354,13 @@ func TestIntegration_NVGraphics_ColorRestrictions(t *testing.T) {
 		}
 
 		// Monochrome should reject multiple colors
-		multiColorData := []bitimage2.NVGraphicsColorData{
-			{Color: bitimage2.Color1, Data: testutils.RepeatByte(dataSize, 0x11)},
-			{Color: bitimage2.Color2, Data: testutils.RepeatByte(dataSize, 0x22)},
+		multiColorData := []bitimage.NVGraphicsColorData{
+			{Color: bitimage.Color1, Data: testutils.RepeatByte(dataSize, 0x11)},
+			{Color: bitimage.Color2, Data: testutils.RepeatByte(dataSize, 0x22)},
 		}
 
 		_, err := cmd.DefineNVRasterGraphics(
-			bitimage2.Monochrome,
+			bitimage.Monochrome,
 			'E', 'M',
 			width, height,
 			multiColorData,
@@ -377,17 +377,17 @@ func TestIntegration_NVGraphics_ColorRestrictions(t *testing.T) {
 		dataSize := int(width) * heightBytes
 
 		// Test valid combinations for column format
-		validCombinations := [][]bitimage2.GraphicsColor{
-			{bitimage2.Color1},
-			{bitimage2.Color2},
-			{bitimage2.Color3},
-			{bitimage2.Color1, bitimage2.Color2},
+		validCombinations := [][]bitimage.GraphicsColor{
+			{bitimage.Color1},
+			{bitimage.Color2},
+			{bitimage.Color3},
+			{bitimage.Color1, bitimage.Color2},
 		}
 
 		for i, colors := range validCombinations {
-			var colorData []bitimage2.NVGraphicsColorData
+			var colorData []bitimage.NVGraphicsColorData
 			for _, color := range colors {
-				colorData = append(colorData, bitimage2.NVGraphicsColorData{
+				colorData = append(colorData, bitimage.NVGraphicsColorData{
 					Color: color,
 					Data:  testutils.RepeatByte(dataSize, byte(color)),
 				})
@@ -404,9 +404,9 @@ func TestIntegration_NVGraphics_ColorRestrictions(t *testing.T) {
 		}
 
 		// Test invalid combination (Color3 with others)
-		invalidColorData := []bitimage2.NVGraphicsColorData{
-			{Color: bitimage2.Color3, Data: testutils.RepeatByte(dataSize, 0x33)},
-			{Color: bitimage2.Color1, Data: testutils.RepeatByte(dataSize, 0x11)},
+		invalidColorData := []bitimage.NVGraphicsColorData{
+			{Color: bitimage.Color3, Data: testutils.RepeatByte(dataSize, 0x33)},
+			{Color: bitimage.Color1, Data: testutils.RepeatByte(dataSize, 0x11)},
 		}
 
 		_, err := cmd.DefineNVColumnGraphics(
@@ -426,13 +426,13 @@ func TestIntegration_NVGraphics_ColorRestrictions(t *testing.T) {
 		dataSize := widthBytes * int(height)
 
 		// Try to define duplicate colors
-		duplicateColorData := []bitimage2.NVGraphicsColorData{
-			{Color: bitimage2.Color1, Data: testutils.RepeatByte(dataSize, 0x11)},
-			{Color: bitimage2.Color1, Data: testutils.RepeatByte(dataSize, 0x22)}, // Duplicate
+		duplicateColorData := []bitimage.NVGraphicsColorData{
+			{Color: bitimage.Color1, Data: testutils.RepeatByte(dataSize, 0x11)},
+			{Color: bitimage.Color1, Data: testutils.RepeatByte(dataSize, 0x22)}, // Duplicate
 		}
 
 		_, err := cmd.DefineNVRasterGraphics(
-			bitimage2.MultipleTone,
+			bitimage.MultipleTone,
 			'D', 'P',
 			width, height,
 			duplicateColorData,
@@ -444,7 +444,7 @@ func TestIntegration_NVGraphics_ColorRestrictions(t *testing.T) {
 }
 
 func TestIntegration_NVGraphics_ErrorHandling(t *testing.T) {
-	cmd := bitimage2.NewNVGraphicsCommands()
+	cmd := bitimage.NewNVGraphicsCommands()
 
 	t.Run("invalid key codes", func(t *testing.T) {
 		// Key code out of range
@@ -459,20 +459,20 @@ func TestIntegration_NVGraphics_ErrorHandling(t *testing.T) {
 		}
 
 		// Print with invalid key codes
-		_, err = cmd.PrintNVGraphics(200, 'X', bitimage2.NormalScale, bitimage2.NormalScale)
+		_, err = cmd.PrintNVGraphics(200, 'X', bitimage.NormalScale, bitimage.NormalScale)
 		if err == nil {
 			t.Error("Invalid key code should return error")
 		}
 	})
 
 	t.Run("invalid dimensions", func(t *testing.T) {
-		colorData := []bitimage2.NVGraphicsColorData{
-			{Color: bitimage2.Color1, Data: []byte{0xFF}},
+		colorData := []bitimage.NVGraphicsColorData{
+			{Color: bitimage.Color1, Data: []byte{0xFF}},
 		}
 
 		// Width exceeds limit
 		_, err := cmd.DefineNVRasterGraphics(
-			bitimage2.Monochrome,
+			bitimage.Monochrome,
 			'W', 'E',
 			8193, 100,
 			colorData,
@@ -483,7 +483,7 @@ func TestIntegration_NVGraphics_ErrorHandling(t *testing.T) {
 
 		// Height exceeds limit
 		_, err = cmd.DefineNVRasterGraphics(
-			bitimage2.Monochrome,
+			bitimage.Monochrome,
 			'H', 'E',
 			100, 2305,
 			colorData,
@@ -494,7 +494,7 @@ func TestIntegration_NVGraphics_ErrorHandling(t *testing.T) {
 
 		// Zero dimensions
 		_, err = cmd.DefineNVRasterGraphics(
-			bitimage2.Monochrome,
+			bitimage.Monochrome,
 			'Z', 'D',
 			0, 0,
 			colorData,
@@ -509,12 +509,12 @@ func TestIntegration_NVGraphics_ErrorHandling(t *testing.T) {
 		height := uint16(50)
 		wrongData := []byte{0xFF, 0xFF} // Too small
 
-		colorData := []bitimage2.NVGraphicsColorData{
-			{Color: bitimage2.Color1, Data: wrongData},
+		colorData := []bitimage.NVGraphicsColorData{
+			{Color: bitimage.Color1, Data: wrongData},
 		}
 
 		_, err := cmd.DefineNVRasterGraphics(
-			bitimage2.Monochrome,
+			bitimage.Monochrome,
 			'D', 'M',
 			width, height,
 			colorData,
@@ -528,7 +528,7 @@ func TestIntegration_NVGraphics_ErrorHandling(t *testing.T) {
 		// BMP without proper header
 		invalidBMP := []byte{0xFF, 0xFF, 0xFF}
 
-		_, err := cmd.DefineWindowsBMPNVGraphics('B', 'X', bitimage2.Monochrome, invalidBMP)
+		_, err := cmd.DefineWindowsBMPNVGraphics('B', 'X', bitimage.Monochrome, invalidBMP)
 		if err == nil {
 			t.Error("Invalid BMP data should return error")
 		}
@@ -538,7 +538,7 @@ func TestIntegration_NVGraphics_ErrorHandling(t *testing.T) {
 		wrongBMP[0] = 'X'
 		wrongBMP[1] = 'Y'
 
-		_, err = cmd.DefineWindowsBMPNVGraphics('B', 'Y', bitimage2.Monochrome, wrongBMP)
+		_, err = cmd.DefineWindowsBMPNVGraphics('B', 'Y', bitimage.Monochrome, wrongBMP)
 		if err == nil {
 			t.Error("BMP with wrong signature should return error")
 		}
@@ -546,7 +546,7 @@ func TestIntegration_NVGraphics_ErrorHandling(t *testing.T) {
 		// BMP too small
 		smallBMP := []byte{'B', 'M'}
 
-		_, err = cmd.DefineWindowsBMPNVGraphics('B', 'S', bitimage2.Monochrome, smallBMP)
+		_, err = cmd.DefineWindowsBMPNVGraphics('B', 'S', bitimage.Monochrome, smallBMP)
 		if err == nil {
 			t.Error("BMP too small should return error")
 		}
@@ -554,7 +554,7 @@ func TestIntegration_NVGraphics_ErrorHandling(t *testing.T) {
 }
 
 func TestIntegration_NVGraphics_ScalingModes(t *testing.T) {
-	cmd := bitimage2.NewNVGraphicsCommands()
+	cmd := bitimage.NewNVGraphicsCommands()
 
 	// Define testutils graphics once
 	width := uint16(100)
@@ -562,12 +562,12 @@ func TestIntegration_NVGraphics_ScalingModes(t *testing.T) {
 	widthBytes := (int(width) + 7) / 8
 	dataSize := widthBytes * int(height)
 
-	colorData := []bitimage2.NVGraphicsColorData{
-		{Color: bitimage2.Color1, Data: testutils.RepeatByte(dataSize, 0xCC)},
+	colorData := []bitimage.NVGraphicsColorData{
+		{Color: bitimage.Color1, Data: testutils.RepeatByte(dataSize, 0xCC)},
 	}
 
 	defineCmd, err := cmd.DefineNVRasterGraphics(
-		bitimage2.Monochrome,
+		bitimage.Monochrome,
 		'S', 'T',
 		width, height,
 		colorData,
@@ -578,15 +578,15 @@ func TestIntegration_NVGraphics_ScalingModes(t *testing.T) {
 
 	scales := []struct {
 		name       string
-		horizontal bitimage2.GraphicsScale
-		vertical   bitimage2.GraphicsScale
+		horizontal bitimage.GraphicsScale
+		vertical   bitimage.GraphicsScale
 		expectedX  byte
 		expectedY  byte
 	}{
-		{"normal", bitimage2.NormalScale, bitimage2.NormalScale, 1, 1},
-		{"double width", bitimage2.DoubleScale, bitimage2.NormalScale, 2, 1},
-		{"double height", bitimage2.NormalScale, bitimage2.DoubleScale, 1, 2},
-		{"quadruple", bitimage2.DoubleScale, bitimage2.DoubleScale, 2, 2},
+		{"normal", bitimage.NormalScale, bitimage.NormalScale, 1, 1},
+		{"double width", bitimage.DoubleScale, bitimage.NormalScale, 2, 1},
+		{"double height", bitimage.NormalScale, bitimage.DoubleScale, 1, 2},
+		{"quadruple", bitimage.DoubleScale, bitimage.DoubleScale, 2, 2},
 	}
 
 	for _, scale := range scales {

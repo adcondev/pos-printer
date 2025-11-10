@@ -84,8 +84,7 @@ jobs:
           wait-interval: 10
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           allowed-conclusions: success
-          timeout-minutes: 30
-          running-workflow-name: 'Dependabot Enhanced Auto-merge'
+          running-workflow-name: 'auto-merge'
 
       - name: Auto-approve and merge
         if: steps.check-update.outputs.is_major == 'false'

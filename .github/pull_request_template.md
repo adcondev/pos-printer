@@ -1,3 +1,5 @@
+<!-- Help reviewers understand your changes, you don't have to fulfill everything -->
+
 ## Description
 
 <!-- What does this PR change? Please provide a clear and concise description -->
@@ -12,6 +14,7 @@
 - [ ] ♻️ Code refactoring
 - [ ] 📦 Dependency update
 - [ ] ⚡ Performance improvement
+- [ ] 🧪 Test addition/modification
 
 ## Component(s) Affected
 
@@ -22,8 +25,10 @@
 - [ ] `commands` - ESC/POS command implementations
 - [ ] `document` - Document processing
 - [ ] `graphics` - Image processing
+- [ ] `printer` - Barcode generation
 - [ ] `profile` - Printer profiles
 - [ ] `service` - High-level printer service
+- [ ] `github` - GitHub related files and workflows
 
 ## How Has This Been Tested?
 
@@ -32,6 +37,7 @@
 - [ ] Unit tests pass locally
 - [ ] Integration tests pass
 - [ ] Manual testing with physical printer
+- [ ] Examples built and run successfully
 - [ ] N/A (documentation/configuration only)
 
 ### Test Configuration
