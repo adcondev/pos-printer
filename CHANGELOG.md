@@ -2,6 +2,13 @@
 
 All notable changes to the POS Printer library will be documented in this file.
 
+### [3.0.5](https://github.com/adcondev/pos-printer/compare/v3.0.4...v3.0.5) (2025-11-10)
+
+
+### 📦 Dependencies
+
+* **gh-actions:** bump golangci/golangci-lint-action from 8 to 9 ([#66](https://github.com/adcondev/pos-printer/issues/66)) ([b964ed1](https://github.com/adcondev/pos-printer/commit/b964ed1682e9251b1e8d41067ff511f043b2fedc))
+
 ### [3.0.4](https://github.com/adcondev/pos-printer/compare/v3.0.3...v3.0.4) (2025-11-10)
 
 
