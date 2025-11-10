@@ -13,6 +13,7 @@ updates:
       - "auto-merge"  # Consistent with the workflow
     commit-message:
       prefix: "deps"
+      prefix-development: "gomod"
       include: "scope"
     groups:
       golang-x:
@@ -43,7 +44,7 @@ updates:
       - "auto-merge"  # Added for consistency
     commit-message:
       prefix: "deps"
-      prefix-development: "deps-dev"
+      prefix-development: "npm"
       include: "scope"
 
   # GitHub Actions
@@ -57,4 +58,6 @@ updates:
       - "github-actions"
       - "auto-merge"  # Changed from "ci" for consistency
     commit-message:
-      prefix: "ci"
+      prefix: "deps"
+      prefix-development: "gh-actions"
+      include: "scope"

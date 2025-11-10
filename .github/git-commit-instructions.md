@@ -76,8 +76,11 @@ Scope MUST be a noun describing a section of the codebase surrounded by parenthe
 
 ### Development
 
-- `(github)` - GitHub workflows and configurations
+- `(github)` - GitHub templates and configurations
 - `(connection)` - Connection management (consider merging with `connector`)
+- `(gomod)` - Go module management
+- `(npm)` - NPM package management
+- `(gh-actions)` - GitHub Actions workflows
 
 ## Description
 
