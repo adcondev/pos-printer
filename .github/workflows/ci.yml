@@ -26,7 +26,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Validate PR title
+      - name: Validate PR Title
         uses: amannn/action-semantic-pull-request@v6
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -75,8 +75,8 @@ jobs:
           subjectPatternError: |
             The subject must start with lowercase letter.
 
-  test:
-    name: Test
+  test-coverage:
+    name: Test and Coverage
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -92,32 +92,16 @@ jobs:
           go-version: ${{ env.GO_VERSION }}
           cache: true
 
-      - name: Run tests
+      - name: Run All Tests
         shell: bash
-        run: go test -race -coverprofile=coverage.txt -covermode=atomic ./...
+        run: go test -v -race -coverprofile=coverage.txt -covermode=atomic ./...
 
-      - name: Upload coverage
+      - name: Upload Coverage
         if: matrix.os == 'ubuntu-latest'
         uses: codecov/codecov-action@v5
         with:
           files: ./coverage.txt
           fail_ci_if_error: false
-
-  integration-test:
-    name: Integration Tests
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v5
-
-      - name: Setup Go
-        uses: actions/setup-go@v6
-        with:
-          go-version: ${{ env.GO_VERSION }}
-
-      - name: Run integration tests
-        run: |
-          go test -v -tags=integration ./test/...
 
   benchmark:
     name: Benchmarks
@@ -129,10 +113,11 @@ jobs:
       - uses: actions/setup-go@v6
         with:
           go-version: ${{ env.GO_VERSION }}
+          cache: 'true'
 
-      - name: Run benchmarks
+      - name: Run Benchmarks
         run: |
-          go test -bench=. -benchmem ./pkg/... | tee benchmark.txt
+          go test -bench=. -benchmem ./... | tee benchmark.txt
           echo "## 📊 Benchmark Results" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
           cat benchmark.txt >> $GITHUB_STEP_SUMMARY
@@ -145,7 +130,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - name: Run Trivy vulnerability scanner
+      - name: Run Trivy Vulnerability Scanner
         uses: aquasecurity/trivy-action@master
         with:
           scan-type: 'fs'
@@ -153,13 +138,13 @@ jobs:
           format: 'sarif'
           output: 'trivy-results.sarif'
 
-      - name: Upload Trivy results to GitHub Security tab
+      - name: Upload Trivy Results To GitHub Security Tab
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: 'trivy-results.sarif'
 
   lint:
-    name: Lint
+    name: Go Linters
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -168,6 +153,7 @@ jobs:
         uses: actions/setup-go@v6
         with:
           go-version: ${{ env.GO_VERSION }}
+          cache: true
 
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v8

@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/adcondev/pos-printer/internal/testutils"
-	bitimage2 "github.com/adcondev/pos-printer/pkg/commands/bitimage"
+	"github.com/adcondev/pos-printer/pkg/commands/bitimage"
 	"github.com/adcondev/pos-printer/pkg/commands/common"
 )
 
@@ -13,23 +13,23 @@ import (
 // ============================================================================
 
 func TestNVGraphicsCommands_GetNVGraphicsCapacity(t *testing.T) {
-	cmd := bitimage2.NewNVGraphicsCommands()
+	cmd := bitimage.NewNVGraphicsCommands()
 
 	tests := []struct {
 		name    string
-		fn      bitimage2.NVFunctionCode
+		fn      bitimage.NVFunctionCode
 		want    []byte
 		wantErr error
 	}{
 		{
 			name:    "function code 0",
-			fn:      bitimage2.NVFuncGetCapacity,
+			fn:      bitimage.NVFuncGetCapacity,
 			want:    []byte{common.GS, '(', 'L', 0x02, 0x00, 0x30, 0},
 			wantErr: nil,
 		},
 		{
 			name:    "function code 48",
-			fn:      bitimage2.NVFuncGetCapacityASCII,
+			fn:      bitimage.NVFuncGetCapacityASCII,
 			want:    []byte{common.GS, '(', 'L', 0x02, 0x00, 0x30, 48},
 			wantErr: nil,
 		},
@@ -37,13 +37,13 @@ func TestNVGraphicsCommands_GetNVGraphicsCapacity(t *testing.T) {
 			name:    "invalid function code 1",
 			fn:      1,
 			want:    nil,
-			wantErr: bitimage2.ErrInvalidNVFunctionCode,
+			wantErr: bitimage.ErrInvalidNVFunctionCode,
 		},
 		{
 			name:    "invalid function code 99",
 			fn:      99,
 			want:    nil,
-			wantErr: bitimage2.ErrInvalidNVFunctionCode,
+			wantErr: bitimage.ErrInvalidNVFunctionCode,
 		},
 	}
 
@@ -65,23 +65,23 @@ func TestNVGraphicsCommands_GetNVGraphicsCapacity(t *testing.T) {
 }
 
 func TestNVGraphicsCommands_GetNVGraphicsRemainingCapacity(t *testing.T) {
-	cmd := bitimage2.NewNVGraphicsCommands()
+	cmd := bitimage.NewNVGraphicsCommands()
 
 	tests := []struct {
 		name    string
-		fn      bitimage2.NVFunctionCode
+		fn      bitimage.NVFunctionCode
 		want    []byte
 		wantErr error
 	}{
 		{
 			name:    "function code 3",
-			fn:      bitimage2.NVFuncGetRemaining,
+			fn:      bitimage.NVFuncGetRemaining,
 			want:    []byte{common.GS, '(', 'L', 0x02, 0x00, 0x30, 3},
 			wantErr: nil,
 		},
 		{
 			name:    "function code 51",
-			fn:      bitimage2.NVFuncGetRemainingASCII,
+			fn:      bitimage.NVFuncGetRemainingASCII,
 			want:    []byte{common.GS, '(', 'L', 0x02, 0x00, 0x30, 51},
 			wantErr: nil,
 		},
@@ -89,13 +89,13 @@ func TestNVGraphicsCommands_GetNVGraphicsRemainingCapacity(t *testing.T) {
 			name:    "invalid function code 0",
 			fn:      0,
 			want:    nil,
-			wantErr: bitimage2.ErrInvalidNVFunctionCode,
+			wantErr: bitimage.ErrInvalidNVFunctionCode,
 		},
 		{
 			name:    "invalid function code 48",
 			fn:      48,
 			want:    nil,
-			wantErr: bitimage2.ErrInvalidNVFunctionCode,
+			wantErr: bitimage.ErrInvalidNVFunctionCode,
 		},
 	}
 
@@ -117,7 +117,7 @@ func TestNVGraphicsCommands_GetNVGraphicsRemainingCapacity(t *testing.T) {
 }
 
 func TestNVGraphicsCommands_GetNVGraphicsKeyCodeList(t *testing.T) {
-	cmd := bitimage2.NewNVGraphicsCommands()
+	cmd := bitimage.NewNVGraphicsCommands()
 	want := []byte{common.GS, '(', 'L', 0x04, 0x00, 0x30, 0x40, 'K', 'C'}
 
 	got := cmd.GetNVGraphicsKeyCodeList()
@@ -125,7 +125,7 @@ func TestNVGraphicsCommands_GetNVGraphicsKeyCodeList(t *testing.T) {
 }
 
 func TestNVGraphicsCommands_DeleteAllNVGraphics(t *testing.T) {
-	cmd := bitimage2.NewNVGraphicsCommands()
+	cmd := bitimage.NewNVGraphicsCommands()
 	want := []byte{common.GS, '(', 'L', 0x05, 0x00, 0x30, 0x41, 'C', 'L', 'R'}
 
 	got := cmd.DeleteAllNVGraphics()
@@ -133,7 +133,7 @@ func TestNVGraphicsCommands_DeleteAllNVGraphics(t *testing.T) {
 }
 
 func TestNVGraphicsCommands_DeleteNVGraphicsByKeyCode(t *testing.T) {
-	cmd := bitimage2.NewNVGraphicsCommands()
+	cmd := bitimage.NewNVGraphicsCommands()
 
 	tests := []struct {
 		name    string
@@ -168,14 +168,14 @@ func TestNVGraphicsCommands_DeleteNVGraphicsByKeyCode(t *testing.T) {
 			kc1:     31,
 			kc2:     32,
 			want:    nil,
-			wantErr: bitimage2.ErrInvalidKeyCode,
+			wantErr: bitimage.ErrInvalidKeyCode,
 		},
 		{
 			name:    "invalid kc2 too high",
 			kc1:     32,
 			kc2:     127,
 			want:    nil,
-			wantErr: bitimage2.ErrInvalidKeyCode,
+			wantErr: bitimage.ErrInvalidKeyCode,
 		},
 	}
 
@@ -197,14 +197,14 @@ func TestNVGraphicsCommands_DeleteNVGraphicsByKeyCode(t *testing.T) {
 }
 
 func TestNVGraphicsCommands_PrintNVGraphics(t *testing.T) {
-	cmd := bitimage2.NewNVGraphicsCommands()
+	cmd := bitimage.NewNVGraphicsCommands()
 
 	tests := []struct {
 		name            string
 		kc1             byte
 		kc2             byte
-		horizontalScale bitimage2.GraphicsScale
-		verticalScale   bitimage2.GraphicsScale
+		horizontalScale bitimage.GraphicsScale
+		verticalScale   bitimage.GraphicsScale
 		want            []byte
 		wantErr         error
 	}{
@@ -212,8 +212,8 @@ func TestNVGraphicsCommands_PrintNVGraphics(t *testing.T) {
 			name:            "normal scale",
 			kc1:             'A',
 			kc2:             '1',
-			horizontalScale: bitimage2.NormalScale,
-			verticalScale:   bitimage2.NormalScale,
+			horizontalScale: bitimage.NormalScale,
+			verticalScale:   bitimage.NormalScale,
 			want:            []byte{common.GS, '(', 'L', 0x06, 0x00, 0x30, 0x45, 'A', '1', 1, 1},
 			wantErr:         nil,
 		},
@@ -221,8 +221,8 @@ func TestNVGraphicsCommands_PrintNVGraphics(t *testing.T) {
 			name:            "double horizontal scale",
 			kc1:             'B',
 			kc2:             '2',
-			horizontalScale: bitimage2.DoubleScale,
-			verticalScale:   bitimage2.NormalScale,
+			horizontalScale: bitimage.DoubleScale,
+			verticalScale:   bitimage.NormalScale,
 			want:            []byte{common.GS, '(', 'L', 0x06, 0x00, 0x30, 0x45, 'B', '2', 2, 1},
 			wantErr:         nil,
 		},
@@ -230,8 +230,8 @@ func TestNVGraphicsCommands_PrintNVGraphics(t *testing.T) {
 			name:            "double vertical scale",
 			kc1:             'C',
 			kc2:             '3',
-			horizontalScale: bitimage2.NormalScale,
-			verticalScale:   bitimage2.DoubleScale,
+			horizontalScale: bitimage.NormalScale,
+			verticalScale:   bitimage.DoubleScale,
 			want:            []byte{common.GS, '(', 'L', 0x06, 0x00, 0x30, 0x45, 'C', '3', 1, 2},
 			wantErr:         nil,
 		},
@@ -239,8 +239,8 @@ func TestNVGraphicsCommands_PrintNVGraphics(t *testing.T) {
 			name:            "double both scales",
 			kc1:             'D',
 			kc2:             '4',
-			horizontalScale: bitimage2.DoubleScale,
-			verticalScale:   bitimage2.DoubleScale,
+			horizontalScale: bitimage.DoubleScale,
+			verticalScale:   bitimage.DoubleScale,
 			want:            []byte{common.GS, '(', 'L', 0x06, 0x00, 0x30, 0x45, 'D', '4', 2, 2},
 			wantErr:         nil,
 		},
@@ -248,28 +248,28 @@ func TestNVGraphicsCommands_PrintNVGraphics(t *testing.T) {
 			name:            "invalid key code",
 			kc1:             31,
 			kc2:             32,
-			horizontalScale: bitimage2.NormalScale,
-			verticalScale:   bitimage2.NormalScale,
+			horizontalScale: bitimage.NormalScale,
+			verticalScale:   bitimage.NormalScale,
 			want:            nil,
-			wantErr:         bitimage2.ErrInvalidKeyCode,
+			wantErr:         bitimage.ErrInvalidKeyCode,
 		},
 		{
 			name:            "invalid horizontal scale",
 			kc1:             'A',
 			kc2:             '1',
 			horizontalScale: 0,
-			verticalScale:   bitimage2.NormalScale,
+			verticalScale:   bitimage.NormalScale,
 			want:            nil,
-			wantErr:         bitimage2.ErrInvalidScale,
+			wantErr:         bitimage.ErrInvalidScale,
 		},
 		{
 			name:            "invalid vertical scale",
 			kc1:             'A',
 			kc2:             '1',
-			horizontalScale: bitimage2.NormalScale,
+			horizontalScale: bitimage.NormalScale,
 			verticalScale:   3,
 			want:            nil,
-			wantErr:         bitimage2.ErrInvalidScale,
+			wantErr:         bitimage.ErrInvalidScale,
 		},
 	}
 
@@ -298,19 +298,19 @@ func TestNVGraphicsCommands_PrintNVGraphics(t *testing.T) {
 func TestValidateNVCapacityFunctionCode(t *testing.T) {
 	tests := []struct {
 		name    string
-		fn      bitimage2.NVFunctionCode
+		fn      bitimage.NVFunctionCode
 		wantErr bool
 	}{
-		{"valid code 0", bitimage2.NVFuncGetCapacity, false},
-		{"valid code 48", bitimage2.NVFuncGetCapacityASCII, false},
+		{"valid code 0", bitimage.NVFuncGetCapacity, false},
+		{"valid code 48", bitimage.NVFuncGetCapacityASCII, false},
 		{"invalid code 1", 1, true},
-		{"invalid code 3", bitimage2.NVFuncGetRemaining, true},
-		{"invalid code 51", bitimage2.NVFuncGetRemainingASCII, true},
+		{"invalid code 3", bitimage.NVFuncGetRemaining, true},
+		{"invalid code 51", bitimage.NVFuncGetRemainingASCII, true},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err := bitimage2.ValidateNVCapacityFunctionCode(tt.fn)
+			err := bitimage.ValidateNVCapacityFunctionCode(tt.fn)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ValidateNVCapacityFunctionCode(%v) error = %v, wantErr %v", tt.fn, err, tt.wantErr)
 			}
@@ -321,19 +321,19 @@ func TestValidateNVCapacityFunctionCode(t *testing.T) {
 func TestValidateNVRemainingFunctionCode(t *testing.T) {
 	tests := []struct {
 		name    string
-		fn      bitimage2.NVFunctionCode
+		fn      bitimage.NVFunctionCode
 		wantErr bool
 	}{
-		{"valid code 3", bitimage2.NVFuncGetRemaining, false},
-		{"valid code 51", bitimage2.NVFuncGetRemainingASCII, false},
-		{"invalid code 0", bitimage2.NVFuncGetCapacity, true},
-		{"invalid code 48", bitimage2.NVFuncGetCapacityASCII, true},
+		{"valid code 3", bitimage.NVFuncGetRemaining, false},
+		{"valid code 51", bitimage.NVFuncGetRemainingASCII, false},
+		{"invalid code 0", bitimage.NVFuncGetCapacity, true},
+		{"invalid code 48", bitimage.NVFuncGetCapacityASCII, true},
 		{"invalid code 99", 99, true},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err := bitimage2.ValidateNVRemainingFunctionCode(tt.fn)
+			err := bitimage.ValidateNVRemainingFunctionCode(tt.fn)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ValidateNVRemainingFunctionCode(%v) error = %v, wantErr %v", tt.fn, err, tt.wantErr)
 			}
@@ -359,7 +359,7 @@ func TestValidateKeyCode(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err := bitimage2.ValidateKeyCode(tt.kc)
+			err := bitimage.ValidateKeyCode(tt.kc)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ValidateKeyCode(%v) error = %v, wantErr %v", tt.kc, err, tt.wantErr)
 			}
@@ -387,7 +387,7 @@ func TestValidateNVGraphicsDimensions(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err := bitimage2.ValidateNVGraphicsDimensions(tt.width, tt.height)
+			err := bitimage.ValidateNVGraphicsDimensions(tt.width, tt.height)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ValidateNVGraphicsDimensions(%v, %v) error = %v, wantErr %v",
 					tt.width, tt.height, err, tt.wantErr)
@@ -431,7 +431,7 @@ func TestValidateBMPData(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err := bitimage2.ValidateBMPData(tt.data)
+			err := bitimage.ValidateBMPData(tt.data)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ValidateBMPData(data[%d]) error = %v, wantErr %v",
 					len(tt.data), err, tt.wantErr)

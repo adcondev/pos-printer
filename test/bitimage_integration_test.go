@@ -5,21 +5,21 @@ import (
 	"testing"
 
 	"github.com/adcondev/pos-printer/internal/testutils"
-	bitimage2 "github.com/adcondev/pos-printer/pkg/commands/bitimage"
+	"github.com/adcondev/pos-printer/pkg/commands/bitimage"
 	"github.com/adcondev/pos-printer/pkg/commands/common"
 )
 
 func TestIntegration_BitImage_LogoWorkflow(t *testing.T) {
-	cmd := bitimage2.NewCommands()
+	cmd := bitimage.NewCommands()
 
 	t.Run("complete logo printing workflow", func(t *testing.T) {
 		var buffer []byte
 
 		// Step 1: Set graphics dot density for high quality
 		densityCmd, err := cmd.Graphics.SetGraphicsDotDensity(
-			bitimage2.FunctionCodeDensity1,
-			bitimage2.Density360x360,
-			bitimage2.Density360x360,
+			bitimage.FunctionCodeDensity1,
+			bitimage.Density360x360,
+			bitimage.Density360x360,
 		)
 		if err != nil {
 			t.Fatalf("SetGraphicsDotDensity failed: %v", err)
@@ -33,10 +33,10 @@ func TestIntegration_BitImage_LogoWorkflow(t *testing.T) {
 		logoData := testutils.RepeatByte(widthBytes*int(logoHeight), 0xAA)
 
 		storeCmd, err := cmd.Graphics.StoreRasterGraphicsInBuffer(
-			bitimage2.Monochrome,
-			bitimage2.NormalScale,
-			bitimage2.NormalScale,
-			bitimage2.Color1,
+			bitimage.Monochrome,
+			bitimage.NormalScale,
+			bitimage.NormalScale,
+			bitimage.Color1,
 			logoWidth,
 			logoHeight,
 			logoData,
@@ -47,7 +47,7 @@ func TestIntegration_BitImage_LogoWorkflow(t *testing.T) {
 		buffer = append(buffer, storeCmd...)
 
 		// Step 3: Print the buffered graphics
-		printCmd, err := cmd.Graphics.PrintBufferedGraphics(bitimage2.FunctionCodePrint2)
+		printCmd, err := cmd.Graphics.PrintBufferedGraphics(bitimage.FunctionCodePrint2)
 		if err != nil {
 			t.Fatalf("PrintBufferedGraphics failed: %v", err)
 		}
@@ -72,18 +72,18 @@ func TestIntegration_BitImage_LogoWorkflow(t *testing.T) {
 		widthBytes := (int(width) + 7) / 8
 		dataSize := widthBytes * int(height)
 
-		colors := []bitimage2.GraphicsColor{
-			bitimage2.Color1,
-			bitimage2.Color2,
-			bitimage2.Color3,
+		colors := []bitimage.GraphicsColor{
+			bitimage.Color1,
+			bitimage.Color2,
+			bitimage.Color3,
 		}
 
 		for _, color := range colors {
 			data := testutils.RepeatByte(dataSize, byte(color))
 			storeCmd, err := cmd.Graphics.StoreRasterGraphicsInBuffer(
-				bitimage2.Monochrome,
-				bitimage2.NormalScale,
-				bitimage2.NormalScale,
+				bitimage.Monochrome,
+				bitimage.NormalScale,
+				bitimage.NormalScale,
 				color,
 				width,
 				height,
@@ -96,7 +96,7 @@ func TestIntegration_BitImage_LogoWorkflow(t *testing.T) {
 		}
 
 		// Print the combined graphics
-		printCmd, err := cmd.Graphics.PrintBufferedGraphics(bitimage2.FunctionCodePrint50)
+		printCmd, err := cmd.Graphics.PrintBufferedGraphics(bitimage.FunctionCodePrint50)
 		if err != nil {
 			t.Fatalf("PrintBufferedGraphics failed: %v", err)
 		}
@@ -127,9 +127,9 @@ func TestIntegration_BitImage_LogoWorkflow(t *testing.T) {
 		}
 
 		storeCmd, err := cmd.Graphics.StoreColumnGraphicsInBuffer(
-			bitimage2.NormalScale,
-			bitimage2.DoubleScale,
-			bitimage2.Color1,
+			bitimage.NormalScale,
+			bitimage.DoubleScale,
+			bitimage.Color1,
 			width,
 			height,
 			columnData,
@@ -139,7 +139,7 @@ func TestIntegration_BitImage_LogoWorkflow(t *testing.T) {
 		}
 		buffer = append(buffer, storeCmd...)
 
-		printCmd, err := cmd.Graphics.PrintBufferedGraphics(bitimage2.FunctionCodePrint2)
+		printCmd, err := cmd.Graphics.PrintBufferedGraphics(bitimage.FunctionCodePrint2)
 		if err != nil {
 			t.Fatalf("PrintBufferedGraphics failed: %v", err)
 		}
@@ -158,7 +158,7 @@ func TestIntegration_BitImage_LogoWorkflow(t *testing.T) {
 		data := testutils.RepeatByte(int(width), 0x55)
 
 		legacyCmd, err := cmd.SelectBitImageMode(
-			bitimage2.SingleDensity8,
+			bitimage.SingleDensity8,
 			width,
 			data,
 		)
@@ -172,7 +172,7 @@ func TestIntegration_BitImage_LogoWorkflow(t *testing.T) {
 		data24 := testutils.RepeatByte(int(width24)*3, 0xAA)
 
 		legacy24Cmd, err := cmd.SelectBitImageMode(
-			bitimage2.DoubleDensity24,
+			bitimage.DoubleDensity24,
 			width24,
 			data24,
 		)
@@ -193,14 +193,14 @@ func TestIntegration_BitImage_LogoWorkflow(t *testing.T) {
 }
 
 func TestIntegration_BitImage_ErrorHandling(t *testing.T) {
-	cmd := bitimage2.NewCommands()
+	cmd := bitimage.NewCommands()
 
 	t.Run("invalid parameters cascade", func(t *testing.T) {
 		// Invalid density combination
 		_, err := cmd.Graphics.SetGraphicsDotDensity(
-			bitimage2.FunctionCodeDensity1,
-			bitimage2.Density180x180,
-			bitimage2.Density360x360,
+			bitimage.FunctionCodeDensity1,
+			bitimage.Density180x180,
+			bitimage.Density360x360,
 		)
 		if err == nil {
 			t.Error("Mismatched densities should return error")
@@ -209,9 +209,9 @@ func TestIntegration_BitImage_ErrorHandling(t *testing.T) {
 		// Invalid tone
 		_, err = cmd.Graphics.StoreRasterGraphicsInBuffer(
 			99,
-			bitimage2.NormalScale,
-			bitimage2.NormalScale,
-			bitimage2.Color1,
+			bitimage.NormalScale,
+			bitimage.NormalScale,
+			bitimage.Color1,
 			100,
 			100,
 			[]byte{},
@@ -222,9 +222,9 @@ func TestIntegration_BitImage_ErrorHandling(t *testing.T) {
 
 		// Invalid dimensions
 		_, err = cmd.Graphics.StoreColumnGraphicsInBuffer(
-			bitimage2.NormalScale,
-			bitimage2.NormalScale,
-			bitimage2.Color1,
+			bitimage.NormalScale,
+			bitimage.NormalScale,
+			bitimage.Color1,
 			0,
 			0,
 			[]byte{},
@@ -241,10 +241,10 @@ func TestIntegration_BitImage_ErrorHandling(t *testing.T) {
 		wrongData := []byte{0xFF} // Should be much larger
 
 		_, err := cmd.Graphics.StoreRasterGraphicsInBuffer(
-			bitimage2.Monochrome,
-			bitimage2.NormalScale,
-			bitimage2.NormalScale,
-			bitimage2.Color1,
+			bitimage.Monochrome,
+			bitimage.NormalScale,
+			bitimage.NormalScale,
+			bitimage.Color1,
 			width,
 			height,
 			wrongData,
@@ -255,9 +255,9 @@ func TestIntegration_BitImage_ErrorHandling(t *testing.T) {
 
 		// Column format with wrong data size
 		_, err = cmd.Graphics.StoreColumnGraphicsInBuffer(
-			bitimage2.NormalScale,
-			bitimage2.NormalScale,
-			bitimage2.Color1,
+			bitimage.NormalScale,
+			bitimage.NormalScale,
+			bitimage.Color1,
 			width,
 			height,
 			wrongData,
@@ -270,10 +270,10 @@ func TestIntegration_BitImage_ErrorHandling(t *testing.T) {
 	t.Run("height limits based on tone and scale", func(t *testing.T) {
 		// Monochrome with normal scale - max 2400
 		_, err := cmd.Graphics.StoreRasterGraphicsInBuffer(
-			bitimage2.Monochrome,
-			bitimage2.NormalScale,
-			bitimage2.NormalScale,
-			bitimage2.Color1,
+			bitimage.Monochrome,
+			bitimage.NormalScale,
+			bitimage.NormalScale,
+			bitimage.Color1,
 			100,
 			2401, // Exceeds limit
 			testutils.RepeatByte(1000, 0xFF),
@@ -284,10 +284,10 @@ func TestIntegration_BitImage_ErrorHandling(t *testing.T) {
 
 		// Multiple tone with double scale - max 300
 		_, err = cmd.Graphics.StoreRasterGraphicsInBuffer(
-			bitimage2.MultipleTone,
-			bitimage2.NormalScale,
-			bitimage2.DoubleScale,
-			bitimage2.Color1,
+			bitimage.MultipleTone,
+			bitimage.NormalScale,
+			bitimage.DoubleScale,
+			bitimage.Color1,
 			100,
 			301, // Exceeds limit
 			testutils.RepeatByte(1000, 0xFF),
@@ -299,17 +299,17 @@ func TestIntegration_BitImage_ErrorHandling(t *testing.T) {
 }
 
 func TestIntegration_BitImage_ScalingCombinations(t *testing.T) {
-	cmd := bitimage2.NewCommands()
+	cmd := bitimage.NewCommands()
 
 	scales := []struct {
 		name       string
-		horizontal bitimage2.GraphicsScale
-		vertical   bitimage2.GraphicsScale
+		horizontal bitimage.GraphicsScale
+		vertical   bitimage.GraphicsScale
 	}{
-		{"normal", bitimage2.NormalScale, bitimage2.NormalScale},
-		{"double width", bitimage2.DoubleScale, bitimage2.NormalScale},
-		{"double height", bitimage2.NormalScale, bitimage2.DoubleScale},
-		{"quadruple", bitimage2.DoubleScale, bitimage2.DoubleScale},
+		{"normal", bitimage.NormalScale, bitimage.NormalScale},
+		{"double width", bitimage.DoubleScale, bitimage.NormalScale},
+		{"double height", bitimage.NormalScale, bitimage.DoubleScale},
+		{"quadruple", bitimage.DoubleScale, bitimage.DoubleScale},
 	}
 
 	for _, scale := range scales {
@@ -320,10 +320,10 @@ func TestIntegration_BitImage_ScalingCombinations(t *testing.T) {
 			data := testutils.RepeatByte(widthBytes*int(height), 0xFF)
 
 			storeCmd, err := cmd.Graphics.StoreRasterGraphicsInBuffer(
-				bitimage2.Monochrome,
+				bitimage.Monochrome,
 				scale.horizontal,
 				scale.vertical,
-				bitimage2.Color1,
+				bitimage.Color1,
 				width,
 				height,
 				data,
@@ -347,7 +347,7 @@ func TestIntegration_BitImage_ScalingCombinations(t *testing.T) {
 }
 
 func TestIntegration_BitImage_LargeDataHandling(t *testing.T) {
-	cmd := bitimage2.NewCommands()
+	cmd := bitimage.NewCommands()
 
 	t.Run("large raster graphics exceeding standard size", func(t *testing.T) {
 		// Create data larger than 65535 bytes
@@ -359,10 +359,10 @@ func TestIntegration_BitImage_LargeDataHandling(t *testing.T) {
 
 		// Should use large format command
 		storeCmd, err := cmd.Graphics.StoreRasterGraphicsInBufferLarge(
-			bitimage2.Monochrome,
-			bitimage2.NormalScale,
-			bitimage2.NormalScale,
-			bitimage2.Color1,
+			bitimage.Monochrome,
+			bitimage.NormalScale,
+			bitimage.NormalScale,
+			bitimage.Color1,
 			width,
 			height,
 			largeData,
@@ -390,9 +390,9 @@ func TestIntegration_BitImage_LargeDataHandling(t *testing.T) {
 		largeData := testutils.RepeatByte(dataSize, 0xEE)
 
 		storeCmd, err := cmd.Graphics.StoreColumnGraphicsInBufferLarge(
-			bitimage2.NormalScale,
-			bitimage2.NormalScale,
-			bitimage2.Color2,
+			bitimage.NormalScale,
+			bitimage.NormalScale,
+			bitimage.Color2,
 			width,
 			height,
 			largeData,
