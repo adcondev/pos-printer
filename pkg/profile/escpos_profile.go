@@ -5,6 +5,8 @@ import (
 	"github.com/adcondev/pos-printer/pkg/graphics"
 )
 
+// TODO: Check for a factory pattern if profiles become more complex
+
 // Escpos define todas las características físicas y capacidades de una impresora
 type Escpos struct {
 	// Información básica
@@ -20,11 +22,11 @@ type Escpos struct {
 	// Capacidades
 	SupportsGraphics bool // Soporta gráficos (imágenes)
 	SupportsBarcode  bool // Soporta códigos de barra nativos
-	SupportsQR       bool // Soporta códigos QR nativos
+	HasQR            bool // Soporta códigos QR nativos
 	SupportsCutter   bool // Tiene cortador automático
 	SupportsDrawer   bool // Soporta cajón de dinero
 
-	QRMaxVersion byte // Máxima versión soportada
+	QRMaxSize byte // Máxima versión soportada
 
 	// Code table and encoding configuration
 	CodeTable character.CodeTable
@@ -40,8 +42,8 @@ func CreatePt210() *Escpos {
 	p.Model = "58mm PT-210"
 
 	p.CodeTable = character.PC850
-	p.QRMaxVersion = 19 // Máxima versión QR soportada
-	p.SupportsQR = true // Soporta QR nativo
+	p.QRMaxSize = 19 // Máxima versión QR soportada
+	p.HasQR = true   // Soporta QR nativo
 	return p
 }
 
@@ -66,7 +68,7 @@ func CreateProfile58mm() *Escpos {
 
 		SupportsGraphics: true,
 		SupportsBarcode:  true,
-		SupportsQR:       false, // Muchas impresoras baratas no soportan QR nativo
+		HasQR:            false, // Muchas impresoras baratas no soportan QR nativo
 		SupportsCutter:   false,
 		SupportsDrawer:   false,
 
@@ -92,7 +94,7 @@ func CreateProfile80mm() *Escpos {
 
 		SupportsGraphics: true,
 		SupportsBarcode:  true,
-		SupportsQR:       true, // Las 80mm suelen tener más funciones
+		HasQR:            true, // Las 80mm suelen tener más funciones
 		SupportsCutter:   true,
 		SupportsDrawer:   true,
 

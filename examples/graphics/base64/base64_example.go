@@ -49,7 +49,7 @@ func main() {
 
 	// Load the image
 	log.Print("Loading image from Base64")
-	img, err := graphics.LoadFromBase64(Data)
+	img, err := graphics.ImgFromBase64(Data)
 	if err != nil {
 		log.Panicf("Failed to load image: %v", err)
 	}
@@ -59,10 +59,10 @@ func main() {
 	log.Printf("Original image size: %dx%d", bounds.Dx(), bounds.Dy())
 
 	// Configure processing options
-	opts := &graphics.Options{
-		Width:          256,
+	opts := &graphics.ImgOptions{
+		PixelWidth:     512,
 		Threshold:      128,
-		Mode:           graphics.Atkinson,
+		Dithering:      graphics.Atkinson,
 		AutoRotate:     false,
 		PreserveAspect: true,
 	}

@@ -157,8 +157,8 @@ func (p *Printer) DoubleSize() error {
 // Paper Control Methods
 // ============================================================================
 
-// FullCut performs a full paper cut
-func (p *Printer) FullCut(lines byte) error {
+// FullFeedAndCut performs a full paper cut
+func (p *Printer) FullFeedAndCut(lines byte) error {
 	cmd, _ := p.Protocol.MechanismControl.FeedAndCutPaper(mechanismcontrol.FeedCutFull, lines)
 	return p.Write(cmd)
 }
@@ -210,6 +210,10 @@ func (p *Printer) PrintBitmap(bitmap *graphics.MonochromeBitmap) error {
 	return p.Write(cmd)
 }
 
+// ============================================================================
+// Character Code Table Methods
+// ============================================================================
+
 // SetCodeTable changes the character code table
 func (p *Printer) SetCodeTable(codeTable character.CodeTable) error {
 	var cmd []byte
@@ -228,4 +232,92 @@ func (p *Printer) SetCodeTable(codeTable character.CodeTable) error {
 	}
 	p.Profile.CodeTable = codeTable
 	return nil
+}
+
+// ============================================================================
+// QR Code Printing Methods
+// ============================================================================
+
+// PrintQR imprime un QR con detección automática y fallback
+func (p *Printer) PrintQR(data string, opts *graphics.QROptions) error {
+	if opts == nil {
+		// TODO: Automatic options based on profile (DPI and Paper PixelWidth config to calculate Dots Per Line)
+		opts = graphics.DefaultQROptions()
+	}
+
+	// Intentar QR nativo si está soportado
+	if p.Profile.HasQR {
+		err := p.printQRNative(data, opts)
+		if err == nil {
+			return nil
+		}
+		// Log del error pero continuar con fallback
+		log.Printf("Native QR failed, falling back to image: %v", err)
+	}
+
+	// Fallback a imagen
+	return p.printQRAsImage(data, opts)
+}
+
+// printQRNative imprime usando protocolo ESC/POS nativo
+func (p *Printer) printQRNative(data string, opts *graphics.QROptions) error {
+	// Configurar modelo
+	if cmd, err := p.Protocol.QRCode.SelectQRCodeModel(opts.Model, 0); err != nil {
+		return err
+	} else if err := p.Write(cmd); err != nil {
+		return err
+	}
+
+	// Configurar tamaño de módulo
+	_, err := opts.SetModuleSize(data)
+	if err != nil {
+		return err
+	}
+	if cmd, err := p.Protocol.QRCode.SetQRCodeModuleSize(opts.GetModuleSize()); err != nil {
+		return err
+	} else if err := p.Write(cmd); err != nil {
+		return err
+	}
+
+	// Configurar corrección de errores
+	if cmd, err := p.Protocol.QRCode.SetQRCodeErrorCorrectionLevel(opts.ErrorCorrection); err != nil {
+		return err
+	} else if err := p.Write(cmd); err != nil {
+		return err
+	}
+
+	// Almacenar datos
+	if cmd, err := p.Protocol.QRCode.StoreQRCodeData([]byte(data)); err != nil {
+		return err
+	} else if err := p.Write(cmd); err != nil {
+		return err
+	}
+
+	// Imprimir
+	return p.Write(p.Protocol.QRCode.PrintQRCode())
+}
+
+// printQRAsImage genera y imprime QR como imagen
+func (p *Printer) printQRAsImage(data string, opts *graphics.QROptions) error {
+	// Generar imagen QR
+	img, err := graphics.GenerateQRImage(data, opts)
+	if err != nil {
+		return fmt.Errorf("generate QR image: %w", err)
+	}
+
+	// Procesar imagen para impresora térmica
+	pipeline := graphics.NewPipeline(&graphics.ImgOptions{
+		PixelWidth:     opts.PixelWidth,
+		Threshold:      128,
+		Scaling:        graphics.NearestNeighbor,
+		Dithering:      graphics.Threshold,
+		PreserveAspect: true,
+	})
+
+	bitmap, err := pipeline.Process(img)
+	if err != nil {
+		return fmt.Errorf("process QR image: %w", err)
+	}
+
+	return p.PrintBitmap(bitmap)
 }

@@ -1,0 +1,67 @@
+{
+  "version": "1.0",
+  "profile": {
+    "model": "80mm EC-PM-80250",
+    "width": 576,
+    "code_table": "PC850",
+    "supports_qr": false
+  },
+  "commands": [
+    {
+      "type": "text",
+      "data": {
+        "content": "PRUEBA QR BÁSICO #1",
+        "style": {
+          "align": "center",
+          "bold": true,
+          "size": "2x2"
+        },
+        "newline": true
+      }
+    },
+    {
+      "type": "separator",
+      "data": {
+        "char": "=",
+        "length": 48
+      }
+    },
+    {
+      "type": "text",
+      "data": {
+        "content": "QR Simple: URL",
+        "style": {
+          "align": "center",
+          "bold": true
+        },
+        "newline": true
+      }
+    },
+    {
+      "type": "qr",
+      "data": {
+        "data": "https://github.com/adcondev/pos-printer",
+        "pixel_width": 200,
+        "correction": "L",
+        "align": "center"
+      }
+    },
+    {
+      "type": "text",
+      "data": {
+        "content": "github.com/adcondev/pos-printer",
+        "style": {
+          "align": "center"
+        },
+        "newline": true
+      }
+    },
+    {
+      "type": "cut",
+      "data": {
+        "mode": "partial",
+        "feed": 3
+      }
+    }
+  ]
+}

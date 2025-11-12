@@ -1,3 +1,4 @@
+// Package document provides structures and functions to build print documents.
 package document
 
 import (
@@ -5,8 +6,8 @@ import (
 	"fmt"
 )
 
-// PrintData representa los datos de un documento de impresión
-type PrintData struct {
+// PrintJob representa los datos de un documento de impresión
+type PrintJob struct {
 	Data Document `json:"data"`
 }
 
@@ -19,9 +20,11 @@ type Document struct {
 
 // ProfileConfig configuración del perfil de impresora
 type ProfileConfig struct {
-	Model     string `json:"model"`      // Modelo de impresora
-	Width     int    `json:"width"`      // Ancho en dots
-	CodeTable string `json:"code_table"` // Tabla de caracteres
+	Model      string `json:"model"`
+	PaperWidth int    `json:"paper_width"` // FIXME: Considerar JSON
+	CodeTable  string `json:"code_table"`
+	DPI        int    `json:"dpi,omitempty"` // FIXME: Considerar JSON
+	HasQR      bool   `json:"has_qr"`        // Indica si soporta QR nativo
 }
 
 // Command represents a single command in the document
@@ -48,12 +51,13 @@ type TextStyle struct {
 
 // ImageCommand represents an image command
 type ImageCommand struct {
-	Code      string `json:"code"`                // Base64
-	Format    string `json:"format,omitempty"`    // png, jpg, bmp
-	Width     int    `json:"width,omitempty"`     // Ancho deseado
-	Align     string `json:"align,omitempty"`     // Alineación
-	Threshold byte   `json:"threshold,omitempty"` // Umbral B/N (0-255)
-	Dithering string `json:"dithering,omitempty"` // threshold, atkinson
+	Code       string `json:"code"`                  // Base64
+	Format     string `json:"format,omitempty"`      // png, jpg, bmp
+	PixelWidth int    `json:"pixel_width,omitempty"` // Ancho deseado en píxeles // FIXME: Considerar JSON
+	Align      string `json:"align,omitempty"`       // Alineación
+	Threshold  byte   `json:"threshold,omitempty"`   // Umbral B/N (0-255)
+	Dithering  string `json:"dithering,omitempty"`   // threshold, atkinson
+	Scaling    string `json:"scaling,omitempty"`     // bilinear, nns // FIXME: Considerar JSON
 }
 
 // SeparatorCommand represents a separator command
@@ -73,19 +77,29 @@ type CutCommand struct {
 	Feed int    `json:"feed,omitempty"` // Líneas antes del corte
 }
 
-// QRCommand represents a QR command (WIP)
+// TODO: Review for more useful fields
+
+// QRCommand actualizado para soportar todas las opciones
 type QRCommand struct {
-	Data  string `json:"data"`
-	Size  string `json:"size,omitempty"`  // small, medium, large
-	Align string `json:"align,omitempty"` // Alineación
-	// TODO: Implementar cuando se agregue soporte QR
+	Data      string `json:"data"`                 // Datos del QR (URL, texto, etc.) // FIXME: Considerar JSON
+	HumanText string `json:"human_text,omitempty"` // Texto a mostrar debajo del QR // FIXME: Considerar JSON
+
+	// Opciones básicas
+	PixelWidth int    `json:"pixel_width,omitempty"` // Pixel size // FIXME: Considerar JSON
+	Correction string `json:"correction,omitempty"`  // L, M, Q, H
+	Align      string `json:"align,omitempty"`       // left, center, right
+
+	// Opciones avanzadas (solo imagen)
+	LogoPath     string `json:"logo_path,omitempty"`     // Ruta relativa al logo
+	CircleShape  bool   `json:"circle_shape,omitempty"`  // Usar bloques circulares
+	HalftonePath string `json:"halftone_path,omitempty"` // TODO: Ruta relativa a imagen de semitono
 }
 
 // TableCommand represents a table command (WIP)
 type TableCommand struct {
 	Columns []TableColumn `json:"columns"`
 	Rows    [][]string    `json:"rows"`
-	// TODO: Implementar cuando se agregue soporte de tablas
+	// TODO: Adequate fields still not defined
 }
 
 // TableColumn define una columna de tabla
@@ -103,6 +117,7 @@ func ParseDocument(data []byte) (*Document, error) {
 
 	// Validación básica
 	if doc.Version == "" {
+		// TODO: Review an smart way to handle versions
 		doc.Version = "1.0"
 	}
 

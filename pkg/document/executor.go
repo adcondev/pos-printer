@@ -30,13 +30,15 @@ func NewExecutor(printer *service.Printer) *Executor {
 
 	// Registrar handlers básicos
 	e.RegisterHandler("text", e.handleText)
-	e.RegisterHandler("image", e.handleImage)
-	e.RegisterHandler("separator", e.handleSeparator)
 	e.RegisterHandler("feed", e.handleFeed)
 	e.RegisterHandler("cut", e.handleCut)
 
+	// Registrar handlers avanzados
+	e.RegisterHandler("image", e.handleImage)
+	e.RegisterHandler("separator", e.handleSeparator)
+
 	// Handlers preparados para futura implementación
-	e.RegisterHandler("qr", e.handleQRPlaceholder)
+	e.RegisterHandler("qr", e.handleQR)
 	e.RegisterHandler("table", e.handleTablePlaceholder)
 
 	return e
@@ -76,7 +78,7 @@ func (e *Executor) Execute(doc *Document) error {
 	return nil
 }
 
-// setCodeTable configura la tabla de caracteres
+// setCodeTable configura la tabla de caracteres con fallback
 func (e *Executor) setCodeTable(tableName string) error {
 	// Mapa de nombres a constantes
 	tables := map[string]character.CodeTable{
@@ -84,12 +86,13 @@ func (e *Executor) setCodeTable(tableName string) error {
 		"PC850":   character.PC850,
 		"PC852":   character.PC852,
 		"WPC1252": character.WPC1252,
-		// Agregar más según necesidad
+		// TODO: Add Go Compatible code tables (check package profile in escpos_encoding.go)
 	}
 
 	table, ok := tables[tableName]
 	if !ok {
-		return fmt.Errorf("unknown code table: %s", tableName)
+		log.Printf("warning: unsupported code table %s, falling back to Windows-1252", tableName)
+		return e.printer.SetCodeTable(character.WPC1252)
 	}
 
 	return e.printer.SetCodeTable(table)

@@ -13,10 +13,10 @@ import (
 	"strings"
 )
 
-// LoadFromFile loads an image from a file path within baseDir.
+// ImgFromFile loads an image from a file path within baseDir.
 //
 // It validates the path to prevent directory traversal attacks.
-func LoadFromFile(baseDir, relPath string) (image.Image, error) {
+func ImgFromFile(baseDir, relPath string) (image.Image, error) {
 	baseAbs, err := filepath.Abs(baseDir)
 	if err != nil {
 		return nil, fmt.Errorf("invalid base directory: %w", err)
@@ -63,8 +63,8 @@ func LoadFromFile(baseDir, relPath string) (image.Image, error) {
 	return img, nil
 }
 
-// LoadFromBase64 converts a base64-encoded string to an image.Image.
-func LoadFromBase64(data string) (image.Image, error) {
+// ImgFromBase64 converts a base64-encoded string to an image.Image.
+func ImgFromBase64(data string) (image.Image, error) {
 	// Decode base64 to byte slice
 	imgBytes, err := base64.StdEncoding.DecodeString(data)
 	if err != nil {

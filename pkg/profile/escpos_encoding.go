@@ -13,6 +13,8 @@ import (
 
 // TODO: Add new encodings as needed, many of them defined in ESCPOS don't have a direct mapping in Go
 
+// TODO: Separate this concern to dedicated package, then add the state management concern to profile
+
 // codeTableMap maps ESC/POS code tables to Go encodings
 var codeTableMap = map[character.CodeTable]encoding.Encoding{
 	// Western European and Americas

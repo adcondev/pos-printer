@@ -86,7 +86,7 @@ func (c *Commands) SelectQRCodeModel(n1 Model, n2 byte) ([]byte, error) {
 //
 // Parameters:
 //
-//	n: Size of the module in dots (1–16)
+//	n: moduleSize of the module in dots (1–16)
 //	   Each module is a square, so n represents both width and height
 //
 // Notes:
@@ -197,10 +197,10 @@ func (c *Commands) SetQRCodeErrorCorrectionLevel(n ErrorCorrection) ([]byte, err
 //
 //	data: QR Code symbol data to store (d1...dk)
 //	      The data can include the following categories:
-//	      - Numerical Mode: "0"–"9"
-//	      - Alphanumeric Mode: "0"–"9", "A"–"Z", SP, $, %, *, +, -, ., /, :
-//	      - Kanji Mode: Shift JIS values (shifted from JIS X 0208)
-//	      - 8-Bit Byte Mode: 0x00–0xFF
+//	      - Numerical Dithering: "0"–"9"
+//	      - Alphanumeric Dithering: "0"–"9", "A"–"Z", SP, $, %, *, +, -, ., /, :
+//	      - Kanji Dithering: Shift JIS values (shifted from JIS X 0208)
+//	      - 8-Bit Byte Dithering: 0x00–0xFF
 //
 // Notes:
 //   - Stores the QR Code symbol data in the symbol storage area
@@ -279,7 +279,7 @@ func (c *Commands) StoreQRCodeData(data []byte) ([]byte, error) {
 //     1. Numerical mode
 //     2. Alphanumeric mode
 //     3. Kanji mode
-//     4. 8-Bit Byte Mode
+//     4. 8-Bit Byte Dithering
 //   - The following elements are added automatically during encoding:
 //   - Position Detection Patterns
 //   - Separators for Position Detection Patterns
@@ -289,7 +289,7 @@ func (c *Commands) StoreQRCodeData(data []byte) ([]byte, error) {
 //   - Error Correction codewords (Reed-Solomon algorithm)
 //   - Pad codeword
 //   - Number of bits in Character Count Indicator
-//   - Mode Indicator
+//   - Dithering Indicator
 //   - Terminator
 //   - Alignment Patterns (when model 2 is selected)
 //   - Extension Patterns (when model 1 is selected)
@@ -357,9 +357,9 @@ func (c *Commands) PrintQRCode() []byte {
 //   - 0x31 (decimal 49): Printing is impossible
 //   - NUL: 1 byte (0x00, decimal 0)
 //   - Horizontal size and vertical size indicate the number of dots of the symbol
-//   - Size values are converted to ASCII digits starting from the high order
+//   - ModuleSize values are converted to ASCII digits starting from the high order
 //   - Example: If horizontal size is 120 dots, the field contains "120" (3 bytes: 0x31,0x32,0x30)
-//   - Size information indicates the size of symbol that would be printed by GS ( k <Function 181>
+//   - ModuleSize information indicates the size of symbol that would be printed by GS ( k <Function 181>
 //   - The quiet zone is NOT included in the size information
 //   - This function does NOT print - it only transmits size information
 //   - If "Other information" indicates "Printing is impossible" (49), possible causes and solutions:

@@ -1,0 +1,80 @@
+{
+  "version": "1.0",
+  "profile": {
+    "model": "80mm EC-PM-80250",
+    "width": 384,
+    "code_table": "PC850",
+    "supports_qr": true
+  },
+  "commands": [
+    {
+      "type": "text",
+      "data": {
+        "content": "CONFIGURACIÓN WIFI",
+        "style": {
+          "align": "center",
+          "bold": true
+        },
+        "newline": true
+      }
+    },
+    {
+      "type": "feed",
+      "data": {
+        "lines": 1
+      }
+    },
+    {
+      "type": "text",
+      "data": {
+        "content": "Red: MiTienda_WiFi",
+        "style": {
+          "align": "left"
+        },
+        "newline": true
+      }
+    },
+    {
+      "type": "text",
+      "data": {
+        "content": "Contraseña: Segura2025!",
+        "style": {
+          "align": "left"
+        },
+        "newline": true
+      }
+    },
+    {
+      "type": "feed",
+      "data": {
+        "lines": 1
+      }
+    },
+    {
+      "type": "qr",
+      "data": {
+        "data": "WIFI:T:WPA2;S:MiTienda_WiFi;P:Segura2025!;H:false;;",
+        "pixel_width": 180,
+        "correction": "H",
+        "align": "center"
+      }
+    },
+    {
+      "type": "text",
+      "data": {
+        "content": "Escanea para conectarte",
+        "style": {
+          "align": "center"
+        },
+        "newline": true
+      }
+    },
+    {
+      "type": "cut",
+      "data": {
+        "mode": "partial",
+        "feed": 3
+      }
+    }
+  ]
+}

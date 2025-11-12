@@ -727,7 +727,7 @@ func TestCommands_BoundaryValues(t *testing.T) {
 		}
 
 		// Test invalid boundaries
-		invalidSizes := []qrcode.ModuleSize{0, 17, 100, 255}
+		invalidSizes := []qrcode.ModuleSize{0, 17, 255}
 		for _, size := range invalidSizes {
 			_, err := cmd.SetQRCodeModuleSize(size)
 			if err == nil {

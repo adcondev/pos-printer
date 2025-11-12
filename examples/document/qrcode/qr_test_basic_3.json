@@ -1,0 +1,120 @@
+{
+  "version": "1.0",
+  "profile": {
+    "model": "80mm EC-PM-80250",
+    "width": 576,
+    "code_table": "PC850",
+    "supports_qr": false
+  },
+  "commands": [
+    {
+      "type": "text",
+      "data": {
+        "content": "PAGO MÓVIL",
+        "style": {
+          "align": "center",
+          "bold": true,
+          "size": "2x2"
+        },
+        "newline": true
+      }
+    },
+    {
+      "type": "separator",
+      "data": {
+        "char": "=",
+        "length": 48
+      }
+    },
+    {
+      "type": "text",
+      "data": {
+        "content": "Monto a pagar:",
+        "style": {
+          "align": "center"
+        },
+        "newline": true
+      }
+    },
+    {
+      "type": "text",
+      "data": {
+        "content": "$500.00 MXN",
+        "style": {
+          "align": "center",
+          "bold": true,
+          "size": "3x3"
+        },
+        "newline": true
+      }
+    },
+    {
+      "type": "feed",
+      "data": {
+        "lines": 1
+      }
+    },
+    {
+      "type": "qr",
+      "data": {
+        "data": "bitcoin:1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa?amount=0.00005&label=TiendaDemo&message=Compra%20en%20tienda",
+        "pixel_width": 220,
+        "correction": "M",
+        "align": "center"
+      }
+    },
+    {
+      "type": "text",
+      "data": {
+        "content": "Bitcoin Address",
+        "style": {
+          "align": "center"
+        },
+        "newline": true
+      }
+    },
+    {
+      "type": "separator",
+      "data": {
+        "char": "-",
+        "length": 48
+      }
+    },
+    {
+      "type": "text",
+      "data": {
+        "content": "O paga con transferencia:",
+        "style": {
+          "align": "center"
+        },
+        "newline": true
+      }
+    },
+    {
+      "type": "qr",
+      "data": {
+        "data": "SPEI:012180001234567890?amount=500&reference=VENTA2025001",
+        "pixel_width": 200,
+        "correction": "L",
+        "align": "center"
+      }
+    },
+    {
+      "type": "text",
+      "data": {
+        "content": "CLABE: 012180001234567890",
+        "style": {
+          "align": "center"
+        },
+        "newline": true
+      }
+    },
+    {
+      "type": "cut",
+      "data": {
+        "mode": "partial",
+        "feed": 3
+      }
+    }
+  ]
+}

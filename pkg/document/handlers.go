@@ -6,8 +6,14 @@ import (
 	"strings"
 
 	"github.com/adcondev/pos-printer/pkg/commands/character"
+	posqr "github.com/adcondev/pos-printer/pkg/commands/qrcode"
 	"github.com/adcondev/pos-printer/pkg/graphics"
 	"github.com/adcondev/pos-printer/pkg/printer"
+)
+
+const (
+	center = "center"
+	right  = "right"
 )
 
 // handleText manages text commands
@@ -19,11 +25,11 @@ func (e *Executor) handleText(printer *service.Printer, data json.RawMessage) er
 
 	// Aplicar alineación
 	switch strings.ToLower(cmd.Style.Align) {
-	case "center":
+	case center:
 		if err := printer.AlignCenter(); err != nil {
 			return err
 		}
-	case "right":
+	case right:
 		if err := printer.AlignRight(); err != nil {
 			return err
 		}
@@ -99,22 +105,22 @@ func (e *Executor) handleImage(printer *service.Printer, data json.RawMessage) e
 	}
 
 	// Decodificar imagen desde base64
-	img, err := graphics.LoadFromBase64(cmd.Code)
+	img, err := graphics.ImgFromBase64(cmd.Code)
 	if err != nil {
 		return fmt.Errorf("failed to load image: %w", err)
 	}
 
 	// Configurar opciones de procesamiento
-	opts := &graphics.Options{
-		Width:          cmd.Width,
+	opts := &graphics.ImgOptions{
+		PixelWidth:     cmd.PixelWidth,
 		Threshold:      cmd.Threshold,
 		PreserveAspect: true,
 		AutoRotate:     false,
 	}
 
 	// Si no se especifica ancho, usar el ancho del perfil
-	if opts.Width == 0 {
-		opts.Width = e.profile.DotsPerLine
+	if opts.PixelWidth == 0 {
+		opts.PixelWidth = 256
 	}
 
 	// Si no se especifica threshold, usar valor por defecto
@@ -125,19 +131,19 @@ func (e *Executor) handleImage(printer *service.Printer, data json.RawMessage) e
 	// Configurar dithering
 	switch strings.ToLower(cmd.Dithering) {
 	case "atkinson":
-		opts.Mode = graphics.Atkinson
+		opts.Dithering = graphics.Atkinson
 	default:
-		opts.Mode = graphics.Threshold
+		opts.Dithering = graphics.Threshold
 	}
 
 	// Aplicar alineación
 	switch strings.ToLower(cmd.Align) {
-	case "center":
+	case center:
 		err := printer.AlignCenter()
 		if err != nil {
 			return err
 		}
-	case "right":
+	case right:
 		err := printer.AlignRight()
 		if err != nil {
 			return err
@@ -224,39 +230,99 @@ func (e *Executor) handleCut(printer *service.Printer, data json.RawMessage) err
 	// Ejecutar corte
 	switch strings.ToLower(cmd.Mode) {
 	case "full":
-		return printer.FullCut(0)
+		return printer.FullFeedAndCut(0)
 	default: // partial
 		return printer.PartialFeedAndCut(0)
 	}
 }
 
-// handleQRPlaceholder manges QR code commands (WIP)
-func (e *Executor) handleQRPlaceholder(printer *service.Printer, data json.RawMessage) error {
+// handleQR manges QR code commands
+func (e *Executor) handleQR(printer *service.Printer, data json.RawMessage) error {
 	var cmd QRCommand
 	if err := json.Unmarshal(data, &cmd); err != nil {
+		return fmt.Errorf("failed to parse QR command: %w", err)
+	}
+
+	// Validación de datos
+	if cmd.Data == "" {
+		return fmt.Errorf("QR data cannot be empty")
+	}
+
+	// Construir opciones
+	opts := graphics.DefaultQROptions()
+
+	// Mapear tamaño - usar la mitad del ancho del papel por defecto
+	if cmd.PixelWidth > 0 {
+		opts.PixelWidth = cmd.PixelWidth
+	} else {
+		// Depende del perfil (50% del ancho)
+		opts.PixelWidth = e.profile.DotsPerLine / 2
+	}
+
+	// Mapear corrección de errores
+	switch strings.ToUpper(cmd.Correction) {
+	case "L":
+		opts.ErrorCorrection = posqr.LevelL
+	case "Q":
+		opts.ErrorCorrection = posqr.LevelQ
+	case "H":
+		opts.ErrorCorrection = posqr.LevelH
+	default:
+		opts.ErrorCorrection = posqr.LevelM
+	}
+
+	// Configurar logo si existe
+	if cmd.LogoPath != "" {
+		opts.LogoPath = cmd.LogoPath
+	}
+
+	opts.CircleShape = cmd.CircleShape
+
+	// Aplicar alineación
+	switch strings.ToLower(cmd.Align) {
+	case center:
+		err := printer.AlignCenter()
+		if err != nil {
+			return err
+		}
+	case right:
+		err := printer.AlignRight()
+		if err != nil {
+			return err
+		}
+	default:
+		err := printer.AlignLeft()
+		if err != nil {
+			return err
+		}
+	}
+
+	// Imprimir QR
+	err := printer.PrintQR(cmd.Data, opts)
+	if err != nil {
 		return err
 	}
 
-	// TODO: Implementar cuando se agregue soporte QR
-	// Por ahora, imprimir texto indicando QR
-	err := printer.AlignCenter()
-	if err != nil {
-		return err
+	// Imprimir texto humano si existe
+	if cmd.HumanText != "" {
+		// Centrar el texto debajo del QR si el QR está centrado
+		if strings.ToLower(cmd.Align) == "center" {
+			if err := printer.AlignCenter(); err != nil {
+				return err
+			}
+		}
+		if err := printer.PrintLine(cmd.HumanText); err != nil {
+			return err
+		}
 	}
-	err = printer.PrintLine("[QR Code]")
-	if err != nil {
-		return err
-	}
-	err = printer.PrintLine(cmd.Data)
-	if err != nil {
-		return err
-	}
+
+	// Restaurar alineación
 	err = printer.AlignLeft()
 	if err != nil {
 		return err
 	}
 
-	return nil
+	return err
 }
 
 // handleTablePlaceholder manages table commands (WIP)

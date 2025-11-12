@@ -47,37 +47,12 @@ func main() {
 	executor := document.NewExecutor(printer)
 
 	// Opción A: Cargar documento JSON desde archivo
-	jsonData, err := os.ReadFile("./examples/document/basic_ticket.json")
+	jsonData, err := os.ReadFile("./examples/document/qrcode/qr_test_advanced_1.json")
 	if err != nil {
 		log.Panicf("Failed to read JSON file: %v", err)
 	}
 
 	if err := executor.ExecuteJSON(jsonData); err != nil {
-		log.Panicf("Failed to execute document: %v", err)
-	}
-
-	// Opción B: Construir documento programáticamente
-	builder := document.NewBuilder()
-	doc := builder.
-		SetProfile("80mm EC-PM-80250", 576, "PC850").
-		AddText("MI TIENDA", &document.TextStyle{
-			Align: "center",
-			Bold:  true,
-			Size:  "2x2",
-		}).
-		AddSeparator("=", 48).
-		AddText("Ticket de Venta", nil).
-		AddFeed(1).
-		AddText("Total: $100.00", &document.TextStyle{
-			Align: "right",
-			Bold:  true,
-			Size:  "2x2",
-		}).
-		AddFeed(3).
-		AddCut("partial", 0).
-		Build()
-
-	if err := executor.Execute(doc); err != nil {
 		log.Panicf("Failed to execute document: %v", err)
 	}
 
