@@ -40,6 +40,7 @@ Scope MUST be a noun describing a section of the codebase surrounded by parenthe
 - `(connector)` - Printer connection and communication
 - `(printer)` - Main printer functionality
 - `(composer)` - Command composition and assembly
+- `(poster)` - Library name, used when changes affect the entire library or are broad in scope
 
 ### Printing Features
 

@@ -1,0 +1,208 @@
+{
+  "data": {
+    "identificador": "NTQ3",
+    "serie_identificador": "MA==",
+    "sucursal": "S0001",
+    "cliente_identificador": "MTU=",
+    "vendedor_identificador": "Ng==",
+    "vendedor": "S0001",
+    "cliente": "PÚBLICO EN GENERAL",
+    "cliente_rfc": "XAXX010101000",
+    "cliente_cp": "82000",
+    "cliente_uso_cfdi": "G03",
+    "cliente_regimen_fiscal": "616",
+    "cliente_calle": "",
+    "cliente_numero_exterior": "",
+    "cliente_numero_interior": "",
+    "cliente_estado": "Sinaloa",
+    "cliente_colonia": "",
+    "cliente_localidad": "MAZATLÁN",
+    "cliente_delegacion": "MAZATLÁN",
+    "cliente_pais": "MÉXICO",
+    "sucursal_rfc": "EKU9003173C9",
+    "sucursal_nombre": "ESCUELA KEMPER URGATE",
+    "sucursal_cp": "82050",
+    "sucursal_regimen_clave": "601",
+    "sucursal_regimen": "RÉGIMEN ACTIVIDAD EMPRESARIAL Y PROFESIONAL PERSONA FÍSICA",
+    "sucursal_nombre_comercial": "LA RAZÓN",
+    "sucursal_tienda": "Almacén Principal",
+    "sucursal_email": "lugoman58@gmail.com",
+    "sucursal_telefono": "982-66-09",
+    "sucursal_calle": "Ejemplo 31",
+    "sucursal_numero": "123",
+    "sucursal_numero_int": "111",
+    "sucursal_colonia": "Ejemplo 2",
+    "sucursal_estado": "Sinaloa",
+    "sucursal_localidad": "MAZATLÁN",
+    "sucursal_municipio": "",
+    "sucursal_pais": "MÉXICO",
+    "sucursal_leyenda_1": "¡GRACIAS POR SU COMPRA!",
+    "sucursal_leyenda_2": "Desarrollado por Red2000",
+    "comentario": null,
+    "comentario_interno": null,
+    "costo": "500",
+    "costo_bruto": "234",
+    "descuento_motivo": "",
+    "descuento": "0",
+    "metodo_pago": "PUE",
+    "total": "234",
+    "saldo": "0",
+    "abonado": null,
+    "pagado": "234",
+    "cambio": "0",
+    "descuento_nota_credito": null,
+    "tipo_operacion": "NOTA_VENTA",
+    "anulada": "0",
+    "fecha_sistema": "16/07/2025 12:18:18",
+    "folio": "326",
+    "serie": "ABC1",
+    "enviada": "0",
+    "cliente_emails": "jrodriguez@red2000.mx",
+    "almacen_id": "5",
+    "tipo_conversion_factura": "0",
+    "autofactura_link": "https://af.capacita.edu.mx/hola-mundo",
+    "autofactura_link_qr": "https://af.capacita.edu.mx/hola-mundo?total=234&fecha=2025-07-16&folio=326",
+    "receta": {},
+    "conceptos": [
+      {
+        "clave": "PRO000029",
+        "descripcion": "Producto con Series 2",
+        "precio_venta": "78",
+        "cantidad": "3",
+        "total": "234",
+        "unidad": "Pieza",
+        "clave_producto_servicio": "27112309",
+        "clave_unidad_sat": "H87",
+        "venta_granel": "0",
+        "series": [
+          "155548830",
+          "155548834",
+          "155548835"
+        ],
+        "impuestos": []
+      },
+      {
+        "clave": "0001",
+        "descripcion": "MANTENIMIENTO OTROS CORRECTIVOS",
+        "precio_venta": "37041.8",
+        "cantidad": "1",
+        "total": "37041.8",
+        "unidad": "PIEZA",
+        "clave_producto_servicio": "52101502",
+        "clave_unidad_sat": "MTK",
+        "venta_granel": "0",
+        "impuestos": []
+      },
+      {
+        "clave": "S0001-15976",
+        "descripcion": "ESTUCO ACRILICO UV RD",
+        "precio_venta": "96.774131113464",
+        "cantidad": "1",
+        "total": "99.99",
+        "unidad": "PIEZA",
+        "clave_producto_servicio": "31211707",
+        "clave_unidad_sat": "H87",
+        "venta_granel": "0",
+        "impuestos": [
+          {
+            "factor": "Tasa",
+            "base": "96.770000",
+            "importe": "15.480000",
+            "impuestos": "002",
+            "tasa": "0.160000",
+            "entidad": "Federal",
+            "tipo": "T"
+          },
+          {
+            "factor": "Tasa",
+            "base": "96.770000",
+            "importe": "7.740000",
+            "impuestos": "003",
+            "tasa": "0.080000",
+            "entidad": "Federal",
+            "tipo": "T"
+          },
+          {
+            "factor": "Tasa",
+            "base": "96.770000",
+            "importe": "10.320000",
+            "impuestos": "002",
+            "tasa": "0.106666",
+            "entidad": "Federal",
+            "tipo": "R"
+          },
+          {
+            "factor": "Tasa",
+            "base": "96.770000",
+            "importe": "9.680000",
+            "impuestos": "001",
+            "tasa": "0.100000",
+            "entidad": "Federal",
+            "tipo": "R"
+          }
+        ]
+      },
+      {
+        "clave": "S0001-15997",
+        "descripcion": "AGUA DESTILADA",
+        "precio_venta": "68.965517241379",
+        "cantidad": "1",
+        "total": "80",
+        "unidad": "PIEZA",
+        "clave_producto_servicio": "31211900",
+        "clave_unidad_sat": "H87",
+        "venta_granel": "0",
+        "impuestos": [
+          {
+            "factor": "Tasa",
+            "base": "68.970000",
+            "importe": "11.030000",
+            "impuestos": "002",
+            "tasa": "0.160000",
+            "entidad": "Federal",
+            "tipo": "T"
+          }
+        ]
+      },
+      {
+        "clave": "CRA000016",
+        "descripcion": "Crayolas",
+        "precio_venta": "30",
+        "cantidad": "1",
+        "total": "30",
+        "unidad": "PIEZA",
+        "clave_producto_servicio": "60121509",
+        "clave_unidad_sat": "H87",
+        "venta_granel": "0",
+        "impuestos": []
+      }
+    ],
+    "impuestos": [],
+    "documentos_pago": [
+      {
+        "total": "234.000000",
+        "tipo_cambio": "1.000000",
+        "saldo": "0.000000",
+        "nota": "",
+        "sistema": "2025-07-16 12:18:18",
+        "anulado": "0",
+        "cambio": "0.000000",
+        "fecha_pago": "2025-07-16 12:18:18",
+        "formas_pago": [
+          {
+            "forma_pago": "Efectivo",
+            "cantidad": "234",
+            "forma_pago_identificador": "MQ=="
+          }
+        ]
+      }
+    ],
+    "pago": [
+      {
+        "forma_pago": "Efectivo",
+        "cantidad": "234",
+        "forma_pago_identificador": "eyJpdiI6IjNEK0s4NU0zaE9LdEdSVUtISGVMQ3c9PSIsInZhbHVlIjoiY01ISU41ckdkMHFnWTdLRVdlTjBwQT09IiwibWFjIjoiODE5ODNlMDEzMTMwN2FiNTgzOGY1OTU4OWEzNDczNmY0YjFiNDA0ZDMwZjliYzRiZTYwNmQwMDExODA1NjhiZiIsInRhZyI6IiJ9"
+      }
+    ]
+  }
+}

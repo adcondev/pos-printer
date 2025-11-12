@@ -1,0 +1,32 @@
+{
+  "data": {
+    "printer_model": "80mm EC-PM-80250",
+    "debug_log": true,
+    "ticket_width": "80",
+    "razon_social_size": "10",
+    "datos_size": "10",
+    "ver_logotipo": "1",
+    "logo_width": "120",
+    "ver_nombre": "1",
+    "ver_nombre_c": "1",
+    "ver_rfc": "1",
+    "ver_dom": "1",
+    "ver_leyenda": "1",
+    "ver_regimen": "1",
+    "ver_email": "1",
+    "ver_nombre_cliente": "1",
+    "ver_folio": "1",
+    "ver_fecha": "1",
+    "ver_tienda": "1",
+    "cambiar_cabecera": "Ejemplo Cabecera",
+    "ver_precio_u": "1",
+    "incluye_impuestos": "1",
+    "ver_cant_productos": "1",
+    "cambiar_reclamacion": "PARA CUALQUIER RECLAMACION ES NECESARIO\r\nPRESENTAR SU TICKET DE COMPRAS",
+    "ver_telefono": "1",
+    "cambiar_pie": "Ejemplo Pie",
+    "ver_impuestos": "1",
+    "ver_impuestos_total": "1",
+    "ver_series": "1"
+  }
+}

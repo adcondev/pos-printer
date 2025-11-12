@@ -246,7 +246,7 @@ receipt.TextBlock{Content: "Total:", Style: receipt.StyleBold},
 receipt.TextBlock{Content: "$10.00", Align: receipt.AlignRight},
 receipt.QRBlock{Data: "...", Align: receipt.AlignCenter},
 },
-Footer: receipt.CutBlock{Mode: receipt.CutPartial},
+Footer: receipt.CutBlock{Dithering: receipt.CutPartial},
 }
 ```
 
@@ -367,7 +367,7 @@ type Block interface {
 type TextBlock struct {
 	Content string   `json:"content"`
 	Style   []Style  `json:"style,omitempty"`
-	Size    FontSize `json:"size,omitempty"`
+	moduleSize    FontSize `json:"size,omitempty"`
 	Align   Align    `json:"align,omitempty"`
 }
 
@@ -379,7 +379,7 @@ type ColumnsBlock struct {
 }
 type Column struct {
 	Content string  `json:"content"`
-	Width   int     `json:"width"` // Ancho en caracteres
+	PixelWidth   int     `json:"width"` // Ancho en caracteres
 	Style   []Style `json:"style,omitempty"`
 	Align   Align   `json:"align,omitempty"`
 }
@@ -416,7 +416,7 @@ type FeedBlock struct {
 
 // CutBlock: Para cortar el papel.
 type CutBlock struct {
-	Mode string `json:"mode"` // "full" o "partial"
+	Dithering string `json:"mode"` // "full" o "partial"
 }
 
 // Implementa Block.Render(p)...
