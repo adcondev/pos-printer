@@ -3,6 +3,7 @@ package document
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"strings"
 
 	"github.com/adcondev/pos-printer/pkg/commands/character"
@@ -247,15 +248,17 @@ func (e *Executor) handleQR(printer *service.Printer, data json.RawMessage) erro
 	if cmd.Data == "" {
 		return fmt.Errorf("QR data cannot be empty")
 	}
+	if len(cmd.Data) > posqr.MaxDataLength {
+		return fmt.Errorf("QR data too long: %d bytes (maximum %d)", len(data), posqr.MaxDataLength)
+	}
 
 	// Construir opciones
 	opts := graphics.DefaultQROptions()
 
-	// Mapear tamaño - usar la mitad del ancho del papel por defecto
 	if cmd.PixelWidth > 0 {
 		opts.PixelWidth = cmd.PixelWidth
 	} else {
-		// Depende del perfil (50% del ancho)
+		// Usar 50% del ancho del papel por defecto
 		opts.PixelWidth = e.profile.DotsPerLine / 2
 	}
 
@@ -271,12 +274,24 @@ func (e *Executor) handleQR(printer *service.Printer, data json.RawMessage) erro
 		opts.ErrorCorrection = posqr.LevelM
 	}
 
-	// Configurar logo si existe
 	if cmd.LogoPath != "" {
 		opts.LogoPath = cmd.LogoPath
+		if cmd.LogoSizeMulti > 0 {
+			opts.LogoSizeMulti = cmd.LogoSizeMulti
+		}
 	}
 
-	opts.CircleShape = cmd.CircleShape
+	if cmd.HalftonePath != "" {
+		opts.HalftonePath = cmd.HalftonePath
+		// Si hay halftone, desactivar circle shape
+		if cmd.CircleShape {
+			log.Printf("warning: halftone and circle_shape cannot be used together, prioritizing halftone")
+		}
+		opts.CircleShape = false
+	} else {
+		// Solo aplicar circle shape si no hay halftone
+		opts.CircleShape = cmd.CircleShape
+	}
 
 	// Aplicar alineación
 	switch strings.ToLower(cmd.Align) {

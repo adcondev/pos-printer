@@ -2,17 +2,82 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 
+	posqr "github.com/adcondev/pos-printer/pkg/commands/qrcode"
 	"github.com/adcondev/pos-printer/pkg/composer"
 	"github.com/adcondev/pos-printer/pkg/connection"
 	"github.com/adcondev/pos-printer/pkg/document"
+	"github.com/adcondev/pos-printer/pkg/graphics"
 	"github.com/adcondev/pos-printer/pkg/printer"
 	"github.com/adcondev/pos-printer/pkg/profile"
 )
 
 func main() {
+	// 1. Verificar archivos
+	checkFile := func(path string) {
+		if _, err := os.Stat(path); os.IsNotExist(err) {
+			log.Printf("⚠️  File not found: %s", path)
+		} else {
+			log.Printf("✅ File exists: %s", path)
+		}
+	}
+
+	checkFile("./assets/images/logo.jpeg")
+	checkFile("./assets/images/halftone.jpeg")
+	checkFile("./examples/document/qrcode/qr_test_advanced_1.json")
+	checkFile("./examples/document/qrcode/qr_scenario_wifi.json")
+
+	// 2. Probar generación de QR simple
+	opts := graphics.DefaultQROptions()
+	opts.PixelWidth = 288
+	opts.ErrorCorrection = posqr.LevelM
+
+	img, err := graphics.GenerateQRImage("https://github.com/adcondev", opts)
+	if err != nil {
+		log.Fatalf("❌ Failed to generate QR: %v", err)
+	}
+
+	bounds := img.Bounds()
+	fmt.Printf("✅ QR Generated successfully: %dx%d pixels\n",
+		bounds.Dx(), bounds.Dy())
+
+	// 4. Probar con halftone (si existe)
+	opts.HalftonePath = "./assets/images/halftone.jpeg"
+	opts.LogoPath = ""
+	opts.CircleShape = false
+
+	_, err = graphics.GenerateQRImage("https://github.com/adcondev", opts)
+	if err != nil {
+		log.Panicf("⚠️  Failed with logo: %v", err)
+	}
+	fmt.Println("✅ Halftone QR generated successfully")
+
+	// 3. Probar con logo (si existe)
+	opts.LogoPath = "./assets/images/logo.jpeg"
+	opts.LogoSizeMulti = 3
+	opts.CircleShape = true
+
+	_, err = graphics.GenerateQRImage("https://github.com/adcondev", opts)
+	if err != nil {
+		log.Panicf("⚠️  Failed with logo: %v", err)
+	}
+	fmt.Printf("✅ Logo QR Multi=%d with logo generated successfully", opts.LogoSizeMulti)
+
+	fmt.Println("\n✅ All basic checks passed! Ready to print.")
+
+	// ====== Iniciar impresión de documento JSON con QR avanzado =====
+
+	fileName := "qr_test_advanced_1.json"
+	jsonPath := "./examples/document/qrcode/" + fileName
+	// Si el archivo no existe en esa ubicación, usar path alternativo
+	if _, err := os.Stat(jsonPath); os.IsNotExist(err) {
+		// Intentar en el directorio actual
+		jsonPath = "./" + fileName
+	}
+
 	// 1. Crear perfil de impresora
 	prof := profile.CreateECPM80250()
 
@@ -47,7 +112,7 @@ func main() {
 	executor := document.NewExecutor(printer)
 
 	// Opción A: Cargar documento JSON desde archivo
-	jsonData, err := os.ReadFile("./examples/document/qrcode/qr_test_advanced_1.json")
+	jsonData, err := os.ReadFile(jsonPath)
 	if err != nil {
 		log.Panicf("Failed to read JSON file: %v", err)
 	}

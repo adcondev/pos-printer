@@ -90,9 +90,10 @@ type QRCommand struct {
 	Align      string `json:"align,omitempty"`       // left, center, right
 
 	// Opciones avanzadas (solo imagen)
-	LogoPath     string `json:"logo_path,omitempty"`     // Ruta relativa al logo
-	CircleShape  bool   `json:"circle_shape,omitempty"`  // Usar bloques circulares
-	HalftonePath string `json:"halftone_path,omitempty"` // TODO: Ruta relativa a imagen de semitono
+	LogoPath      string `json:"logo_path,omitempty"`       // Ruta relativa al logo
+	LogoSizeMulti int    `json:"logo_size_multi,omitempty"` // Multiplicador del tamaño del logo (1-5)
+	CircleShape   bool   `json:"circle_shape,omitempty"`    // Usar bloques circulares
+	HalftonePath  string `json:"halftone_path,omitempty"`   // TODO: Ruta relativa a imagen de semitono
 }
 
 // TableCommand represents a table command (WIP)
