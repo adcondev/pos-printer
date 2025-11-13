@@ -21,10 +21,10 @@ type Document struct {
 // ProfileConfig configuración del perfil de impresora
 type ProfileConfig struct {
 	Model      string `json:"model"`
-	PaperWidth int    `json:"paper_width"` // FIXME: Considerar JSON
+	PaperWidth int    `json:"paper_width"`
 	CodeTable  string `json:"code_table"`
-	DPI        int    `json:"dpi,omitempty"` // FIXME: Considerar JSON
-	HasQR      bool   `json:"has_qr"`        // Indica si soporta QR nativo
+	DPI        int    `json:"dpi,omitempty"`
+	HasQR      bool   `json:"has_qr"` // Indica si soporta QR nativo
 }
 
 // Command represents a single command in the document

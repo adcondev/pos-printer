@@ -190,7 +190,7 @@ func (e *Executor) handleSeparator(printer *service.Printer, data json.RawMessag
 	}
 	if cmd.Length == 0 {
 		// Usar ancho del papel en caracteres (aproximado)
-		cmd.Length = e.profile.DotsPerLine / 12 // Aproximación para Font A
+		cmd.Length = e.printer.Profile.DotsPerLine / 12 // Aproximación para Font A
 	}
 
 	// Construir línea separadora
@@ -259,7 +259,7 @@ func (e *Executor) handleQR(printer *service.Printer, data json.RawMessage) erro
 		opts.PixelWidth = cmd.PixelWidth
 	} else {
 		// Usar 50% del ancho del papel por defecto
-		opts.PixelWidth = e.profile.DotsPerLine / 2
+		opts.PixelWidth = e.printer.Profile.DotsPerLine / 2
 	}
 
 	// Mapear corrección de errores

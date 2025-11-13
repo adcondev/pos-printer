@@ -2,9 +2,10 @@
   "version": "1.0",
   "profile": {
     "model": "80mm EC-PM-80250",
-    "width": 576,
+    "paper_width": 576,
     "code_table": "PC850",
-    "supports_qr": false
+    "has_qr": false,
+    "dpi": 203
   },
   "commands": [
     {
