@@ -1,2 +1,2 @@
-// Package graphics provides an advanced image processing engine for ESC/POS printers
+// Package graphics provides functions and types for 2D and 3D graphics rendering.
 package graphics

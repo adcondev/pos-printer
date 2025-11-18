@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"image"
 	"image/color"
+	"log"
 
 	"golang.org/x/image/draw"
 )
@@ -24,21 +25,34 @@ const (
 	// Ordered
 )
 
-// Options configures the graphics processing pipeline
-type Options struct {
-	Width          int        // Target width in pixels
+// ScaleMode defines the scaling algorithm
+type ScaleMode int
+
+const (
+	// NearestNeighbor uses nearest-neighbor scaling
+	NearestNeighbor = iota
+	// BiLinear uses bi-linear scaling
+	BiLinear
+	// BiCubic
+)
+
+// ImgOptions configures the graphics processing pipeline
+type ImgOptions struct {
+	PixelWidth     int        // Target width in pixels
 	Threshold      uint8      // Threshold for black/white (0-255)
-	Mode           DitherMode // Processing algorithm
+	Dithering      DitherMode // Processing algorithm
+	Scaling        ScaleMode  // Up/Down Scale algorithm
 	AutoRotate     bool       // Auto-rotate for best fit
 	PreserveAspect bool       // Maintain aspect ratio
 }
 
 // DefaultOptions returns sensible defaults for 80mm printers
-func DefaultOptions() *Options {
-	return &Options{
-		Width:          512,
+func DefaultOptions() *ImgOptions {
+	return &ImgOptions{
+		PixelWidth:     512,
 		Threshold:      128,
-		Mode:           Threshold,
+		Dithering:      Threshold,
+		Scaling:        BiLinear,
 		AutoRotate:     false,
 		PreserveAspect: true,
 	}
@@ -46,11 +60,11 @@ func DefaultOptions() *Options {
 
 // Pipeline represents the image processing pipeline
 type Pipeline struct {
-	opts *Options
+	opts *ImgOptions
 }
 
 // NewPipeline creates a new processing pipeline with given options
-func NewPipeline(opts *Options) *Pipeline {
+func NewPipeline(opts *ImgOptions) *Pipeline {
 	if opts == nil {
 		opts = DefaultOptions()
 	}
@@ -64,7 +78,7 @@ func (p *Pipeline) Process(img image.Image) (*MonochromeBitmap, error) {
 	}
 
 	// Step 1: Resize if needed
-	if p.opts.Width > 0 && img.Bounds().Dx() != p.opts.Width {
+	if p.opts.PixelWidth > 0 && img.Bounds().Dx() != p.opts.PixelWidth {
 		img = p.resize(img)
 	}
 
@@ -73,7 +87,7 @@ func (p *Pipeline) Process(img image.Image) (*MonochromeBitmap, error) {
 
 	// Step 3: Apply processing mode
 	var mono *MonochromeBitmap
-	switch p.opts.Mode {
+	switch p.opts.Dithering {
 	case Atkinson:
 		mono = p.applyAtkinson(gray)
 	case Threshold:
@@ -85,12 +99,21 @@ func (p *Pipeline) Process(img image.Image) (*MonochromeBitmap, error) {
 	return mono, nil
 }
 
-// resize scales the image to target width maintaining aspect ratio
+// TODO: Consider supporting other scaling algorithms (e.g., NN, Lanczos, Catmull-Rom) for even better quality or performance tuning.
+
+// resize scales (up or down) the image to target width maintaining aspect ratio
 func (p *Pipeline) resize(img image.Image) image.Image {
 	bounds := img.Bounds()
 	srcW, srcH := bounds.Dx(), bounds.Dy()
 
-	targetW := p.opts.Width
+	// TODO: Look where to define constant for max width
+	if p.opts.PixelWidth > 576 {
+		// Limit maximum width to 576 pixels for thermal printers
+		p.opts.PixelWidth = 576
+		log.Printf("resize: limiting target width to %d pixels", p.opts.PixelWidth)
+	}
+
+	targetW := p.opts.PixelWidth
 	targetH := srcH
 
 	if p.opts.PreserveAspect {
@@ -98,9 +121,17 @@ func (p *Pipeline) resize(img image.Image) image.Image {
 	}
 
 	// Trade-off: BiLinear is slower than nearest-neighbor, but the quality improvement is usually worth it for printing.
-	// TODO: Consider supporting other scaling algorithms (e.g., NN, Lanczos, Catmull-Rom) for even better quality or performance tuning.
 	dst := image.NewRGBA(image.Rect(0, 0, targetW, targetH))
-	draw.BiLinear.Scale(dst, dst.Bounds(), img, bounds, draw.Over, nil)
+
+	switch p.opts.Scaling {
+	case NearestNeighbor:
+		draw.NearestNeighbor.Scale(dst, dst.Bounds(), img, bounds, draw.Over, nil)
+	case BiLinear:
+		draw.BiLinear.Scale(dst, dst.Bounds(), img, bounds, draw.Over, nil)
+	// TODO: Add more scaling algorithms here
+	default:
+		draw.BiLinear.Scale(dst, dst.Bounds(), img, bounds, draw.Over, nil)
+	}
 
 	return dst
 }

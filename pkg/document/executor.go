@@ -7,14 +7,12 @@ import (
 
 	"github.com/adcondev/pos-printer/pkg/commands/character"
 	"github.com/adcondev/pos-printer/pkg/printer"
-	"github.com/adcondev/pos-printer/pkg/profile"
 )
 
 // Executor ejecuta documentos de impresión
 type Executor struct {
 	printer  *service.Printer
 	handlers map[string]CommandHandler
-	profile  *profile.Escpos
 }
 
 // CommandHandler a command handler function
@@ -25,18 +23,19 @@ func NewExecutor(printer *service.Printer) *Executor {
 	e := &Executor{
 		printer:  printer,
 		handlers: make(map[string]CommandHandler),
-		profile:  &printer.Profile,
 	}
 
 	// Registrar handlers básicos
 	e.RegisterHandler("text", e.handleText)
-	e.RegisterHandler("image", e.handleImage)
-	e.RegisterHandler("separator", e.handleSeparator)
 	e.RegisterHandler("feed", e.handleFeed)
 	e.RegisterHandler("cut", e.handleCut)
 
+	// Registrar handlers avanzados
+	e.RegisterHandler("image", e.handleImage)
+	e.RegisterHandler("separator", e.handleSeparator)
+
 	// Handlers preparados para futura implementación
-	e.RegisterHandler("qr", e.handleQRPlaceholder)
+	e.RegisterHandler("qr", e.handleQR)
 	e.RegisterHandler("table", e.handleTablePlaceholder)
 
 	return e
@@ -54,11 +53,9 @@ func (e *Executor) Execute(doc *Document) error {
 		return fmt.Errorf("failed to initialize printer: %w", err)
 	}
 
-	// Configurar code table si se especifica
-	if doc.Profile.CodeTable != "" {
-		if err := e.setCodeTable(doc.Profile.CodeTable); err != nil {
-			log.Printf("Warning: failed to set code table %s: %v", doc.Profile.CodeTable, err)
-		}
+	// Aplicar configuración del profile desde JSON
+	if err := e.applyProfileFromDocument(doc); err != nil {
+		log.Printf("Warning: failed to apply profile settings: %v", err)
 	}
 
 	// Execute commands
@@ -76,7 +73,7 @@ func (e *Executor) Execute(doc *Document) error {
 	return nil
 }
 
-// setCodeTable configura la tabla de caracteres
+// setCodeTable configura la tabla de caracteres con fallback
 func (e *Executor) setCodeTable(tableName string) error {
 	// Mapa de nombres a constantes
 	tables := map[string]character.CodeTable{
@@ -84,12 +81,13 @@ func (e *Executor) setCodeTable(tableName string) error {
 		"PC850":   character.PC850,
 		"PC852":   character.PC852,
 		"WPC1252": character.WPC1252,
-		// Agregar más según necesidad
+		// TODO: Add Go Compatible code tables (check package profile in escpos_encoding.go)
 	}
 
 	table, ok := tables[tableName]
 	if !ok {
-		return fmt.Errorf("unknown code table: %s", tableName)
+		log.Printf("warning: unsupported code table %s, falling back to Windows-1252", tableName)
+		return e.printer.SetCodeTable(character.WPC1252)
 	}
 
 	return e.printer.SetCodeTable(table)
@@ -102,4 +100,53 @@ func (e *Executor) ExecuteJSON(data []byte) error {
 		return err
 	}
 	return e.Execute(doc)
+}
+
+// applyProfileFromDocument aplica la configuración del profile desde el documento JSON
+func (e *Executor) applyProfileFromDocument(doc *Document) error {
+	if doc == nil {
+		return fmt.Errorf("document is nil")
+	}
+	if doc.Profile.Model == "" && doc.Profile.PaperWidth == 0 && doc.Profile.CodeTable == "" && !doc.Profile.HasQR {
+		// No hay configuración de profile para aplicar
+		return nil
+	}
+
+	// Aplicar Model si se especifica
+	if doc.Profile.Model != "" {
+		e.printer.Profile.Model = doc.Profile.Model
+		log.Printf("Profile: Model set to %s from JSON", doc.Profile.Model)
+	}
+
+	// Aplicar HasQR
+	e.printer.Profile.HasQR = doc.Profile.HasQR
+	log.Printf("Profile: HasQR set to %v from JSON", doc.Profile.HasQR)
+
+	// Aplicar CodeTable si se especifica
+	if doc.Profile.CodeTable != "" {
+		if err := e.setCodeTable(doc.Profile.CodeTable); err != nil {
+			log.Printf("Warning: failed to set code table %s: %v", doc.Profile.CodeTable, err)
+		}
+	}
+
+	// Aplicar otros campos si vienen en el JSON
+	if doc.Profile.PaperWidth > 0 {
+		// Calcular DotsPerLine basado en PaperWidth y DPI
+		if doc.Profile.DPI > 0 {
+			e.printer.Profile.DPI = doc.Profile.DPI
+		}
+		e.printer.Profile.PaperWidth = float64(doc.Profile.PaperWidth)
+		// Recalcular DotsPerLine: (PaperWidth_mm * DPI) / 25.4
+		e.printer.Profile.DotsPerLine = int(float64(doc.Profile.PaperWidth) * float64(e.printer.Profile.DPI) / 25.4)
+		log.Printf("Profile: Updated PaperWidth=%dmm, DotsPerLine=%d",
+			doc.Profile.PaperWidth, e.printer.Profile.DotsPerLine)
+	}
+
+	// Model name (útil para debugging)
+	if doc.Profile.Model != "" {
+		e.printer.Profile.Model = doc.Profile.Model
+		log.Printf("Profile: Model set to '%s'", doc.Profile.Model)
+	}
+
+	return nil
 }

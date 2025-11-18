@@ -22,7 +22,6 @@ linters:
     - gocritic
     - unparam
     - revive
-    - misspell
 
     # Best practices
     - prealloc

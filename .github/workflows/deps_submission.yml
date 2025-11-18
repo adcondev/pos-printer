@@ -1,0 +1,63 @@
+name: Go Dependency Submission
+
+on:
+  push:
+    branches: [ main, master ]
+    paths:
+      - 'go.mod'
+      - 'go.sum'
+      - '**/*.go'
+
+permissions:
+  contents: write
+
+env:
+  # Set these if you use a private proxy or private modules. Leave empty if not needed.
+  GOPROXY: ''
+  GOPRIVATE: ''
+
+concurrency:
+  group: go-deps-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  submit-dependencies:
+    if: |
+      !contains(github.event.head_commit.message, '[skip deps]') &&
+      !contains(github.event.head_commit.message, 'chore(release)')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Setup Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: '1.24.x'
+          cache: false  # Cache not strictly needed for a graph submission
+
+      - name: Verify module
+        run: |
+          go env GOPATH
+          go list -m
+          go vet ./... || echo "vet warnings ignored for dependency graph"
+          go mod tidy
+          git diff --exit-code go.mod go.sum || echo "Dependency edits detected during tidy (not blocking)"
+
+      - name: Submit dependency graph
+        uses: actions/go-dependency-submission@v2
+        with:
+          # Root module file for pos-printer
+          go-mod-path: go.mod
+          # Omit go-build-target for a library to avoid pulling in every test/tool dependency.
+          # If you later want to restrict to a specific executable, uncomment and adjust:
+          # go-build-target: examples/basic/main.go
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Summary
+        run: |
+          echo "## ✅ Go dependency graph submitted" >> $GITHUB_STEP_SUMMARY
+          echo "- Module: $(go list -m)" >> $GITHUB_STEP_SUMMARY
+          echo "- Commit: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY

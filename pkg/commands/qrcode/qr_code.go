@@ -112,7 +112,42 @@ func NewCommands() *Commands {
 }
 
 // ============================================================================
-// Validation Helper Functions
+// Helper Functions
+// ============================================================================
+
+// TODO: Check if it's better to move them to composer package or removed
+
+// IsNumericData checks if data can be encoded in Numeric mode
+func IsNumericData(data []byte) bool {
+	for _, b := range data {
+		if b < '0' || b > '9' {
+			return false
+		}
+	}
+	return true
+}
+
+// IsAlphanumericData checks if data can be encoded in Alphanumeric mode
+func IsAlphanumericData(data []byte) bool {
+	// Alphanumeric mode supports: 0-9, A-Z, space, $, %, *, +, -, ., /, :
+	for _, b := range data {
+		switch {
+		case b >= '0' && b <= '9':
+			continue
+		case b >= 'A' && b <= 'Z':
+			continue
+		case b == ' ' || b == '$' || b == '%' || b == '*' ||
+			b == '+' || b == '-' || b == '.' || b == '/' || b == ':':
+			continue
+		default:
+			return false
+		}
+	}
+	return true
+}
+
+// ============================================================================
+// Validation Functions
 // ============================================================================
 
 // ValidateQRModel validates if the QR Code model is valid
@@ -148,37 +183,4 @@ func ValidateDataLength(data []byte) error {
 		return fmt.Errorf("%w: %d bytes", ErrDataTooLong, len(data))
 	}
 	return nil
-}
-
-// ============================================================================
-// Helper Functions
-// ============================================================================
-
-// IsNumericData checks if data can be encoded in Numeric mode
-func IsNumericData(data []byte) bool {
-	for _, b := range data {
-		if b < '0' || b > '9' {
-			return false
-		}
-	}
-	return true
-}
-
-// IsAlphanumericData checks if data can be encoded in Alphanumeric mode
-func IsAlphanumericData(data []byte) bool {
-	// Alphanumeric mode supports: 0-9, A-Z, space, $, %, *, +, -, ., /, :
-	for _, b := range data {
-		switch {
-		case b >= '0' && b <= '9':
-			continue
-		case b >= 'A' && b <= 'Z':
-			continue
-		case b == ' ' || b == '$' || b == '%' || b == '*' ||
-			b == '+' || b == '-' || b == '.' || b == '/' || b == ':':
-			continue
-		default:
-			return false
-		}
-	}
-	return true
 }

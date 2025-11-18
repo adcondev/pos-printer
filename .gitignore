@@ -43,14 +43,19 @@ go.work.sum
 !go.mod
 
 !README.md
-!LEARNING.md
 !CONTRIBUTING.md
 !CHANGELOG.md
 !CODE_OF_CONDUCT.md
-!RELEASING.md
 !LICENSE
-!MOTIVATION1.md
-!MOTIVATION2.md
+!docs/
+!docs/LEARNING.md
+!docs/RELEASING.md
+!docs/MOTIVATION1.md
+!docs/MOTIVATION2.md
+!docs/MOTIVATION3.md
+!docs/ARCHITECTURE.md
+!docs/TEMPLATE.md
+
 
 !*.php
 !*.json
@@ -70,7 +75,7 @@ go.work.sum
 # ...even if they are in subdirectories
 !*/
 !assets/
-!assets/images/pos-printer.jpg
+!assets/images/pos-printer.jpeg
 
 ### GoLand template
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio, WebStorm and Rider

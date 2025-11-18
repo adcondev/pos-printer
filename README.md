@@ -15,7 +15,7 @@
 
 <br>
 
-<img src="assets/images/pos-printer.jpg" alt="POS Printer Logo" width="200" height="auto">
+<img src="assets/images/pos-printer.jpeg" alt="POS Printer LogoPath" width="200" height="auto">
 
 **A modular, extensible library for thermal printer communication across multiple protocols**
 
@@ -41,7 +41,8 @@
 ## ✨ Key Features
 
 - **Multi-Protocol Support**: Native support for **ESC/POS** and **ZPL**, with an extensible architecture to add more.
-- **Flexible Connection Options**: Connect to printers via **Serial**, **USB**, **Network (TCP/IP)**, or **Bluetooth**.
+- **Flexible Connection ImgOptions**: Connect to printers via **Serial**, **USB**, **Network (TCP/IP)**, or **Bluetooth
+  **.
 - **Protocol-Agnostic Image Printing**: A powerful imaging package that handles direct bitmap generation from image files.
 - **Centralized Printer Registry**: Manage multiple printer configurations in a centralized system, making it easy to switch between devices.
 - **Comprehensive Testing**: Includes a full suite of unit tests, mocks, and fakes to ensure stable and predictable behavior.
@@ -159,36 +160,20 @@ Contributions are welcome! If you'd like to help improve the library, please fee
 4.  Push to the branch (`git push origin feat/amazing-feature`).
 5.  Open a **Pull Request**.
 
-## 🚀 DevOps and CI/CD
+## 📚 Documentación Estratégica
 
-This project is built with a strong focus on automation, code quality, and a streamlined development process. The following is a summary of the DevOps and CI/CD infrastructure:
+Este proyecto incluye una documentación completa de la arquitectura y estrategia. Consulta estos documentos para
+comprender el enfoque y las decisiones de diseño:
 
-### CI/CD Pipeline
+| Documento                                 | Descripción                                                                                     |
+|-------------------------------------------|-------------------------------------------------------------------------------------------------|
+| [`MOTIVATION1.md`](./docs/MOTIVATION1.md) | Reporte estratégico sobre la arquitectura de una librería ESC/POS de siguiente generación en Go |
+| [`MOTIVATION2.md`](./docs/MOTIVATION2.md) | Análisis comparativo de bibliotecas ESC/POS rivales y plan de superioridad arquitectónica       |
+| [`MOTIVATION3.md`](./docs/MOTIVATION3.md) | Análisis detallado del conflicto semántico entre tablas ASCII y protocolos ESCPOS               |
+| [`TEMPLATE.md`](./docs/TEMPLATE.md)       | Plantilla de paquete Go y guía estándar de godoc para comandos ESC/POS                          |
+| [`RELEASING.md`](./docs/RELEASING.md)     | Proceso automatizado de versioning y release management                                         |
+| [`LEARNING.md`](./docs/LEARNING.md)       | Descripción general del proyecto, stack tecnológico y habilidades demostradas                   |
 
-The CI/CD pipeline is built on **GitHub Actions** and is designed to ensure code quality, security, and compatibility. The pipeline consists of the following jobs:
-
-*   **Validate Commits:** Enforces conventional commit messages and semantic pull request titles to maintain a clean and readable project history.
-*   **Test and Coverage:** Runs the full suite of Go tests on Ubuntu, Windows, and macOS to ensure cross-platform compatibility. Code coverage reports are uploaded to **Codecov** to monitor code quality.
-*   **Benchmarks:** Runs and reports benchmarks on every pull request to monitor performance and prevent regressions.
-*   **Security Scan:** Performs a security scan using **Trivy** to identify and report vulnerabilities. The results are uploaded to the GitHub Security tab for easy tracking.
-*   **Go Linters:** Runs `golangci-lint` to enforce coding standards and best practices.
-
-### Automated Release Management
-
-The project uses an automated release process that triggers on merges to the `main` branch. The process is as follows:
-
-1.  **Analyze Commits:** The pipeline analyzes the commit messages since the last release to determine the next semantic version (major, minor, or patch).
-2.  **Generate Release Notes:** The `CHANGELOG.md` is updated based on the commit messages.
-3.  **Create GitHub Release:** A new GitHub release is created with the new version and release notes.
-4.  **Warm up Go Proxy:** The Go module proxy is notified of the new version to ensure it is available to developers as quickly as possible.
-
-### Code Quality and Governance
-
-The project uses a combination of tools to enforce code quality and governance:
-
-*   **`golangci-lint`:** A fast and comprehensive Go linter that checks for a wide range of issues.
-*   **`pre-commit` hooks:** A set of hooks that run before each commit to format code, run tests, and check for common issues.
-*   **`commitlint`:** Enforces conventional commit messages to ensure a clean and readable project history.
 
 ## 📄 License
 

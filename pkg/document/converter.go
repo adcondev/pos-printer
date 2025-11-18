@@ -6,6 +6,8 @@ import (
 	"log"
 )
 
+// TODO: Improve builder pattern, then add qr and table commands
+
 // Builder ayuda a construir documentos programáticamente
 type Builder struct {
 	doc *Document
@@ -24,9 +26,9 @@ func NewBuilder() *Builder {
 // SetProfile configura el perfil de impresora
 func (b *Builder) SetProfile(model string, width int, codeTable string) *Builder {
 	b.doc.Profile = ProfileConfig{
-		Model:     model,
-		Width:     width,
-		CodeTable: codeTable,
+		Model:      model,
+		PaperWidth: width,
+		CodeTable:  codeTable,
 	}
 	return b
 }
@@ -55,10 +57,10 @@ func (b *Builder) AddText(content string, style *TextStyle) *Builder {
 // AddImage creates an image command
 func (b *Builder) AddImage(base64Data string, width int, align string) *Builder {
 	cmd := ImageCommand{
-		Code:      base64Data,
-		Width:     width,
-		Align:     align,
-		Dithering: "threshold",
+		Code:       base64Data,
+		PixelWidth: width,
+		Align:      align,
+		Dithering:  "threshold",
 	}
 
 	data, err := json.Marshal(cmd)
@@ -122,6 +124,8 @@ func (b *Builder) AddCut(mode string, feed int) *Builder {
 	})
 	return b
 }
+
+// TODO: AddQr y AddTable cuando se implementen, sigue pendiente
 
 // Build construye el documento final
 func (b *Builder) Build() *Document {

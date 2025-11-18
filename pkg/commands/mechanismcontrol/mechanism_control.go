@@ -113,20 +113,13 @@ var _ Capability = (*Commands)(nil)
 
 // Capability defines the interface for mechanism control commands
 type Capability interface {
-	// Print head control
 	ReturnHome() []byte
 	SetUnidirectionalPrintMode(mode UnidirectionalMode) []byte
-
-	// Legacy cut commands (deprecated)
 	PartialCut() []byte
 	PartialCutThreePoints() []byte
-
-	// Modern cut commands
 	PaperCut(cutType CutType) ([]byte, error)
 	PaperFeedAndCut(cutType CutType, feedAmount byte) ([]byte, error)
 	ReservePaperCut(cutType CutType, feedAmount byte) ([]byte, error)
-
-	// Simple cut commands
 	CutPaper(mode CutMode) ([]byte, error)
 	FeedAndCutPaper(mode FeedCut, feedAmount byte) ([]byte, error)
 	SetCutPosition(mode PositionCut, position byte) ([]byte, error)

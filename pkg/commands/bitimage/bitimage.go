@@ -167,6 +167,8 @@ func NewCommands() *Commands {
 // Helper Functions
 // ============================================================================
 
+// TODO: Check if is better to move it to composer package
+
 // CalculateDataLength calculates the expected data length for bit image data
 func CalculateDataLength(mode Mode, width uint16) int {
 	switch mode {
@@ -178,6 +180,8 @@ func CalculateDataLength(mode Mode, width uint16) int {
 		return 0
 	}
 }
+
+// TODO: Check if these helper functions are used, remove if not
 
 // CalculateRasterDataLength calculates expected data length for raster format
 func CalculateRasterDataLength(widthBytes, heightDots uint16) int {

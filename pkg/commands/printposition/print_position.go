@@ -99,21 +99,14 @@ var _ Capability = (*Commands)(nil)
 
 // Capability defines the interface for print position commands
 type Capability interface {
-	// Basic positioning
 	SetAbsolutePrintPosition(position uint16) []byte
 	SetRelativePrintPosition(distance int16) []byte
 	HorizontalTab() []byte
 	SetHorizontalTabPositions(positions []byte) ([]byte, error)
-
-	// Justification
 	SelectJustification(mode Justification) ([]byte, error)
-
-	// Margins and print area
 	SetLeftMargin(margin uint16) []byte
 	SetPrintAreaWidth(width uint16) []byte
 	SetPrintPositionBeginningLine(mode BeginLine) ([]byte, error)
-
-	// Page mode specific
 	SelectPrintDirectionPageMode(direction PrintDirection) ([]byte, error)
 	SetPrintAreaPageMode(x, y, width, height uint16) ([]byte, error)
 	SetAbsoluteVerticalPrintPosition(position uint16) []byte

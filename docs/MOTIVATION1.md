@@ -629,7 +629,8 @@ La implementación de una librería ESC/POS está llena de trampas. Una arquitec
 #### 4.4.4. Compatibilidad de Protocolo (Epson vs. Star vs. Bixolon)
 
 * **Problema:** No todo lo que se autodenomina "ESC/POS" es 100% compatible con Epson. Los fabricantes como Star 50,
-  Bixolon 51 y otros a menudo usan sus propios dialectos (ej. "Star Mode" 50) para funciones avanzadas como códigos de
+  Bixolon 51 y otros a menudo usan sus propios dialectos (ej. "Star Dithering" 50) para funciones avanzadas como códigos
+  de
   barras o corte de papel.
 * **Solución:** Este problema ya está resuelto si se sigue la estrategia de diseño. El `CapabilityProfile` es la
   solución.

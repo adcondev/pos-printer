@@ -1,0 +1,106 @@
+{
+  "version": "1.0",
+  "profile": {
+    "model": "80mm EC-PM-80250",
+    "paper_width": 80,
+    "code_table": "PC850",
+    "has_qr": true,
+    "dpi": 203
+  },
+  "commands": [
+    {
+      "type": "text",
+      "data": {
+        "content": "TEST QR NATIVO",
+        "style": {
+          "align": "center",
+          "bold": true
+        },
+        "newline": true
+      }
+    },
+    {
+      "type": "separator",
+      "data": {
+        "char": "-",
+        "length": 48
+      }
+    },
+    {
+      "type": "qr",
+      "data": {
+        "data": "MIN",
+        "pixel_width": 64,
+        "correction": "L"
+      }
+    },
+    {
+      "type": "feed",
+      "data": {
+        "lines": 1
+      }
+    },
+    {
+      "type": "qr",
+      "data": {
+        "data": "https://github.com",
+        "pixel_width": 128,
+        "correction": "M"
+      }
+    },
+    {
+      "type": "feed",
+      "data": {
+        "lines": 1
+      }
+    },
+    {
+      "type": "qr",
+      "data": {
+        "data": "WIFI:T:WPA;S:MyNetwork;P:MyPassword;;",
+        "pixel_width": 256,
+        "correction": "Q"
+      }
+    },
+    {
+      "type": "feed",
+      "data": {
+        "lines": 1
+      }
+    },
+    {
+      "type": "qr",
+      "data": {
+        "data": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+        "pixel_width": 384,
+        "correction": "H"
+      }
+    },
+    {
+      "type": "feed",
+      "data": {
+        "lines": 1
+      }
+    },
+    {
+      "type": "qr",
+      "data": {
+        "data": "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+        "pixel_width": 576,
+        "correction": "L"
+      }
+    },
+    {
+      "type": "feed",
+      "data": {
+        "lines": 3
+      }
+    },
+    {
+      "type": "cut",
+      "data": {
+        "mode": "partial"
+      }
+    }
+  ]
+}

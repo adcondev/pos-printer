@@ -1,0 +1,50 @@
+{
+  "version": "1.0",
+  "profile": {
+    "model": "80mm EC-PM-80250",
+    "paper_width": 576,
+    "code_table": "PC850",
+    "has_qr": false,
+    "dpi": 203
+  },
+  "commands": [
+    {
+      "type": "text",
+      "data": {
+        "content": "POSTER",
+        "style": {
+          "align": "center",
+          "bold": true,
+          "size": "2x2"
+        },
+        "newline": true
+      }
+    },
+    {
+      "type": "separator",
+      "data": {
+        "char": ".",
+        "length": 40
+      }
+    },
+    {
+      "type": "qr",
+      "data": {
+        "data": "https://github.com/adcondev/pos-printer",
+        "human_text": "The POS daemon for Go",
+        "pixel_width": 576,
+        "correction": "H",
+        "align": "center",
+        "logo_path": "./assets/images/logo.jpeg",
+        "circle_shape": false
+      }
+    },
+    {
+      "type": "cut",
+      "data": {
+        "mode": "partial",
+        "feed": 3
+      }
+    }
+  ]
+}

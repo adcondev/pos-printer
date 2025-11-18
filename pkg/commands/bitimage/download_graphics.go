@@ -69,30 +69,19 @@ var _ DownloadGraphicsCapability = (*DownloadGraphicsCommands)(nil)
 
 // DownloadGraphicsCapability defines download graphics-related operations
 type DownloadGraphicsCapability interface {
-	// Capacity management
 	GetDownloadGraphicsRemainingCapacity(fn DLFunctionCode) ([]byte, error)
 	GetDownloadGraphicsKeyCodeList() []byte
-
-	// Data management
 	DeleteAllDownloadGraphics() []byte
 	DeleteDownloadGraphicsByKeyCode(kc1, kc2 byte) ([]byte, error)
-
-	// Raster format definition
 	DefineDownloadGraphics(tone GraphicsTone, kc1, kc2 byte, width, height uint16,
 		colorData []DLGraphicsColorData) ([]byte, error)
 	DefineDownloadGraphicsLarge(tone GraphicsTone, kc1, kc2 byte, width, height uint16,
 		colorData []DLGraphicsColorData) ([]byte, error)
-
-	// Column format definition
 	DefineDownloadGraphicsColumn(kc1, kc2 byte, width, height uint16,
 		colorData []DLGraphicsColorData) ([]byte, error)
 	DefineDownloadGraphicsColumnLarge(kc1, kc2 byte, width, height uint16,
 		colorData []DLGraphicsColorData) ([]byte, error)
-
-	// Printing
 	PrintDownloadGraphics(kc1, kc2 byte, horizontalScale, verticalScale GraphicsScale) ([]byte, error)
-
-	// BMP conversion
 	DefineBMPDownloadGraphics(kc1, kc2 byte, tone GraphicsTone, bmpData []byte) ([]byte, error)
 }
 
@@ -111,6 +100,8 @@ func NewDownloadGraphicsCommands() *DownloadGraphicsCommands {
 // ============================================================================
 // Helper Functions
 // ============================================================================
+
+// TODO: Check if better move them to composer package
 
 // calculateDLRasterDataSize calculates the data size for download raster format graphics
 func calculateDLRasterDataSize(width, height uint16) int {

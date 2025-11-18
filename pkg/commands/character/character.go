@@ -472,6 +472,8 @@ func NewCommands() *Commands {
 // Helper Functions
 // ============================================================================
 
+// TODO: Check if is better to have them defined in composer package
+
 // NewSize creates a Size value for character width and height magnification.
 //
 // Format:

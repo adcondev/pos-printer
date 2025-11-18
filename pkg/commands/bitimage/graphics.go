@@ -133,17 +133,12 @@ var _ GraphicsCapability = (*GraphicsCommands)(nil)
 
 // GraphicsCapability defines graphics-related operations
 type GraphicsCapability interface {
-	// Configuration commands
 	SetGraphicsDotDensity(fn FunctionCode, x, y DotDensity) ([]byte, error)
 	PrintBufferedGraphics(fn FunctionCode) ([]byte, error)
-
-	// Raster format commands
 	StoreRasterGraphicsInBuffer(tone GraphicsTone, horizontalScale, verticalScale GraphicsScale,
 		color GraphicsColor, width, height uint16, data []byte) ([]byte, error)
 	StoreRasterGraphicsInBufferLarge(tone GraphicsTone, horizontalScale, verticalScale GraphicsScale,
 		color GraphicsColor, width, height uint16, data []byte) ([]byte, error)
-
-	// Column format commands
 	StoreColumnGraphicsInBuffer(horizontalScale, verticalScale GraphicsScale,
 		color GraphicsColor, width, height uint16, data []byte) ([]byte, error)
 	StoreColumnGraphicsInBufferLarge(horizontalScale, verticalScale GraphicsScale,
@@ -165,6 +160,8 @@ func NewGraphicsCommands() *GraphicsCommands {
 // ============================================================================
 // Helper Functions
 // ============================================================================
+
+// TODO: Check if is better to have them in composer package
 
 // calculateRasterDataSize calculates the data size for raster format graphics
 func calculateRasterDataSize(width, height uint16) int {
