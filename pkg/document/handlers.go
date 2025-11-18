@@ -248,7 +248,7 @@ func (e *Executor) handleQR(printer *service.Printer, data json.RawMessage) erro
 		return fmt.Errorf("QR data cannot be empty")
 	}
 	if len(cmd.Data) > posqr.MaxDataLength {
-		return fmt.Errorf("QR data too long: %d bytes (maximum %d)", len(data), posqr.MaxDataLength)
+		return fmt.Errorf("QR data too long: %d bytes (maximum %d)", len(cmd.Data), posqr.MaxDataLength)
 	}
 
 	// Construir opciones
@@ -324,7 +324,7 @@ func (e *Executor) handleQR(printer *service.Printer, data json.RawMessage) erro
 		return err
 	}
 
-	return err
+	return nil
 }
 
 // handleTablePlaceholder manages table commands (WIP)
