@@ -2,6 +2,13 @@
 
 All notable changes to the POS Printer library will be documented in this file.
 
+## [3.1.0](https://github.com/adcondev/pos-printer/compare/v3.0.7...v3.1.0) (2025-11-18)
+
+
+### ✨ Features
+
+* **qrcode:** enhance QR code processing and image generation ([#71](https://github.com/adcondev/pos-printer/issues/71)) ([c38f115](https://github.com/adcondev/pos-printer/commit/c38f115377dbf861333f3ba51d83469e647a0b66))
+
 ### [3.0.7](https://github.com/adcondev/pos-printer/compare/v3.0.6...v3.0.7) (2025-11-18)
 
 
