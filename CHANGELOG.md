@@ -2,6 +2,13 @@
 
 All notable changes to the POS Printer library will be documented in this file.
 
+### [3.0.7](https://github.com/adcondev/pos-printer/compare/v3.0.6...v3.0.7) (2025-11-18)
+
+
+### 📦 Dependencies
+
+* **gomod:** bump the golang-x group with 2 updates ([#70](https://github.com/adcondev/pos-printer/issues/70)) ([7499533](https://github.com/adcondev/pos-printer/commit/749953339a82e57e2d6e96e3150e64de887191ab))
+
 ### [3.0.6](https://github.com/adcondev/pos-printer/compare/v3.0.5...v3.0.6) (2025-11-18)
 
 
