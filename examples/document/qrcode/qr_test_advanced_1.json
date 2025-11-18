@@ -35,8 +35,7 @@
         "pixel_width": 576,
         "correction": "H",
         "align": "center",
-        "logo_path": "",
-        "halftone_path": "./assets/images/halftone.jpeg",
+        "logo_path": "./assets/images/logo.jpeg",
         "circle_shape": false
       }
     },

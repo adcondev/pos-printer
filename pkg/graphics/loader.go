@@ -64,22 +64,19 @@ func ImgFromFile(baseDir, relPath string) (image.Image, error) {
 }
 
 // ImgFromBase64 converts a base64-encoded string to an image.Image.
-func ImgFromBase64(data string) (image.Image, error) {
+func ImgFromBase64(data string) (image.Image, string, error) {
 	// Decode base64 to byte slice
 	imgBytes, err := base64.StdEncoding.DecodeString(data)
 	if err != nil {
-		return nil, fmt.Errorf("failed to decode base64 string: %w", err)
+		return nil, "", fmt.Errorf("failed to decode base64 string: %w", err)
 	}
 
-	// Wrap byte slice in an io.Reader for image.Decode
-	reader := bytes.NewReader(imgBytes)
-
-	// Convert to image.Image
-	img, format, err := image.Decode(reader)
+	// Convert to image.image
+	img, format, err := image.Decode(bytes.NewReader(imgBytes))
 	if err != nil {
-		return nil, fmt.Errorf("failed to decode image: %w", err)
+		return nil, "", fmt.Errorf("failed to decode image: %w", err)
 	}
 
 	log.Printf("Decoded image format: %s\n", format)
-	return img, nil
+	return img, format, nil
 }

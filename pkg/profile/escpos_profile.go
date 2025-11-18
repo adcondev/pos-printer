@@ -5,9 +5,7 @@ import (
 	"github.com/adcondev/pos-printer/pkg/graphics"
 )
 
-// TODO: Check for a factory pattern if profiles become more complex
-
-// Escpos define todas las características físicas y capacidades de una impresora
+// Escpos defines all the physical characteristics and capabilities of a printer
 type Escpos struct {
 	// Información básica
 	Model string // Same name used for printer connection

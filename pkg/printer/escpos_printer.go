@@ -246,17 +246,20 @@ func (p *Printer) PrintQR(data string, opts *graphics.QROptions) error {
 	}
 
 	// Intentar QR nativo si está soportado
+	optsCopy := *opts
+	optsCopy.Qr = graphics.QrInfo{}
+	optsCopy.Logo = graphics.LogoInfo{}
+
 	if p.Profile.HasQR {
-		err := p.printQRNative(data, opts)
+		err := p.printQRNative(data, &optsCopy)
 		if err == nil {
 			return nil
 		}
-		// Log del error pero continuar con fallback
 		log.Printf("Native QR failed, falling back to image: %v", err)
 	}
 
 	// Fallback a imagen
-	return p.printQRAsImage(data, opts)
+	return p.printQRAsImage(data, &optsCopy)
 }
 
 // printQRNative imprime usando protocolo ESC/POS nativo
@@ -269,7 +272,7 @@ func (p *Printer) printQRNative(data string, opts *graphics.QROptions) error {
 	}
 
 	// Configurar tamaño de módulo
-	_, err := opts.SetModuleSize(data)
+	_, err := opts.GenerateQR(data)
 	if err != nil {
 		return err
 	}
@@ -300,7 +303,7 @@ func (p *Printer) printQRNative(data string, opts *graphics.QROptions) error {
 // printQRAsImage genera y imprime QR como imagen
 func (p *Printer) printQRAsImage(data string, opts *graphics.QROptions) error {
 	// Generar imagen QR
-	img, err := graphics.GenerateQRImage(data, opts)
+	img, err := graphics.ProcessQRImage(data, opts)
 	if err != nil {
 		return fmt.Errorf("generate QR image: %w", err)
 	}

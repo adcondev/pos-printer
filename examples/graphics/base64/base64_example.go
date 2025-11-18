@@ -49,7 +49,7 @@ func main() {
 
 	// Load the image
 	log.Print("Loading image from Base64")
-	img, err := graphics.ImgFromBase64(Data)
+	img, _, err := graphics.ImgFromBase64(Data)
 	if err != nil {
 		log.Panicf("Failed to load image: %v", err)
 	}

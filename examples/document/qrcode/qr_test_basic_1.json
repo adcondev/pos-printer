@@ -1,0 +1,38 @@
+{
+  "version": "1.0",
+  "profile": {
+    "model": "80mm EC-PM-80250",
+    "paper_width": 80,
+    "code_table": "PC850",
+    "has_qr": false
+  },
+  "commands": [
+    {
+      "type": "text",
+      "data": {
+        "content": "TEST 1: QR BÁSICO MÍNIMO",
+        "style": {
+          "align": "center",
+          "bold": true
+        },
+        "newline": true
+      }
+    },
+    {
+      "type": "qr",
+      "data": {
+        "data": "a",
+        "pixel_width": 87,
+        "correction": "L",
+        "align": "center"
+      }
+    },
+    {
+      "type": "cut",
+      "data": {
+        "mode": "partial",
+        "feed": 3
+      }
+    }
+  ]
+}

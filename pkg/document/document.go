@@ -81,19 +81,17 @@ type CutCommand struct {
 
 // QRCommand actualizado para soportar todas las opciones
 type QRCommand struct {
-	Data      string `json:"data"`                 // Datos del QR (URL, texto, etc.) // FIXME: Considerar JSON
-	HumanText string `json:"human_text,omitempty"` // Texto a mostrar debajo del QR // FIXME: Considerar JSON
+	Data      string `json:"data"`                 // Datos del QR (URL, texto, etc.)
+	HumanText string `json:"human_text,omitempty"` // Texto a mostrar debajo del QR
 
 	// Opciones básicas
-	PixelWidth int    `json:"pixel_width,omitempty"` // Pixel size // FIXME: Considerar JSON
+	PixelWidth int    `json:"pixel_width,omitempty"` // Pixel size
 	Correction string `json:"correction,omitempty"`  // L, M, Q, H
 	Align      string `json:"align,omitempty"`       // left, center, right
 
 	// Opciones avanzadas (solo imagen)
-	LogoPath      string `json:"logo_path,omitempty"`       // Ruta relativa al logo
-	LogoSizeMulti int    `json:"logo_size_multi,omitempty"` // Multiplicador del tamaño del logo (1-5)
-	CircleShape   bool   `json:"circle_shape,omitempty"`    // Usar bloques circulares
-	HalftonePath  string `json:"halftone_path,omitempty"`   // TODO: Ruta relativa a imagen de semitono
+	Logo        string `json:"logo_path,omitempty"`    // Ruta relativa al logo
+	CircleShape bool   `json:"circle_shape,omitempty"` // Usar bloques circulares
 }
 
 // TableCommand represents a table command (WIP)

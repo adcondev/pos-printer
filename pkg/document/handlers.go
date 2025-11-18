@@ -3,7 +3,6 @@ package document
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/adcondev/pos-printer/pkg/commands/character"
@@ -106,7 +105,7 @@ func (e *Executor) handleImage(printer *service.Printer, data json.RawMessage) e
 	}
 
 	// Decodificar imagen desde base64
-	img, err := graphics.ImgFromBase64(cmd.Code)
+	img, _, err := graphics.ImgFromBase64(cmd.Code)
 	if err != nil {
 		return fmt.Errorf("failed to load image: %w", err)
 	}
@@ -274,24 +273,12 @@ func (e *Executor) handleQR(printer *service.Printer, data json.RawMessage) erro
 		opts.ErrorCorrection = posqr.LevelM
 	}
 
-	if cmd.LogoPath != "" {
-		opts.LogoPath = cmd.LogoPath
-		if cmd.LogoSizeMulti > 0 {
-			opts.LogoSizeMulti = cmd.LogoSizeMulti
-		}
+	if cmd.Logo != "" {
+		opts.LogoData = cmd.Logo
 	}
 
-	if cmd.HalftonePath != "" {
-		opts.HalftonePath = cmd.HalftonePath
-		// Si hay halftone, desactivar circle shape
-		if cmd.CircleShape {
-			log.Printf("warning: halftone and circle_shape cannot be used together, prioritizing halftone")
-		}
-		opts.CircleShape = false
-	} else {
-		// Solo aplicar circle shape si no hay halftone
-		opts.CircleShape = cmd.CircleShape
-	}
+	// Solo aplicar circle shape si no hay halftone
+	opts.CircleShape = cmd.CircleShape
 
 	// Aplicar alineación
 	switch strings.ToLower(cmd.Align) {

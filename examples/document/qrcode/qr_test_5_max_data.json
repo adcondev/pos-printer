@@ -1,0 +1,54 @@
+{
+  "version": "1.0",
+  "profile": {
+    "model": "80mm EC-PM-80250",
+    "paper_width": 80,
+    "code_table": "PC850",
+    "has_qr": false
+  },
+  "commands": [
+    {
+      "type": "text",
+      "data": {
+        "content": "TEST 5: MÁXIMO CONTENIDO",
+        "style": {
+          "align": "center",
+          "bold": true
+        },
+        "newline": true
+      }
+    },
+    {
+      "type": "qr",
+      "data": {
+        "data": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium.",
+        "pixel_width": 576,
+        "correction": "L",
+        "align": "center",
+        "circle_shape": false
+      }
+    },
+    {
+      "type": "text",
+      "data": {
+        "content": "QR con máximo contenido (500+ chars)",
+        "style": {
+          "align": "center"
+        },
+        "newline": true
+      }
+    },
+    {
+      "type": "feed",
+      "data": {
+        "lines": 3
+      }
+    },
+    {
+      "type": "cut",
+      "data": {
+        "mode": "partial"
+      }
+    }
+  ]
+}

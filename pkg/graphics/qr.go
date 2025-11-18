@@ -5,12 +5,10 @@ import (
 	"fmt"
 	"image"
 	"log"
-	"os"
-	"strings"
-	"unicode/utf8"
 
 	"github.com/yeqown/go-qrcode/v2"
 	"github.com/yeqown/go-qrcode/writer/standard"
+	"golang.org/x/image/draw"
 
 	posqr "github.com/adcondev/pos-printer/pkg/commands/qrcode"
 )
@@ -19,158 +17,91 @@ const (
 	// minBorderWidth es el quiet zone mínimo recomendado por el estándar QR (4 módulos)
 	minBorderWidth = 4
 
-	// maxPixelWidth es el ancho máximo soportado para impresoras térmicas de 80mm
+	// maxPixelWidth es el ancho máximo soportado para impresoras térmicas de 80mm a 203 DPI
 	maxPixelWidth = 576
-
 	// minPixelWidth es el mínimo para QR Version 1 (21x21) con módulos de 3px + borders
-	// Cálculo: (21 + 2*4) * 3 = 87px, pero usamos 63 como mínimo práctico
 	minPixelWidth = 87
 
-	minGridSize = 21 // QR Version 1 (21x21 modules)
+	minGridSize = 21  // QR Version 1 (21x21 modules)
+	maxGridSize = 177 // QR Version 40 (177x177 modules)
 
-	// Logo size multiplier limits
-	minSizeMulti     = 1
-	defaultSizeMulti = 3
-	maxSizeMulti     = 5
+	// LogoData size multiplier limits
+	minSizeMulti = 1
+	maxSizeMulti = 5
 )
 
 // TODO: Check if /internals fits better for custom WriteCloser
 
 // WriteCloser wraps bytes.Buffer to implement io.WriteCloser
 type WriteCloser struct {
-	*bytes.Buffer
-}
-
-// Close is a no-op for WriteCloser
-func (wc *WriteCloser) Close() error {
-	// TODO: Implement any necessary cleanup if needed
-	return nil
+	buffer *bytes.Buffer
 }
 
 // NewWriteCloser creates a new WriteCloser instance
 func NewWriteCloser() *WriteCloser {
 	return &WriteCloser{
-		Buffer: new(bytes.Buffer),
+		buffer: bytes.NewBuffer(nil),
 	}
+}
+
+// Write implements io.Writer
+func (wc *WriteCloser) Write(p []byte) (n int, err error) {
+	return wc.buffer.Write(p)
+}
+
+// Close implements io.Closer - NO RESET HERE!
+func (wc *WriteCloser) Close() error {
+	// NO hacer Reset() aquí porque perdemos los datos antes de leerlos
+	// El defer en ProcessQRImage llama a Close() DESPUÉS de usar Save()
+	// pero ANTES de leer los bytes con Bytes()
+	return nil
+}
+
+// Bytes returns the buffer contents
+func (wc *WriteCloser) Bytes() []byte {
+	return wc.buffer.Bytes()
+}
+
+// Reset manually resets the buffer if needed for reuse
+func (wc *WriteCloser) Reset() {
+	wc.buffer.Reset()
 }
 
 // QROptions contiene opciones para generar QR (nativo o imagen)
 type QROptions struct {
-	// === Opciones comunes (funcionan en nativo e imagen) ===
-	Model           posqr.Model           // Model1, Model2, MicroQR
-	ErrorCorrection posqr.ErrorCorrection // L, M, Q, H
+	// === Opciones comunes ===
+	Model           posqr.Model
+	ErrorCorrection posqr.ErrorCorrection
+	PixelWidth      int
 
-	// === Opciones solo para QR como imagen ===
-	PixelWidth int              // Ancho en píxeles
-	moduleSize posqr.ModuleSize // Calculado en base a PixelWidth
+	// === Opciones para QR como imagen ===
+	LogoData    string // LogoData en base64
+	CircleShape bool
 
-	// === Opciones útiles para impresora monocromática ===
-	LogoPath      string // Ruta al archivo del logo
-	LogoSizeMulti int    // Multiplicador del tamaño del logo (1-10)
-	CircleShape   bool   // Usar bloques circulares
-	HalftonePath  string // Ruta a imagen para efecto semitono
+	// === Campos internos calculados ===
+	Qr   QrInfo
+	Logo LogoInfo
 }
 
-// GetModuleSize retorna el tamaño del módulo calculado
-func (qro *QROptions) GetModuleSize() posqr.ModuleSize {
-	return qro.moduleSize
+// QrInfo contiene las dimensiones calculadas del QR
+type QrInfo struct {
+	gridSize       int              // Tamaño de la cuadrícula (21-177)
+	moduleSize     posqr.ModuleSize // Tamaño del módulo (3-16)
+	dataWidth      int              // Ancho del área de datos (px)
+	borderWidth    int              // Ancho del borde (px)
+	totalWidth     int              // Ancho total (px)
+	requestedWidth int              // Ancho solicitado (px)
+	diff           int              // Diferencia (px)
+	scaleMode      string           // "exact", "scaled_up", "scaled_down"
 }
 
-// SetModuleSize calcula y establece el tamaño del módulo basado en PixelWidth y el tamaño de la cuadrícula del QR
-func (qro *QROptions) SetModuleSize(data string) (*qrcode.QRCode, error) {
-	if data == "" {
-		return nil, fmt.Errorf("QR data cannot be empty")
-	}
-	if len(data) > posqr.MaxDataLength {
-		return nil, fmt.Errorf("QR data too long: %d bytes (maximum %d)",
-			len(data), posqr.MaxDataLength)
-	}
-	if !utf8.ValidString(data) {
-		log.Printf("warning: QR data contains invalid UTF-8 characters")
-	}
-
-	// Validación de PixelWidth
-	if qro.PixelWidth < minPixelWidth {
-		log.Printf("warning: pixel_width %d < minimum %d, adjusting to minimum",
-			qro.PixelWidth, minPixelWidth)
-		qro.PixelWidth = minPixelWidth
-	}
-
-	// Establecer valores por defecto si no están configurados
-	if qro.PixelWidth == 0 {
-		qro.PixelWidth = 288
-		log.Printf("QR: using default pixel width %d", qro.PixelWidth)
-	}
-
-	if qro.PixelWidth > maxPixelWidth {
-		log.Printf("warning: pixel_width %d exceeds maximum %d, clamping",
-			qro.PixelWidth, maxPixelWidth)
-		qro.PixelWidth = maxPixelWidth
-	}
-
-	if qro.ErrorCorrection < posqr.LevelL || qro.ErrorCorrection > posqr.LevelH {
-		qro.ErrorCorrection = posqr.LevelM
-		log.Printf("QR: using default error correction level M")
-	}
-
-	// Crear QR code
-	qrc, err := qrcode.NewWith(data, WithErrorLevel(qro.ErrorCorrection))
-	if err != nil {
-		return nil, fmt.Errorf("failed to create QR code: %w", err)
-	}
-
-	gridSize := qrc.Dimension()
-	if gridSize == 0 {
-		return nil, fmt.Errorf("invalid QR code grid size")
-	}
-
-	if gridSize < minGridSize {
-		return nil, fmt.Errorf("QR grid size %d is too small (minimum %d)",
-			gridSize, minGridSize)
-	}
-
-	// Tamaño del módulo con mejor precisión
-	totalModules := gridSize + (2 * minBorderWidth)
-	moduleSize := qro.PixelWidth / totalModules
-
-	log.Printf("QR: grid=%dx%d, border=%d modules, total=%d modules, requested=%dpx",
-		gridSize, gridSize, minBorderWidth, totalModules, qro.PixelWidth)
-
-	// Aplicar límites al module size
-	switch {
-	case moduleSize < int(posqr.DefaultModuleSize):
-		log.Printf("QR: calculated module size %d too small, using default %d",
-			moduleSize, posqr.DefaultModuleSize)
-		qro.moduleSize = posqr.DefaultModuleSize
-	case moduleSize > int(posqr.MaxModuleSize):
-		log.Printf("QR: calculated module size %d too large, using maximum %d",
-			moduleSize, posqr.MaxModuleSize)
-		qro.moduleSize = posqr.MaxModuleSize
-	default:
-		qro.moduleSize = posqr.ModuleSize(moduleSize)
-	}
-
-	// Calcular y reportar tamaño final real
-	actualWidth := totalModules * int(qro.moduleSize)
-	dataWidth := gridSize * int(qro.moduleSize)
-	borderSize := (2 * minBorderWidth) * int(qro.moduleSize)
-
-	log.Printf("QR: module_size=%d, data=%dx%dpx, border=%dpx, actual_total=%dx%dpx",
-		qro.moduleSize, dataWidth, dataWidth, borderSize, actualWidth, actualWidth)
-
-	// ⚠Advertencia si el tamaño difiere del solicitado
-	if actualWidth != qro.PixelWidth {
-		diff := actualWidth - qro.PixelWidth
-		if diff > 0 {
-			log.Printf("warning: actual QR size %dpx exceeds requested %dpx by %dpx (rounding up to module boundary)",
-				actualWidth, qro.PixelWidth, diff)
-		} else {
-			log.Printf("info: actual QR size %dpx is smaller than requested %dpx by %dpx (rounding down to module boundary)",
-				actualWidth, qro.PixelWidth, -diff)
-		}
-	}
-
-	return qrc, nil
+// LogoInfo contiene las dimensiones calculadas del Logo
+type LogoInfo struct {
+	sizeMulti int         // Multiplicador de tamaño del Logo
+	width     int         // Ancho del Logo (px)
+	height    int         // Alto del Logo (px)
+	image     image.Image // Imagen del Logo cargada
+	format    string      // Formato de la imagen (png, jpg, etc.)
 }
 
 // DefaultQROptions retorna opciones por defecto optimizadas para impresoras térmicas.
@@ -184,14 +115,155 @@ func DefaultQROptions() *QROptions {
 	return &QROptions{
 		Model:           posqr.Model2,
 		ErrorCorrection: posqr.LevelQ,
-		PixelWidth:      288, // Tamaño total incluyendo quiet zone
-		LogoSizeMulti:   3,
+		PixelWidth:      288,
+		LogoData:        "",
 		CircleShape:     false,
+		// Post-calculated fields
+		Qr:   QrInfo{},
+		Logo: LogoInfo{},
 	}
 }
 
-// GenerateQRImage genera un QR code como imagen optimizada para impresora térmica
-func GenerateQRImage(data string, opts *QROptions) (image.Image, error) {
+// GetModuleSize retorna el tamaño del módulo calculado
+func (qro *QROptions) GetModuleSize() posqr.ModuleSize {
+	return qro.Qr.moduleSize
+}
+
+// GenerateQR calcula y establece el tamaño del módulo basado en PixelWidth y el tamaño de la cuadrícula del QR
+func (qro *QROptions) GenerateQR(data string) (*qrcode.QRCode, error) {
+	if data == "" {
+		return nil, fmt.Errorf("QR data cannot be empty")
+	}
+	if len(data) > posqr.MaxDataLength {
+		return nil, fmt.Errorf("QR data too long: %d bytes (maximum %d)",
+			len(data), posqr.MaxDataLength)
+	}
+
+	// FIXME: === Check if encoding affects QR Code whether is printed as image or natively ===
+
+	// Validación de PixelWidth
+	switch {
+	case qro.PixelWidth < minPixelWidth:
+		log.Printf("warning: pixel_width %d < minimum %d, adjusting to minimum",
+			qro.PixelWidth, minPixelWidth)
+		qro.PixelWidth = minPixelWidth
+	case qro.PixelWidth > maxPixelWidth:
+		log.Printf("warning: pixel_width %d exceeds maximum %d, clamping",
+			qro.PixelWidth, maxPixelWidth)
+		qro.PixelWidth = maxPixelWidth
+	default:
+		qro.Qr.requestedWidth = qro.PixelWidth
+		log.Printf("QR: using requested pixel_width %d", qro.PixelWidth)
+	}
+
+	if qro.ErrorCorrection < posqr.LevelL || qro.ErrorCorrection > posqr.LevelH {
+		qro.ErrorCorrection = posqr.LevelQ
+		log.Printf("QR: using default error correction level Q")
+	}
+
+	// Crear QR code
+	qrc, err := qrcode.NewWith(data, mapEclOption(qro.ErrorCorrection))
+	if err != nil {
+		return nil, fmt.Errorf("failed to create QR code: %w", err)
+	}
+
+	qro.Qr.gridSize = qrc.Dimension()
+	if qro.Qr.gridSize < minGridSize {
+		return nil, fmt.Errorf("QR grid size %d is too small (minimum %d)",
+			qro.Qr.gridSize, minGridSize)
+	} else if qro.Qr.gridSize >= maxGridSize {
+		log.Printf("warning: QR grid size %d is very large, maybe data is missing", qro.Qr.gridSize)
+	}
+
+	// Tamaño del módulo con mejor precisión
+	totalModules := qro.Qr.gridSize + (2 * minBorderWidth)
+	if totalModules <= 0 {
+		return nil, fmt.Errorf("invalid total modules calculation: %d", totalModules)
+	}
+	qro.Qr.moduleSize = posqr.ModuleSize(qro.Qr.requestedWidth / totalModules)
+
+	log.Printf("QR: data='%s' (len=%d), grid=%dx%d, border=%d modules, total=%d modules",
+		truncateString(data, 50), len(data), qro.Qr.gridSize, qro.Qr.gridSize, minBorderWidth, totalModules)
+	log.Printf("QR: requested=%dpx, calculated_module_size=%d", qro.Qr.requestedWidth, qro.Qr.moduleSize)
+
+	// Aplicar límites al module size
+	switch {
+	case qro.Qr.moduleSize < posqr.DefaultModuleSize:
+		qro.Qr.moduleSize = posqr.DefaultModuleSize
+		log.Printf("QR: calculated module size %d too small, using default %d",
+			qro.Qr.moduleSize, posqr.DefaultModuleSize)
+	case qro.Qr.moduleSize > posqr.MaxModuleSize:
+		qro.Qr.moduleSize = posqr.MaxModuleSize
+		log.Printf("QR: calculated module size %d too large, using maximum %d",
+			qro.Qr.moduleSize, posqr.MaxModuleSize)
+	default:
+		log.Printf("QR: using calculated module size %d", qro.Qr.moduleSize)
+	}
+
+	// Calcular y reportar tamaño final real
+	qro.Qr.totalWidth = totalModules * int(qro.Qr.moduleSize)
+	qro.Qr.dataWidth = qro.Qr.gridSize * int(qro.Qr.moduleSize)
+	qro.Qr.borderWidth = (2 * minBorderWidth) * int(qro.Qr.moduleSize)
+
+	// Log detallado de dimensiones
+	log.Printf("QR dimensions:")
+	log.Printf("  - Grid:        %dx%d modules", qro.Qr.gridSize, qro.Qr.gridSize)
+	log.Printf("  - Module size: %dpx", qro.Qr.moduleSize)
+	log.Printf("  - Data area:   %dx%dpx", qro.Qr.dataWidth, qro.Qr.dataWidth)
+	log.Printf("  - Border:      %dpx per side (%dpx total)",
+		qro.Qr.borderWidth/2, qro.Qr.borderWidth)
+	log.Printf("  - Total:       %dx%dpx", qro.Qr.totalWidth, qro.Qr.totalWidth)
+	log.Printf("  - Requested:   %dpx", qro.Qr.requestedWidth)
+
+	// Advertencia si el tamaño difiere del solicitado
+	if qro.Qr.totalWidth != qro.Qr.requestedWidth {
+		qro.Qr.diff = qro.Qr.totalWidth - qro.Qr.requestedWidth
+		switch {
+		case qro.Qr.diff > 0:
+			qro.Qr.scaleMode = "scaled_up"
+			log.Printf("info: actual QR size %dpx exceeds requested %dpx by %dpx",
+				qro.Qr.totalWidth, qro.Qr.requestedWidth, qro.Qr.diff)
+		case qro.Qr.diff < 0:
+			qro.Qr.scaleMode = "scaled_down"
+			log.Printf("info: actual QR size %dpx is smaller than requested %dpx by %dpx",
+				qro.Qr.totalWidth, qro.Qr.requestedWidth, -qro.Qr.diff)
+		default:
+			qro.Qr.scaleMode = "exact"
+			log.Printf("info: actual QR size matches requested size exactly")
+		}
+	}
+
+	// Auto-calcular LogoSizeMulti si hay Logo
+	if qro.LogoData != "" {
+		// Load images if base64 strings are provided
+		logoImg, format, err := ImgFromBase64(qro.LogoData)
+		if err != nil {
+			log.Printf("warning: failed to load Logo: %v", err)
+			qro.LogoData = ""
+		} else {
+			qro.Logo.image = logoImg
+			qro.Logo.format = format
+			qro.Logo.sizeMulti = mapLogoSize(qro.ErrorCorrection)
+			qro.Logo.width = logoImg.Bounds().Dx()
+			qro.Logo.height = logoImg.Bounds().Dy()
+
+			aspectRatio := float64(qro.Logo.width) / float64(qro.Logo.height)
+			if aspectRatio < 0.8 || aspectRatio > 1.2 {
+				log.Printf("warning: Logo aspect ratio %.2f not square, may cause distortion", aspectRatio)
+			}
+
+			qro.Logo.sizeMulti = mapLogoSize(qro.ErrorCorrection)
+			log.Printf("QR: loaded Logo format=%s, size=%dx%d, aspect_ratio=%.2f, size_multi=%d",
+				qro.Logo.format, qro.Logo.width, qro.Logo.height, aspectRatio, qro.Logo.sizeMulti)
+		}
+
+	}
+
+	return qrc, nil
+}
+
+// ProcessQRImage genera un QR code como imagen optimizada para impresora térmica
+func ProcessQRImage(data string, opts *QROptions) (image.Image, error) {
 	if data == "" {
 		return nil, fmt.Errorf("QR data cannot be empty")
 	}
@@ -199,30 +271,18 @@ func GenerateQRImage(data string, opts *QROptions) (image.Image, error) {
 		opts = DefaultQROptions()
 	}
 
-	// Validar archivos antes de generar
-	if opts.LogoPath != "" {
-		if _, err := os.Stat(opts.LogoPath); os.IsNotExist(err) {
-			log.Printf("warning: logo file not found: %s, ignoring", opts.LogoPath)
-			opts.LogoPath = "" // Limpiar para evitar error
-		}
-	}
+	// El objetivo es hacer el QR tan grande y legible como sea posible
+	// mientras sea más pequeño o igual al PixelWidth solicitado. Si el generado es más
+	// grande que el solicitado, preferir generado y no escalar hacia abajo.
 
-	if opts.HalftonePath != "" {
-		if _, err := os.Stat(opts.HalftonePath); os.IsNotExist(err) {
-			log.Printf("warning: halftone file not found: %s, ignoring", opts.HalftonePath)
-			opts.HalftonePath = "" // Limpiar para evitar error
-		}
-	}
-
-	// El objetivo es hacer el QR tan grande y legible como sea posible, sin pasarse de tu límite de PixelWidth.
-	qrc, err := opts.SetModuleSize(data)
+	// Generar QR y calcular tamaño del módulo
+	qrc, err := opts.GenerateQR(data)
 	if err != nil {
-		opts.moduleSize = posqr.DefaultModuleSize
-		log.Printf(
-			"warning: could not set module size based on image width and grid size: %v. Using minimum module size %d",
-			err,
-			opts.moduleSize,
-		)
+		log.Printf("error setting module size: %v", err)
+		return nil, fmt.Errorf("set module size: %w", err)
+	}
+	if qrc == nil {
+		return nil, fmt.Errorf("QR code generation returned nil")
 	}
 
 	// Construir opciones de imagen
@@ -230,6 +290,7 @@ func GenerateQRImage(data string, opts *QROptions) (image.Image, error) {
 
 	// Generar imagen en memoria
 	buf := NewWriteCloser()
+
 	w := standard.NewWithWriter(buf, imgOpts...)
 	defer func(w *standard.Writer) {
 		err := w.Close()
@@ -243,60 +304,116 @@ func GenerateQRImage(data string, opts *QROptions) (image.Image, error) {
 	}
 
 	// Decodificar imagen
-	img, _, err := image.Decode(bytes.NewReader(buf.Bytes()))
+	img, format, err := image.Decode(bytes.NewReader(buf.Bytes()))
 	if err != nil {
 		return nil, fmt.Errorf("decode QR image: %w", err)
 	}
 
+	log.Printf("QR: decoded image format=%s", format)
+
+	// Validar dimensiones finales
+	finalBounds := img.Bounds()
+	finalWidth := finalBounds.Dx()
+
+	if finalWidth != opts.Qr.totalWidth {
+		log.Printf("⚠️  Final image size %dpx differs from calculated %dpx (library adjustment)",
+			finalWidth, opts.Qr.totalWidth)
+	}
+
 	return img, nil
+}
+
+// mapLogoSize calcula el tamaño óptimo del Logo basado en corrección
+func mapLogoSize(errorCorrection posqr.ErrorCorrection) int {
+	switch errorCorrection {
+	case posqr.LevelL:
+		return 7 // 1/7 px del QR
+	case posqr.LevelM:
+		return 6 // 1/6 px del QR
+	case posqr.LevelQ:
+		return 5 // 1/5 px del QR
+	case posqr.LevelH:
+		return 4 // 1/4 px del QR
+	default:
+		return 5 // 1/5 px del QR
+	}
+}
+
+// truncateString helper para logs
+func truncateString(s string, maxLen int) string {
+	if len(s) <= maxLen {
+		return s
+	}
+	return s[:maxLen] + "..."
 }
 
 // buildImageOptions construye las opciones mínimas útiles para impresora térmica
 func buildImageOptions(opts *QROptions) []standard.ImageOption {
 	var imgOpts []standard.ImageOption
 
-	imgOpts = append(imgOpts, standard.WithQRWidth(uint8(opts.moduleSize))) // Module PixelWidth
-	imgOpts = append(imgOpts, standard.WithBorderWidth(minBorderWidth))     // Silence Zone
+	imgOpts = append(imgOpts, standard.WithQRWidth(uint8(opts.Qr.moduleSize))) // Module PixelWidth
+	imgOpts = append(imgOpts, standard.WithBorderWidth(minBorderWidth))        // Silence Zone
 
 	// LogoPath si está habilitado y existe
-	if opts.LogoPath != "" {
-		// Detectar formato por extensión
-		lowerPath := strings.ToLower(opts.LogoPath)
+	if opts.LogoData != "" && opts.Logo.image != nil && opts.Logo.sizeMulti > 0 && opts.Logo.format != "" {
+		log.Printf("info: applying Logo options")
+		// Tamaño del Logo
 		switch {
-		case strings.HasSuffix(lowerPath, ".png"):
-			imgOpts = append(imgOpts, standard.WithLogoImageFilePNG(opts.LogoPath))
-		case strings.HasSuffix(lowerPath, ".jpg") || strings.HasSuffix(lowerPath, ".jpeg"):
-			imgOpts = append(imgOpts, standard.WithLogoImageFileJPEG(opts.LogoPath))
+		case opts.Logo.sizeMulti < minSizeMulti:
+			log.Printf("warning: logo_size_multi %d out of range [%d-%d], using minimum %d",
+				opts.Logo.sizeMulti, minSizeMulti, maxSizeMulti, minSizeMulti)
+			opts.Logo.sizeMulti = minSizeMulti
+		case opts.Logo.sizeMulti > maxSizeMulti:
+			log.Printf("warning: logo_size_multi %d out of range [%d-%d], using maximum %d",
+				opts.Logo.sizeMulti, minSizeMulti, maxSizeMulti, maxSizeMulti)
+			opts.Logo.sizeMulti = maxSizeMulti
 		default:
-			log.Printf("warning: unsupported logo format: %s (only PNG/JPEG supported)", opts.LogoPath)
+			log.Printf("info: using logo_size_multi %d", opts.Logo.sizeMulti)
 		}
 
-		// Tamaño del logo
-		if opts.LogoSizeMulti > 0 {
-			if opts.LogoSizeMulti < minSizeMulti || opts.LogoSizeMulti > maxSizeMulti {
-				log.Printf("warning: logo_size_multi %d out of range [%d-%d], using default %d",
-					opts.LogoSizeMulti, minSizeMulti, maxSizeMulti, defaultSizeMulti)
-				opts.LogoSizeMulti = defaultSizeMulti
-			}
-			imgOpts = append(imgOpts, standard.WithLogoSizeMultiplier(opts.LogoSizeMulti))
+		// Zona segura para el Logo
+		if opts.ErrorCorrection == posqr.LevelL || opts.ErrorCorrection == posqr.LevelM {
+			imgOpts = append(imgOpts, standard.WithLogoSafeZone())
+
 		}
-		// Zona segura para el logo
-		imgOpts = append(imgOpts, standard.WithLogoSafeZone())
+
+		// Validar tamaño del Logo contra dataWidth
+		maxLogoSize := opts.Qr.dataWidth / opts.Logo.sizeMulti
+		log.Printf("QR Logo: max size for 1/%d of data area (%dpx): %dpx",
+			opts.Logo.sizeMulti, opts.Qr.dataWidth, maxLogoSize)
+
+		scaledLogo := ScaleImageToWidth(opts.Logo.image, maxLogoSize)
+		opts.Logo.image = scaledLogo
+		opts.Logo.width = scaledLogo.Bounds().Dx()
+		opts.Logo.height = scaledLogo.Bounds().Dy()
+
+		log.Printf("QR Logo: final size %dx%dpx", opts.Logo.width, opts.Logo.height)
+
+		// Imagen del Logo
+		imgOpts = append(imgOpts, standard.WithLogoSizeMultiplier(opts.Logo.sizeMulti))
+		imgOpts = append(imgOpts, standard.WithLogoImage(opts.Logo.image))
+		switch opts.Logo.format {
+		case "png":
+			imgOpts = append(imgOpts, standard.WithBuiltinImageEncoder(standard.PNG_FORMAT))
+		case "jpeg", "jpg":
+			imgOpts = append(imgOpts, standard.WithBuiltinImageEncoder(standard.JPEG_FORMAT))
+		}
+
+	} else {
+		opts.LogoData = ""
+		opts.Logo.image = nil
+		log.Printf("info: no valid Logo provided, skipping logo options")
 	}
 
-	// Can't be used together: HalftonePath and CircleShape
-	if opts.HalftonePath != "" {
-		log.Printf("qr: using halftone image (circle shape disabled)")
-		imgOpts = append(imgOpts, standard.WithHalftone(opts.HalftonePath))
-	} else if opts.CircleShape {
+	if opts.CircleShape {
 		imgOpts = append(imgOpts, standard.WithCircleShape())
 	}
 
 	return imgOpts
 }
 
-// WithErrorLevel convierte el nivel de corrección de errores poster a go-qrcode
-func WithErrorLevel(level posqr.ErrorCorrection) qrcode.EncodeOption {
+// mapEclOption convierte el nivel de corrección de errores poster a go-qrcode
+func mapEclOption(level posqr.ErrorCorrection) qrcode.EncodeOption {
 	switch level {
 	case posqr.LevelL:
 		return qrcode.WithErrorCorrectionLevel(qrcode.ErrorCorrectionLow)
@@ -309,4 +426,36 @@ func WithErrorLevel(level posqr.ErrorCorrection) qrcode.EncodeOption {
 	default:
 		return qrcode.WithErrorCorrectionLevel(qrcode.ErrorCorrectionMedium)
 	}
+}
+
+// ScaleImageToWidth escala una imagen al ancho objetivo manteniendo el aspect ratio.
+// Usa interpolación bilinear para mejor calidad.
+func ScaleImageToWidth(img image.Image, targetWidth int) image.Image {
+	if img == nil {
+		return nil
+	}
+	if targetWidth <= 0 {
+		log.Printf("warning: invalid targetWidth %d, returning original", targetWidth)
+		return img
+	}
+
+	bounds := img.Bounds()
+	originalWidth := bounds.Dx()
+	originalHeight := bounds.Dy()
+	// Si ya tiene el ancho objetivo, retornar sin cambios
+	if originalWidth == targetWidth {
+		return img
+	}
+
+	// Calcular altura proporcional manteniendo aspect ratio
+	aspectRatio := float64(originalHeight) / float64(originalWidth)
+	targetHeight := int(float64(targetWidth) * aspectRatio)
+
+	// Crear imagen de destino
+	dst := image.NewRGBA(image.Rect(0, 0, targetWidth, targetHeight))
+
+	// Escalar con interpolación bilinear
+	draw.BiLinear.Scale(dst, dst.Bounds(), img, bounds, draw.Over, nil)
+
+	return dst
 }
