@@ -100,7 +100,7 @@ type LogoInfo struct {
 	sizeMulti int         // Multiplicador de tamaño del Logo
 	width     int         // Ancho del Logo (px)
 	height    int         // Alto del Logo (px)
-	image     image.Image // Imagen del Logo cargada
+	Image     image.Image // Imagen del Logo cargada
 	format    string      // Formato de la imagen (png, jpg, etc.)
 }
 
@@ -241,7 +241,7 @@ func (qro *QROptions) GenerateQR(data string) (*qrcode.QRCode, error) {
 			log.Printf("warning: failed to load Logo: %v", err)
 			qro.LogoData = ""
 		} else {
-			qro.Logo.image = logoImg
+			qro.Logo.Image = logoImg
 			qro.Logo.format = format
 			qro.Logo.sizeMulti = mapLogoSize(qro.ErrorCorrection)
 			qro.Logo.width = logoImg.Bounds().Dx()
@@ -355,7 +355,7 @@ func buildImageOptions(opts *QROptions) []standard.ImageOption {
 	imgOpts = append(imgOpts, standard.WithBorderWidth(minBorderWidth))        // Silence Zone
 
 	// LogoPath si está habilitado y existe
-	if opts.LogoData != "" && opts.Logo.image != nil && opts.Logo.sizeMulti > 0 && opts.Logo.format != "" {
+	if opts.LogoData != "" && opts.Logo.Image != nil && opts.Logo.sizeMulti > 0 && opts.Logo.format != "" {
 		log.Printf("info: applying Logo options")
 		// Tamaño del Logo
 		switch {
@@ -382,8 +382,8 @@ func buildImageOptions(opts *QROptions) []standard.ImageOption {
 		log.Printf("QR Logo: max size for 1/%d of data area (%dpx): %dpx",
 			opts.Logo.sizeMulti, opts.Qr.dataWidth, maxLogoSize)
 
-		scaledLogo := ScaleImageToWidth(opts.Logo.image, maxLogoSize)
-		opts.Logo.image = scaledLogo
+		scaledLogo := ScaleImageToWidth(opts.Logo.Image, maxLogoSize)
+		opts.Logo.Image = scaledLogo
 		opts.Logo.width = scaledLogo.Bounds().Dx()
 		opts.Logo.height = scaledLogo.Bounds().Dy()
 
@@ -391,7 +391,7 @@ func buildImageOptions(opts *QROptions) []standard.ImageOption {
 
 		// Imagen del Logo
 		imgOpts = append(imgOpts, standard.WithLogoSizeMultiplier(opts.Logo.sizeMulti))
-		imgOpts = append(imgOpts, standard.WithLogoImage(opts.Logo.image))
+		imgOpts = append(imgOpts, standard.WithLogoImage(opts.Logo.Image))
 		switch opts.Logo.format {
 		case "png":
 			imgOpts = append(imgOpts, standard.WithBuiltinImageEncoder(standard.PNG_FORMAT))
@@ -401,7 +401,7 @@ func buildImageOptions(opts *QROptions) []standard.ImageOption {
 
 	} else {
 		opts.LogoData = ""
-		opts.Logo.image = nil
+		opts.Logo.Image = nil
 		log.Printf("info: no valid Logo provided, skipping logo options")
 	}
 

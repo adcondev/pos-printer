@@ -308,14 +308,20 @@ func (p *Printer) printQRAsImage(data string, opts *graphics.QROptions) error {
 		return fmt.Errorf("generate QR image: %w", err)
 	}
 
-	// Procesar imagen para impresora térmica
-	pipeline := graphics.NewPipeline(&graphics.ImgOptions{
+	imgOpts := &graphics.ImgOptions{
 		PixelWidth:     opts.PixelWidth,
 		Threshold:      128,
 		Scaling:        graphics.NearestNeighbor,
 		Dithering:      graphics.Threshold,
 		PreserveAspect: true,
-	})
+	}
+
+	if opts.Logo.Image != nil {
+		imgOpts.Dithering = graphics.Atkinson
+	}
+
+	// Procesar imagen para impresora térmica
+	pipeline := graphics.NewPipeline(imgOpts)
 
 	bitmap, err := pipeline.Process(img)
 	if err != nil {
