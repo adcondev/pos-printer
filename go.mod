@@ -5,8 +5,8 @@ go 1.24.6
 require (
 	github.com/yeqown/go-qrcode/v2 v2.2.5
 	github.com/yeqown/go-qrcode/writer/standard v1.3.0
-	golang.org/x/image v0.32.0
-	golang.org/x/text v0.30.0
+	golang.org/x/image v0.33.0
+	golang.org/x/text v0.31.0
 )
 
 require (
