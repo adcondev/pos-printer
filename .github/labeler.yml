@@ -6,10 +6,15 @@ documentation:
           - '**/*.md'
           - 'docs/**'
           - '**/doc.go'
+          - 'ISSUE_TEMPLATE/**'
 
 github:
   - changed-files:
       - any-glob-to-any-file: '.github/**'
+
+gh-actions:
+  - changed-files:
+      - any-glob-to-any-file: '.github/workflows/**'
 
 tests:
   - changed-files:
@@ -39,30 +44,58 @@ graphics:
   - changed-files:
       - any-glob-to-any-file: 'pkg/graphics/**'
 
+qr-image:
+  - changed-files:
+      - any-glob-to-any-file: 'pkg/graphics/qr.go'
+
 profile:
   - changed-files:
       - any-glob-to-any-file: 'pkg/profile/**'
 
-service:
+printer:
   - changed-files:
-      - any-glob-to-any-file: 'pkg/service/**'
+      - any-glob-to-any-file: 'pkg/printer/**'
+
+tables:
+  - changed-files:
+      - any-glob-to-any-file: 'pkg/tables/**'
 
 # ESC/POS specific components
 barcode:
   - changed-files:
-      - any-glob-to-any-file: 'pkg/commands/escpos/barcode/**'
-
-qrcode:
-  - changed-files:
-      - any-glob-to-any-file: 'pkg/commands/escpos/qrcode/**'
+      - any-glob-to-any-file: 'pkg/commands/barcode/**'
 
 bitimage:
   - changed-files:
-      - any-glob-to-any-file: 'pkg/commands/escpos/bitimage/**'
+      - any-glob-to-any-file: 'pkg/commands/bitimage/**'
 
 character:
   - changed-files:
-      - any-glob-to-any-file: 'pkg/commands/escpos/character/**'
+      - any-glob-to-any-file: 'pkg/commands/character/**'
+
+common:
+  - changed-files:
+      - any-glob-to-any-file: 'pkg/commands/common/**'
+
+linespacing:
+  - changed-files:
+      - any-glob-to-any-file: 'pkg/commands/linespacing/**'
+
+mechanismcontrol:
+  - changed-files:
+      - any-glob-to-any-file: 'pkg/commands/mechanismcontrol/**'
+
+print:
+  - changed-files:
+      - any-glob-to-any-file: 'pkg/commands/print/**'
+
+printposition:
+  - changed-files:
+      - any-glob-to-any-file: 'pkg/commands/printposition/**'
+
+qrcode:
+  - changed-files:
+      - any-glob-to-any-file: 'pkg/commands/qrcode/**'
 
 # Other categories
 windows:

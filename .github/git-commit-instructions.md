@@ -50,6 +50,7 @@ Scope MUST be a noun describing a section of the codebase surrounded by parenthe
 - `(barcode)` - Barcode generation
 - `(qrcode)` - QR code generation
 - `(bitimage)` - Bitmap image processing
+- `(tables)` - Table formatting and layout
 
 ### Formatting
 
