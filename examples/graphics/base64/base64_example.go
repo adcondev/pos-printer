@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/adcondev/pos-printer/internal/load"
 	"github.com/adcondev/pos-printer/pkg/composer"
 	"github.com/adcondev/pos-printer/pkg/connection"
 	"github.com/adcondev/pos-printer/pkg/graphics"
@@ -49,7 +50,7 @@ func main() {
 
 	// Load the image
 	log.Print("Loading image from Base64")
-	img, _, err := graphics.ImgFromBase64(Data)
+	img, _, err := load.ImgFromBase64(Data)
 	if err != nil {
 		log.Panicf("Failed to load image: %v", err)
 	}

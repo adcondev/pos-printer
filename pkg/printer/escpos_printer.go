@@ -143,9 +143,9 @@ func (p *Printer) AlignRight() error {
 	return p.Write(cmd)
 }
 
-// NormalSize resets text to normal size
-func (p *Printer) NormalSize() error {
-	return p.Write(p.Protocol.RegularTextSize())
+// SingleSize resets text to normal size
+func (p *Printer) SingleSize() error {
+	return p.Write(p.Protocol.SingleSizeText())
 }
 
 // DoubleSize enables or disables double width
@@ -246,12 +246,11 @@ func (p *Printer) PrintQR(data string, opts *graphics.QROptions) error {
 	}
 
 	// Intentar QR nativo si está soportado
-	optsCopy := *opts
-	optsCopy.Qr = graphics.QrInfo{}
-	optsCopy.Logo = graphics.LogoInfo{}
+	opts.Qr = graphics.QrInfo{}
+	opts.Logo = graphics.LogoInfo{}
 
 	if p.Profile.HasQR {
-		err := p.printQRNative(data, &optsCopy)
+		err := p.printQRNative(data, opts)
 		if err == nil {
 			return nil
 		}
@@ -259,7 +258,7 @@ func (p *Printer) PrintQR(data string, opts *graphics.QROptions) error {
 	}
 
 	// Fallback a imagen
-	return p.printQRAsImage(data, &optsCopy)
+	return p.printQRAsImage(data, opts)
 }
 
 // printQRNative imprime usando protocolo ESC/POS nativo
@@ -308,14 +307,20 @@ func (p *Printer) printQRAsImage(data string, opts *graphics.QROptions) error {
 		return fmt.Errorf("generate QR image: %w", err)
 	}
 
-	// Procesar imagen para impresora térmica
-	pipeline := graphics.NewPipeline(&graphics.ImgOptions{
+	imgOpts := &graphics.ImgOptions{
 		PixelWidth:     opts.PixelWidth,
 		Threshold:      128,
 		Scaling:        graphics.NearestNeighbor,
 		Dithering:      graphics.Threshold,
 		PreserveAspect: true,
-	})
+	}
+
+	if opts.Logo.Image != nil {
+		imgOpts.Dithering = graphics.Atkinson
+	}
+
+	// Procesar imagen para impresora térmica
+	pipeline := graphics.NewPipeline(imgOpts)
 
 	bitmap, err := pipeline.Process(img)
 	if err != nil {

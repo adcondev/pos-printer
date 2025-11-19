@@ -26,7 +26,7 @@ func main() {
 
 	// ====== Iniciar impresión de documento JSON con QR avanzado =====
 
-	fileName := "ticket_output.json"
+	fileName := "qr_test_advanced_1.json"
 	jsonPath := "./examples/document/qrcode/" + fileName
 	// Si el archivo no existe en esa ubicación, usar path alternativo
 	if _, err := os.Stat(jsonPath); os.IsNotExist(err) {

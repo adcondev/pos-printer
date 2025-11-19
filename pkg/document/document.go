@@ -4,6 +4,8 @@ package document
 import (
 	"encoding/json"
 	"fmt"
+
+	"github.com/adcondev/pos-printer/pkg/tables"
 )
 
 // PrintJob representa los datos de un documento de impresión
@@ -11,10 +13,13 @@ type PrintJob struct {
 	Data Document `json:"data"`
 }
 
+// TODO: Define all_mayus y all_bold options for commands
+
 // Document representa un documento de impresión completo
 type Document struct {
 	Version  string        `json:"version"`
 	Profile  ProfileConfig `json:"profile"`
+	DebugLog bool          `json:"debug_log,omitempty"`
 	Commands []Command     `json:"commands"`
 }
 
@@ -33,11 +38,13 @@ type Command struct {
 	Data json.RawMessage `json:"data"`
 }
 
-// TextCommand represents a text command
+// TextCommand represents a text command (actualización)
 type TextCommand struct {
-	Content string    `json:"content"`
-	Style   TextStyle `json:"style,omitempty"`
-	NewLine bool      `json:"newline,omitempty"`
+	Label      string    `json:"label,omitempty"`       // Label text (e.g., "RFC")
+	LabelStyle TextStyle `json:"label_style,omitempty"` // Style for label
+	Content    string    `json:"content"`
+	Style      TextStyle `json:"style,omitempty"`
+	NewLine    bool      `json:"newline,omitempty"`
 }
 
 // TextStyle estilo de texto
@@ -53,11 +60,11 @@ type TextStyle struct {
 type ImageCommand struct {
 	Code       string `json:"code"`                  // Base64
 	Format     string `json:"format,omitempty"`      // png, jpg, bmp
-	PixelWidth int    `json:"pixel_width,omitempty"` // Ancho deseado en píxeles // FIXME: Considerar JSON
+	PixelWidth int    `json:"pixel_width,omitempty"` // Ancho deseado en píxeles
 	Align      string `json:"align,omitempty"`       // Alineación
 	Threshold  byte   `json:"threshold,omitempty"`   // Umbral B/N (0-255)
 	Dithering  string `json:"dithering,omitempty"`   // threshold, atkinson
-	Scaling    string `json:"scaling,omitempty"`     // bilinear, nns // FIXME: Considerar JSON
+	Scaling    string `json:"scaling,omitempty"`     // bilinear, nns
 }
 
 // SeparatorCommand represents a separator command
@@ -77,8 +84,6 @@ type CutCommand struct {
 	Feed int    `json:"feed,omitempty"` // Líneas antes del corte
 }
 
-// TODO: Review for more useful fields
-
 // QRCommand actualizado para soportar todas las opciones
 type QRCommand struct {
 	Data      string `json:"data"`                 // Datos del QR (URL, texto, etc.)
@@ -90,21 +95,38 @@ type QRCommand struct {
 	Align      string `json:"align,omitempty"`       // left, center, right
 
 	// Opciones avanzadas (solo imagen)
-	Logo        string `json:"logo_path,omitempty"`    // Ruta relativa al logo
+	Logo        string `json:"logo,omitempty"`         // Ruta relativa al logo
 	CircleShape bool   `json:"circle_shape,omitempty"` // Usar bloques circulares
 }
 
-// TableCommand represents a table command (WIP)
+// TODO: Consider upper_separator y lower_separator for tables
+
+// TableCommand represents a table command in the document
 type TableCommand struct {
-	Columns []TableColumn `json:"columns"`
-	Rows    [][]string    `json:"rows"`
-	// TODO: Adequate fields still not defined
+	Definition  tables.Definition `json:"definition"`
+	ShowHeaders bool              `json:"show_headers,omitempty"`
+	Rows        [][]string        `json:"rows"`
+	Options     *TableOptions     `json:"options,omitempty"`
 }
 
-// TableColumn define una columna de tabla
-type TableColumn struct {
-	Width int    `json:"width"`
+// TableOptions configures table rendering options
+type TableOptions struct {
+	// HeaderBold enables bold styling for table headers
+	HeaderBold bool `json:"header_bold,omitempty"`
+	// WordWrap enables automatic text wrapping in cells
+	WordWrap bool `json:"word_wrap,omitempty"`
+	// ColumnSpacing sets the number of spaces between columns (default: 1)
+	ColumnSpacing int `json:"column_spacing,omitempty"`
+	// Align sets the default alignment for table content (left, center, right)
 	Align string `json:"align,omitempty"`
+}
+
+// ReceiptItem represents an item in a receipt
+type ReceiptItem struct {
+	Quantity    float64
+	Description string
+	UnitPrice   float64
+	Total       float64
 }
 
 // ParseDocument parsea un documento JSON

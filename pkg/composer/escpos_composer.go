@@ -127,8 +127,8 @@ func (c *EscposProtocol) PrintLn(text string) ([]byte, error) {
 	return cmd, nil
 }
 
-// RegularText disables bold mode.
-func (c *EscposProtocol) RegularText() []byte {
+// DisableBold disables bold mode.
+func (c *EscposProtocol) DisableBold() []byte {
 	return c.Character.SetEmphasizedMode(character.OffEm)
 }
 
@@ -159,8 +159,8 @@ func (c *EscposProtocol) RightAlign() []byte {
 	return cmd
 }
 
-// RegularTextSize sets the smallest(regular) text size.
-func (c *EscposProtocol) RegularTextSize() []byte {
+// SingleSizeText sets the smallest(regular) text size.
+func (c *EscposProtocol) SingleSizeText() []byte {
 	size, _ := character.NewSize(1, 1)
 	return c.Character.SelectCharacterSize(size)
 }
@@ -169,4 +169,9 @@ func (c *EscposProtocol) RegularTextSize() []byte {
 func (c *EscposProtocol) DoubleSizeText() []byte {
 	size, _ := character.NewSize(2, 2)
 	return c.Character.SelectCharacterSize(size)
+}
+
+// EnableBold enables bold text.
+func (c *EscposProtocol) EnableBold() []byte {
+	return c.Character.SetEmphasizedMode(character.OnEm)
 }
