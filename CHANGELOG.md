@@ -2,6 +2,27 @@
 
 All notable changes to the POS Printer library will be documented in this file.
 
+## [3.2.0](https://github.com/adcondev/pos-printer/compare/v3.1.0...v3.2.0) (2025-11-19)
+
+
+### 🐛 Bug Fixes
+
+* **graphics:** improve logo handling in QR code generation ([68ae2c5](https://github.com/adcondev/pos-printer/commit/68ae2c56adb96ae9b821152659163fb572886038))
+
+
+### 📦 Dependencies
+
+* **tables:** update golang.org/x/image and golang.org/x/text dependencies ([3969cd0](https://github.com/adcondev/pos-printer/commit/3969cd02c4f664f9084a0f1c37c1c43705187e45))
+
+
+### ✨ Features
+
+* **ci:** add tables scope to commit message guidelines ([4cc7a16](https://github.com/adcondev/pos-printer/commit/4cc7a1696fac15f15dd243cf917bb249468cbd65))
+* **document:** add QR code and table command support in document builder ([8172b4d](https://github.com/adcondev/pos-printer/commit/8172b4d45ca5bd071c2f9270bbb12380b6fe611d))
+* **qrcode:** refactor image loading and command handling for ESC/POS printer ([fafcf7a](https://github.com/adcondev/pos-printer/commit/fafcf7ac877003b31e4218d5ee5174516ae402ad))
+* **tables:** add table generation and rendering for ESC/POS printers ([9089536](https://github.com/adcondev/pos-printer/commit/90895364ba1e7317e55507915a2b53e0adc00db4))
+* **tables:** add table generation and rendering for ESC/POS printers ([#72](https://github.com/adcondev/pos-printer/issues/72)) ([261086e](https://github.com/adcondev/pos-printer/commit/261086eff59db1e0e28ae85f32f6994b85d2b48e))
+
 ## [3.1.0](https://github.com/adcondev/pos-printer/compare/v3.0.7...v3.1.0) (2025-11-18)
 
 
