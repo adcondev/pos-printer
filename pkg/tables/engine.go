@@ -120,7 +120,7 @@ func (e *Engine) formatHeaderRow(cells []string, def *Definition) string {
 
 	// Apply bold command at the beginning if enabled
 	if e.options.HeaderStyle.Bold {
-		result.WriteString(string(cmds.BoldText())) // ESC E 1 (Bold ON)
+		result.WriteString(string(cmds.EnableBold())) // ESC E 1 (Bold ON)
 	}
 
 	// Format cells
@@ -138,7 +138,7 @@ func (e *Engine) formatHeaderRow(cells []string, def *Definition) string {
 
 	// Reset bold at the end if it was enabled
 	if e.options.HeaderStyle.Bold {
-		result.WriteString(string(cmds.LightText())) // ESC E 0 (Bold OFF)
+		result.WriteString(string(cmds.DisableBold())) // ESC E 0 (Bold OFF)
 	}
 
 	return result.String()

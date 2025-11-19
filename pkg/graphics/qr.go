@@ -10,6 +10,7 @@ import (
 	"github.com/yeqown/go-qrcode/writer/standard"
 	"golang.org/x/image/draw"
 
+	"github.com/adcondev/pos-printer/internal/load"
 	posqr "github.com/adcondev/pos-printer/pkg/commands/qrcode"
 )
 
@@ -236,7 +237,8 @@ func (qro *QROptions) GenerateQR(data string) (*qrcode.QRCode, error) {
 	// Auto-calcular LogoSizeMulti si hay Logo
 	if qro.LogoData != "" {
 		// Load images if base64 strings are provided
-		logoImg, format, err := ImgFromBase64(qro.LogoData)
+		// FIXME: Define a single place where to load images from base64
+		logoImg, format, err := load.ImgFromBase64(qro.LogoData)
 		if err != nil {
 			log.Printf("warning: failed to load Logo: %v", err)
 			qro.LogoData = ""
