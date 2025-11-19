@@ -4,6 +4,8 @@ package document
 import (
 	"encoding/json"
 	"log"
+
+	"github.com/adcondev/pos-printer/pkg/tables"
 )
 
 // TODO: Improve builder pattern, then add qr and table commands
@@ -125,7 +127,60 @@ func (b *Builder) AddCut(mode string, feed int) *Builder {
 	return b
 }
 
-// TODO: AddQr y AddTable cuando se implementen, sigue pendiente
+// AddQR agrega un comando QR al documento
+func (b *Builder) AddQR(data, text string, pixelWidth int, correction string, align, logo64 string, circle bool) *Builder {
+	cmd := QRCommand{
+		Data:        data,
+		HumanText:   text,
+		PixelWidth:  pixelWidth,
+		Correction:  correction,
+		Align:       align,
+		Logo:        logo64,
+		CircleShape: circle,
+	}
+
+	qrData, err := json.Marshal(cmd)
+	if err != nil {
+		log.Printf("Error marshaling QR command: %v", err)
+		return b
+	}
+
+	b.doc.Commands = append(b.doc.Commands, Command{
+		Type: "qr",
+		Data: qrData,
+	})
+	return b
+}
+
+// AddTable adds a table command to the document
+func (b *Builder) AddTable(definition tables.Definition, rows [][]string, showHeaders bool) *Builder {
+	if len(definition.Columns) == 0 {
+		log.Printf("Warning: table has no columns defined")
+		return b
+	}
+
+	cmd := TableCommand{
+		Definition:  definition,
+		ShowHeaders: showHeaders,
+		Rows:        rows,
+		Options: &TableOptions{
+			HeaderBold: true,
+			WordWrap:   true,
+		},
+	}
+
+	data, err := json.Marshal(cmd)
+	if err != nil {
+		log.Printf("Error marshaling table command: %v", err)
+		return b
+	}
+
+	b.doc.Commands = append(b.doc.Commands, Command{
+		Type: "table",
+		Data: data,
+	})
+	return b
+}
 
 // Build construye el documento final
 func (b *Builder) Build() *Document {

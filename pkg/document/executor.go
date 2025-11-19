@@ -34,9 +34,9 @@ func NewExecutor(printer *service.Printer) *Executor {
 	e.RegisterHandler("image", e.handleImage)
 	e.RegisterHandler("separator", e.handleSeparator)
 
-	// Handlers preparados para futura implementación
+	// Handlers para QR y tablas
 	e.RegisterHandler("qr", e.handleQR)
-	e.RegisterHandler("table", e.handleTablePlaceholder)
+	e.RegisterHandler("table", e.handleTable)
 
 	return e
 }
