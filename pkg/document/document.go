@@ -38,6 +38,8 @@ type Command struct {
 	Data json.RawMessage `json:"data"`
 }
 
+// TODO: Consider change style to content_style and label_style
+
 // TextCommand represents a text command (actualización)
 type TextCommand struct {
 	Label      string    `json:"label,omitempty"`       // Label text (e.g., "RFC")

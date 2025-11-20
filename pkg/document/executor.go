@@ -38,6 +38,8 @@ func NewExecutor(printer *service.Printer) *Executor {
 	e.RegisterHandler("qr", e.handleQR)
 	e.RegisterHandler("table", e.handleTable)
 
+	// TODO: Implement Barcode and other commands
+
 	return e
 }
 
