@@ -16,8 +16,8 @@ import (
 	"github.com/adcondev/pos-printer/pkg/composer"
 	"github.com/adcondev/pos-printer/pkg/connection"
 	"github.com/adcondev/pos-printer/pkg/document"
-	service "github.com/adcondev/pos-printer/pkg/printer"
 	"github.com/adcondev/pos-printer/pkg/profile"
+	"github.com/adcondev/pos-printer/pkg/service"
 )
 
 const (

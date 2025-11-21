@@ -40,46 +40,6 @@ type Command struct {
 	Data json.RawMessage `json:"data"`
 }
 
-// TextCommand represents a text command
-type TextCommand struct {
-	// Contenido principal
-	Content Content `json:"content"`
-	// Label opcional
-	Label Label `json:"label,omitempty"`
-	// Control de línea
-	NewLine bool `json:"new_line,omitempty"`
-}
-
-// Label representa una etiqueta de texto
-type Label struct {
-	Text      string    `json:"text,omitempty"`
-	Style     TextStyle `json:"label_style,omitempty"`
-	Separator string    `json:"separator,omitempty"`
-}
-
-// Content representa el contenido de texto
-type Content struct {
-	Text  string    `json:"text"`
-	Style TextStyle `json:"content_style,omitempty"`
-}
-
-// TODO: Check if any other option is needed for text style
-// 1. Double Strike
-// 2. Smooth font
-// 3. Check Character in commands
-
-// TextStyle estilo de texto
-type TextStyle struct {
-	Align     string `json:"align,omitempty"` // left, center, right
-	Bold      bool   `json:"bold,omitempty"`
-	Size      string `json:"size,omitempty"` // 1x1, 2x2, 3x3
-	Underline string `json:"underline,omitempty"`
-	Inverse   bool   `json:"inverse,omitempty"`
-	Font      string `json:"font,omitempty"` // A, B
-	// TODO: Implement functionality for double_strike
-	DoubleStrike bool `json:"double_strike,omitempty"`
-}
-
 // ImageCommand represents an image command
 type ImageCommand struct {
 	Code       string `json:"code"`                  // Base64

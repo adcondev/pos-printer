@@ -37,17 +37,18 @@ func (b *Builder) SetProfile(model string, width int, codeTable string) *Builder
 
 // AddText generates a text command
 func (b *Builder) AddText(content string, style *TextStyle, label *Label) *Builder {
+	newLine := true
 	cmd := TextCommand{
 		Content: Content{
 			Text: content,
 		},
-		NewLine: true,
+		NewLine: &newLine,
 	}
 	if style != nil {
-		cmd.Content.Style = *style
+		cmd.Content.Style = style
 	}
 	if label != nil {
-		cmd.Label = *label
+		cmd.Label = label
 	}
 
 	data, err := json.Marshal(cmd)
