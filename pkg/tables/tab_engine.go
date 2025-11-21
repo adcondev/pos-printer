@@ -12,8 +12,8 @@ import (
 
 // Paper width constants (in characters)
 const (
-	PaperWidth58mm = 32 // Conservative for 58mm
-	PaperWidth80mm = 48 // Conservative for 80mm
+	Width58mm203dpi = 32 // Conservative for 58mm
+	Width80mm203dpi = 48 // Conservative for 80mm
 )
 
 // Style represents text styling options
@@ -35,7 +35,7 @@ type Options struct {
 // DefaultOptions returns sensible defaults for 80mm printers
 func DefaultOptions() *Options {
 	return &Options{
-		PaperWidth:    PaperWidth80mm,
+		PaperWidth:    Width80mm203dpi,
 		ShowHeaders:   true,
 		HeaderStyle:   Style{Bold: true},
 		WordWrap:      true,

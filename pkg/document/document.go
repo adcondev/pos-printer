@@ -32,13 +32,13 @@ type ProfileConfig struct {
 	HasQR      bool   `json:"has_qr"` // Indica si soporta QR nativo
 }
 
+// TODO: Define an order field for reordering or grouping commands. Check if it's worth it.
+
 // Command represents a single command in the document
 type Command struct {
 	Type string          `json:"type"`
 	Data json.RawMessage `json:"data"`
 }
-
-// TODO: Consider change style to content_style and label_style
 
 // TextCommand represents a text command
 type TextCommand struct {
@@ -52,10 +52,9 @@ type TextCommand struct {
 
 // Label representa una etiqueta de texto
 type Label struct {
-	Text  string    `json:"text,omitempty"`
-	Style TextStyle `json:"label_style,omitempty"`
-	// TODO: Default separator would be ": " if not specified
-	Separator string `json:"separator,omitempty"`
+	Text      string    `json:"text,omitempty"`
+	Style     TextStyle `json:"label_style,omitempty"`
+	Separator string    `json:"separator,omitempty"`
 }
 
 // Content representa el contenido de texto
@@ -64,20 +63,21 @@ type Content struct {
 	Style TextStyle `json:"content_style,omitempty"`
 }
 
-// TODO: Check if any other option is needed
+// TODO: Check if any other option is needed for text style
 // 1. Double Strike
 // 2. Smooth font
 // 3. Check Character in commands
 
 // TextStyle estilo de texto
 type TextStyle struct {
-	Align        string `json:"align,omitempty"` // left, center, right
-	Bold         bool   `json:"bold,omitempty"`
-	Size         string `json:"size,omitempty"` // 1x1, 2x2, 3x3
-	Underline    string `json:"underline,omitempty"`
-	Inverse      bool   `json:"inverse,omitempty"`
-	Font         string `json:"font,omitempty"`          // A, B
-	DoubleStrike bool   `json:"double_strike,omitempty"` // TODO: Implement functionality
+	Align     string `json:"align,omitempty"` // left, center, right
+	Bold      bool   `json:"bold,omitempty"`
+	Size      string `json:"size,omitempty"` // 1x1, 2x2, 3x3
+	Underline string `json:"underline,omitempty"`
+	Inverse   bool   `json:"inverse,omitempty"`
+	Font      string `json:"font,omitempty"` // A, B
+	// TODO: Implement functionality for double_strike
+	DoubleStrike bool `json:"double_strike,omitempty"`
 }
 
 // ImageCommand represents an image command
@@ -133,6 +133,8 @@ type TableCommand struct {
 	Options     *TableOptions     `json:"options,omitempty"`
 }
 
+// TODO: Implementar Header con TextStyle sin alineación
+
 // TableOptions configures table rendering options
 type TableOptions struct {
 	// HeaderBold enables bold styling for table headers
@@ -145,14 +147,6 @@ type TableOptions struct {
 	Align string `json:"align,omitempty"`
 }
 
-// ReceiptItem represents an item in a receipt
-type ReceiptItem struct {
-	Quantity    float64
-	Description string
-	UnitPrice   float64
-	Total       float64
-}
-
 // ParseDocument parsea un documento JSON
 func ParseDocument(data []byte) (*Document, error) {
 	var doc Document
@@ -162,7 +156,7 @@ func ParseDocument(data []byte) (*Document, error) {
 
 	// Validación básica
 	if doc.Version == "" {
-		// TODO: Review an smart way to handle versions
+		// TODO: Review an smart way to handle versioning
 		doc.Version = "1.0"
 	}
 

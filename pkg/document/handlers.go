@@ -37,6 +37,8 @@ func (e *Executor) handleText(printer *service.Printer, data json.RawMessage) er
 		labelText := cmd.Label.Text
 		if cmd.Label.Separator != "" {
 			labelText += cmd.Label.Separator
+		} else {
+			labelText += ": "
 		}
 
 		// Si las alineaciones son diferentes, imprimir label y resetear
@@ -437,8 +439,6 @@ func (e *Executor) handleImage(printer *service.Printer, data json.RawMessage) e
 	return nil
 }
 
-// TODO: Add multiple char support for separator (_-=-, etc.)
-
 // handleSeparator manages separator commands
 func (e *Executor) handleSeparator(printer *service.Printer, data json.RawMessage) error {
 	var cmd SeparatorCommand
@@ -448,7 +448,7 @@ func (e *Executor) handleSeparator(printer *service.Printer, data json.RawMessag
 
 	// Valores por defecto
 	if cmd.Char == "" {
-		cmd.Char = "-"
+		cmd.Char = "- "
 	}
 	if cmd.Length == 0 {
 		// Usar ancho del papel en caracteres (aproximado)
@@ -593,7 +593,7 @@ func (e *Executor) handleQR(printer *service.Printer, data json.RawMessage) erro
 	return nil
 }
 
-// TODO: Consider a title fields for tables
+// TODO: Consider a title fields for tables as field in TableCommand
 
 // handleTable manages table commands
 func (e *Executor) handleTable(printer *service.Printer, data json.RawMessage) error {
@@ -602,11 +602,10 @@ func (e *Executor) handleTable(printer *service.Printer, data json.RawMessage) e
 		return fmt.Errorf("failed to parse table command: %w", err)
 	}
 
-	if cmd.Options != nil {
+	if cmd.Options.ColumnSpacing < 0 {
 		// Validar que ColumnSpacing no sea negativo
-		if cmd.Options.ColumnSpacing < 0 {
-			return fmt.Errorf("column_spacing cannot be negative")
-		}
+		cmd.Options.ColumnSpacing = 0
+		log.Printf("ColumnSpacing cannot be negative, using 0")
 	}
 	// Validate table command
 	if len(cmd.Definition.Columns) == 0 {
@@ -640,9 +639,9 @@ func (e *Executor) handleTable(printer *service.Printer, data json.RawMessage) e
 		opts.PaperWidth = printer.Profile.PrintWidth
 	default:
 		if printer.Profile.PaperWidth >= 80 {
-			opts.PaperWidth = tables.PaperWidth80mm
+			opts.PaperWidth = tables.Width80mm203dpi
 		} else {
-			opts.PaperWidth = tables.PaperWidth58mm
+			opts.PaperWidth = tables.Width58mm203dpi
 		}
 	}
 
