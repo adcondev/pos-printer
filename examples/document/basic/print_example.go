@@ -60,19 +60,39 @@ func main() {
 	builder := document.NewBuilder()
 	doc := builder.
 		SetProfile("80mm EC-PM-80250", 576, "PC850").
-		AddText("MI TIENDA", &document.TextStyle{
-			Align: "center",
-			Bold:  true,
-			Size:  "2x2",
-		}).
+		AddText(
+			"MI TIENDA",
+			&document.TextStyle{
+				Align: "center",
+				Bold:  true,
+				Size:  "2x2",
+			},
+			&document.Label{
+				Text: "RFC",
+				Style: document.TextStyle{
+					Bold: true,
+				},
+				Separator: ": ",
+			},
+		).
 		AddSeparator("=", 48).
-		AddText("Ticket de Venta", nil).
+		AddText("Ticket de Venta", nil, nil).
 		AddFeed(1).
-		AddText("Total: $100.00", &document.TextStyle{
-			Align: "right",
-			Bold:  true,
-			Size:  "2x2",
-		}).
+		AddText(
+			"Total: $100.00",
+			&document.TextStyle{
+				Align: "right",
+				Bold:  true,
+				Size:  "2x2",
+			},
+			&document.Label{
+				Text: "TOTAL",
+				Style: document.TextStyle{
+					Bold: true,
+				},
+				Separator: " -> ",
+			},
+		).
 		AddFeed(3).
 		AddCut("partial", 0).
 		Build()

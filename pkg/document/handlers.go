@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/adcondev/pos-printer/internal/load"
-	"github.com/adcondev/pos-printer/pkg/commands/character"
 	posqr "github.com/adcondev/pos-printer/pkg/commands/qrcode"
 	"github.com/adcondev/pos-printer/pkg/graphics"
 	"github.com/adcondev/pos-printer/pkg/printer"
@@ -17,72 +16,133 @@ import (
 const (
 	center = "center"
 	right  = "right"
+	left   = "left"
 )
 
-// handleText manages text commands (actualización)
+// handleText manages text commands
 func (e *Executor) handleText(printer *service.Printer, data json.RawMessage) error {
 	var cmd TextCommand
 	if err := json.Unmarshal(data, &cmd); err != nil {
 		return fmt.Errorf("failed to parse text command: %w", err)
 	}
 
-	// Si hay un label, imprimirlo primero con su estilo
-	if cmd.Label != "" {
+	// Si hay label con diferente alineación que el content
+	if cmd.Label.Text != "" {
 		// Aplicar estilo del label
-		if err := e.applyTextStyle(printer, cmd.LabelStyle); err != nil {
-			return fmt.Errorf("failed to apply label style: %w", err)
+		if err := e.applyTextStyle(printer, cmd.Label.Style); err != nil {
+			return err
 		}
 
-		// TODO: Define custom separator between label and content (":\n", " - ", etc.)
+		// Construir texto del label
+		labelText := cmd.Label.Text
+		if cmd.Label.Separator != "" {
+			labelText += cmd.Label.Separator
+		}
 
-		// Imprimir label sin salto de línea
-		labelText := cmd.Label
-		if !strings.HasSuffix(labelText, ":") {
-			labelText += ": "
+		// Si las alineaciones son diferentes, imprimir label y resetear
+		if cmd.Label.Style.Align != cmd.Content.Style.Align {
+			if err := printer.PrintLine(labelText); err != nil {
+				return err
+			}
+			// Reset completo antes del content
+			if err := e.resetTextStyle(printer, cmd.Label.Style); err != nil {
+				return err
+			}
 		} else {
-			labelText += " "
-		}
-
-		if err := printer.Print(labelText); err != nil {
-			return fmt.Errorf("failed to print label: %w", err)
-		}
-
-		// Resetear estilos del label antes de aplicar los del contenido
-		if err := e.resetTextStyle(printer, cmd.LabelStyle); err != nil {
-			return fmt.Errorf("failed to reset label style: %w", err)
+			// Misma alineación, imprimir inline con espacio
+			if !strings.HasSuffix(labelText, " ") {
+				labelText += " "
+			}
+			if err := printer.Print(labelText); err != nil {
+				return err
+			}
+			// Reset solo los estilos diferentes
+			if err := e.resetDifferingStyles(printer, cmd.Label.Style, cmd.Content.Style); err != nil {
+				return err
+			}
 		}
 	}
 
 	// Aplicar estilo del contenido
-	if err := e.applyTextStyle(printer, cmd.Style); err != nil {
+	if err := e.applyTextStyle(printer, cmd.Content.Style); err != nil {
 		return fmt.Errorf("failed to apply content style: %w", err)
 	}
 
 	// Imprimir contenido
-	if cmd.Content != "" {
+	if cmd.Content.Text != "" {
 		if cmd.NewLine {
-			if err := printer.PrintLine(cmd.Content); err != nil {
+			if err := printer.PrintLine(cmd.Content.Text); err != nil {
 				return err
 			}
 		} else {
-			if err := printer.Print(cmd.Content); err != nil {
+			if err := printer.Print(cmd.Content.Text); err != nil {
 				return err
 			}
 		}
 	}
 
 	// Resetear estilos del contenido
-	if err := e.resetTextStyle(printer, cmd.Style); err != nil {
+	if err := e.resetTextStyle(printer, cmd.Content.Style); err != nil {
 		return fmt.Errorf("failed to reset content style: %w", err)
 	}
 
 	return nil
 }
 
-// applyTextStyle aplica los estilos de texto especificados
-func (e *Executor) applyTextStyle(printer *service.Printer, style TextStyle) error {
+func (e *Executor) resetDifferingStyles(printer *service.Printer, labelStyle, contentStyle TextStyle) error {
+	// Reset bold si difiere
+	if labelStyle.Bold != contentStyle.Bold {
+		if labelStyle.Bold {
+			if err := printer.DisableBold(); err != nil {
+				return err
+			}
+		} else {
+			if err := printer.EnableBold(); err != nil {
+				return err
+			}
+		}
+	}
+
+	// Reset size si difiere
+	if labelStyle.Size != contentStyle.Size {
+		if err := printer.SingleSize(); err != nil {
+			return err
+		}
+	}
+
+	// Reset underline si difiere
+	if labelStyle.Underline != contentStyle.Underline {
+		if err := printer.NoDot(); err != nil {
+			return err
+		}
+	}
+
+	// Reset inverse si difiere
+	if labelStyle.Inverse != contentStyle.Inverse {
+		if labelStyle.Inverse {
+			if err := printer.InverseOff(); err != nil {
+				return err
+			}
+		} else {
+			if err := printer.InverseOn(); err != nil {
+				return err
+			}
+		}
+	}
+
+	// Reset font si difiere
+	if labelStyle.Font != contentStyle.Font {
+		if err := printer.FontA(); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (e *Executor) applyAlign(printer *service.Printer, align string) error {
 	// Aplicar alineación
-	switch strings.ToLower(style.Align) {
+	switch strings.ToLower(align) {
 	case center:
 		if err := printer.AlignCenter(); err != nil {
 			return err
@@ -91,51 +151,166 @@ func (e *Executor) applyTextStyle(printer *service.Printer, style TextStyle) err
 		if err := printer.AlignRight(); err != nil {
 			return err
 		}
+	case left:
+		if err := printer.AlignLeft(); err != nil {
+			return err
+		}
 	default:
+		log.Printf("Unknown alignment: %s, using left", align)
 		if err := printer.AlignLeft(); err != nil {
 			return err
 		}
 	}
+	return nil
+}
+
+func (e *Executor) applySize(printer *service.Printer, size string) error {
+	if size != "" {
+		switch ss := strings.ToLower(size); ss {
+		case "1x1", "1":
+			if err := printer.SingleSize(); err != nil {
+				return err
+			}
+		case "2x2", "2":
+			if err := printer.DoubleSize(); err != nil {
+				return err
+			}
+		case "3x3", "3":
+			if err := printer.TripleSize(); err != nil {
+				return err
+			}
+		case "4x4", "4":
+			if err := printer.QuadraSize(); err != nil {
+				return err
+			}
+		case "5x5", "5":
+			if err := printer.PentaSize(); err != nil {
+				return err
+			}
+		case "6x6", "6":
+			if err := printer.HexaSize(); err != nil {
+				return err
+			}
+		case "7x7", "7":
+			if err := printer.HeptaSize(); err != nil {
+				return err
+			}
+		case "8x8", "8":
+			if err := printer.OctaSize(); err != nil {
+				return err
+			}
+		default:
+			// Intentar parsear tamaño personalizado WxH
+			if len(ss) == 3 && ss[1] == 'x' {
+				parts := strings.Split(ss, "x")
+				widthMultiplier := parts[0][0] - '0'
+				heightMultiplier := parts[1][0] - '0'
+				if err := printer.CustomSize(widthMultiplier, heightMultiplier); err != nil {
+					return err
+				}
+				log.Printf("Applied custom text size: %s", size)
+			} else {
+				if err := printer.SingleSize(); err != nil {
+					return err
+				}
+				log.Printf("Unknown text size: %s, using single size", size)
+			}
+		}
+	} else {
+		// Default size
+		if err := printer.SingleSize(); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (e *Executor) applyUnderline(printer *service.Printer, underline string) error {
+	switch strings.ToLower(underline) {
+	case "0", "0pt":
+		// No underline
+		err := printer.NoDot()
+		if err != nil {
+			return err
+		}
+	case "1", "1pt":
+		err := printer.OneDot()
+		if err != nil {
+			return err
+		}
+	case "2", "2pt":
+		err := printer.TwoDot()
+		if err != nil {
+			return err
+		}
+	default:
+		err := printer.NoDot()
+		if err != nil {
+			return err
+		}
+		log.Printf("Unknown underline style: %s, using none", underline)
+	}
+	return nil
+}
+
+func (e *Executor) applyFont(printer *service.Printer, font string) error {
+	switch strings.ToLower(font) {
+	case "a":
+		if err := printer.FontA(); err != nil {
+			return err
+		}
+	case "b":
+		if err := printer.FontB(); err != nil {
+			return err
+		}
+	default:
+		log.Printf("Unknown font: %s, using Font A", font)
+		if err := printer.FontA(); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// applyTextStyle aplica los estilos de texto especificados
+func (e *Executor) applyTextStyle(printer *service.Printer, style TextStyle) error {
+	// Aplicar alineación
+	err := e.applyAlign(printer, style.Align)
+	if err != nil {
+		return fmt.Errorf("failed to apply alignment: %w", err)
+	}
 
 	// Aplicar bold
 	if style.Bold {
-		if err := printer.Bold(); err != nil {
+		if err := printer.EnableBold(); err != nil {
 			return err
 		}
 	}
 
 	// Aplicar tamaño
-	switch strings.ToLower(style.Size) {
-	case "2x2":
-		if err := printer.DoubleSize(); err != nil {
-			return err
-		}
-	case "3x3":
-		size, _ := character.NewSize(3, 3)
-		cmdBytes := printer.Protocol.Character.SelectCharacterSize(size)
-		if err := printer.Write(cmdBytes); err != nil {
-			return err
-		}
-	default:
-		if err := printer.SingleSize(); err != nil {
-			return err
-		}
+	err = e.applySize(printer, style.Size)
+	if err != nil {
+		return fmt.Errorf("failed to apply size: %w", err)
 	}
 
 	// Aplicar underline
-	if style.Underline {
-		cmd, _ := printer.Protocol.Character.SetUnderlineMode(character.OneDot)
-		if err := printer.Write(cmd); err != nil {
-			return err
-		}
+	err = e.applyUnderline(printer, style.Underline)
+	if err != nil {
+		return fmt.Errorf("failed to apply underline: %w", err)
 	}
 
 	// Aplicar inverse
 	if style.Inverse {
-		cmd := printer.Protocol.Character.SetWhiteBlackReverseMode(character.OnRm)
-		if err := printer.Write(cmd); err != nil {
+		err := printer.InverseOn()
+		if err != nil {
 			return err
 		}
+	}
+
+	// Apply font
+	err = e.applyFont(printer, style.Font)
+	if err != nil {
+		return fmt.Errorf("failed to apply font: %w", err)
 	}
 
 	return nil
@@ -145,31 +320,35 @@ func (e *Executor) applyTextStyle(printer *service.Printer, style TextStyle) err
 func (e *Executor) resetTextStyle(printer *service.Printer, style TextStyle) error {
 	// Reset bold
 	if style.Bold {
-		cmdBytes := printer.Protocol.Character.SetEmphasizedMode(character.OffEm)
-		if err := printer.Write(cmdBytes); err != nil {
+		if err := printer.DisableBold(); err != nil {
 			return err
 		}
 	}
 
 	// Reset size
-	if style.Size != "" && style.Size != "normal" {
+	if style.Size != "" {
 		if err := printer.SingleSize(); err != nil {
 			return err
 		}
 	}
 
 	// Reset underline
-	if style.Underline {
-		cmd, _ := printer.Protocol.Character.SetUnderlineMode(character.NoDot)
-		if err := printer.Write(cmd); err != nil {
+	if style.Underline != "" {
+		if err := printer.NoDot(); err != nil {
 			return err
 		}
 	}
 
 	// Reset inverse
 	if style.Inverse {
-		cmd := printer.Protocol.Character.SetWhiteBlackReverseMode(character.OffRm)
-		if err := printer.Write(cmd); err != nil {
+		if err := printer.InverseOff(); err != nil {
+			return err
+		}
+	}
+
+	// Reset font
+	if style.Font != "" {
+		if err := printer.FontA(); err != nil {
 			return err
 		}
 	}
@@ -258,6 +437,8 @@ func (e *Executor) handleImage(printer *service.Printer, data json.RawMessage) e
 	return nil
 }
 
+// TODO: Add multiple char support for separator (_-=-, etc.)
+
 // handleSeparator manages separator commands
 func (e *Executor) handleSeparator(printer *service.Printer, data json.RawMessage) error {
 	var cmd SeparatorCommand
@@ -271,6 +452,7 @@ func (e *Executor) handleSeparator(printer *service.Printer, data json.RawMessag
 	}
 	if cmd.Length == 0 {
 		// Usar ancho del papel en caracteres (aproximado)
+		// TODO: Verify the following line for different fonts
 		cmd.Length = e.printer.Profile.DotsPerLine / 12 // Aproximación para Font A
 	}
 

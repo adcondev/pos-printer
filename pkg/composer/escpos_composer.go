@@ -171,7 +171,101 @@ func (c *EscposProtocol) DoubleSizeText() []byte {
 	return c.Character.SelectCharacterSize(size)
 }
 
+// TripleSizeText sets triple size text.
+func (c *EscposProtocol) TripleSizeText() []byte {
+	size, _ := character.NewSize(3, 3)
+	return c.Character.SelectCharacterSize(size)
+}
+
+// QuadraSizeText sets quadruple size text.
+func (c *EscposProtocol) QuadraSizeText() []byte {
+	size, _ := character.NewSize(4, 4)
+	return c.Character.SelectCharacterSize(size)
+}
+
+// PentaSizeText sets pentuple size text.
+func (c *EscposProtocol) PentaSizeText() []byte {
+	size, _ := character.NewSize(5, 5)
+	return c.Character.SelectCharacterSize(size)
+}
+
+// HexaSizeText sets hexuple size text.
+func (c *EscposProtocol) HexaSizeText() []byte {
+	size, _ := character.NewSize(6, 6)
+	return c.Character.SelectCharacterSize(size)
+}
+
+// HeptaSizeText sets heptuple size text.
+func (c *EscposProtocol) HeptaSizeText() []byte {
+	size, _ := character.NewSize(7, 7)
+	return c.Character.SelectCharacterSize(size)
+}
+
+// OctaSizeText sets octuple size text.
+func (c *EscposProtocol) OctaSizeText() []byte {
+	size, _ := character.NewSize(8, 8)
+	return c.Character.SelectCharacterSize(size)
+}
+
+// CustomSizeText sets a custom text size.
+func (c *EscposProtocol) CustomSizeText(widthMultiplier, heightMultiplier byte) []byte {
+	if widthMultiplier < 1 {
+		widthMultiplier = 1
+	}
+	if widthMultiplier > 8 {
+		widthMultiplier = 8
+	}
+	if heightMultiplier < 1 {
+		heightMultiplier = 1
+	}
+	if heightMultiplier > 8 {
+		heightMultiplier = 8
+	}
+	size, _ := character.NewSize(widthMultiplier, heightMultiplier)
+	return c.Character.SelectCharacterSize(size)
+}
+
 // EnableBold enables bold text.
 func (c *EscposProtocol) EnableBold() []byte {
 	return c.Character.SetEmphasizedMode(character.OnEm)
+}
+
+// OneDotUnderline enables one-dot underline.
+func (c *EscposProtocol) OneDotUnderline() []byte {
+	cmd, _ := c.Character.SetUnderlineMode(character.OneDot)
+	return cmd
+}
+
+// TwoDotUnderline enables two-dot underline.
+func (c *EscposProtocol) TwoDotUnderline() []byte {
+	cmd, _ := c.Character.SetUnderlineMode(character.TwoDot)
+	return cmd
+}
+
+// DisableUnderline disables underline.
+func (c *EscposProtocol) DisableUnderline() []byte {
+	cmd, _ := c.Character.SetUnderlineMode(character.NoDot)
+	return cmd
+}
+
+// EnableReverseMode enables reverse mode (white on black).
+func (c *EscposProtocol) EnableReverseMode() []byte {
+	return c.Character.SetWhiteBlackReverseMode(character.OnRm)
+}
+
+// DisableReverseMode disables reverse mode (black on white).
+func (c *EscposProtocol) DisableReverseMode() []byte {
+	return c.Character.SetWhiteBlackReverseMode(character.OffRm)
+}
+
+// SetFontA selects Font A.
+func (c *EscposProtocol) SetFontA() []byte {
+	cmd, _ := c.Character.SelectCharacterFont(character.FontA)
+	return cmd
+}
+
+// SetFontB selects Font B.
+func (c *EscposProtocol) SetFontB() []byte {
+	cmd, _ := c.Character.SelectCharacterFont(character.FontB)
+	return cmd
 }
